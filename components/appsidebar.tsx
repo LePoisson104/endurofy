@@ -36,6 +36,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from "next-themes";
 
 export function AppSidebar() {
   // Sample data - in a real app, this would come from a database
@@ -45,13 +47,13 @@ export function AppSidebar() {
     { id: 3, name: "Muscle Hypertrophy" },
   ];
 
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed"; // boolean
+  const { open, setOpen } = useSidebar();
+  const isMobile = useIsMobile();
 
   return (
     <div className="relative">
       {/* Toggle button for collapsed state - centered */}
-      {isCollapsed && (
+      {!open && !isMobile && (
         <div className="absolute top-4 left-0 right-0 z-20 flex justify-center items-center">
           <HeaderToggleButton />
         </div>
@@ -65,7 +67,7 @@ export function AppSidebar() {
                 Endurofy
               </div>
               <div className="flex-shrink-0 z-10">
-                {!isCollapsed && <HeaderToggleButton />}
+                {open && <HeaderToggleButton />}
               </div>
             </div>
           </SidebarHeader>
@@ -212,6 +214,8 @@ function UserProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
+  const { setTheme, theme } = useTheme();
+  const isMobile = useIsMobile();
 
   // Handle click outside to close the menu
   useEffect(() => {
@@ -248,10 +252,7 @@ function UserProfileMenu() {
             <Avatar
               className={`${isCollapsed ? "h-7.5 w-7.5" : "h-9 w-9"} shrink-0`}
             >
-              <AvatarImage
-                src="/placeholder.svg?height=32&width=32"
-                alt="User"
-              />
+              <AvatarImage src="#" alt="User" />
               <AvatarFallback className="bg-[#FE9496] text-white">
                 JD
               </AvatarFallback>
@@ -273,8 +274,12 @@ function UserProfileMenu() {
           className="fixed z-50 bg-popover rounded-md border  overflow-hidden"
           style={{
             width: "16rem",
-            bottom: 10,
-            left: isCollapsed ? "3.5rem" : "16.5rem", // Simpler, more reliable positioning
+            bottom: !isMobile ? 10 : 65,
+            left: isMobile
+              ? 0
+              : isCollapsed && !isMobile
+              ? "3.5rem"
+              : "16.5rem", // Simpler, more reliable positioning
           }}
         >
           <div className="p-2 text-sm font-medium border-b">My Account</div>
@@ -301,28 +306,42 @@ function UserProfileMenu() {
           <div className="p-2 text-sm font-medium border-b">Theme</div>
           <div className="p-1">
             <button
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
-              onClick={() => setIsOpen(false)}
+              className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
+                theme === "light" ? "bg-accent font-medium" : "hover:bg-accent"
+              }`}
+              onClick={() => {
+                setTheme("light");
+                setIsOpen(false);
+              }}
             >
               <Sun className="mr-2 h-4 w-4" />
               <span>Light</span>
             </button>
             <button
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
-              onClick={() => setIsOpen(false)}
+              className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
+                theme === "dark" ? "bg-accent font-medium" : "hover:bg-accent"
+              }`}
+              onClick={() => {
+                setTheme("dark");
+                setIsOpen(false);
+              }}
             >
               <Moon className="mr-2 h-4 w-4" />
               <span>Dark</span>
             </button>
             <button
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
-              onClick={() => setIsOpen(false)}
+              className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
+                theme === "system" ? "bg-accent font-medium" : "hover:bg-accent"
+              }`}
+              onClick={() => {
+                setTheme("system");
+                setIsOpen(false);
+              }}
             >
               <Settings className="mr-2 h-4 w-4" />
               <span>System</span>
             </button>
           </div>
-
           <div className="border-t"></div>
           <div className="p-1">
             <button

@@ -5,25 +5,19 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Activity } from "lucide-react";
-import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
 
-const Login = () => {
+const ForgotPassword = () => {
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Activity className="h-8 w-8 text-primary mb-2" />
           <h1 className="text-2xl font-bold tracking-tight">
-            Welcome to Endurofy
+            Forgot your password?
           </h1>
           <p className="text-sm text-muted-foreground text-center">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-primary hover:underline font-medium"
-            >
-              Sign up
-            </Link>
+            Enter the email address associated with your account and we'll send
+            you a link to reset your password.
           </p>
         </div>
 
@@ -33,21 +27,8 @@ const Login = () => {
             <Input id="email" type="email" placeholder="john@example.com" />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgot-password"
-                className="text-xs text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            <Input id="password" type="password" placeholder="••••••••" />
-          </div>
-
           <Button type="submit" className="w-full">
-            Login
+            Reset password
           </Button>
 
           <div className="flex items-center gap-3 my-2">
@@ -57,22 +38,14 @@ const Login = () => {
             </span>
             <Separator className="flex-1 bg-border" />
           </div>
-          <ContinuteWithGoogleBtn />
-        </form>
 
-        <p className="text-xs text-muted-foreground mt-4 text-center">
-          By logging in, you agree to our{" "}
-          <Link href="/terms" className="underline underline-offset-2">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="underline underline-offset-2">
-            Privacy Policy
-          </Link>
-        </p>
+          <Button variant="outline" className="w-full" asChild>
+            <Link href="/login">Back to login</Link>
+          </Button>
+        </form>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default ForgotPassword;
