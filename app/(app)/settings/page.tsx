@@ -6,7 +6,7 @@ import { AccountSettings } from "./account-settings";
 import { NotificationSettings } from "./notification-settings";
 // import { ChevronLeft } from "lucide-react";
 // import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function SettingsPage() {

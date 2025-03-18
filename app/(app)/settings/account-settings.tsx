@@ -144,7 +144,8 @@ export function AccountSettings() {
                       <Input placeholder="email@example.com" {...field} />
                     </FormControl>
                     <FormDescription>
-                      We'll send a verification email to confirm the change.
+                      We&apos;ll send a verification email to confirm the
+                      change.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

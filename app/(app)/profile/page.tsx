@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Edit, Save, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -65,16 +65,14 @@ export default function ProfilePage() {
   const [bmiCategoryColor, setBmiCategoryColor] = useState("");
   const [weightProgress, setWeightProgress] = useState(0);
 
-  // Calculate BMI
-  const calculateBMI = () => {
-    // Convert height from cm to m
+  const calculateBMI = useCallback(() => {
+    if (!profile?.height || !profile?.currentWeight) return;
+
     const heightInMeters = profile.height / 100;
-    // Calculate BMI: weight (kg) / height (m)²
     const calculatedBMI =
       profile.currentWeight / (heightInMeters * heightInMeters);
     setBmi(Number.parseFloat(calculatedBMI.toFixed(1)));
 
-    // Determine BMI category
     if (calculatedBMI < 18.5) {
       setBmiCategory("Underweight");
       setBmiCategoryColor("text-blue-500");
@@ -88,27 +86,27 @@ export default function ProfilePage() {
       setBmiCategory("Obese");
       setBmiCategoryColor("text-red-500");
     }
-  };
+  }, [profile]); // Only recalculate if `profile` changes
 
-  // Calculate progress towards goal weight
-  const calculateWeightProgress = () => {
+  const calculateWeightProgress = useCallback(() => {
+    if (!weightHistoryData?.length || !profile?.goalWeight) return;
+
     const startWeight = Math.max(...weightHistoryData.map((d) => d.weight));
     const totalWeightToLose = startWeight - profile.goalWeight;
     const weightLost = startWeight - profile.currentWeight;
 
-    if (totalWeightToLose <= 0) {
-      setWeightProgress(100);
-    } else {
-      const progress = (weightLost / totalWeightToLose) * 100;
-      setWeightProgress(Math.min(Math.max(progress, 0), 100));
-    }
-  };
+    setWeightProgress(
+      totalWeightToLose <= 0
+        ? 100
+        : Math.min(Math.max((weightLost / totalWeightToLose) * 100, 0), 100)
+    );
+  }, [weightHistoryData, profile]);
 
-  // Calculate BMI and progress on profile change
+  // Run calculations when `profile` or `weightHistoryData` changes
   useEffect(() => {
     calculateBMI();
     calculateWeightProgress();
-  }, [profile, calculateBMI, calculateWeightProgress]);
+  }, [calculateBMI, calculateWeightProgress]);
 
   // Calculate BMR (Basal Metabolic Rate)
   const calculateBMR = () => {
@@ -157,7 +155,7 @@ export default function ProfilePage() {
   };
 
   // Handle form input changes
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: number | Date | string) => {
     setEditedProfile({
       ...editedProfile,
       [field]: value,
@@ -304,7 +302,9 @@ export default function ProfilePage() {
                     <Calendar
                       mode="single"
                       selected={editedProfile.birthday}
-                      onSelect={(date) => handleInputChange("birthday", date)}
+                      onSelect={(date) =>
+                        handleInputChange("birthday", date || new Date())
+                      }
                       initialFocus
                       captionLayout="dropdown-buttons"
                       fromYear={1940}
