@@ -1,17 +1,14 @@
 "use client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/appsidebar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { TopBar } from "@/components/topbar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const isMobile = useIsMobile();
-
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main>
-        {isMobile && <SidebarTrigger />}
+      <main className=" w-full h-full">
+        <TopBar />
         {children}
       </main>
     </SidebarProvider>
