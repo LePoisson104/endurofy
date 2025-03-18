@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 
 const Login = () => {
-  const theme = useTheme();
+  // const theme = useTheme();
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">

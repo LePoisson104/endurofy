@@ -47,7 +47,7 @@ export function AppSidebar() {
     { id: 3, name: "Muscle Hypertrophy" },
   ];
 
-  const { open, setOpen } = useSidebar();
+  const { open } = useSidebar();
   const isMobile = useIsMobile();
 
   return (

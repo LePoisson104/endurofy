@@ -65,12 +65,6 @@ export default function ProfilePage() {
   const [bmiCategoryColor, setBmiCategoryColor] = useState("");
   const [weightProgress, setWeightProgress] = useState(0);
 
-  // Calculate BMI and progress on profile change
-  useEffect(() => {
-    calculateBMI();
-    calculateWeightProgress();
-  }, [profile]);
-
   // Calculate BMI
   const calculateBMI = () => {
     // Convert height from cm to m
@@ -109,6 +103,12 @@ export default function ProfilePage() {
       setWeightProgress(Math.min(Math.max(progress, 0), 100));
     }
   };
+
+  // Calculate BMI and progress on profile change
+  useEffect(() => {
+    calculateBMI();
+    calculateWeightProgress();
+  }, [profile, calculateBMI, calculateWeightProgress]);
 
   // Calculate BMR (Basal Metabolic Rate)
   const calculateBMR = () => {

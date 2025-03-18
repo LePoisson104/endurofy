@@ -4,13 +4,13 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccountSettings } from "./account-settings";
 import { NotificationSettings } from "./notification-settings";
-import { ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// import { ChevronLeft } from "lucide-react";
+// import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function SettingsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("account");
 
