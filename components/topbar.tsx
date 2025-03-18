@@ -1,7 +1,18 @@
 "use client";
+import Link from "next/link";
 
 import * as React from "react";
-import { Bell, Search, X, Sun, Moon, Laptop, LogOut } from "lucide-react";
+import {
+  Bell,
+  Search,
+  X,
+  Sun,
+  Moon,
+  Laptop,
+  LogOut,
+  Settings,
+  User,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,14 +36,14 @@ interface TopBarProps {
 }
 
 export function TopBar({ className }: TopBarProps) {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const isMobile = useIsMobile();
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex h-16 w-full items-center border-b bg-background px-4 md:px-6",
+        "sticky top-0 z-50 flex h-16 w-full items-center border-b bg-background px-4",
         className
       )}
     >
@@ -75,13 +86,58 @@ export function TopBar({ className }: TopBarProps) {
             </Button>
           </div>
 
-          <div>
+          <div className="flex items-center gap-1">
+            {/* Theme Toggle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => setTheme("light")}
+                  className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
+                    theme === "light"
+                      ? "bg-accent font-medium"
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <Sun className="mr-2 h-4 w-4" />
+                  <span>Light</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setTheme("dark")}
+                  className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
+                    theme === "dark"
+                      ? "bg-accent font-medium"
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <Moon className="mr-2 h-4 w-4" />
+                  <span>Dark</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setTheme("system")}
+                  className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
+                    theme === "system"
+                      ? "bg-accent font-medium"
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <Laptop className="mr-2 h-4 w-4" />
+                  <span>System</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {/* Notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
+                  <Badge className="absolute -right-1 -top-0 h-5 w-5 rounded-full p-0 flex items-center justify-center  bg-[#FF3B30] text-white">
                     3
                   </Badge>
                   <span className="sr-only">Notifications</span>
@@ -95,10 +151,7 @@ export function TopBar({ className }: TopBarProps) {
                     <DropdownMenuItem key={i} className="cursor-pointer py-3">
                       <div className="flex items-start gap-2">
                         <Avatar className="h-9 w-9">
-                          <AvatarImage
-                            src={`/placeholder.svg?height=36&width=36`}
-                            alt="Avatar"
-                          />
+                          <AvatarImage src={`#`} alt="Avatar" />
                           <AvatarFallback>U{i}</AvatarFallback>
                         </Avatar>
                         <div className="grid gap-1">
@@ -123,31 +176,19 @@ export function TopBar({ className }: TopBarProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Theme Toggle */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  <Sun className="mr-2 h-4 w-4" />
-                  <span>Light</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  <Moon className="mr-2 h-4 w-4" />
-                  <span>Dark</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  <Laptop className="mr-2 h-4 w-4" />
-                  <span>System</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button variant="ghost" size="icon">
+              <Link href="/settings">
+                <Settings className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Link href="/profile">
+                <User className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon">
+              <LogOut className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>

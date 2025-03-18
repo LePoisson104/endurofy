@@ -1,18 +1,25 @@
+"use client";
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { Activity } from "lucide-react";
 import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
+import { useTheme } from "next-themes";
 
 const Login = () => {
+  const theme = useTheme();
+
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
-          <Activity className="h-8 w-8 text-primary mb-2" />
+          <Link href="/">
+            <div className="flex items-center justify-center w-10 h-10 border border-primary rounded-md mb-2">
+              <p className="text-xl font-bold tracking-tight">E</p>
+            </div>
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight">
             Welcome to Endurofy
           </h1>

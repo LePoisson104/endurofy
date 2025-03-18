@@ -54,7 +54,7 @@ export function AppSidebar() {
     <div className="relative">
       {/* Toggle button for collapsed state - centered */}
       {!open && !isMobile && (
-        <div className="absolute top-4 left-0 right-0 z-20 flex justify-center items-center">
+        <div className="fixed top-5 left-2 right-0 z-20">
           <HeaderToggleButton />
         </div>
       )}
@@ -63,9 +63,10 @@ export function AppSidebar() {
         <SidebarContent className="overflow-x-hidden">
           <SidebarHeader className="pb-0">
             <div className="flex items-center justify-between gap-2 px-3 py-2">
-              <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0 ">
+              <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0">
                 Endurofy
               </div>
+
               <div className="flex-shrink-0 z-10">
                 {open && <HeaderToggleButton />}
               </div>
