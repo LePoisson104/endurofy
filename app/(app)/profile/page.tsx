@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { format } from "date-fns";
+import { format, setDate } from "date-fns";
 import { CalendarIcon, Edit, Save, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 // Initial profile data
 const initialProfile = {
@@ -193,12 +194,6 @@ export default function ProfilePage() {
       <div className="flex flex-col gap-6">
         {/* Profile Header */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Profile</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Last updated: {format(new Date(), "MMM d, yyyy")}
-            </p>
-          </CardHeader>
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
               <Avatar className="h-24 w-24 md:h-32 md:w-32 border-2 border-muted">
@@ -282,13 +277,15 @@ export default function ProfilePage() {
 
               {/* Birthday */}
               <div className="space-y-2">
-                <Label htmlFor="birthday">Birthday</Label>
+                <Label htmlFor="date">Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      id="birthday"
                       variant="outline"
-                      className="w-full justify-start text-left font-normal"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !editedProfile.birthday && "text-muted-foreground"
+                      )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {editedProfile.birthday ? (
@@ -298,17 +295,14 @@ export default function ProfilePage() {
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={editedProfile.birthday}
                       onSelect={(date) =>
-                        handleInputChange("birthday", date || new Date())
+                        date && handleInputChange("birthday", date)
                       }
                       initialFocus
-                      captionLayout="dropdown-buttons"
-                      fromYear={1940}
-                      toYear={new Date().getFullYear()}
                     />
                   </PopoverContent>
                 </Popover>
@@ -473,6 +467,9 @@ export default function ProfilePage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Last updated: {format(new Date(), "MMM d, yyyy")}
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">

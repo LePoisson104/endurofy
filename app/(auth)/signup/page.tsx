@@ -5,16 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
-
+import AppLogo from "@/components/app-logo";
 const Signup = () => {
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">
-            <div className="flex items-center justify-center w-10 h-10 border-1 border-primary rounded-md mb-2">
-              <p className="text-xl font-bold tracking-tight">E</p>
-            </div>
+            <AppLogo />
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">
             Get started with Endurofy
@@ -74,11 +72,17 @@ const Signup = () => {
 
         <p className="text-xs text-muted-foreground mt-4 text-center">
           By logging in, you agree to our{" "}
-          <Link href="/terms" className="underline underline-offset-2">
+          <Link
+            href="/terms"
+            className="hover:underline underline-offset-2 text-primary"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="underline underline-offset-2">
+          <Link
+            href="/privacy"
+            className="hover:underline underline-offset-2 text-primary"
+          >
             Privacy Policy
           </Link>
         </p>

@@ -63,7 +63,7 @@ export function AppSidebar() {
         <SidebarContent className="overflow-x-hidden">
           <SidebarHeader className="pb-0">
             <div className="flex items-center justify-between gap-2 px-3 py-2">
-              <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0">
+              <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0 flex items-center">
                 Endurofy
               </div>
 

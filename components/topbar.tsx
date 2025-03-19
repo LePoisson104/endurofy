@@ -71,6 +71,7 @@ export function TopBar({ className }: TopBarProps) {
             {isMobile && <SidebarTrigger />}
 
             {/* Search - Mobile */}
+
             <Button
               variant="ghost"
               size="icon"
