@@ -12,17 +12,18 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Download, FileDown } from "lucide-react";
 
-export function NotificationSettings() {
+const PrivacySettings = () => {
   const isMobile = useIsMobile();
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Push Notifications</CardTitle>
+          <CardTitle>Privacy Preferences</CardTitle>
           <CardDescription>
-            Manage your mobile and desktop push notifications.
+            Control how your data is used and shared.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -33,14 +34,14 @@ export function NotificationSettings() {
               } items-start gap-4`}
             >
               <div className="space-y-1">
-                <Label htmlFor="push-all" className="text-base">
-                  All notifications
+                <Label htmlFor="security" className="text-base">
+                  Security emails
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  Enable or disable all push notifications.
+                  Receive emails about your account activity and security.
                 </p>
               </div>
-              <Switch id="push-all" defaultChecked />
+              <Switch id="security" defaultChecked />
             </div>
 
             <Separator />
@@ -51,36 +52,59 @@ export function NotificationSettings() {
               } items-start gap-4`}
             >
               <div className="space-y-1">
-                <Label htmlFor="push-reminders" className="text-base">
-                  Weight Log Reminders
+                <Label htmlFor="marketing" className="text-base">
+                  Marketing
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  Notify me to log my daily weight.
+                  Receive emails about new features and special offers.
                 </p>
               </div>
-              <Switch id="push-reminders" defaultChecked />
+              <Switch id="marketing" />
             </div>
+          </div>
+        </CardContent>
+      </Card>
 
-            <Separator />
-
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Data</CardTitle>
+          <CardDescription>
+            Download or delete your personal data.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
             <div
               className={`flex ${
                 isMobile ? "flex-col" : "flex-row justify-between"
               } items-start gap-4`}
             >
               <div className="space-y-1">
-                <Label htmlFor="push-reminders" className="text-base">
-                  Workout Log Reminders
-                </Label>
+                <Label className="text-base">Download your data</Label>
                 <p className="text-sm text-muted-foreground">
-                  Notify me to log my workouts.
+                  Export all of your personal data in your preferred format.
                 </p>
               </div>
-              <Switch id="push-reminders" defaultChecked />
+              <div className={`flex gap-2 ${isMobile ? "w-full" : ""}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={isMobile ? "flex-1" : ""}
+                >
+                  <FileDown className="mr-2 h-4 w-4" />
+                  CSV
+                </Button>
+                <Button size="sm" className={isMobile ? "flex-1" : ""}>
+                  <Download className="mr-2 h-4 w-4" />
+                  JSON
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-}
+};
+
+export default PrivacySettings;

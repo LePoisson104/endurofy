@@ -106,7 +106,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Statistics">
-                    <Link href="/stats" className="truncate">
+                    <Link href="/statistics" className="truncate">
                       <BarChart3 />
                       <span className="truncate">Statistics</span>
                     </Link>

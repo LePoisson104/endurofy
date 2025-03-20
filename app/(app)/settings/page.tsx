@@ -8,6 +8,7 @@ import { NotificationSettings } from "./notification-settings";
 // import { Button } from "@/components/ui/button";
 // import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import PrivacySettings from "./privacy-settings";
 
 export default function SettingsPage() {
   // const router = useRouter();
@@ -26,9 +27,7 @@ export default function SettingsPage() {
         onValueChange={handleTabChange}
       >
         <div className="sticky top-0 bg-background z-10 pb-4">
-          <TabsList
-            className={isMobile ? "grid grid-cols-2 h-auto" : "flex flex-wrap"}
-          >
+          <TabsList className={"grid grid-cols-3 h-auto flex gap-1"}>
             <TabsTrigger value="account" className={isMobile ? "py-2" : ""}>
               Account
             </TabsTrigger>
@@ -37,6 +36,9 @@ export default function SettingsPage() {
               className={isMobile ? "py-2" : ""}
             >
               Notifications
+            </TabsTrigger>
+            <TabsTrigger value="privacy" className={isMobile ? "py-2" : ""}>
+              Privacy
             </TabsTrigger>
           </TabsList>
         </div>
@@ -47,6 +49,10 @@ export default function SettingsPage() {
 
         <TabsContent value="notifications" className="space-y-6">
           <NotificationSettings />
+        </TabsContent>
+
+        <TabsContent value="privacy" className="space-y-6">
+          <PrivacySettings />
         </TabsContent>
       </Tabs>
     </div>
