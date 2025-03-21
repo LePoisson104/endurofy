@@ -124,11 +124,11 @@ const chartConfig = {
     label: "Visitors",
   },
   desktop: {
-    label: "Desktop",
+    label: "Weight",
     color: "hsl(var(--chart-1))",
   },
   mobile: {
-    label: "Mobile",
+    label: "Calories",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -151,13 +151,11 @@ export default function Component() {
   });
 
   return (
-    <Card className="h-full">
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-        <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Weight log overview</CardTitle>
-          <CardDescription>
-            Your weight log progression over the last 3 months
-          </CardDescription>
+    <Card className="h-full p-0 border-none">
+      <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
+        <div className="flex flex-col w-full gap-2">
+          <CardTitle>Weight logs</CardTitle>
+          <CardDescription>Mar 15, 2025 - Mar 21, 2025</CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
@@ -179,11 +177,8 @@ export default function Component() {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
+      <CardContent className="h-full">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <AreaChart data={filteredData}>
             <defs>
               <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">

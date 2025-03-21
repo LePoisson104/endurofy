@@ -35,11 +35,11 @@ import { cn } from "@/lib/utils";
 
 // Initial profile data
 const initialProfile = {
-  name: "Viet Pham",
-  email: "vietpham2017@gmail.com",
+  name: "John Doe",
+  email: "johndoe@gmail.com",
   gender: "male",
-  birthday: new Date("2002-04-10"),
-  height: 178, // cm
+  birthday: new Date("1990-01-01"),
+  height: 180, // cm
   currentWeight: 80, // kg
   goalWeight: 75, // kg
   weightUnit: "kg",
