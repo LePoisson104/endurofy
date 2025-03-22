@@ -112,6 +112,7 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground mb-2">
                       All-day events
                     </p>
+                    goal
                     <Button className="w-fit">
                       View
                       <ChevronRight className="h-4 w-4" />

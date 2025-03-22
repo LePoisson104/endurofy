@@ -32,6 +32,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import BMIIndicator from "@/components/bmi-indicator";
 
 // Initial profile data
 const initialProfile = {
@@ -561,36 +562,12 @@ export default function ProfilePage() {
                     <p className="text-3xl font-bold mt-1">{bmi}</p>
 
                     {/* BMI Scale Visualization */}
-                    <div className="mt-4 relative h-5 bg-muted rounded-md overflow-hidden">
-                      <div className="absolute inset-0 flex">
-                        <div className="h-full w-1/4 bg-blue-400"></div>
-                        <div className="h-full w-1/4 bg-green-400"></div>
-                        <div className="h-full w-1/4 bg-yellow-400"></div>
-                        <div className="h-full w-1/4 bg-red-400"></div>
-                      </div>
-                      <div
-                        className="absolute top-0 h-full w-1 bg-black"
-                        style={{
-                          left: `${Math.min(
-                            Math.max((bmi / 40) * 100, 0),
-                            100
-                          )}%`,
-                          transform: "translateX(-50%)",
-                        }}
-                      ></div>
-                      <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-[#F8FAFC] font-bold text-center pb-[.1rem]">
-                        <span className="w-1/4">Underweight</span>
-                        <span className="w-1/4">Normal</span>
-                        <span className="w-1/4">Overweight</span>
-                        <span className="w-1/4">Obese</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>0</span>
-                      <span>18.5</span>
-                      <span>25</span>
-                      <span>30</span>
-                      <span>40+</span>
+                    <div className="mt-4">
+                      <BMIIndicator
+                        bmi={bmi}
+                        bmiCategory={bmiCategory}
+                        showLabels={true}
+                      />
                     </div>
                   </div>
                 </CardContent>

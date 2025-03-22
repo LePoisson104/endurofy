@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -154,8 +154,8 @@ export default function Component() {
     <Card className="h-full p-0 border-none">
       <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
         <div className="flex flex-col w-full gap-2">
-          <CardTitle>Weight logs</CardTitle>
-          <CardDescription>Mar 15, 2025 - Mar 21, 2025</CardDescription>
+          <CardTitle>Weight log overview</CardTitle>
+          <CardDescription>March 15, 2025 - March 21, 2025</CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
@@ -177,9 +177,12 @@ export default function Component() {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="h-full">
+      <CardContent className="h-full px-0">
         <ChartContainer config={chartConfig} className="h-full w-full">
-          <AreaChart data={filteredData}>
+          <AreaChart
+            data={filteredData}
+            margin={{ top: 10, right: 30, left: -10, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
                 <stop
@@ -220,6 +223,15 @@ export default function Component() {
                   day: "numeric",
                 });
               }}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={5}
+              domain={["auto", "auto"]}
+              tickCount={6}
+              tickFormatter={(value) => `${value}`}
+              style={{ fontSize: "12px" }}
             />
             <ChartTooltip
               cursor={false}
