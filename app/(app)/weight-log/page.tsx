@@ -171,7 +171,7 @@ const WeightLogPage = () => {
             {/* Left Column - 3/4 width on large screens */}
             <div className="lg:col-span-3 space-y-6">
               {/* Weight Chart */}
-              <Card className="md:pb-25 sm:pb-0 h-[500px]">
+              <Card className="md:pb-24 sm:pb-0 h-[500px]">
                 <LineChart />
               </Card>
 
