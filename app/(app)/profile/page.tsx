@@ -572,36 +572,6 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
               </Card>
-              {/* Weight Goal Progress Card */}
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Weight Goal Progress</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Current: {profile.currentWeight} kg
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        Goal: {profile.goalWeight} kg
-                      </span>
-                    </div>
-                    <Progress value={50} className="h-3" />
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        50% complete
-                      </span>
-                      <span className="text-sm font-medium">
-                        {Math.abs(
-                          profile.currentWeight - profile.goalWeight
-                        ).toFixed(1)}{" "}
-                        kg to go
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
               {/* BMR & Activity Level Card */}
               <Card className="md:col-span-2">
                 <CardHeader>
