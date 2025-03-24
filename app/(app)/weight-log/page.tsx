@@ -1,6 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LineChart from "@/components/charts/line-chart";
 import { Input } from "@/components/ui/input";
@@ -47,12 +53,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const WeightLogPage = () => {
   const [weight, setWeight] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [timeRange, setTimeRange] = useState("90d");
   // Mock data
   const currentWeight = 183;
   const heightInInches = 70; // 5'10"
@@ -171,8 +184,37 @@ const WeightLogPage = () => {
             {/* Left Column - 3/4 width on large screens */}
             <div className="lg:col-span-3 space-y-6">
               {/* Weight Chart */}
-              <Card className="md:pb-24 sm:pb-0 h-[500px]">
-                <LineChart />
+              <Card className="md:pb-24 sm:pb-0 h-[500px] ">
+                <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
+                  <div className="flex flex-col w-full gap-2">
+                    <CardTitle>Weight log overview</CardTitle>
+                    <CardDescription>
+                      March 15, 2025 - March 21, 2025
+                    </CardDescription>
+                  </div>
+
+                  <Select value={timeRange} onValueChange={setTimeRange}>
+                    <SelectTrigger
+                      className="w-[160px] rounded-lg sm:ml-auto"
+                      aria-label="Select a value"
+                    >
+                      <SelectValue placeholder="Last 3 months" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="90d" className="rounded-lg">
+                        Last 3 months
+                      </SelectItem>
+                      <SelectItem value="30d" className="rounded-lg">
+                        Last 30 days
+                      </SelectItem>
+                      <SelectItem value="7d" className="rounded-lg">
+                        Last 7 days
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CardHeader>
+
+                <LineChart timeRange={timeRange} setTimeRange={setTimeRange} />
               </Card>
 
               {/* Current Weight & Goal */}

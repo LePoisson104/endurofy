@@ -15,6 +15,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { cn } from "@/lib/utils";
+
 const chartData = [
   { month: "Chest", desktop: 10 },
   { month: "Shoulder", desktop: 5 },
@@ -42,13 +44,9 @@ const Component = ({ height, className }: BarChartProps = {}) => {
     : {};
 
   return (
-    <Card className="border-none p-0">
-      <CardHeader>
-        <CardTitle>Weekly Sets</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div style={containerStyle} className={className}>
+    <Card className="border-none p-0 w-full">
+      <CardContent className="w-full">
+        <div style={containerStyle} className={cn("w-full", className)}>
           <ChartContainer config={chartConfig} className="h-full w-full">
             <BarChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />

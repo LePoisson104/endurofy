@@ -1,4 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dumbbell,
   ChevronDown,
@@ -13,8 +21,17 @@ import { Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import LineChart from "@/components/charts/line-chart";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function DashboardPage() {
+  const [timeRange, setTimeRange] = useState("90d");
+
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
       {/* Main Content */}
@@ -179,10 +196,44 @@ export default function DashboardPage() {
           {/* Charts and Recent Sales */}
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
             <Card className="shadow-sm ">
-              <BarChart />
+              <CardHeader>
+                <CardTitle>Weekly Sets</CardTitle>
+                <CardDescription>January - June 2024</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BarChart />
+              </CardContent>
             </Card>
             <Card className="shadow-sm ">
-              <LineChart />
+              <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
+                <div className="flex flex-col w-full gap-2">
+                  <CardTitle>Weight log overview</CardTitle>
+                  <CardDescription>
+                    March 15, 2025 - March 21, 2025
+                  </CardDescription>
+                </div>
+
+                <Select value={timeRange} onValueChange={setTimeRange}>
+                  <SelectTrigger
+                    className="w-[160px] rounded-lg sm:ml-auto"
+                    aria-label="Select a value"
+                  >
+                    <SelectValue placeholder="Last 3 months" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="90d" className="rounded-lg">
+                      Last 3 months
+                    </SelectItem>
+                    <SelectItem value="30d" className="rounded-lg">
+                      Last 30 days
+                    </SelectItem>
+                    <SelectItem value="7d" className="rounded-lg">
+                      Last 7 days
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardHeader>
+              <LineChart timeRange={timeRange} setTimeRange={setTimeRange} />
             </Card>
           </div>
         </div>
