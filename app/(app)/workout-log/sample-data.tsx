@@ -1,46 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import WorkoutProgramList from "./workout-program-list";
-import { WorkoutProgramCreator } from "./workout-program-creator";
-import { WorkoutProgramDetail } from "./workout-program-detail";
-import PageTitle from "@/components/page-title";
-import { useSearchParams } from "next/navigation";
-
-export type DayOfWeek =
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday"
-  | "friday"
-  | "saturday"
-  | "sunday";
-
-export interface Exercise {
-  id: string;
-  name: string;
-  sets: number;
-  minReps: number;
-  maxReps: number;
-  notes?: string;
-}
-
-export interface WorkoutDay {
-  day: DayOfWeek;
-  exercises: Exercise[];
-}
-
-export interface WorkoutProgram {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string; // ISO date string
-  days: WorkoutDay[];
-}
-
 // Sample workout programs
-const initialWorkoutPrograms: WorkoutProgram[] = [
+export const sampleWorkoutPrograms = [
   {
     id: "1",
     name: "Beginner Strength Program",
@@ -49,6 +8,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
     days: [
       {
         day: "monday",
+        title: "Chest Day",
         exercises: [
           { id: "e1", name: "Squat", sets: 3, minReps: 8, maxReps: 12 },
           { id: "e2", name: "Bench Press", sets: 3, minReps: 8, maxReps: 12 },
@@ -57,6 +17,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "wednesday",
+        title: "Back Day",
         exercises: [
           { id: "e4", name: "Deadlift", sets: 3, minReps: 6, maxReps: 10 },
           {
@@ -71,6 +32,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "friday",
+        title: "Legs Day",
         exercises: [
           { id: "e7", name: "Squat", sets: 3, minReps: 8, maxReps: 12 },
           {
@@ -93,6 +55,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
     days: [
       {
         day: "monday",
+        title: "Push Day",
         exercises: [
           { id: "e10", name: "Bench Press", sets: 4, minReps: 6, maxReps: 10 },
           {
@@ -120,6 +83,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "tuesday",
+        title: "Pull Day",
         exercises: [
           { id: "e14", name: "Deadlift", sets: 3, minReps: 5, maxReps: 8 },
           { id: "e15", name: "Pull-ups", sets: 3, minReps: 8, maxReps: 12 },
@@ -129,6 +93,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "wednesday",
+        title: "Legs Day",
         exercises: [
           { id: "e18", name: "Squat", sets: 4, minReps: 6, maxReps: 10 },
           {
@@ -144,6 +109,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "thursday",
+        title: "Push Day",
         exercises: [
           {
             id: "e22",
@@ -171,6 +137,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "friday",
+        title: "Pull Day",
         exercises: [
           { id: "e26", name: "Barbell Row", sets: 4, minReps: 6, maxReps: 10 },
           { id: "e27", name: "Lat Pulldown", sets: 3, minReps: 8, maxReps: 12 },
@@ -186,6 +153,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "saturday",
+        title: "Legs Day",
         exercises: [
           { id: "e30", name: "Front Squat", sets: 4, minReps: 6, maxReps: 10 },
           { id: "e31", name: "Lunges", sets: 3, minReps: 8, maxReps: 12 },
@@ -208,103 +176,3 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
     ],
   },
 ];
-
-export default function MyPrograms() {
-  const searchParams = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "my-programs";
-
-  const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>(
-    initialWorkoutPrograms
-  );
-  const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
-    null
-  );
-  const [activeTab, setActiveTab] = useState<string>(defaultTab);
-
-  // Handle creating a new workout program
-  const handleCreateProgram = (
-    program: Omit<WorkoutProgram, "id" | "createdAt">
-  ) => {
-    const newProgram: WorkoutProgram = {
-      ...program,
-      id: Math.random().toString(36).substring(2, 9),
-      createdAt: new Date().toISOString(),
-    };
-
-    setWorkoutPrograms([...workoutPrograms, newProgram]);
-    setSelectedProgram(newProgram);
-    setActiveTab("my-programs");
-  };
-
-  // Handle updating a workout program
-  const handleUpdateProgram = (updatedProgram: WorkoutProgram) => {
-    setWorkoutPrograms(
-      workoutPrograms.map((program) =>
-        program.id === updatedProgram.id ? updatedProgram : program
-      )
-    );
-    setSelectedProgram(updatedProgram);
-  };
-
-  // Handle deleting a workout program
-  const handleDeleteProgram = (programId: string) => {
-    setWorkoutPrograms(
-      workoutPrograms.filter((program) => program.id !== programId)
-    );
-    if (selectedProgram?.id === programId) {
-      setSelectedProgram(null);
-    }
-  };
-
-  // Handle selecting a program
-  const handleSelectProgram = (program: WorkoutProgram) => {
-    setSelectedProgram(program);
-  };
-
-  return (
-    <div className="flex min-h-screen flex-col p-[1rem]">
-      <header className="mb-6">
-        <PageTitle
-          title="Workout Programs"
-          subTitle="Create personalize workout plans and progress tracking"
-        />
-      </header>
-
-      <main className="flex-1">
-        <div className="mx-auto max-w-7xl">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="my-programs">My Programs</TabsTrigger>
-              <TabsTrigger value="create-program">Create Program</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="my-programs" className="space-y-6">
-              {selectedProgram ? (
-                <WorkoutProgramDetail
-                  program={selectedProgram}
-                  onBack={() => setSelectedProgram(null)}
-                  onUpdate={handleUpdateProgram}
-                  onDelete={handleDeleteProgram}
-                />
-              ) : (
-                <WorkoutProgramList
-                  programs={workoutPrograms}
-                  onSelectProgram={handleSelectProgram}
-                  onDeleteProgram={handleDeleteProgram}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="create-program">
-              <WorkoutProgramCreator onCreateProgram={handleCreateProgram} />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </main>
-    </div>
-  );
-}

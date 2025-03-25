@@ -175,7 +175,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Create Program">
                     <Link
-                      href="/create-program?tab=create-program"
+                      href="/my-programs?tab=create-program"
                       className="truncate"
                     >
                       <Plus />
