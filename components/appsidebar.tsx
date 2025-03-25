@@ -89,10 +89,10 @@ export function AppSidebar() {
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Exercises">
-                    <Link href="/exercises" className="truncate">
+                  <SidebarMenuButton asChild tooltip="Workout Log">
+                    <Link href="/workout-log" className="truncate">
                       <Dumbbell />
-                      <span className="truncate">Exercises</span>
+                      <span className="truncate">Workout Log</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -139,10 +139,10 @@ export function AppSidebar() {
             <SidebarGroupLabel className="flex justify-between items-center">
               <span>My Programs</span>
               <Link
-                href="/create-program"
+                href="/my-programs"
                 className="text-xs text-primary hover:underline"
               >
-                New
+                View
               </Link>
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -174,7 +174,10 @@ export function AppSidebar() {
                 ))}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Create Program">
-                    <Link href="/create-program" className="truncate">
+                    <Link
+                      href="/create-program?tab=create-program"
+                      className="truncate"
+                    >
                       <Plus />
                       <span className="truncate">Create Program</span>
                     </Link>
