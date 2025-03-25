@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import AppLogo from "@/components/app-logo";
 
-const ForgotPassword = () => {
+export default function ForgotPassword() {
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
@@ -48,6 +48,4 @@ const ForgotPassword = () => {
       </div>
     </div>
   );
-};
-
-export default ForgotPassword;
+}

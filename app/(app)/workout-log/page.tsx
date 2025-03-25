@@ -1,7 +1,5 @@
 import React from "react";
 
-const WorkoutLog = () => {
+export default function WorkoutLog() {
   return <div>workoutlog</div>;
-};
-
-export default WorkoutLog;
+}

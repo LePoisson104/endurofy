@@ -38,7 +38,7 @@ interface BarChartProps {
   className?: string;
 }
 
-const Component = ({ height, className }: BarChartProps = {}) => {
+export default function Component({ height, className }: BarChartProps = {}) {
   const containerStyle = height
     ? { height: typeof height === "number" ? `${height}px` : height }
     : {};
@@ -74,6 +74,4 @@ const Component = ({ height, className }: BarChartProps = {}) => {
       </CardContent>
     </Card>
   );
-};
-
-export default Component;
+}

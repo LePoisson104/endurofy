@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-const AppLogo = () => {
+export default function AppLogo() {
   const { theme, systemTheme } = useTheme();
   const [logoSrc, setLogoSrc] = useState("/images/endurofy_logo.png");
 
@@ -20,6 +20,4 @@ const AppLogo = () => {
       <Image src={logoSrc} alt="Endurofy" width={30} height={30} />
     </div>
   );
-};
-
-export default AppLogo;
+}

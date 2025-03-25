@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 
-const ContinuteWithGoogleBtn = () => {
+export default function ContinuteWithGoogleBtn() {
   return (
     <Button variant="outline" className="w-full">
       <svg
@@ -31,6 +31,4 @@ const ContinuteWithGoogleBtn = () => {
       Continue with Google{" "}
     </Button>
   );
-};
-
-export default ContinuteWithGoogleBtn;
+}

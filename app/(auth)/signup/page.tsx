@@ -6,7 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
 import AppLogo from "@/components/app-logo";
-const Signup = () => {
+
+export default function Signup() {
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
@@ -89,6 +90,4 @@ const Signup = () => {
       </div>
     </div>
   );
-};
-
-export default Signup;
+}

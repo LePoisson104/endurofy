@@ -207,7 +207,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
   },
 ];
 
-const MyPrograms = () => {
+export default function MyPrograms() {
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>(
     initialWorkoutPrograms
   );
@@ -302,6 +302,4 @@ const MyPrograms = () => {
       </main>
     </div>
   );
-};
-
-export default MyPrograms;
+}

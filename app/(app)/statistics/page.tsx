@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 
-const StatisticsPage = () => {
+export default function StatisticsPage() {
   const [timeRange, setTimeRange] = useState("90d");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -235,6 +235,4 @@ const StatisticsPage = () => {
       </div>
     </div>
   );
-};
-
-export default StatisticsPage;
+}

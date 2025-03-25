@@ -61,7 +61,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const WeightLogPage = () => {
+export default function WeightLogPage() {
   const [weight, setWeight] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -398,7 +398,7 @@ const WeightLogPage = () => {
       </Dialog>
     </div>
   );
-};
+}
 
 // Helper functions
 function getBmiCategory(bmi: number): string {
@@ -416,5 +416,3 @@ function getBmiProgress(bmi: number): number {
   if (bmi < 40) return 55.5 + ((bmi - 30) / 10) * 18.5;
   return 74.0; // Max value
 }
-
-export default WeightLogPage;

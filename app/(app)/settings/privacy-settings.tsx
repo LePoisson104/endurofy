@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Download, FileDown } from "lucide-react";
 
-const PrivacySettings = () => {
+export default function PrivacySettings() {
   const isMobile = useIsMobile();
 
   return (
@@ -105,6 +105,4 @@ const PrivacySettings = () => {
       </Card>
     </div>
   );
-};
-
-export default PrivacySettings;
+}
