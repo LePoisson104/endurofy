@@ -60,6 +60,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import PageTitle from "@/components/page-title";
 
 export default function WeightLogPage() {
   const [weight, setWeight] = useState<string>("");
@@ -164,10 +165,7 @@ export default function WeightLogPage() {
           {/* Page Header */}
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
-              <div className="text-2xl font-bold">Weight Log</div>
-              <p className="text-sm text-muted-foreground">
-                {format(new Date(), "MMMM d, yyyy | h:mm a")}
-              </p>
+              <PageTitle title="Weight Log" subTitle="Mar 25, 2025 | 2:39 AM" />
             </div>
             {/* Mobile add button - only visible on small screens */}
             <Button

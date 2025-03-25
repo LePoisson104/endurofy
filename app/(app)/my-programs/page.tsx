@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WorkoutProgramList from "./workout-program-list";
 import { WorkoutProgramCreator } from "./workout-program-creator";
 import { WorkoutProgramDetail } from "./workout-program-detail";
+import PageTitle from "@/components/page-title";
 
 export type DayOfWeek =
   | "monday"
@@ -259,10 +260,10 @@ export default function MyPrograms() {
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
       <header className="mb-6">
-        <div className="text-2xl font-bold">Workout Programs</div>
-        <p className="text-sm text-muted-foreground">
-          Create personalize workout plans and progress tracking
-        </p>
+        <PageTitle
+          title="Workout Programs"
+          subTitle="Create personalize workout plans and progress tracking"
+        />
       </header>
 
       <main className="flex-1">

@@ -169,6 +169,9 @@ export default function StatisticsPage() {
                 </Popover>
               </div>
             </div>
+            <Button variant={"outline"} className="w-fit">
+              Reset
+            </Button>
           </div>
 
           {/* tabs */}

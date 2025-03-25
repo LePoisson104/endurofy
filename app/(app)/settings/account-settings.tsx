@@ -25,6 +25,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import PageTitle from "@/components/page-title";
 
 const accountFormSchema = z
   .object({
@@ -72,10 +73,10 @@ export function AccountSettings() {
   return (
     <div className=" flex flex-col gap-[1rem]">
       <div className="mb-4">
-        <div className="text-2xl font-bold">Account Settings</div>
-        <p className="text-sm text-muted-foreground">
-          Last updated Mar 18, 2025 | 2:30 PM
-        </p>
+        <PageTitle
+          title="Account Settings"
+          subTitle=" Last updated Mar 18, 2025 | 2:30 PM"
+        />
       </div>
       <Card>
         <CardHeader>

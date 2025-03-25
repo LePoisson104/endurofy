@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import PageTitle from "@/components/page-title";
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("90d");
@@ -38,12 +39,7 @@ export default function DashboardPage() {
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Dashboard Header */}
-          <div className="flex flex-col">
-            <div className="text-2xl font-bold">Dashboard</div>
-            <p className="text-sm text-muted-foreground">
-              Jan 20, 2023 | 6:00 PM
-            </p>
-          </div>
+          <PageTitle title="Dashboard" subTitle="Jan 20, 2023 | 6:00 PM" />
 
           {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xs:grid-cols-4">

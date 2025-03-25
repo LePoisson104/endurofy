@@ -30,7 +30,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import BMIIndicator from "@/components/bmi-indicator";
 
