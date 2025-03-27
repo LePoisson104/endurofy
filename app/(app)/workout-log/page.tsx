@@ -10,13 +10,14 @@ import { ProgramSelector } from "./program-selector";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { WorkoutProgram, Exercise } from "../my-programs/page";
 
 // Import sample workout programs
 import { sampleWorkoutPrograms } from "./sample-data";
 
 export interface ExerciseLog extends Exercise {
-  weight: number;
+  weights: number[];
   completedReps: number[];
   notes?: string;
 }
@@ -40,6 +41,7 @@ export default function WorkoutLogManager() {
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
   const [activeLog, setActiveLog] = useState<WorkoutLog | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("log");
 
   // Use ref to track initialization
   const initializedRef = useRef(false);
@@ -130,6 +132,16 @@ export default function WorkoutLogManager() {
       </header>
 
       <main className="flex-1 pt-6">
+        <Tabs
+          className="mb-4"
+          value={selectedTab}
+          onValueChange={setSelectedTab}
+        >
+          <TabsList>
+            <TabsTrigger value="log">Log</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <ProgramSelector
           programs={workoutPrograms as WorkoutProgram[]}
           selectedProgramId={selectedProgram?.id}
@@ -165,25 +177,28 @@ export default function WorkoutLogManager() {
 
           <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-4">
             {/* Left side - Workout Log */}
-            <div className="lg:col-span-3 space-y-6">
-              <Card>
-                <CardContent>
-                  {selectedProgram && (
-                    <WorkoutLogForm
-                      program={selectedProgram}
-                      selectedDate={selectedDate}
-                      existingLog={activeLog}
-                      onSaveLog={handleSaveWorkoutLog}
-                    />
-                  )}
-                </CardContent>
-              </Card>
 
-              <WorkoutLogHistory
-                logs={workoutLogs}
-                onDeleteLog={handleDeleteWorkoutLog}
-                onSelectDate={handleDateSelect}
-              />
+            <div className="lg:col-span-3 space-y-6">
+              {selectedTab === "log" ? (
+                <Card>
+                  <CardContent>
+                    {selectedProgram && (
+                      <WorkoutLogForm
+                        program={selectedProgram}
+                        selectedDate={selectedDate}
+                        existingLog={activeLog}
+                        onSaveLog={handleSaveWorkoutLog}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <WorkoutLogHistory
+                  logs={workoutLogs}
+                  onDeleteLog={handleDeleteWorkoutLog}
+                  onSelectDate={handleDateSelect}
+                />
+              )}
             </div>
 
             {/* Right side - Calendar (visible only on desktop) */}

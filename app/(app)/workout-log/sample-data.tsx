@@ -1,5 +1,7 @@
+import type { WorkoutProgram } from "../my-programs/page";
+
 // Sample workout programs
-export const sampleWorkoutPrograms = [
+export const sampleWorkoutPrograms: WorkoutProgram[] = [
   {
     id: "1",
     name: "Beginner Strength Program",

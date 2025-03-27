@@ -28,6 +28,7 @@ export interface Exercise {
 
 export interface WorkoutDay {
   day: DayOfWeek;
+  title: string;
   exercises: Exercise[];
 }
 
@@ -49,6 +50,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
     days: [
       {
         day: "monday",
+        title: "Chest Day",
         exercises: [
           { id: "e1", name: "Squat", sets: 3, minReps: 8, maxReps: 12 },
           { id: "e2", name: "Bench Press", sets: 3, minReps: 8, maxReps: 12 },
@@ -57,6 +59,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "wednesday",
+        title: "Back Day",
         exercises: [
           { id: "e4", name: "Deadlift", sets: 3, minReps: 6, maxReps: 10 },
           {
@@ -71,6 +74,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "friday",
+        title: "Legs Day",
         exercises: [
           { id: "e7", name: "Squat", sets: 3, minReps: 8, maxReps: 12 },
           {
@@ -93,6 +97,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
     days: [
       {
         day: "monday",
+        title: "Push Day",
         exercises: [
           { id: "e10", name: "Bench Press", sets: 4, minReps: 6, maxReps: 10 },
           {
@@ -120,6 +125,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "tuesday",
+        title: "Pull Day",
         exercises: [
           { id: "e14", name: "Deadlift", sets: 3, minReps: 5, maxReps: 8 },
           { id: "e15", name: "Pull-ups", sets: 3, minReps: 8, maxReps: 12 },
@@ -129,6 +135,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "wednesday",
+        title: "Legs Day",
         exercises: [
           { id: "e18", name: "Squat", sets: 4, minReps: 6, maxReps: 10 },
           {
@@ -144,6 +151,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "thursday",
+        title: "Push Day",
         exercises: [
           {
             id: "e22",
@@ -171,6 +179,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "friday",
+        title: "Pull Day",
         exercises: [
           { id: "e26", name: "Barbell Row", sets: 4, minReps: 6, maxReps: 10 },
           { id: "e27", name: "Lat Pulldown", sets: 3, minReps: 8, maxReps: 12 },
@@ -186,6 +195,7 @@ const initialWorkoutPrograms: WorkoutProgram[] = [
       },
       {
         day: "saturday",
+        title: "Legs Day",
         exercises: [
           { id: "e30", name: "Front Squat", sets: 4, minReps: 6, maxReps: 10 },
           { id: "e31", name: "Lunges", sets: 3, minReps: 8, maxReps: 12 },

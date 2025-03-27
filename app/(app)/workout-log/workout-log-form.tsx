@@ -8,7 +8,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Save, Plus, Minus } from "lucide-react";
+import {
+  AlertCircle,
+  Save,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  Divide,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { WorkoutProgram, DayOfWeek } from "../my-programs/page";
 import type { WorkoutLog, ExerciseLog } from "./page";
 
@@ -17,6 +32,7 @@ interface WorkoutLogFormProps {
   selectedDate: Date;
   existingLog: WorkoutLog | null;
   onSaveLog: (log: Omit<WorkoutLog, "id">) => void;
+  workoutLogs?: WorkoutLog[];
 }
 
 export function WorkoutLogForm({
@@ -24,6 +40,7 @@ export function WorkoutLogForm({
   selectedDate,
   existingLog,
   onSaveLog,
+  workoutLogs = [],
 }: WorkoutLogFormProps) {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek | null>(null);
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
@@ -79,7 +96,7 @@ export function WorkoutLogForm({
       const initialExerciseLogs: ExerciseLog[] = dayExercises.map(
         (exercise) => ({
           ...exercise,
-          weight: 0,
+          weights: Array(exercise.sets).fill(0),
           completedReps: Array(exercise.sets).fill(0),
           notes: "",
         })
@@ -94,12 +111,60 @@ export function WorkoutLogForm({
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
 
-  // Handle updating weight for an exercise
-  const handleWeightChange = (exerciseId: string, weight: number) => {
+  // Get previous week's workout data for comparison
+  const getPreviousWeekData = (exerciseName: string, setIndex: number) => {
+    // Find logs from previous weeks for the same program and day
+    const previousLogs = workoutLogs.filter(
+      (log) =>
+        log.programId === program.id &&
+        log.day === selectedDay &&
+        new Date(log.date).getTime() < selectedDate.getTime()
+    );
+
+    // Sort by date (newest first)
+    const sortedLogs = previousLogs.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    // Get the most recent log
+    const previousLog = sortedLogs[0];
+
+    if (!previousLog) return { weight: null, reps: null };
+
+    // Find the exercise in the previous log
+    const previousExercise = previousLog.exercises.find(
+      (ex) => ex.name === exerciseName
+    );
+
+    if (
+      !previousExercise ||
+      setIndex >= previousExercise.weights.length ||
+      setIndex >= previousExercise.completedReps.length
+    ) {
+      return { weight: null, reps: null };
+    }
+
+    return {
+      weight: previousExercise.weights[setIndex],
+      reps: previousExercise.completedReps[setIndex],
+    };
+  };
+
+  // Handle updating weight for an exercise set
+  const handleWeightChange = (
+    exerciseId: string,
+    setIndex: number,
+    weight: number
+  ) => {
     setExerciseLogs(
-      exerciseLogs.map((exercise) =>
-        exercise.id === exerciseId ? { ...exercise, weight } : exercise
-      )
+      exerciseLogs.map((exercise) => {
+        if (exercise.id === exerciseId) {
+          const updatedWeights = [...exercise.weights];
+          updatedWeights[setIndex] = weight;
+          return { ...exercise, weights: updatedWeights };
+        }
+        return exercise;
+      })
     );
   };
 
@@ -151,6 +216,22 @@ export function WorkoutLogForm({
     setIsEditing(true);
   };
 
+  // Render comparison indicators
+  const renderComparisonIndicator = (
+    current: number,
+    previous: number | null
+  ) => {
+    if (previous === null || previous === 0) return null;
+
+    if (current > previous) {
+      return <ArrowUp className="h-3 w-3 text-green-500" />;
+    } else if (current < previous) {
+      return <ArrowDown className="h-3 w-3 text-red-500" />;
+    } else {
+      return <Minus className="h-3 w-3 text-gray-400" />;
+    }
+  };
+
   if (daysWithExercises.length === 0) {
     return (
       <Alert className="mt-4">
@@ -164,7 +245,7 @@ export function WorkoutLogForm({
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       {!isEditing && existingLog ? (
         <div className="flex justify-between items-center">
           <div>
@@ -182,7 +263,7 @@ export function WorkoutLogForm({
           value={selectedDay || undefined}
           onValueChange={(value) => setSelectedDay(value as DayOfWeek)}
         >
-          <TabsList className="mb-4 grid grid-cols-7">
+          <TabsList className={`mb-4 grid grid-cols-${program.days.length}`}>
             {daysWithExercises.map((day) => (
               <TabsTrigger key={day.day} value={day.day}>
                 {formatDayName(day.day).slice(0, 3)}
@@ -192,119 +273,117 @@ export function WorkoutLogForm({
         </Tabs>
       )}
 
-      <h1 className="text-2xl font-bold mb-3">
-        {selectedDay ? `${formatDayName(selectedDay)} Workout` : "Select a day"}
-      </h1>
+      {selectedDay && (
+        <div>
+          <h2 className="text-xl font-bold">
+            {program.days.find((day) => day.day === selectedDay)?.title}
+          </h2>
+        </div>
+      )}
 
       {selectedDay && (
         <div className="space-y-6">
-          {exerciseLogs.map((exercise, exerciseIndex) => (
-            <div key={exercise.id}>
-              <div className="border rounded-lg p-4 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-medium">{exercise.name}</h4>
-                  <div className="text-sm text-slate-500">
-                    Target: {exercise.sets} sets × {exercise.minReps}-
-                    {exercise.maxReps} reps
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`weight-${exercise.id}`} className="w-16">
-                      Weight:
-                    </Label>
-                    <Input
-                      id={`weight-${exercise.id}`}
-                      type="number"
-                      min="0"
-                      step="2.5"
-                      value={exercise.weight}
-                      onChange={(e) =>
-                        handleWeightChange(
-                          exercise.id,
-                          Number.parseFloat(e.target.value) || 0
-                        )
-                      }
-                      className="w-24"
-                      disabled={!isEditing}
-                    />
-                    <span className="text-sm text-slate-500">lbs</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Sets:</Label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                      {exercise.completedReps.map((reps, setIndex) => (
-                        <div key={setIndex} className="flex items-center">
-                          <span className="w-8 text-sm text-slate-500">
-                            #{setIndex + 1}
-                          </span>
-                          {isEditing ? (
-                            <div className="flex items-center">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-r-none"
-                                onClick={() =>
-                                  handleRepsChange(
-                                    exercise.id,
-                                    setIndex,
-                                    Math.max(0, reps - 1)
-                                  )
-                                }
-                                disabled={!isEditing}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <Input
-                                type="number"
-                                min="0"
-                                value={reps}
-                                onChange={(e) =>
-                                  handleRepsChange(
-                                    exercise.id,
-                                    setIndex,
-                                    Number.parseInt(e.target.value) || 0
-                                  )
-                                }
-                                className="w-12 h-8 rounded-none text-center"
-                                disabled={!isEditing}
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-l-none"
-                                onClick={() =>
-                                  handleRepsChange(
-                                    exercise.id,
-                                    setIndex,
-                                    reps + 1
-                                  )
-                                }
-                                disabled={!isEditing}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <span className="ml-2 font-medium">
-                              {reps} reps
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          {exerciseLogs.map((exercise) => (
+            <div key={exercise.id} className="border rounded-lg p-4 space-y-4">
+              <div className="flex flex-col">
+                <h4 className="font-medium">{exercise.name}</h4>
+                <div className="text-sm text-slate-500">
+                  Target: {exercise.sets} sets × {exercise.minReps}-
+                  {exercise.maxReps} reps
                 </div>
               </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[80px]">Set #</TableHead>
+                    <TableHead className="w-[120px]">Weight (lbs)</TableHead>
+                    <TableHead className="w-[120px]">Reps</TableHead>
+                    <TableHead className="w-[120px]">Prev Weight</TableHead>
+                    <TableHead className="w-[120px]">Prev Reps</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: exercise.sets }).map((_, setIndex) => {
+                    const prevData = getPreviousWeekData(
+                      exercise.name,
+                      setIndex
+                    );
+                    const currentWeight = exercise.weights[setIndex];
+                    const currentReps = exercise.completedReps[setIndex];
+
+                    return (
+                      <TableRow key={setIndex}>
+                        <TableCell className="font-medium">
+                          {setIndex + 1}
+                        </TableCell>
+                        <TableCell>
+                          {isEditing ? (
+                            <Input
+                              type="number"
+                              min="0"
+                              step="2.5"
+                              value={exercise.weights[setIndex]}
+                              onChange={(e) =>
+                                handleWeightChange(
+                                  exercise.id,
+                                  setIndex,
+                                  Number.parseFloat(e.target.value) || 0
+                                )
+                              }
+                              className="w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              {exercise.weights[setIndex]}
+                              {renderComparisonIndicator(
+                                exercise.weights[setIndex],
+                                prevData.weight
+                              )}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isEditing ? (
+                            <Input
+                              type="number"
+                              min="0"
+                              value={currentReps}
+                              onChange={(e) =>
+                                handleRepsChange(
+                                  exercise.id,
+                                  setIndex,
+                                  Number.parseInt(e.target.value) || 0
+                                )
+                              }
+                              className="w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              {currentReps}
+                              {renderComparisonIndicator(
+                                currentReps,
+                                prevData.reps
+                              )}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-slate-500">
+                          {prevData.weight !== null ? prevData.weight : "-"}
+                        </TableCell>
+                        <TableCell className="text-slate-500">
+                          {prevData.reps !== null ? prevData.reps : "-"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
           ))}
 
           <div className="space-y-2">
-            <Label htmlFor="workout-notes">Workout Notes (optional):</Label>
+            <Label htmlFor="workout-notes">Workout Notes:</Label>
             <Textarea
               id="workout-notes"
               placeholder="Add notes about this workout..."
@@ -316,10 +395,12 @@ export function WorkoutLogForm({
           </div>
 
           {isEditing && (
-            <Button onClick={handleSaveLog} className="w-full" size="lg">
-              <Save className="mr-2 h-4 w-4" />
-              {existingLog ? "Update Workout Log" : "Save Workout Log"}
-            </Button>
+            <div className="flex justify-end">
+              <Button onClick={handleSaveLog} className="w-fit" size="lg">
+                <Save className="mr-2 h-4 w-4" />
+                {existingLog ? "Update Workout Log" : "Save Workout Log"}
+              </Button>
+            </div>
           )}
         </div>
       )}

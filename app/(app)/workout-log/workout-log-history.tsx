@@ -157,8 +157,8 @@ export function WorkoutLogHistory({
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">{exercise.name}</h4>
                             <div className="text-sm text-slate-500">
-                              {exercise.weight > 0
-                                ? `${exercise.weight} lbs`
+                              {exercise.weights.some((w) => w > 0)
+                                ? `${exercise.weights.join(" / ")} lbs`
                                 : "Bodyweight"}
                             </div>
                           </div>
@@ -169,7 +169,9 @@ export function WorkoutLogHistory({
                                 <span className="text-slate-500">
                                   Set {index + 1}:
                                 </span>{" "}
-                                <span className="font-medium">{reps} reps</span>
+                                <span className="font-medium">
+                                  {exercise.weights[index]} lbs × {reps} reps
+                                </span>
                               </div>
                             ))}
                           </div>
