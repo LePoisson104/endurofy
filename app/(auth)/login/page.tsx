@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,10 +7,52 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
 import AppLogo from "@/components/app-logo";
+import { useLoginMutation } from "@/api/auth/auth-api-slice";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/api/auth/auth-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
+import { Loader2 } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function Login() {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError("Please enter an email and password");
+      return;
+    }
+    try {
+      const response = await login({ email, password }).unwrap();
+      const accessToken = response?.data?.accessToken;
+      const user = response?.data?.user;
+      dispatch(setCredentials({ user, accessToken }));
+      setEmail("");
+      setPassword("");
+      router.push("/dashboard");
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else if (error.status === 400) {
+        setError(error.data?.message);
+      } else if (error.status === 401 || error.status === 404) {
+        setError("Incorrect email or password. Try again.");
+      } else {
+        setError(error.data?.message);
+      }
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
+      {error && <ErrorAlert error={error} setError={setError} />}
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">
@@ -30,10 +72,16 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="flex flex-col gap-4 w-full">
+        <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="john@example.com" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="john@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
@@ -46,11 +94,16 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
-            <Input id="password" type="password" placeholder="••••••••" />
+            <PasswordInput
+              id="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
 
-          <Button type="submit" className="w-full">
-            Login
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Login"}
           </Button>
 
           <div className="flex items-center gap-3 my-2">

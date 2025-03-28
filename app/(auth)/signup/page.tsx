@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import ContinuteWithGoogleBtn from "@/components/continue-with-google-btn";
 import AppLogo from "@/components/app-logo";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function Signup() {
   return (
@@ -48,12 +49,12 @@ export default function Signup() {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="••••••••" />
+            <PasswordInput id="password" placeholder="••••••••" />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Confirm Password</Label>
-            <Input id="password" type="password" placeholder="••••••••" />
+            <PasswordInput id="password" placeholder="••••••••" />
           </div>
 
           <Button type="submit" className="w-full">

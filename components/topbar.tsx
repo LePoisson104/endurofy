@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
-
-import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   Bell,
   Search,
@@ -30,6 +29,8 @@ import { Badge } from "@/components/ui/badge";
 import { useTheme } from "next-themes";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRouter } from "next/navigation";
+import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 
 interface TopBarProps {
   className?: string;
@@ -37,8 +38,16 @@ interface TopBarProps {
 
 export function TopBar({ className }: TopBarProps) {
   const { theme, setTheme } = useTheme();
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const isMobile = useIsMobile();
+  const router = useRouter();
+  const [logout, { isSuccess }] = useLogoutMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push("/login");
+    }
+  }, [isSuccess, router]);
 
   return (
     <header
@@ -187,7 +196,7 @@ export function TopBar({ className }: TopBarProps) {
                 <User className="h-5 w-5" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => logout()}>
               <LogOut className="h-5 w-5" />
             </Button>
           </div>

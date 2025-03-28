@@ -5,22 +5,19 @@ import {
 } from "@reduxjs/toolkit/query/react";
 
 import { RootState } from "../lib/store";
-import { setCredentials } from "../features/auth/authSlice";
+import { setCredentials } from "./auth/auth-slice";
+import { User } from "@/interfaces/user-interfaces";
 
 interface RefreshResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
-  token: string;
+  user: User;
+  accessToken: string;
 }
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `${process.env.NEXT_PUBLIC_API_URL}`,
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
+    const token = (getState() as RootState).auth.accessToken;
 
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
@@ -42,7 +39,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
       api.dispatch(
         setCredentials({
           user: refreshData.user,
-          token: refreshData.token,
+          accessToken: refreshData.accessToken,
         })
       );
 
