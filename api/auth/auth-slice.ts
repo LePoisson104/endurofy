@@ -5,13 +5,11 @@ import { RootState } from "@/lib/store";
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
   accessToken: null,
-  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -31,7 +29,6 @@ const authSlice = createSlice({
     logOut: (state) => {
       state.user = null;
       state.accessToken = null;
-      state.isAuthenticated = false;
     },
   },
 });

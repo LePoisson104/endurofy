@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRefreshMutation } from "@/api/auth/auth-api-slice";
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
 import { Loader2 } from "lucide-react";
 import usePersist from "@/hooks/use-persist";
+import { selectCurrentToken } from "@/api/auth/auth-slice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [persist] = usePersist();
-  const token = useSelector((state: RootState) => state.auth.accessToken);
+  const { persist } = usePersist();
+  const token = useSelector(selectCurrentToken);
   const effectRan = useRef(false);
   const router = useRouter();
   const [trueSuccess, setTrueSuccess] = useState(false);
@@ -22,20 +22,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const verifyRefreshToken = async () => {
       try {
         console.log("Verifying refresh token...");
-        await refresh().unwrap();
-        setTrueSuccess(true);
+        await refresh().unwrap(); // Get the new token
+        setTrueSuccess(true); // Mark successful refresh
       } catch (err) {
         console.error("Error refreshing token:", err);
       }
     };
 
-    if (!token && persist) {
-      verifyRefreshToken();
+    if (effectRan.current === true) {
+      if (!token && persist) {
+        verifyRefreshToken();
+      }
     }
 
     return () => {
-      effectRan.current = true;
+      effectRan.current = true; // Prevent re-runs in React Strict Mode
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, persist, refresh]);
 
   useEffect(() => {

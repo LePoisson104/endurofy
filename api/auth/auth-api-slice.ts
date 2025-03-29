@@ -37,6 +37,12 @@ interface ResendOTPRequest {
   email: string;
 }
 
+interface RefreshResponse {
+  data: {
+    accessToken: string;
+  };
+}
+
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
@@ -67,7 +73,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: emailData,
       }),
     }),
-    refresh: builder.mutation<{ accessToken: string }, void>({
+    refresh: builder.mutation<RefreshResponse, void>({
       query: () => ({
         url: "/api/v1/auth/refresh",
         method: "GET",
@@ -75,8 +81,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          const { accessToken } = data;
-          dispatch(setAccessToken(accessToken));
+          dispatch(setAccessToken(data?.data?.accessToken));
         } catch (err) {
           console.log(err);
         }

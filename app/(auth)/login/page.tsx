@@ -31,9 +31,7 @@ export default function Login() {
     }
     try {
       const response = await login({ email, password }).unwrap();
-      const accessToken = response?.data?.accessToken;
-      const user = response?.data?.user;
-      dispatch(setCredentials({ user, accessToken }));
+      dispatch(setCredentials(response?.data));
       setEmail("");
       setPassword("");
       router.push("/dashboard");

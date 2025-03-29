@@ -1,21 +1,20 @@
 import { useState, useEffect } from "react";
 
-const usePersist = (): [boolean, (value: boolean) => void] => {
-  const [persist, setPersist] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("persist");
-      return stored ? JSON.parse(stored) : true;
-    }
-    return true;
-  });
+export default function usePersist() {
+  const [persist, setPersist] = useState<boolean>(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("persist", JSON.stringify(persist));
+    // Check if user has previously chosen to persist
+    const persisted = localStorage.getItem("persist");
+    if (persisted) {
+      setPersist(JSON.parse(persisted));
     }
-  }, [persist]);
+  }, []);
 
-  return [persist, setPersist] as const;
-};
+  const updatePersist = (value: boolean) => {
+    setPersist(value);
+    localStorage.setItem("persist", JSON.stringify(value));
+  };
 
-export default usePersist;
+  return { persist, setPersist: updatePersist };
+}
