@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRefreshMutation } from "@/api/auth/auth-api-slice";
@@ -13,6 +12,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const token = useSelector(selectCurrentToken);
   const effectRan = useRef(false);
   const router = useRouter();
+
   const [trueSuccess, setTrueSuccess] = useState(false);
 
   const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =

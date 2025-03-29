@@ -5,11 +5,13 @@ import { RootState } from "@/lib/store";
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
   accessToken: null,
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -22,18 +24,17 @@ const authSlice = createSlice({
     ) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
-    },
-    setAccessToken: (state, action: PayloadAction<string>) => {
-      state.accessToken = action.payload;
+      state.isAuthenticated = true;
     },
     logOut: (state) => {
       state.user = null;
       state.accessToken = null;
+      state.isAuthenticated = false;
     },
   },
 });
 
-export const { setCredentials, logOut, setAccessToken } = authSlice.actions;
+export const { setCredentials, logOut } = authSlice.actions;
 export const selectCurrentToken = (state: RootState) => state.auth.accessToken;
 export const selectCurrentUser = (state: RootState) => state.auth.user;
 export default authSlice.reducer;

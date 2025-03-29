@@ -1,8 +1,8 @@
 import { apiSlice } from "../api-slice";
 import { User } from "@/interfaces/user-interfaces";
-import { setAccessToken, logOut } from "@/api/auth/auth-slice";
+import { setCredentials, logOut } from "@/api/auth/auth-slice";
 
-interface LoginResponse {
+interface AuthResponse {
   data: {
     accessToken: string;
     user: User;
@@ -37,15 +37,9 @@ interface ResendOTPRequest {
   email: string;
 }
 
-interface RefreshResponse {
-  data: {
-    accessToken: string;
-  };
-}
-
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<LoginResponse, LoginRequest>({
+    login: builder.mutation<AuthResponse, LoginRequest>({
       query: (credentials) => ({
         url: "/api/v1/auth/login",
         method: "POST",
@@ -73,7 +67,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: emailData,
       }),
     }),
-    refresh: builder.mutation<RefreshResponse, void>({
+    refresh: builder.mutation<AuthResponse, void>({
       query: () => ({
         url: "/api/v1/auth/refresh",
         method: "GET",
@@ -81,7 +75,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setAccessToken(data?.data?.accessToken));
+          dispatch(setCredentials(data.data));
         } catch (err) {
           console.log(err);
         }
