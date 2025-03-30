@@ -34,7 +34,7 @@ export default function ErrorAlert({
   if (!error) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center">
+    <div className="fixed top-0 left-0 right-0 z-51 flex justify-center">
       <div className="w-fit px-4 pt-8">
         <Alert
           ref={alertRef}

@@ -276,6 +276,7 @@ export default function Signup() {
               className={
                 touched.password && formErrors.password ? "border-red-500" : ""
               }
+              autoComplete="off"
             />
             {touched.password && formErrors.password && (
               <p className="text-sm text-red-500">{formErrors.password}</p>
@@ -296,6 +297,7 @@ export default function Signup() {
                   ? "border-red-500"
                   : ""
               }
+              autoComplete="off"
             />
             {touched.confirmPassword && formErrors.confirmPassword && (
               <p className="text-sm text-red-500">

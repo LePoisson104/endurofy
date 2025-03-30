@@ -26,6 +26,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PageTitle from "@/components/page-title";
+import DeleteAccountModal from "@/components/modals/delete-account-modal";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import UpdateEmailModal from "@/components/modals/update-email-modal";
 
 const accountFormSchema = z
   .object({
@@ -54,14 +58,9 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountSettings() {
   const isMobile = useIsMobile();
-
-  const defaultValues: Partial<AccountFormValues> = {
-    email: "john.doe@example.com",
-  };
-
+  const user = useSelector(selectCurrentUser);
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
-    defaultValues,
     mode: "onChange",
   });
 
@@ -142,7 +141,7 @@ export function AccountSettings() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="email@example.com" {...field} />
+                      <Input placeholder={user?.email} {...field} disabled />
                     </FormControl>
                     <FormDescription>
                       We&apos;ll send a verification email to confirm the
@@ -152,7 +151,7 @@ export function AccountSettings() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Update email</Button>
+              <UpdateEmailModal />
             </form>
           </Form>
         </CardContent>
@@ -252,7 +251,7 @@ export function AccountSettings() {
           </Alert>
         </CardContent>
         <CardFooter>
-          <Button variant="destructive">Delete Account</Button>
+          <DeleteAccountModal />
         </CardFooter>
       </Card>
     </div>

@@ -61,8 +61,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageTitle from "@/components/page-title";
+import { getCurrentDate, getCurrentTime } from "@/helper/getCurentDateNTime";
+import { useEffect } from "react";
 
 export default function WeightLogPage() {
+  const [currentDate, setCurrentDate] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
+
   const [weight, setWeight] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,6 +100,10 @@ export default function WeightLogPage() {
     setNote("");
     setIsModalOpen(false);
   };
+  useEffect(() => {
+    setCurrentDate(getCurrentDate());
+    setCurrentTime(getCurrentTime());
+  }, []);
 
   // Form component that's reused in both desktop and mobile views
   const WeightForm = () => (
@@ -165,7 +174,10 @@ export default function WeightLogPage() {
           {/* Page Header */}
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
-              <PageTitle title="Weight Log" subTitle="Mar 25, 2025 | 2:39 AM" />
+              <PageTitle
+                title="Weight Log"
+                subTitle={`${currentDate} | ${currentTime}`}
+              />
             </div>
             {/* Mobile add button - only visible on small screens */}
             <Button

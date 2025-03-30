@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   BarChart3,
-  Calendar,
   Dumbbell,
   Home,
   ListTodo,
@@ -38,17 +37,23 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "next-themes";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { Skeleton } from "./ui/skeleton";
 
 export function AppSidebar() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { open } = useSidebar();
+  const isMobile = useIsMobile();
+
   // Sample data - in a real app, this would come from a database
   const workoutPrograms = [
     { id: 1, name: "Strength Building", isActive: true },
     { id: 2, name: "Weight Loss" },
     { id: 3, name: "Muscle Hypertrophy" },
   ];
-
-  const { open } = useSidebar();
-  const isMobile = useIsMobile();
 
   return (
     <div className="relative">
@@ -80,7 +85,11 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive tooltip="Dashboard">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/dashboard"}
+                    tooltip="Dashboard"
+                  >
                     <Link href="/dashboard" className="truncate">
                       <Home />
                       <span className="truncate">Dashboard</span>
@@ -89,7 +98,11 @@ export function AppSidebar() {
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Workout Log">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/workout-log"}
+                    tooltip="Workout Log"
+                  >
                     <Link href="/workout-log" className="truncate">
                       <Dumbbell />
                       <span className="truncate">Workout Log</span>
@@ -97,7 +110,11 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Weight Log">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/weight-log"}
+                    tooltip="Weight Log"
+                  >
                     <Link href="/weight-log" className="truncate">
                       <ScrollText />
                       <span className="truncate">Weight Log</span>
@@ -105,7 +122,11 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Statistics">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/statistics"}
+                    tooltip="Statistics"
+                  >
                     <Link href="/statistics" className="truncate">
                       <BarChart3 />
                       <span className="truncate">Statistics</span>
@@ -151,7 +172,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={program.id}>
                     <SidebarMenuButton
                       asChild
-                      isActive={program.isActive}
+                      isActive={pathname === `/program/${program.id}`}
                       tooltip={program.name}
                     >
                       <Link
@@ -173,7 +194,14 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 ))}
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Create Program">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      pathname === "/my-programs" &&
+                      searchParams?.get("tab") === "create-program"
+                    }
+                    tooltip="Create Program"
+                  >
                     <Link
                       href="/my-programs?tab=create-program"
                       className="truncate"
@@ -205,6 +233,8 @@ export function AppSidebar() {
 }
 
 function UserProfileMenu() {
+  const pathname = usePathname();
+  const user = useSelector(selectCurrentUser);
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isOpen, setIsOpen] = useState(false);
@@ -238,30 +268,41 @@ function UserProfileMenu() {
   return (
     <>
       <div ref={buttonRef} className="relative">
-        <SidebarMenuButton
-          size="lg"
-          tooltip="Account"
-          className="max-w-full flex justify-between"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <div className="flex items-center gap-2 w-9/10">
-            <Avatar
-              className={`${isCollapsed ? "h-7.5 w-7.5" : "h-9 w-9"} shrink-0`}
-            >
-              <AvatarImage src="#" alt="User" />
-              <AvatarFallback className="bg-[#FE9496] text-white">
-                JD
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col min-w-0">
-              <span className="font-medium truncate">John Doe</span>
-              <span className="text-xs text-muted-foreground truncate">
-                johndoe@gmail.com
-              </span>
+        {user ? (
+          <SidebarMenuButton
+            size="lg"
+            tooltip="Account"
+            className="max-w-full flex justify-between"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <div className="flex items-center gap-2 w-9/10">
+              <Avatar
+                className={`${
+                  isCollapsed ? "h-7.5 w-7.5" : "h-9 w-9"
+                } shrink-0`}
+              >
+                <AvatarImage src="#" alt="User" />
+                <AvatarFallback className="bg-[#FE9496] text-white">
+                  {user?.first_name?.charAt(0)}
+                  {user?.last_name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col min-w-0">
+                <span className="font-medium truncate">
+                  {user?.first_name} {user?.last_name}
+                </span>
+                <span className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </span>
+              </div>
             </div>
-          </div>
-          <EllipsisVertical className="h-4 w-4" />
-        </SidebarMenuButton>
+            <EllipsisVertical className="h-4 w-4" />
+          </SidebarMenuButton>
+        ) : (
+          <Skeleton
+            className={`${isCollapsed ? "h-8 w-full" : "h-12 w-full"}`}
+          />
+        )}
       </div>
 
       {isOpen && (
@@ -282,7 +323,9 @@ function UserProfileMenu() {
           <div className="p-1">
             <Link
               href="/profile"
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
+              className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
+                pathname === "/profile" ? "bg-accent" : ""
+              }`}
               onClick={() => setIsOpen(false)}
             >
               <User className="mr-2 h-4 w-4" />
@@ -290,7 +333,9 @@ function UserProfileMenu() {
             </Link>
             <Link
               href="/settings"
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
+              className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
+                pathname === "/settings" ? "bg-accent" : ""
+              }`}
               onClick={() => setIsOpen(false)}
             >
               <Settings className="mr-2 h-4 w-4" />

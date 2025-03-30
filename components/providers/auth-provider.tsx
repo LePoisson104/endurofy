@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 import usePersist from "@/hooks/use-persist";
 import { selectCurrentToken } from "@/api/auth/auth-slice";
-
+import DotPulse from "@/components/dot-pulse";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
   const token = useSelector(selectCurrentToken);
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   } else if (isLoading) {
     content = (
       <div className="w-full h-screen flex justify-center items-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <DotPulse />
       </div>
     );
   } else if (isSuccess && trueSuccess) {

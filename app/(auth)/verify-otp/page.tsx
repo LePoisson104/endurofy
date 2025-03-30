@@ -23,14 +23,14 @@ import SuccessAlert from "@/components/alerts/success-alert";
 import { useVerifyOTPMutation } from "@/api/auth/auth-api-slice";
 import { useResendOTPMutation } from "@/api/auth/auth-api-slice";
 
-function maskEmail(email: string) {
+const maskEmail = (email: string) => {
   const [localPart, domain] = email.split("@"); // Split into local part and domain
   if (localPart.length <= 3) return email; // If too short, return as is
 
   return `${localPart[0]}${"*".repeat(localPart.length - 3)}${localPart.slice(
     -2
   )}@${domain}`;
-}
+};
 
 export default function VerifyOTP() {
   const router = useRouter();
@@ -86,13 +86,13 @@ export default function VerifyOTP() {
         email: email,
         otp: otp,
       }).unwrap();
-      setSuccess(response?.message);
+      setSuccess("User created successfully!");
       setOtp("");
       sessionStorage.clear();
       setTimeLeft(900);
       setTimeout(() => {
         router.push("/login");
-      }, 5000);
+      }, 3000);
     } catch (err: any) {
       if (!err.status) {
         setError("No Server Response");
@@ -159,7 +159,7 @@ export default function VerifyOTP() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ErrorAlert error={error} setError={setError} />
-            <SuccessAlert success={"success"} setSuccess={setSuccess} />
+            <SuccessAlert success={success} setSuccess={setSuccess} />
 
             <div className="flex flex-col items-center justify-center space-y-6">
               <InputOTP
@@ -167,7 +167,7 @@ export default function VerifyOTP() {
                 value={otp}
                 onChange={setOtp}
                 onComplete={handleComplete}
-                disabled={isVerifying || !email || !userId}
+                disabled={isVerifying || (!email && !userId)}
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
@@ -192,7 +192,7 @@ export default function VerifyOTP() {
             <Button
               className="w-[100px]"
               onClick={handleVerify}
-              disabled={otp.length !== 6 || isVerifying || !email || !userId}
+              disabled={otp.length !== 6 || isVerifying || (!email && !userId)}
             >
               {isVerifying ? (
                 <>
@@ -209,7 +209,7 @@ export default function VerifyOTP() {
                 variant="link"
                 className="p-0 h-auto font-semibold"
                 onClick={handleResend}
-                disabled={isResending || !email || !userId}
+                disabled={isResending || (!email && !userId)}
               >
                 {isResending ? (
                   <>

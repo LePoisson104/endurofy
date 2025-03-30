@@ -29,9 +29,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageTitle from "@/components/page-title";
+import { getCurrentDate, getCurrentTime } from "@/helper/getCurentDateNTime";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("90d");
+  const [currentDate, setCurrentDate] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
+  useEffect(() => {
+    setCurrentDate(getCurrentDate());
+    setCurrentTime(getCurrentTime());
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
@@ -39,7 +47,10 @@ export default function DashboardPage() {
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Dashboard Header */}
-          <PageTitle title="Dashboard" subTitle="Jan 20, 2023 | 6:00 PM" />
+          <PageTitle
+            title="Dashboard"
+            subTitle={`${currentDate} | ${currentTime}`}
+          />
 
           {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xs:grid-cols-4">
