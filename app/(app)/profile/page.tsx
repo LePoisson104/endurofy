@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import BMIIndicator from "@/components/bmi-indicator";
+import BMIIndicator from "@/components/global/bmi-indicator";
 
 // Initial profile data
 const initialProfile = {

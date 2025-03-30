@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PageTitle from "@/components/page-title";
+import PageTitle from "@/components/global/page-title";
 import { getCurrentDate, getCurrentTime } from "@/helper/getCurentDateNTime";
 import { useEffect } from "react";
 

@@ -39,7 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import BMIIndicator from "@/components/bmi-indicator";
+import BMIIndicator from "@/components/global/bmi-indicator";
 import {
   Popover,
   PopoverContent,
@@ -60,7 +60,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PageTitle from "@/components/page-title";
+import PageTitle from "@/components/global/page-title";
 import { getCurrentDate, getCurrentTime } from "@/helper/getCurentDateNTime";
 import { useEffect } from "react";
 

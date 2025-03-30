@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 import usePersist from "@/hooks/use-persist";
 import { selectCurrentToken } from "@/api/auth/auth-slice";
-import DotPulse from "@/components/dot-pulse";
+import DotPulse from "@/components/global/dot-pulse";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
   const token = useSelector(selectCurrentToken);

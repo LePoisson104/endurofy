@@ -92,7 +92,7 @@ export function WorkoutProgramDetail({
         ...editedProgram,
         days: [
           ...editedProgram.days,
-          { day: activeDay, exercises: [newExercise] },
+          { day: activeDay, exercises: [newExercise], title: "" },
         ],
       });
     }

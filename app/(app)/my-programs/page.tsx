@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WorkoutProgramList from "./workout-program-list";
 import { WorkoutProgramCreator } from "./workout-program-creator";
 import { WorkoutProgramDetail } from "./workout-program-detail";
-import PageTitle from "@/components/page-title";
+import PageTitle from "@/components/global/page-title";
 import { useSearchParams } from "next/navigation";
 
 export type DayOfWeek =

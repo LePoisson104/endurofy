@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import AppLogo from "@/components/app-logo";
+import AppLogo from "@/components/global/app-logo";
 
 export default function ForgotPassword() {
   return (

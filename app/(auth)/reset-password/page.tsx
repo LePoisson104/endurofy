@@ -1,11 +1,10 @@
 import React from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import AppLogo from "@/components/app-logo";
+import AppLogo from "@/components/global/app-logo";
 import { PasswordInput } from "@/components/ui/password-input";
+
 export default function ResetPassword() {
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">

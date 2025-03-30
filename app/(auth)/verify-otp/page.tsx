@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import AppLogo from "@/components/app-logo";
+import AppLogo from "@/components/global/app-logo";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { useVerifyOTPMutation } from "@/api/auth/auth-api-slice";

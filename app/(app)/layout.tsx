@@ -1,6 +1,6 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/appsidebar";
-import { TopBar } from "@/components/topbar";
+import { AppSidebar } from "@/components/global/appsidebar";
+import { TopBar } from "@/components/global/topbar";
 import { cookies } from "next/headers";
 import { AuthProvider } from "@/components/providers/auth-provider";
 

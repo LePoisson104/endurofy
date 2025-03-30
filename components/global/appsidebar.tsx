@@ -40,7 +40,7 @@ import { useTheme } from "next-themes";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppSidebar() {
   const pathname = usePathname();

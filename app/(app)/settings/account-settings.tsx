@@ -25,7 +25,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import PageTitle from "@/components/page-title";
+import PageTitle from "@/components/global/page-title";
 import DeleteAccountModal from "@/components/modals/delete-account-modal";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
