@@ -50,7 +50,7 @@ export default function Login() {
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
-      {error && <ErrorAlert error={error} setError={setError} />}
+      <ErrorAlert error={error} setError={setError} />
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">

@@ -10,8 +10,12 @@ interface AuthResponse {
 }
 
 interface RegisterResponse {
-  user_id: string;
-  email: string;
+  data: {
+    user: {
+      user_id: string;
+      email: string;
+    };
+  };
 }
 
 interface LoginRequest {
@@ -22,8 +26,8 @@ interface LoginRequest {
 interface RegisterRequest {
   email: string;
   password: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface VerifyOTPRequest {
@@ -46,25 +50,25 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: credentials,
       }),
     }),
-    register: builder.mutation<RegisterResponse, RegisterRequest>({
+    signup: builder.mutation<RegisterResponse, RegisterRequest>({
       query: (userData) => ({
-        url: "/api/v1/auth/register",
+        url: "/api/v1/auth/signup",
         method: "POST",
         body: userData,
       }),
     }),
     verifyOTP: builder.mutation<{ message: string }, VerifyOTPRequest>({
-      query: (otpData) => ({
-        url: "/api/v1/auth/verify-otp",
+      query: ({ user_id, email, otp }) => ({
+        url: `/api/v1/auth/verify-otp/${user_id}`,
         method: "POST",
-        body: otpData,
+        body: { email, otp },
       }),
     }),
     resendOTP: builder.mutation<{ message: string }, ResendOTPRequest>({
-      query: (emailData) => ({
-        url: "/api/v1/auth/resend-otp",
+      query: ({ user_id, email }) => ({
+        url: `/api/v1/auth/resend-otp/${user_id}`,
         method: "POST",
-        body: emailData,
+        body: { email },
       }),
     }),
     refresh: builder.mutation<AuthResponse, void>({
@@ -103,7 +107,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useLoginMutation,
-  useRegisterMutation,
+  useSignupMutation,
   useVerifyOTPMutation,
   useResendOTPMutation,
   useRefreshMutation,

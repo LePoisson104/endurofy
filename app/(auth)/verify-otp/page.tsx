@@ -20,26 +20,45 @@ import { Loader2 } from "lucide-react";
 import AppLogo from "@/components/app-logo";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
+import { useVerifyOTPMutation } from "@/api/auth/auth-api-slice";
+import { useResendOTPMutation } from "@/api/auth/auth-api-slice";
+
+function maskEmail(email: string) {
+  const [localPart, domain] = email.split("@"); // Split into local part and domain
+  if (localPart.length <= 3) return email; // If too short, return as is
+
+  return `${localPart[0]}${"*".repeat(localPart.length - 3)}${localPart.slice(
+    -2
+  )}@${domain}`;
+}
 
 export default function VerifyOTP() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
-  const [timeLeft, setTimeLeft] = useState(60);
-  const [isResending, setIsResending] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(900);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
+  const [email, setEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation();
+  const [resendOTP, { isLoading: isResending }] = useResendOTPMutation();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setEmail(sessionStorage.getItem("email"));
+      setUserId(sessionStorage.getItem("user_id"));
+    }
+  }, []);
   // Handle timer countdown
   useEffect(() => {
     if (timeLeft <= 0) return;
+    if (!email || !userId) return;
 
     const timer = setTimeout(() => {
       setTimeLeft(timeLeft - 1);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [timeLeft]);
+  }, [timeLeft, email, userId]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -52,49 +71,67 @@ export default function VerifyOTP() {
 
   // Handle OTP verification
   const handleVerify = async () => {
+    if (!userId || !email) {
+      setError("Missing user information. Please try signing up again.");
+      return;
+    }
     if (otp.length !== 6) {
       setError("Please enter a valid 6-digit code");
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // For demo purposes, let's say "123456" is the correct code
-      if (otp === "123456") {
-        setSuccess("Verification successful!");
-        // Redirect after successful verification
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 2000);
+      const response = await verifyOTP({
+        user_id: userId,
+        email: email,
+        otp: otp,
+      }).unwrap();
+      setSuccess(response?.message);
+      setOtp("");
+      sessionStorage.clear();
+      setTimeLeft(900);
+      setTimeout(() => {
+        router.push("/login");
+      }, 5000);
+    } catch (err: any) {
+      if (!err.status) {
+        setError("No Server Response");
+      } else if (err.status === 400) {
+        setError(err.data?.message);
+      } else if (err.status === 404) {
+        setError(err.data?.message);
       } else {
-        setError("Invalid verification code.");
+        setError(err.data?.message || "An error occurred during verification.");
       }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   // Handle resend code
   const handleResend = async () => {
-    setIsResending(true);
-    setError(null);
-
+    if (!userId || !email) {
+      setError("Missing user information. Please try signing up again.");
+      return;
+    }
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await resendOTP({
+        user_id: userId,
+        email: email,
+      }).unwrap();
 
+      setSuccess(response?.message);
+      setOtp("");
       // Reset timer
-      setTimeLeft(60);
-    } catch (err) {
-      setError("Failed to resend code. Please try again.");
-    } finally {
-      setIsResending(false);
+      setTimeLeft(900);
+    } catch (err: any) {
+      if (!err.status) {
+        setError("No Server Response");
+      } else if (err.status === 400) {
+        setError(err.data?.message);
+      } else if (err.status === 404) {
+        setError(err.data?.message);
+      } else {
+        setError(err.data?.message || "An error occurred during resending.");
+      }
     }
   };
 
@@ -116,13 +153,13 @@ export default function VerifyOTP() {
             <CardDescription className="text-center">
               We've sent a verification code to your email
               <div className="font-medium text-primary mt-1">
-                j********@example.com
+                {maskEmail(email || "")}
               </div>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <ErrorAlert error={error} setError={setError} />
-            <SuccessAlert success={success} setSuccess={setSuccess} />
+            <SuccessAlert success={"success"} setSuccess={setSuccess} />
 
             <div className="flex flex-col items-center justify-center space-y-6">
               <InputOTP
@@ -130,7 +167,7 @@ export default function VerifyOTP() {
                 value={otp}
                 onChange={setOtp}
                 onComplete={handleComplete}
-                disabled={isSubmitting}
+                disabled={isVerifying || !email || !userId}
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
@@ -155,9 +192,9 @@ export default function VerifyOTP() {
             <Button
               className="w-[100px]"
               onClick={handleVerify}
-              disabled={otp.length !== 6 || isSubmitting}
+              disabled={otp.length !== 6 || isVerifying || !email || !userId}
             >
-              {isSubmitting ? (
+              {isVerifying ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </>
@@ -172,7 +209,7 @@ export default function VerifyOTP() {
                 variant="link"
                 className="p-0 h-auto font-semibold"
                 onClick={handleResend}
-                disabled={timeLeft > 0 || isResending}
+                disabled={isResending || !email || !userId}
               >
                 {isResending ? (
                   <>

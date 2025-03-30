@@ -10,6 +10,9 @@ import AppLogo from "@/components/app-logo";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import ErrorAlert from "@/components/alerts/error-alert";
+import { useRouter } from "next/navigation";
+import { useSignupMutation } from "@/api/auth/auth-api-slice";
+import { Loader2 } from "lucide-react";
 
 interface FormErrors {
   firstName: string;
@@ -20,13 +23,14 @@ interface FormErrors {
 }
 
 export default function Signup() {
+  const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [errors, setErrors] = useState<FormErrors>({
+  const [errMsg, setErrMsg] = useState("");
+  const [formErrors, setFormErrors] = useState<FormErrors>({
     firstName: "",
     lastName: "",
     email: "",
@@ -40,6 +44,7 @@ export default function Signup() {
     password: false,
     confirmPassword: false,
   });
+  const [signup, { isLoading }] = useSignupMutation();
 
   const validateField = (name: string, value: string) => {
     switch (name) {
@@ -73,7 +78,7 @@ export default function Signup() {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+    setFormErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +96,7 @@ export default function Signup() {
       case "password":
         setPassword(value);
         if (touched.confirmPassword) {
-          setErrors((prev) => ({
+          setFormErrors((prev) => ({
             ...prev,
             confirmPassword: validateField("confirmPassword", confirmPassword),
           }));
@@ -103,11 +108,14 @@ export default function Signup() {
     }
 
     if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: validateField(name, value),
+      }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Mark all fields as touched
@@ -128,20 +136,52 @@ export default function Signup() {
       confirmPassword: validateField("confirmPassword", confirmPassword),
     };
 
-    setErrors(newErrors);
+    setFormErrors(newErrors);
 
     // Check if there are any errors
     if (Object.values(newErrors).some((error) => error !== "")) {
       return;
     }
 
-    // If no errors, proceed with form submission
-    console.log(firstName, lastName, email, password, confirmPassword);
+    try {
+      const response = await signup({
+        firstName,
+        lastName,
+        email,
+        password,
+      }).unwrap();
+
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+
+      console.log(response?.data?.user.user_id);
+      console.log(response?.data?.user.email);
+
+      sessionStorage.setItem("user_id", response?.data?.user.user_id);
+      sessionStorage.setItem("email", response?.data?.user.email);
+
+      router.push("/verify-otp");
+    } catch (error: any) {
+      if (!error.status) {
+        setErrMsg("No Server Response");
+      } else if (error.status === 400) {
+        setErrMsg(error.data?.message);
+      } else if (error.status === 404) {
+        setErrMsg("All fields are required.");
+      } else if (error.status === 409) {
+        setErrMsg("Email already in use.");
+      } else {
+        setErrMsg(error.data?.message || "An error occurred during signup.");
+      }
+    }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
-      {error && <ErrorAlert error={error} setError={setError} />}
+      <ErrorAlert error={errMsg} setError={setErrMsg} />
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">
@@ -174,11 +214,13 @@ export default function Signup() {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={
-                  touched.firstName && errors.firstName ? "border-red-500" : ""
+                  touched.firstName && formErrors.firstName
+                    ? "border-red-500"
+                    : ""
                 }
               />
-              {touched.firstName && errors.firstName && (
-                <p className="text-sm text-red-500">{errors.firstName}</p>
+              {touched.firstName && formErrors.firstName && (
+                <p className="text-sm text-red-500">{formErrors.firstName}</p>
               )}
             </div>
             <div className="space-y-2 w-full">
@@ -192,11 +234,13 @@ export default function Signup() {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={
-                  touched.lastName && errors.lastName ? "border-red-500" : ""
+                  touched.lastName && formErrors.lastName
+                    ? "border-red-500"
+                    : ""
                 }
               />
-              {touched.lastName && errors.lastName && (
-                <p className="text-sm text-red-500">{errors.lastName}</p>
+              {touched.lastName && formErrors.lastName && (
+                <p className="text-sm text-red-500">{formErrors.lastName}</p>
               )}
             </div>
           </div>
@@ -211,10 +255,12 @@ export default function Signup() {
               value={email}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={touched.email && errors.email ? "border-red-500" : ""}
+              className={
+                touched.email && formErrors.email ? "border-red-500" : ""
+              }
             />
-            {touched.email && errors.email && (
-              <p className="text-sm text-red-500">{errors.email}</p>
+            {touched.email && formErrors.email && (
+              <p className="text-sm text-red-500">{formErrors.email}</p>
             )}
           </div>
 
@@ -228,11 +274,11 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               className={
-                touched.password && errors.password ? "border-red-500" : ""
+                touched.password && formErrors.password ? "border-red-500" : ""
               }
             />
-            {touched.password && errors.password && (
-              <p className="text-sm text-red-500">{errors.password}</p>
+            {touched.password && formErrors.password && (
+              <p className="text-sm text-red-500">{formErrors.password}</p>
             )}
           </div>
 
@@ -246,18 +292,26 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               className={
-                touched.confirmPassword && errors.confirmPassword
+                touched.confirmPassword && formErrors.confirmPassword
                   ? "border-red-500"
                   : ""
               }
             />
-            {touched.confirmPassword && errors.confirmPassword && (
-              <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+            {touched.confirmPassword && formErrors.confirmPassword && (
+              <p className="text-sm text-red-500">
+                {formErrors.confirmPassword}
+              </p>
             )}
           </div>
 
-          <Button type="submit" className="w-full">
-            Sign up
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              </>
+            ) : (
+              "Sign up"
+            )}
           </Button>
 
           <div className="flex items-center gap-3 my-2">
