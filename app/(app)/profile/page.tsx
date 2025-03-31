@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { format, setDate } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon, Edit, Save, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,6 +32,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import BMIIndicator from "@/components/global/bmi-indicator";
+import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 
 // Initial profile data
 const initialProfile = {
@@ -58,6 +61,12 @@ const weightHistoryData = [
 ];
 
 export default function ProfilePage() {
+  const user = useSelector(selectCurrentUser);
+  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id);
+  const age =
+    new Date().getFullYear() -
+    new Date(userInfo?.data?.birth_date).getFullYear();
+  console.log(userInfo);
   const [profile, setProfile] = useState(initialProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState(initialProfile);
@@ -199,25 +208,32 @@ export default function ProfilePage() {
               <Avatar className="h-24 w-24 md:h-32 md:w-32 border-2 border-muted">
                 <AvatarImage src="#" alt="Profile picture" />
                 <AvatarFallback className="text-2xl font-bold bg-red-300 text-white">
-                  {profile.name
+                  {userInfo?.data?.first_name
                     .split(" ")
-                    .map((n) => n[0])
+                    .map((n: string) => n[0])
+                    .join("")}
+                  {userInfo?.data?.last_name
+                    .split(" ")
+                    .map((n: string) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex-1 text-center md:text-left">
-                <h1 className="text-2xl font-bold">{profile.name}</h1>
-                <p className="text-muted-foreground">{profile.email}</p>
+                <h1 className="text-2xl font-bold">
+                  {userInfo?.data?.first_name} {userInfo?.data?.last_name}
+                </h1>
+                <p className="text-muted-foreground">{userInfo?.data?.email}</p>
 
                 <div className="mt-4 flex flex-wrap gap-3 justify-center md:justify-start">
                   <div className="flex items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
                     <User className="h-3.5 w-3.5" />
-                    <span>{profile.gender === "male" ? "Male" : "Female"}</span>
+                    <span>
+                      {userInfo?.data?.gender === "male" ? "Male" : "Female"}
+                    </span>
                   </div>
                   <div className="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
-                    Age:{" "}
-                    {new Date().getFullYear() - profile.birthday.getFullYear()}
+                    Age: {age}
                   </div>
                   <div className="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
                     Height: {profile.height} cm
@@ -288,8 +304,8 @@ export default function ProfilePage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {editedProfile.birthday ? (
-                        format(editedProfile.birthday, "PPP")
+                      {userInfo?.data?.birth_date ? (
+                        format(new Date(userInfo?.data?.birth_date), "PPP")
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -468,7 +484,13 @@ export default function ProfilePage() {
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Last updated: {format(new Date(), "MMM d, yyyy")}
+                    Last updated:{" "}
+                    {userInfo?.data?.user_updated_at
+                      ? format(
+                          new Date(userInfo.data.user_updated_at),
+                          "MMM d, yyyy"
+                        )
+                      : ""}
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -478,18 +500,14 @@ export default function ProfilePage() {
                         Gender
                       </h3>
                       <p className="text-lg font-medium capitalize">
-                        {profile.gender}
+                        {userInfo?.data?.gender}
                       </p>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-muted-foreground">
                         Age
                       </h3>
-                      <p className="text-lg font-medium">
-                        {new Date().getFullYear() -
-                          profile.birthday.getFullYear()}{" "}
-                        years
-                      </p>
+                      <p className="text-lg font-medium">{age} years old</p>
                     </div>
                   </div>
 
@@ -500,7 +518,9 @@ export default function ProfilePage() {
                       Birthday
                     </h3>
                     <p className="text-lg font-medium">
-                      {format(profile.birthday, "MMMM d, yyyy")}
+                      {userInfo?.data?.birth_date
+                        ? format(new Date(userInfo?.data?.birth_date), "PPP")
+                        : ""}
                     </p>
                   </div>
 
@@ -511,8 +531,9 @@ export default function ProfilePage() {
                       Height
                     </h3>
                     <p className="text-lg font-medium">
-                      {profile.height} cm (
-                      {convertHeight(profile.height, "cm", "ft")} ft)
+                      {userInfo?.data?.height} cm (
+                      {convertHeight(userInfo?.data?.height, "cm", "ft")}
+                      ft)
                     </p>
                   </div>
                 </CardContent>

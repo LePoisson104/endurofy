@@ -1,19 +1,17 @@
 "use client";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export default function AppLogo() {
-  const { theme, systemTheme } = useTheme();
+  const isDark = useGetCurrentTheme();
   const [logoSrc, setLogoSrc] = useState("/images/endurofy_logo.png");
 
   useEffect(() => {
-    const isDark =
-      theme === "dark" || (theme === "system" && systemTheme === "dark");
     setLogoSrc(
       isDark ? "/images/endurofy_logo_dark.png" : "/images/endurofy_logo.png"
     );
-  }, [theme, systemTheme]);
+  }, [isDark]);
 
   return (
     <div className="flex items-center justify-center w-10 h-10 mb-2 bg-primary">

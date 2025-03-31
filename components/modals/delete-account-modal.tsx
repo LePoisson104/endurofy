@@ -78,7 +78,7 @@ export default function DeleteAccountModal() {
             <Button
               variant="destructive"
               type="submit"
-              disabled={isLoading}
+              disabled={password === "" || isLoading}
               className="w-[150px]"
             >
               {isLoading ? (

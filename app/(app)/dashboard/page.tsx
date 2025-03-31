@@ -29,7 +29,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageTitle from "@/components/global/page-title";
-import { getCurrentDate, getCurrentTime } from "@/helper/getCurentDateNTime";
+import {
+  getCurrentDate,
+  getCurrentTime,
+} from "@/helper/get-current-date-n-time";
 import { useEffect } from "react";
 
 export default function DashboardPage() {

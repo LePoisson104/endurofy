@@ -57,7 +57,12 @@ export default function UpdateEmailModal() {
             <Button
               variant="default"
               type="submit"
-              //   disabled={isLoading}
+              disabled={
+                password === "" ||
+                newEmail === "" ||
+                confirmNewEmail === "" ||
+                newEmail !== confirmNewEmail
+              }
               className="w-[150px]"
             >
               {false ? (

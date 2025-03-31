@@ -8,14 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertCircle,
-  Save,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  Divide,
-} from "lucide-react";
+import { AlertCircle, Save, ArrowUp, ArrowDown, Minus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -263,7 +256,7 @@ export function WorkoutLogForm({
           value={selectedDay || undefined}
           onValueChange={(value) => setSelectedDay(value as DayOfWeek)}
         >
-          <TabsList className={`mb-4 grid grid-cols-${program.days.length}`}>
+          <TabsList className={`mb-4 grid grid-cols-${program?.days.length}`}>
             {daysWithExercises.map((day) => (
               <TabsTrigger key={day.day} value={day.day}>
                 {formatDayName(day.day).slice(0, 3)}
