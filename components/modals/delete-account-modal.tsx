@@ -45,7 +45,7 @@ export default function DeleteAccountModal() {
       } else if (error.status === 400) {
         setError(error.data?.message);
       } else if (error.status === 401 || error.status === 404) {
-        setError("Incorrect email or password. Try again.");
+        setError("Incorrect password. Try again.");
       } else {
         setError(error.data?.message);
       }

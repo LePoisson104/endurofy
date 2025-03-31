@@ -50,7 +50,7 @@ export function AccountSettings() {
           <div className="mb-4">
             <PageTitle
               title="Account Settings"
-              subTitle={`Last updated ${lastUpdated}`}
+              subTitle={`Last updated: ${lastUpdated}`}
             />
           </div>
           {/* change name card */}

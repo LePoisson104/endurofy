@@ -17,12 +17,11 @@ export default function BMIIndicator({
 }: BMIIndicatorProps) {
   // Calculate where the indicator should appear on the scale (0-100%)
   const getBmiProgress = (bmi: number): number => {
-    // Returns position percentage for BMI indicator
-    if (bmi < 18.5) return (bmi / 18.5) * 18.5;
-    if (bmi < 25) return 18.5 + ((bmi - 18.5) / 6.5) * 18.5;
-    if (bmi < 30) return 37.0 + ((bmi - 25) / 5) * 18.5;
-    if (bmi < 40) return 55.5 + ((bmi - 30) / 10) * 18.5;
-    return 74.0; // Max value
+    if (bmi < 18.5) return (bmi / 18.5) * 25; // Underweight (0-25%)
+    if (bmi < 25) return 25 + ((bmi - 18.5) / (25 - 18.5)) * 25; // Normal (25-50%)
+    if (bmi < 30) return 50 + ((bmi - 25) / (30 - 25)) * 25; // Overweight (50-75%)
+    if (bmi < 40) return 75 + ((bmi - 30) / (40 - 30)) * 25; // Obese (75-100%)
+    return 100; // Max value
   };
 
   // Get BMI category if not provided
@@ -64,9 +63,9 @@ export default function BMIIndicator({
           background: `linear-gradient(
       to right, 
       #60a5fa 0%,     /* Blue (Underweight) */
-      #60a5fa 9%,  /* Transition to Green */
-rgb(18, 228, 95) 26%,    /* Darker Green (Normal - Extended) */
-      #facc15 60%,    /* Yellow (Overweight) */
+      #60a5fa 10%,  /* Transition to Green */
+rgb(18, 228, 95) 36%,    /* Darker Green (Normal - Extended) */
+      #facc15 57%,    /* Yellow (Overweight) */
       #dc2626 100%    /* Darker Red (Obese) */
     )`,
         }}
@@ -79,6 +78,7 @@ rgb(18, 228, 95) 26%,    /* Darker Green (Normal - Extended) */
       </div>
 
       <div className="flex justify-between text-xs text-muted-foreground">
+        <span>&lt;18.5</span>
         <span>18.5</span>
         <span>25</span>
         <span>30</span>

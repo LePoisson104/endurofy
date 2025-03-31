@@ -41,6 +41,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -242,6 +243,7 @@ function UserProfileMenu() {
   const buttonRef = useRef<HTMLDivElement>(null);
   const { setTheme, theme } = useTheme();
   const isMobile = useIsMobile();
+  const [logout] = useLogoutMutation();
 
   // Handle click outside to close the menu
   useEffect(() => {
@@ -387,7 +389,10 @@ function UserProfileMenu() {
           <div className="p-1">
             <button
               className="flex items-center w-full text-left h-9 px-2 rounded-sm text-destructive hover:bg-destructive/10"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                logout();
+              }}
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
