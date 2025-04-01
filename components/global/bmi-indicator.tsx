@@ -64,7 +64,7 @@ export default function BMIIndicator({
       to right, 
       #60a5fa 0%,     /* Blue (Underweight) */
       #60a5fa 10%,  /* Transition to Green */
-rgb(18, 228, 95) 36%,    /* Darker Green (Normal - Extended) */
+rgb(18, 228, 95) 32%,    /* Darker Green (Normal - Extended) */
       #facc15 57%,    /* Yellow (Overweight) */
       #dc2626 100%    /* Darker Red (Obese) */
     )`,

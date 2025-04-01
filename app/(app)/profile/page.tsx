@@ -44,20 +44,8 @@ import {
   getHeightInFeetAndMeters,
 } from "@/helper/weight-height-converter";
 import { convertDateFormat } from "@/helper/convert-date-format";
-
-// Initial profile data
-const initialProfile = {
-  name: "John Doe",
-  email: "johndoe@gmail.com",
-  gender: "male",
-  birthday: new Date("1990-01-01"),
-  height: 180, // cm
-  currentWeight: 80, // kg
-  goalWeight: 75, // kg
-  weightUnit: "kg",
-  heightUnit: "cm",
-  activityLevel: "moderate", // Add activity level
-};
+import FeetInchesSelect from "@/components/selects/feet-inches-select";
+import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
@@ -65,11 +53,13 @@ export default function ProfilePage() {
   const age =
     new Date().getFullYear() -
     new Date(userInfo?.data?.birth_date).getFullYear();
-  console.log(userInfo);
+  // console.log(userInfo);
 
-  const [profile, setProfile] = useState(initialProfile);
+  const [editedProfile, setEditedProfile] = useState<UpdateUserInfo | null>(
+    null
+  );
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState(initialProfile);
+  console.log(editedProfile);
   const [bmi, setBmi] = useState(0);
   const [bmiCategory, setBmiCategory] = useState("");
   const [bmiCategoryColor, setBmiCategoryColor] = useState("");
@@ -91,6 +81,26 @@ export default function ProfilePage() {
     setUserHeight(heightInFeetAndMeters || "");
   }, [userInfo]);
 
+  useEffect(() => {
+    if (userInfo) {
+      setEditedProfile({
+        data: {
+          gender: userInfo.data.gender,
+          birth_date: userInfo.data.birth_date,
+          height: userInfo.data.height,
+          height_unit: userInfo.data.height_unit,
+          weight: userInfo.data.weight,
+          weight_unit: userInfo.data.weight_unit,
+          activity_level: userInfo.data.activity_level,
+          weight_goal: userInfo.data.weight_goal,
+          weight_goal_unit: userInfo.data.weight_goal_unit,
+          goal: userInfo.data.goal,
+          profile_status: userInfo.data.profile_status,
+        },
+      });
+    }
+  }, [userInfo]);
+
   // Calculate TDEE (Total Daily Energy Expenditure)
   const calculateTDEE = (bmr: number) => {
     return Math.round(
@@ -98,23 +108,20 @@ export default function ProfilePage() {
     );
   };
 
-  // Handle edit mode toggle
-  const toggleEditMode = () => {
-    if (isEditing) {
-      // Save changes
-      setProfile(editedProfile);
-    } else {
-      // Enter edit mode
-      setEditedProfile({ ...profile });
-    }
-    setIsEditing(!isEditing);
-  };
-
   // Handle form input changes
-  const handleInputChange = (field: string, value: number | Date | string) => {
-    setEditedProfile({
-      ...editedProfile,
-      [field]: value,
+  const handleInputChange = (
+    field: keyof UpdateUserInfo["data"],
+    value: number | Date | string
+  ) => {
+    setEditedProfile((prevProfile) => {
+      if (!prevProfile) return null; // Ensure there is an existing profile
+      return {
+        ...prevProfile,
+        data: {
+          ...prevProfile.data,
+          [field]: value,
+        },
+      };
     });
   };
 
@@ -178,7 +185,7 @@ export default function ProfilePage() {
                   variant={isEditing ? "default" : "outline"}
                   size="sm"
                   className="gap-1.5"
-                  onClick={toggleEditMode}
+                  onClick={() => setIsEditing(!isEditing)}
                 >
                   {isEditing ? (
                     <>
@@ -195,11 +202,11 @@ export default function ProfilePage() {
               </div>
             </CardContent>
           </Card>
-
+          {/* Edit profile card */}
           {isEditing ? (
             <Card>
               <CardHeader>
-                <CardTitle>Edit Health Metrics</CardTitle>
+                <CardTitle>Edit Profile</CardTitle>
                 <CardDescription>
                   Update your personal health information
                 </CardDescription>
@@ -209,7 +216,7 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label>Gender</Label>
                   <RadioGroup
-                    defaultValue={editedProfile.gender}
+                    value={editedProfile?.data?.gender || ""}
                     onValueChange={(value) =>
                       handleInputChange("gender", value)
                     }
@@ -228,19 +235,23 @@ export default function ProfilePage() {
 
                 {/* Birthday */}
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="date">Date of Birth</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
-                          !editedProfile.birthday && "text-muted-foreground"
+                          !editedProfile?.data?.birth_date &&
+                            "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {userInfo?.data?.birth_date ? (
-                          format(new Date(userInfo?.data?.birth_date), "PPP")
+                        {editedProfile?.data?.birth_date ? (
+                          format(
+                            new Date(editedProfile?.data?.birth_date),
+                            "PPP"
+                          )
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -249,9 +260,14 @@ export default function ProfilePage() {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={editedProfile.birthday}
+                        selected={
+                          new Date(
+                            editedProfile?.data?.birth_date || new Date()
+                          )
+                        }
                         onSelect={(date) =>
-                          date && handleInputChange("birthday", date)
+                          date &&
+                          handleInputChange("birth_date", date.toISOString())
                         }
                         initialFocus
                       />
@@ -263,38 +279,52 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="height">Height</Label>
                   <div className="flex gap-2">
-                    <Input
-                      id="height"
-                      type="number"
-                      value={editedProfile.height}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "height",
-                          Number.parseFloat(e.target.value)
-                        )
-                      }
-                      className="flex-1"
-                    />
+                    {editedProfile?.data?.height_unit === "ft" ? (
+                      <FeetInchesSelect
+                        value={editedProfile?.data?.height?.toString() || "0"}
+                        onChange={(totalInches) => {
+                          handleInputChange("height", totalInches);
+                        }}
+                      />
+                    ) : (
+                      <Input
+                        id="height"
+                        type="number"
+                        value={editedProfile?.data?.height || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "height",
+                            Number.parseFloat(e.target.value)
+                          )
+                        }
+                        className="flex-1"
+                      />
+                    )}
                     <Select
-                      value={editedProfile.heightUnit}
+                      value={editedProfile?.data?.height_unit}
                       onValueChange={(value) => {
-                        const newHeight = convertHeight(
-                          userInfo?.data?.height,
-                          userInfo?.data?.height_unit
-                        );
-                        setEditedProfile({
-                          ...editedProfile,
-                          height: Number(newHeight),
-                          heightUnit: value,
-                        });
+                        if (value === "ft") {
+                          // Convert from cm to inches
+                          const inches = Math.round(
+                            Number(editedProfile?.data?.height) / 2.54
+                          );
+                          handleInputChange("height", inches);
+                        } else {
+                          // Convert from inches to cm
+                          const cm = Math.round(
+                            Number(editedProfile?.data?.height) * 2.54
+                          );
+                          handleInputChange("height", cm);
+                        }
+                        handleInputChange("height_unit", value);
                       }}
                     >
-                      <SelectTrigger className="w-[100px]">
+                      <SelectTrigger>
                         <SelectValue placeholder="Unit" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="cm">cm</SelectItem>
-                        <SelectItem value="ft">ft</SelectItem>
+                        <SelectItem value="ft">US units</SelectItem>
+                        <SelectItem value="cm">Metric units (cm)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -305,34 +335,55 @@ export default function ProfilePage() {
                   <Label htmlFor="currentWeight">Current Weight</Label>
                   <div className="flex gap-2">
                     <Input
-                      id="currentWeight"
+                      id="weight"
                       type="number"
-                      value={editedProfile.currentWeight}
+                      value={editedProfile?.data?.weight || ""}
                       onChange={(e) =>
                         handleInputChange(
-                          "currentWeight",
+                          "weight",
                           Number.parseFloat(e.target.value)
                         )
                       }
                       className="flex-1"
                     />
                     <Select
-                      value={editedProfile.weightUnit}
+                      value={editedProfile?.data?.weight_unit || "kg"}
                       onValueChange={(value) => {
-                        const newCurrentWeight = convertWeight(
-                          userInfo?.data?.weight,
-                          userInfo?.data?.weight_unit
+                        const currentWeight = Number(
+                          editedProfile?.data?.weight || 0
                         );
-                        const newGoalWeight = convertWeight(
-                          userInfo?.data?.weight_goal,
-                          userInfo?.data?.weight_goal_unit
+                        const goalWeight = Number(
+                          editedProfile?.data?.weight_goal || 0
                         );
-                        setEditedProfile({
-                          ...editedProfile,
-                          currentWeight: newCurrentWeight,
-                          goalWeight: newGoalWeight,
-                          weightUnit: value,
-                        });
+                        let newCurrentWeight = currentWeight;
+                        let newGoalWeight = goalWeight;
+
+                        if (
+                          value === "lb" &&
+                          editedProfile?.data?.weight_unit === "kg"
+                        ) {
+                          // Convert from kg to lbs
+                          newCurrentWeight = currentWeight * 2.20462;
+                          newGoalWeight = goalWeight * 2.20462;
+                        } else if (
+                          value === "kg" &&
+                          editedProfile?.data?.weight_unit === "lb"
+                        ) {
+                          // Convert from lbs to kg
+                          newCurrentWeight = currentWeight / 2.20462;
+                          newGoalWeight = goalWeight / 2.20462;
+                        }
+
+                        handleInputChange(
+                          "weight",
+                          Number(newCurrentWeight.toFixed(2))
+                        );
+                        handleInputChange(
+                          "weight_goal",
+                          Number(newGoalWeight.toFixed(2))
+                        );
+                        handleInputChange("weight_unit", value);
+                        handleInputChange("weight_goal_unit", value);
                       }}
                     >
                       <SelectTrigger className="w-[100px]">
@@ -340,7 +391,7 @@ export default function ProfilePage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="lbs">lbs</SelectItem>
+                        <SelectItem value="lb">lbs</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -351,60 +402,63 @@ export default function ProfilePage() {
                   <Label htmlFor="goalWeight">Goal Weight</Label>
                   <div className="flex gap-2">
                     <Input
-                      id="goalWeight"
+                      id="weight_goal"
                       type="number"
-                      value={editedProfile.goalWeight}
+                      value={editedProfile?.data?.weight_goal || ""}
                       onChange={(e) =>
                         handleInputChange(
-                          "goalWeight",
+                          "weight_goal",
                           Number.parseFloat(e.target.value)
                         )
                       }
                       className="flex-1"
                     />
                     <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
-                      {editedProfile.weightUnit}
+                      {editedProfile?.data?.weight_unit === "lb" ? "lbs" : "kg"}
                     </div>
                   </div>
                 </div>
 
                 {/* Activity Level */}
                 <div className="space-y-2">
-                  <Label htmlFor="activityLevel">Activity Level</Label>
+                  <Label htmlFor="activity_level">Activity Level</Label>
                   <Select
-                    value={editedProfile.activityLevel}
+                    defaultValue={userInfo?.data?.activity_level || ""}
                     onValueChange={(value) =>
-                      handleInputChange("activityLevel", value)
+                      handleInputChange("activity_level", value)
                     }
                   >
-                    <SelectTrigger id="activityLevel" className="w-full">
+                    <SelectTrigger id="activity_level" className="w-full">
                       <SelectValue placeholder="Select activity level" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="sedentary">
                         Sedentary (little or no exercise)
                       </SelectItem>
-                      <SelectItem value="light">
+                      <SelectItem value="lightly_active">
                         Lightly Active (light exercise 1-3 days/week)
                       </SelectItem>
-                      <SelectItem value="moderate">
+                      <SelectItem value="moderately_active">
                         Moderately Active (moderate exercise 3-5 days/week)
                       </SelectItem>
-                      <SelectItem value="active">
+                      <SelectItem value="very_active">
                         Very Active (hard exercise 6-7 days/week)
                       </SelectItem>
-                      <SelectItem value="veryActive">
+                      <SelectItem value="extra_active">
                         Extremely Active (very hard exercise, physical job)
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </CardContent>
+
               <CardFooter className="flex justify-between">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <Button onClick={toggleEditMode}>Save Changes</Button>
+                <Button onClick={() => setIsEditing(false)}>
+                  Save Changes
+                </Button>
               </CardFooter>
             </Card>
           ) : (
