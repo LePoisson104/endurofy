@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Edit, Save, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,10 @@ import {
 import { convertDateFormat } from "@/helper/convert-date-format";
 import FeetInchesSelect from "@/components/selects/feet-inches-select";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
+import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
+import SuccessAlert from "@/components/alerts/success-alert";
+import { Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
@@ -53,13 +57,16 @@ export default function ProfilePage() {
   const age =
     new Date().getFullYear() -
     new Date(userInfo?.data?.birth_date).getFullYear();
-  // console.log(userInfo);
+  const [updateUserProfile, { isLoading: isUpdatingProfile }] =
+    useUpdateUsersProfileMutation();
 
   const [editedProfile, setEditedProfile] = useState<UpdateUserInfo | null>(
     null
   );
-  const [isEditing, setIsEditing] = useState(false);
   console.log(editedProfile);
+  const [isEditing, setIsEditing] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [bmi, setBmi] = useState(0);
   const [bmiCategory, setBmiCategory] = useState("");
   const [bmiCategoryColor, setBmiCategoryColor] = useState("");
@@ -84,49 +91,79 @@ export default function ProfilePage() {
   useEffect(() => {
     if (userInfo) {
       setEditedProfile({
-        data: {
-          gender: userInfo.data.gender,
-          birth_date: userInfo.data.birth_date,
-          height: userInfo.data.height,
-          height_unit: userInfo.data.height_unit,
-          weight: userInfo.data.weight,
-          weight_unit: userInfo.data.weight_unit,
-          activity_level: userInfo.data.activity_level,
-          weight_goal: userInfo.data.weight_goal,
-          weight_goal_unit: userInfo.data.weight_goal_unit,
-          goal: userInfo.data.goal,
-          profile_status: userInfo.data.profile_status,
-        },
+        gender: userInfo.data.gender,
+        birth_date: userInfo.data.birth_date.split("T")[0],
+        height: userInfo.data.height,
+        height_unit: userInfo.data.height_unit,
+        weight: userInfo.data.weight,
+        weight_unit: userInfo.data.weight_unit,
+        activity_level: userInfo.data.activity_level,
+        weight_goal: userInfo.data.weight_goal,
+        weight_goal_unit: userInfo.data.weight_goal_unit,
+        goal: userInfo.data.goal,
+        profile_status: userInfo.data.profile_status,
       });
     }
   }, [userInfo]);
 
   // Calculate TDEE (Total Daily Energy Expenditure)
-  const calculateTDEE = (bmr: number) => {
-    return Math.round(
-      bmr * getActivityMultiplier(userInfo?.data?.activity_level || "")
-    );
-  };
+  const calculateTDEE = useCallback(
+    (bmr: number) => {
+      return Math.round(
+        bmr * getActivityMultiplier(userInfo?.data?.activity_level || "")
+      );
+    },
+    [userInfo?.data?.activity_level]
+  );
 
   // Handle form input changes
   const handleInputChange = (
-    field: keyof UpdateUserInfo["data"],
+    field: keyof UpdateUserInfo,
     value: number | Date | string
   ) => {
     setEditedProfile((prevProfile) => {
       if (!prevProfile) return null; // Ensure there is an existing profile
       return {
         ...prevProfile,
-        data: {
-          ...prevProfile.data,
-          [field]: value,
-        },
+        [field]: value,
       };
     });
   };
 
+  const handleUpdateProfile = async () => {
+    const allFieldsFilled = editedProfile
+      ? Object.values(editedProfile).every(
+          (value) => value !== null && value !== undefined && value !== ""
+        )
+      : false;
+    if (!allFieldsFilled) {
+      setErrMsg("All fields are required");
+      return;
+    }
+    try {
+      if (!editedProfile) return;
+
+      await updateUserProfile({
+        userId: user?.user_id || "",
+        payload: editedProfile,
+      }).unwrap();
+      setIsEditing(false);
+      setSuccessMsg("Profile updated successfully");
+    } catch (error: any) {
+      if (!error.status) {
+        setErrMsg("No Server Response");
+      } else if (error.status === 400) {
+        setErrMsg(error.data?.message);
+      } else {
+        setErrMsg(error.data?.message);
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto p-[1rem] max-w-7xl">
+      <ErrorAlert error={errMsg} setError={setErrMsg} />
+      <SuccessAlert success={successMsg} setSuccess={setSuccessMsg} />
       {userInfo ? (
         <div className="flex flex-col gap-6">
           {/* Profile Header */}
@@ -134,7 +171,6 @@ export default function ProfilePage() {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <Avatar className="h-24 w-24 md:h-32 md:w-32 border-2 border-muted">
-                  <AvatarImage src="#" alt="Profile picture" />
                   <AvatarFallback className="text-2xl font-bold bg-red-300 text-white">
                     {userInfo?.data?.first_name
                       .split(" ")
@@ -181,24 +217,17 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <Button
-                  variant={isEditing ? "default" : "outline"}
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  {isEditing ? (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Save
-                    </>
-                  ) : (
-                    <>
-                      <Edit className="h-4 w-4" />
-                      Edit Profile
-                    </>
-                  )}
-                </Button>
+                {!isEditing && (
+                  <Button
+                    variant={isEditing ? "default" : "outline"}
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -216,7 +245,7 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label>Gender</Label>
                   <RadioGroup
-                    value={editedProfile?.data?.gender || ""}
+                    value={editedProfile?.gender || ""}
                     onValueChange={(value) =>
                       handleInputChange("gender", value)
                     }
@@ -242,15 +271,14 @@ export default function ProfilePage() {
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
-                          !editedProfile?.data?.birth_date &&
-                            "text-muted-foreground"
+                          !editedProfile?.birth_date && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {editedProfile?.data?.birth_date ? (
+                        {editedProfile?.birth_date ? (
                           format(
-                            new Date(editedProfile?.data?.birth_date),
-                            "PPP"
+                            new Date(editedProfile.birth_date),
+                            "yyyy-MM-dd"
                           )
                         ) : (
                           <span>Pick a date</span>
@@ -261,14 +289,17 @@ export default function ProfilePage() {
                       <Calendar
                         mode="single"
                         selected={
-                          new Date(
-                            editedProfile?.data?.birth_date || new Date()
-                          )
+                          editedProfile?.birth_date
+                            ? new Date(editedProfile.birth_date)
+                            : undefined
                         }
-                        onSelect={(date) =>
-                          date &&
-                          handleInputChange("birth_date", date.toISOString())
-                        }
+                        onSelect={(date) => {
+                          if (date) {
+                            // Format the date as YYYY-MM-DD
+                            const formattedDate = format(date, "yyyy-MM-dd");
+                            handleInputChange("birth_date", formattedDate);
+                          }
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
@@ -279,9 +310,9 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="height">Height</Label>
                   <div className="flex gap-2">
-                    {editedProfile?.data?.height_unit === "ft" ? (
+                    {editedProfile?.height_unit === "ft" ? (
                       <FeetInchesSelect
-                        value={editedProfile?.data?.height?.toString() || "0"}
+                        value={editedProfile?.height?.toString() || "0"}
                         onChange={(totalInches) => {
                           handleInputChange("height", totalInches);
                         }}
@@ -290,7 +321,7 @@ export default function ProfilePage() {
                       <Input
                         id="height"
                         type="number"
-                        value={editedProfile?.data?.height || ""}
+                        value={editedProfile?.height || ""}
                         onChange={(e) =>
                           handleInputChange(
                             "height",
@@ -301,18 +332,18 @@ export default function ProfilePage() {
                       />
                     )}
                     <Select
-                      value={editedProfile?.data?.height_unit}
+                      value={editedProfile?.height_unit}
                       onValueChange={(value) => {
                         if (value === "ft") {
                           // Convert from cm to inches
                           const inches = Math.round(
-                            Number(editedProfile?.data?.height) / 2.54
+                            Number(editedProfile?.height) / 2.54
                           );
                           handleInputChange("height", inches);
                         } else {
                           // Convert from inches to cm
                           const cm = Math.round(
-                            Number(editedProfile?.data?.height) * 2.54
+                            Number(editedProfile?.height) * 2.54
                           );
                           handleInputChange("height", cm);
                         }
@@ -337,7 +368,7 @@ export default function ProfilePage() {
                     <Input
                       id="weight"
                       type="number"
-                      value={editedProfile?.data?.weight || ""}
+                      value={editedProfile?.weight || ""}
                       onChange={(e) =>
                         handleInputChange(
                           "weight",
@@ -347,31 +378,35 @@ export default function ProfilePage() {
                       className="flex-1"
                     />
                     <Select
-                      value={editedProfile?.data?.weight_unit || "kg"}
+                      value={editedProfile?.weight_unit || "kg"}
                       onValueChange={(value) => {
                         const currentWeight = Number(
-                          editedProfile?.data?.weight || 0
+                          editedProfile?.weight || 0
                         );
                         const goalWeight = Number(
-                          editedProfile?.data?.weight_goal || 0
+                          editedProfile?.weight_goal || 0
                         );
                         let newCurrentWeight = currentWeight;
                         let newGoalWeight = goalWeight;
 
                         if (
                           value === "lb" &&
-                          editedProfile?.data?.weight_unit === "kg"
+                          editedProfile?.weight_unit === "kg"
                         ) {
                           // Convert from kg to lbs
-                          newCurrentWeight = currentWeight * 2.20462;
-                          newGoalWeight = goalWeight * 2.20462;
+                          newCurrentWeight = Math.round(
+                            currentWeight * 2.20462
+                          );
+                          newGoalWeight = Math.round(goalWeight * 2.20462);
                         } else if (
                           value === "kg" &&
-                          editedProfile?.data?.weight_unit === "lb"
+                          editedProfile?.weight_unit === "lb"
                         ) {
                           // Convert from lbs to kg
-                          newCurrentWeight = currentWeight / 2.20462;
-                          newGoalWeight = goalWeight / 2.20462;
+                          newCurrentWeight = Math.round(
+                            currentWeight / 2.20462
+                          );
+                          newGoalWeight = Math.round(goalWeight / 2.20462);
                         }
 
                         handleInputChange(
@@ -404,7 +439,7 @@ export default function ProfilePage() {
                     <Input
                       id="weight_goal"
                       type="number"
-                      value={editedProfile?.data?.weight_goal || ""}
+                      value={editedProfile?.weight_goal || ""}
                       onChange={(e) =>
                         handleInputChange(
                           "weight_goal",
@@ -414,7 +449,7 @@ export default function ProfilePage() {
                       className="flex-1"
                     />
                     <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
-                      {editedProfile?.data?.weight_unit === "lb" ? "lbs" : "kg"}
+                      {editedProfile?.weight_unit === "lb" ? "lbs" : "kg"}
                     </div>
                   </div>
                 </div>
@@ -456,8 +491,16 @@ export default function ProfilePage() {
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setIsEditing(false)}>
-                  Save Changes
+                <Button
+                  onClick={handleUpdateProfile}
+                  disabled={isUpdatingProfile}
+                  className="w-[130px]"
+                >
+                  {isUpdatingProfile ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Save Changes"
+                  )}
                 </Button>
               </CardFooter>
             </Card>

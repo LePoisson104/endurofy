@@ -25,11 +25,22 @@ import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertDateFormat } from "@/helper/convert-date-format";
+import {
+  useUpdateUsersNameMutation,
+  useUpdateUsersPasswordMutation,
+} from "@/api/user/user-api-slice";
+
+import { Loader2 } from "lucide-react";
+import ErrorAlert from "@/components/alerts/error-alert";
+import SuccessAlert from "@/components/alerts/success-alert";
+import VerifyOTPModal from "@/components/modals/verify-otp-modal";
+import UsersProfileModal from "@/components/modals/users-profile-modal";
 
 export function AccountSettings() {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
+  console.log(user);
   const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id);
   const [updateFirstName, setUpdateFirstName] = useState("");
   const [updateLastName, setUpdateLastName] = useState("");
@@ -37,14 +48,78 @@ export function AccountSettings() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errMsg, setErrMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(true);
+
+  const [updateUsersName, { isLoading: isUpdatingName }] =
+    useUpdateUsersNameMutation();
+  const [updateUsersPassword, { isLoading: isUpdatingPassword }] =
+    useUpdateUsersPasswordMutation();
 
   useEffect(() => {
     setUpdateFirstName(userInfo?.data?.first_name || "");
     setUpdateLastName(userInfo?.data?.last_name || "");
   }, [userInfo]);
 
+  const handleUpdateName = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!updateFirstName || !updateLastName) {
+      setErrMsg("Please enter a valid name");
+      return;
+    }
+
+    try {
+      await updateUsersName({
+        userId: user?.user_id,
+        payload: { firstName: updateFirstName, lastName: updateLastName },
+      }).unwrap();
+      setSuccessMsg("Name updated successfully");
+    } catch (error: any) {
+      if (!error.status) {
+        setErrMsg("No Server Response");
+      } else if (error.status === 400) {
+        setErrMsg(error.data?.message);
+      } else {
+        setErrMsg(error.data?.message);
+      }
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setErrMsg("Make sure new password and confirm password match");
+      return;
+    }
+    try {
+      await updateUsersPassword({
+        userId: user?.user_id,
+        payload: {
+          email: userInfo?.data?.email,
+          password: password,
+          newPassword: newPassword,
+        },
+      }).unwrap();
+      setPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setSuccessMsg("Password updated successfully");
+    } catch (error: any) {
+      if (!error.status) {
+        setErrMsg("No Server Response");
+      } else if (error.status === 400) {
+        setErrMsg(error.data?.message);
+      } else {
+        setErrMsg(error.data?.message);
+      }
+    }
+  };
+
   return (
     <div className=" flex flex-col gap-[1rem]">
+      <ErrorAlert error={errMsg} setError={setErrMsg} />
+      <SuccessAlert success={successMsg} setSuccess={setSuccessMsg} />
       {userInfo ? (
         <>
           <div className="mb-4">
@@ -62,7 +137,7 @@ export function AccountSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleUpdateName}>
                 <div
                   className={`flex ${
                     isMobile ? "flex-col" : "flex-row"
@@ -83,7 +158,23 @@ export function AccountSettings() {
                     />
                   </div>
                 </div>
-                <Button type="submit">Update name</Button>
+                <UsersProfileModal
+                  isOpen={isProfileModalOpen}
+                  onClose={() => setIsProfileModalOpen(false)}
+                  userId={user?.user_id || ""}
+                  email={userInfo?.data?.email || ""}
+                />
+                <Button
+                  type="submit"
+                  disabled={isUpdatingName}
+                  className="w-[120px]"
+                >
+                  {isUpdatingName ? (
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Update name"
+                  )}
+                </Button>
               </form>
             </CardContent>
           </Card>
@@ -106,7 +197,14 @@ export function AccountSettings() {
                       : "placeholder:text-black"
                   }
                 />
-                <UpdateEmailModal />
+                {userInfo?.data?.pending_email ? (
+                  <VerifyOTPModal
+                    email={userInfo?.data?.email}
+                    userId={user?.user_id || ""}
+                  />
+                ) : (
+                  <UpdateEmailModal />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -119,11 +217,12 @@ export function AccountSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-2">
+              <form className="space-y-2" onSubmit={handleUpdatePassword}>
                 <Label>Current Password</Label>
                 <PasswordInput
                   placeholder="********"
                   type="password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
 
@@ -137,6 +236,7 @@ export function AccountSettings() {
                     <PasswordInput
                       placeholder="********"
                       type="password"
+                      value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
                   </div>
@@ -146,6 +246,7 @@ export function AccountSettings() {
                     <PasswordInput
                       placeholder="********"
                       type="password"
+                      value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                   </div>
@@ -154,8 +255,13 @@ export function AccountSettings() {
                 <Button
                   type="submit"
                   disabled={!password || !confirmPassword || !newPassword}
+                  className="w-[150px]"
                 >
-                  Update password
+                  {isUpdatingPassword ? (
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Update password"
+                  )}
                 </Button>
               </form>
             </CardContent>

@@ -1,4 +1,5 @@
 import { apiSlice } from "../api-slice";
+import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 
 interface deleteAccountRequest {
   user_id: string;
@@ -26,7 +27,10 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         { type: "User", id: arg.userId }, // Ensure you pass userId correctly
       ],
     }),
-    updateUsersProfile: builder.mutation({
+    updateUsersProfile: builder.mutation<
+      void,
+      { userId: string; payload: UpdateUserInfo }
+    >({
       query: ({ userId, payload }) => ({
         url: `/api/v1/users/update-profile/${userId}`,
         method: "PATCH",

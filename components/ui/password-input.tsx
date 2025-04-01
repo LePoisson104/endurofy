@@ -13,6 +13,7 @@ interface PasswordInputProps
 export function PasswordInput({
   className,
   error,
+  value = "",
   ...props
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,12 +21,14 @@ export function PasswordInput({
   return (
     <div className="relative">
       <Input
+        autoComplete="off"
         type={showPassword ? "text" : "password"}
         className={cn(
           "pr-10",
           error && "border-red-500 focus-visible:ring-red-500",
           className
         )}
+        value={value}
         {...props}
       />
       <button

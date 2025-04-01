@@ -4,6 +4,7 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  profile_status: string;
 }
 
 export interface UserInfo {
@@ -29,17 +30,15 @@ export interface UserInfo {
 }
 
 export interface UpdateUserInfo {
-  data: {
-    gender: string;
-    birth_date: string;
-    height: number;
-    height_unit: string;
-    weight: number;
-    weight_unit: string;
-    activity_level: number;
-    weight_goal: number;
-    weight_goal_unit: string;
-    goal: string;
-    profile_status: string;
-  };
+  gender: string;
+  birth_date: string;
+  height: number;
+  height_unit: string;
+  weight: number;
+  weight_unit: string;
+  activity_level: number;
+  weight_goal: number;
+  weight_goal_unit: string;
+  goal: string;
+  profile_status: string;
 }
