@@ -6,8 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,13 +15,18 @@ import {
 } from "@/components/ui/input-otp";
 import { Loader2 } from "lucide-react";
 import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
-import {
-  useVerifyOTPMutation,
-  useResendOTPMutation,
-} from "@/api/auth/auth-api-slice";
+import { useResendOTPMutation } from "@/api/auth/auth-api-slice";
+import { useVerifyUpdateEmailMutation } from "@/api/user/user-api-slice";
+import LogoutNotice from "@/components/modals/logout-notice";
+interface VerifyOTPModalProps {
+  pendingEmail: string;
+  userId: string;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
 
 const maskEmail = (email: string) => {
+  if (!email) return;
   const [localPart, domain] = email.split("@");
   if (localPart.length <= 3) return email;
   return `${localPart[0]}${"*".repeat(localPart.length - 3)}${localPart.slice(
@@ -31,36 +34,36 @@ const maskEmail = (email: string) => {
   )}@${domain}`;
 };
 
-interface VerifyOTPModalProps {
-  email: string;
-  userId: string;
-}
-
-export default function VerifyOTPModal({ email, userId }: VerifyOTPModalProps) {
+export default function VerifyOTPModal({
+  pendingEmail,
+  userId,
+  isOpen,
+  setIsOpen,
+}: VerifyOTPModalProps) {
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(900);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation();
+  const [verifyEmailChange, { isLoading: isVerifying }] =
+    useVerifyUpdateEmailMutation();
   const [resendOTP, { isLoading: isResending }] = useResendOTPMutation();
+  const [openLogoutNotice, setOpenLogoutNotice] = useState(false);
 
   useEffect(() => {
     setOtp("");
     setTimeLeft(900);
     setError(null);
-    setSuccess(null);
-  }, [email, userId]);
+  }, [pendingEmail, userId]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
-    if (!email || !userId) return;
+    if (!pendingEmail || !userId) return;
 
     const timer = setTimeout(() => {
       setTimeLeft(timeLeft - 1);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [timeLeft, email, userId]);
+  }, [timeLeft, pendingEmail, userId]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -71,7 +74,7 @@ export default function VerifyOTPModal({ email, userId }: VerifyOTPModalProps) {
   };
 
   const handleVerify = async () => {
-    if (!userId || !email) {
+    if (!userId || !pendingEmail) {
       setError("Missing user information. Please try signing up again.");
       return;
     }
@@ -81,14 +84,14 @@ export default function VerifyOTPModal({ email, userId }: VerifyOTPModalProps) {
     }
 
     try {
-      const response = await verifyOTP({
-        user_id: userId,
-        email: email,
+      await verifyEmailChange({
+        userId: userId,
         otp: otp,
       }).unwrap();
-      setSuccess("User verified successfully!");
       setOtp("");
       setTimeLeft(900);
+      setOpenLogoutNotice(true);
+      setIsOpen(false);
     } catch (err: any) {
       if (!err.status) {
         setError("No Server Response");
@@ -103,17 +106,15 @@ export default function VerifyOTPModal({ email, userId }: VerifyOTPModalProps) {
   };
 
   const handleResend = async () => {
-    if (!userId || !email) {
+    if (!userId || !pendingEmail) {
       setError("Missing user information. Please try signing up again.");
       return;
     }
     try {
       const response = await resendOTP({
         user_id: userId,
-        email: email,
+        email: pendingEmail,
       }).unwrap();
-
-      setSuccess(response?.message);
       setOtp("");
       setTimeLeft(900);
     } catch (err: any) {
@@ -135,86 +136,85 @@ export default function VerifyOTPModal({ email, userId }: VerifyOTPModalProps) {
   }, []);
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="default">Verify Email</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="space-y-1">
-          <DialogTitle className="text-2xl font-bold text-center">
-            Verify your email
-          </DialogTitle>
-          <div className="text-center text-muted-foreground text-sm">
-            We've sent a verification code to your email
-            <div className="font-medium text-primary mt-1">
-              {maskEmail(email)}
+    <>
+      <ErrorAlert error={error} setError={setError} />
+      <LogoutNotice isOpen={openLogoutNotice} />
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-2xl font-bold text-center">
+              Verify your email
+            </DialogTitle>
+            <div className="text-center text-muted-foreground text-sm">
+              We've sent a verification code to your email
+              <div className="font-medium text-primary mt-1">
+                {maskEmail(pendingEmail)}
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={setOtp}
+                onComplete={handleComplete}
+                disabled={isVerifying || !pendingEmail || !userId}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+
+              <div className="text-sm text-muted-foreground">
+                {timeLeft > 0 ? (
+                  <span>Code expires in {formatTime(timeLeft)}</span>
+                ) : (
+                  <span>Code expired</span>
+                )}
+              </div>
             </div>
           </div>
-        </DialogHeader>
 
-        <div className="space-y-4">
-          <ErrorAlert error={error} setError={setError} />
-          <SuccessAlert success={success} setSuccess={setSuccess} />
-
-          <div className="flex flex-col items-center justify-center space-y-6">
-            <InputOTP
-              maxLength={6}
-              value={otp}
-              onChange={setOtp}
-              onComplete={handleComplete}
-              disabled={isVerifying}
+          <div className="text-center text-sm flex items-center justify-center gap-1">
+            <Button
+              className="w-[100px]"
+              onClick={handleVerify}
+              disabled={
+                otp.length !== 6 || isVerifying || !pendingEmail || !userId
+              }
             >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-
-            <div className="text-sm text-muted-foreground">
-              {timeLeft > 0 ? (
-                <span>Code expires in {formatTime(timeLeft)}</span>
+              {isVerifying ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <span>Code expired</span>
+                "Verify"
               )}
-            </div>
+            </Button>
           </div>
-        </div>
 
-        <div className="text-center text-sm flex items-center justify-center gap-1">
-          <Button
-            className="w-[100px]"
-            onClick={handleVerify}
-            disabled={otp.length !== 6 || isVerifying}
-          >
-            {isVerifying ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Verify"
-            )}
-          </Button>
-        </div>
-
-        <div className="text-center text-sm flex items-center justify-center gap-1 text-muted-foreground">
-          Didn't receive a code?{" "}
-          <Button
-            variant="link"
-            className="p-0 h-auto font-semibold"
-            onClick={handleResend}
-            disabled={isResending}
-          >
-            {isResending ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              "Resend"
-            )}
-          </Button>
-        </div>
-        {/* </DialogFooter> */}
-      </DialogContent>
-    </Dialog>
+          <div className="text-center text-sm flex items-center justify-center gap-1 text-muted-foreground">
+            Didn't receive a code?{" "}
+            <Button
+              variant="link"
+              className="p-0 h-auto font-semibold"
+              onClick={handleResend}
+              disabled={isResending || !pendingEmail || !userId}
+            >
+              {isResending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                "Resend"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

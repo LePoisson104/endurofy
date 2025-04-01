@@ -7,6 +7,18 @@ interface deleteAccountRequest {
   password: string;
 }
 
+interface updateEmailRequest {
+  userId: string;
+  email: string;
+  newEmail: string;
+  password: string;
+}
+
+interface verifyUpdateEmailRequest {
+  userId: string;
+  otp: string;
+}
+
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllUsersInfo: builder.query({
@@ -40,11 +52,21 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         { type: "User", id: arg.userId }, // Ensure you pass userId correctly
       ],
     }),
-    updateUsersEmail: builder.mutation({
-      query: ({ userId, payload }) => ({
+    updateUsersEmail: builder.mutation<void, updateEmailRequest>({
+      query: ({ userId, email, newEmail, password }) => ({
         url: `/api/v1/users/update-email/${userId}`,
         method: "PATCH",
-        body: payload,
+        body: { email, newEmail, password },
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "User", id: arg.userId }, // Ensure you pass userId correctly
+      ],
+    }),
+    verifyUpdateEmail: builder.mutation<void, verifyUpdateEmailRequest>({
+      query: ({ userId, otp }) => ({
+        url: `/api/v1/users/verify-update-email/${userId}`,
+        method: "POST",
+        body: { otp },
       }),
       invalidatesTags: (result, error, arg) => [
         { type: "User", id: arg.userId }, // Ensure you pass userId correctly
@@ -78,6 +100,7 @@ export const {
   useUpdateUsersNameMutation,
   useUpdateUsersProfileMutation,
   useUpdateUsersEmailMutation,
+  useVerifyUpdateEmailMutation,
   useUpdateUsersPasswordMutation,
   useDeleteUsersAccountMutation,
 } = usersApiSlice;

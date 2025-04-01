@@ -41,14 +41,12 @@ import SuccessAlert from "@/components/alerts/success-alert";
 
 interface UsersProfileModalProps {
   isOpen: boolean;
-  onClose: () => void;
   userId: string;
   email: string;
 }
 
 export default function UsersProfileModal({
   isOpen,
-  onClose,
   userId,
   email,
 }: UsersProfileModalProps) {
@@ -103,7 +101,7 @@ export default function UsersProfileModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Complete Your Profile</DialogTitle>

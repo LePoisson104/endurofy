@@ -34,13 +34,12 @@ import { Loader2 } from "lucide-react";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import VerifyOTPModal from "@/components/modals/verify-otp-modal";
-import UsersProfileModal from "@/components/modals/users-profile-modal";
 
 export function AccountSettings() {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
-  console.log(user);
+
   const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id);
   const [updateFirstName, setUpdateFirstName] = useState("");
   const [updateLastName, setUpdateLastName] = useState("");
@@ -50,8 +49,8 @@ export function AccountSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(true);
-
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
   const [updateUsersName, { isLoading: isUpdatingName }] =
     useUpdateUsersNameMutation();
   const [updateUsersPassword, { isLoading: isUpdatingPassword }] =
@@ -158,12 +157,6 @@ export function AccountSettings() {
                     />
                   </div>
                 </div>
-                <UsersProfileModal
-                  isOpen={isProfileModalOpen}
-                  onClose={() => setIsProfileModalOpen(false)}
-                  userId={user?.user_id || ""}
-                  email={userInfo?.data?.email || ""}
-                />
                 <Button
                   type="submit"
                   disabled={isUpdatingName}
@@ -180,6 +173,17 @@ export function AccountSettings() {
           </Card>
           {/* change email card */}
           <Card>
+            <VerifyOTPModal
+              pendingEmail={userInfo?.data?.pending_email}
+              userId={user?.user_id || ""}
+              isOpen={showVerifyModal}
+              setIsOpen={setShowVerifyModal}
+            />
+            <UpdateEmailModal
+              isOpen={showUpdateEmailModal}
+              setIsOpen={setShowUpdateEmailModal}
+            />
+
             <CardHeader>
               <CardTitle>Email Address</CardTitle>
               <CardDescription>
@@ -198,12 +202,19 @@ export function AccountSettings() {
                   }
                 />
                 {userInfo?.data?.pending_email ? (
-                  <VerifyOTPModal
-                    email={userInfo?.data?.email}
-                    userId={user?.user_id || ""}
-                  />
+                  <Button
+                    variant="default"
+                    onClick={() => setShowVerifyModal(true)}
+                  >
+                    Verify Email
+                  </Button>
                 ) : (
-                  <UpdateEmailModal />
+                  <Button
+                    variant="default"
+                    onClick={() => setShowUpdateEmailModal(true)}
+                  >
+                    Update Email
+                  </Button>
                 )}
               </div>
             </CardContent>

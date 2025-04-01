@@ -42,6 +42,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
+import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -236,6 +237,7 @@ export function AppSidebar() {
 function UserProfileMenu() {
   const pathname = usePathname();
   const user = useSelector(selectCurrentUser);
+  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id || "");
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isOpen, setIsOpen] = useState(false);
@@ -270,7 +272,7 @@ function UserProfileMenu() {
   return (
     <>
       <div ref={buttonRef} className="relative">
-        {user ? (
+        {userInfo ? (
           <SidebarMenuButton
             size="lg"
             tooltip="Account"
@@ -285,16 +287,16 @@ function UserProfileMenu() {
               >
                 <AvatarImage src="#" alt="User" />
                 <AvatarFallback className="bg-[#FE9496] text-white">
-                  {user?.first_name?.charAt(0)}
-                  {user?.last_name?.charAt(0)}
+                  {userInfo?.data?.first_name?.charAt(0)}
+                  {userInfo?.data?.last_name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col min-w-0">
                 <span className="font-medium truncate">
-                  {user?.first_name} {user?.last_name}
+                  {userInfo?.data?.first_name} {userInfo?.data?.last_name}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
-                  {user?.email}
+                  {userInfo?.data?.email}
                 </span>
               </div>
             </div>
