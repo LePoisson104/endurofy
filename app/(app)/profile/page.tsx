@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Edit, Save, User } from "lucide-react";
+import { Edit, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -14,14 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -31,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 import BMIIndicator from "@/components/global/bmi-indicator";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import { useSelector } from "react-redux";
@@ -264,46 +257,16 @@ export default function ProfilePage() {
 
                 {/* Birthday */}
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date of Birth</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !editedProfile?.birth_date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {editedProfile?.birth_date ? (
-                          format(
-                            new Date(editedProfile.birth_date),
-                            "yyyy-MM-dd"
-                          )
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          editedProfile?.birth_date
-                            ? new Date(editedProfile.birth_date)
-                            : undefined
-                        }
-                        onSelect={(date) => {
-                          if (date) {
-                            // Format the date as YYYY-MM-DD
-                            const formattedDate = format(date, "yyyy-MM-dd");
-                            handleInputChange("birth_date", formattedDate);
-                          }
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="birth_date">Date of Birth</Label>
+                  <Input
+                    id="birth_date"
+                    type="date"
+                    value={editedProfile?.birth_date || ""}
+                    onChange={(e) =>
+                      handleInputChange("birth_date", e.target.value)
+                    }
+                    max={new Date().toISOString().split("T")[0]} // Prevents selecting future dates
+                  />
                 </div>
 
                 {/* Height */}

@@ -7,20 +7,22 @@ import usePersist from "@/hooks/use-persist";
 import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
 import DotPulse from "@/components/global/dot-pulse";
 import UsersProfileModal from "@/components/modals/users-profile-modal";
+import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
   const token = useSelector(selectCurrentToken);
   const user = useSelector(selectCurrentUser);
+  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id || "");
   const effectRan = useRef(false);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [trueSuccess, setTrueSuccess] = useState(false);
   const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =
     useRefreshMutation();
-  console.log(isOpen);
+
   useEffect(() => {
-    if (user?.profile_status === "incomplete") {
+    if (userInfo?.data?.profile_status === "incomplete") {
       setIsOpen(true);
     } else {
       setIsOpen(false);
@@ -45,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       effectRan.current = true; // Prevent re-runs in React Strict Mode
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, persist, refresh, user]);
+  }, [token, persist, refresh, userInfo]);
 
   useEffect(() => {
     if (isError) {

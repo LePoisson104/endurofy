@@ -26,15 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
@@ -58,9 +49,9 @@ export default function UsersProfileModal({
     gender: "",
     birth_date: "",
     height: "",
-    height_unit: "cm",
+    height_unit: "",
     current_weight: "",
-    weight_unit: "kg",
+    weight_unit: "",
     goal_weight: "",
     activity_level: "",
   });
@@ -146,43 +137,15 @@ export default function UsersProfileModal({
                 </div>
                 <div className="space-y-2">
                   <Label>Birth Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.birth_date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.birth_date ? (
-                          format(new Date(formData.birth_date), "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          formData.birth_date
-                            ? new Date(formData.birth_date)
-                            : undefined
-                        }
-                        onSelect={(date) => {
-                          if (date) {
-                            handleInputChange(
-                              "birth_date",
-                              format(date, "yyyy-MM-dd")
-                            );
-                          }
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Input
+                    id="birth_date"
+                    type="date"
+                    value={formData.birth_date || ""}
+                    onChange={(e) =>
+                      handleInputChange("birth_date", e.target.value)
+                    }
+                    max={new Date().toISOString().split("T")[0]} // Prevents selecting future dates
+                  />
                 </div>
               </div>
             </CardContent>
@@ -203,13 +166,14 @@ export default function UsersProfileModal({
                   <div className="flex gap-2">
                     <Input
                       id="height"
+                      placeholder="Height"
                       type="number"
                       value={formData.height}
                       onChange={(e) =>
                         handleInputChange("height", e.target.value)
                       }
                       required
-                      className="flex-1"
+                      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <Select
                       value={formData.height_unit}
@@ -218,7 +182,7 @@ export default function UsersProfileModal({
                       }
                     >
                       <SelectTrigger className="w-[100px]">
-                        <SelectValue />
+                        <SelectValue placeholder="Unit" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="cm">cm</SelectItem>
@@ -232,13 +196,14 @@ export default function UsersProfileModal({
                   <div className="flex gap-2">
                     <Input
                       id="current_weight"
+                      placeholder="Current Weight"
                       type="number"
                       value={formData.current_weight}
                       onChange={(e) =>
                         handleInputChange("current_weight", e.target.value)
                       }
                       required
-                      className="flex-1"
+                      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <Select
                       value={formData.weight_unit}
@@ -247,7 +212,7 @@ export default function UsersProfileModal({
                       }
                     >
                       <SelectTrigger className="w-[100px]">
-                        <SelectValue />
+                        <SelectValue placeholder="Unit" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="kg">kg</SelectItem>
@@ -261,13 +226,14 @@ export default function UsersProfileModal({
                   <div className="flex gap-2">
                     <Input
                       id="goal_weight"
+                      placeholder="Goal Weight"
                       type="number"
                       value={formData.goal_weight}
                       onChange={(e) =>
                         handleInputChange("goal_weight", e.target.value)
                       }
                       required
-                      className="flex-1"
+                      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <Select
                       value={formData.weight_unit}
@@ -276,7 +242,7 @@ export default function UsersProfileModal({
                       }
                     >
                       <SelectTrigger className="w-[100px]">
-                        <SelectValue />
+                        <SelectValue placeholder="Unit" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="kg">kg</SelectItem>
