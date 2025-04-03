@@ -86,7 +86,7 @@ export default function VerifyOTP() {
         email: email,
         otp: otp,
       }).unwrap();
-      setSuccess("User created successfully!");
+      setSuccess("User created successfully, redirecting to login...");
       setOtp("");
       sessionStorage.clear();
       setTimeLeft(900);

@@ -159,7 +159,13 @@ export function AccountSettings() {
                 </div>
                 <Button
                   type="submit"
-                  disabled={isUpdatingName}
+                  disabled={
+                    isUpdatingName ||
+                    !updateFirstName ||
+                    !updateLastName ||
+                    (updateFirstName === userInfo?.data?.first_name &&
+                      updateLastName === userInfo?.data?.last_name)
+                  }
                   className="w-[120px]"
                 >
                   {isUpdatingName ? (

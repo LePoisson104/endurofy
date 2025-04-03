@@ -36,7 +36,7 @@ export interface UpdateUserInfo {
   height_unit: string;
   weight: number;
   weight_unit: string;
-  activity_level: number;
+  activity_level: string;
   weight_goal: number;
   weight_goal_unit: string;
   goal: string;

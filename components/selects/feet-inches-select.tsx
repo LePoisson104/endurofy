@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function FeetInchesSelect({
   value,
@@ -14,35 +14,70 @@ export default function FeetInchesSelect({
   value: string;
   onChange: (value: number) => void;
 }) {
-  const [feet, setFeet] = useState("0");
-  const [inches, setInches] = useState("0");
+  // Track if this is the initial render
+  const isInitialMount = useRef(true);
 
+  // Parse the incoming total inches value - fallback to 0 if invalid
+  const totalInches = parseInt(value) || 0;
+
+  // Calculate feet and inches from total inches
+  const calculatedFeet = Math.floor(totalInches / 12);
+  const calculatedInches = totalInches % 12;
+
+  // Set state with calculated values
+  const [feet, setFeet] = useState<number>(calculatedFeet);
+  const [inches, setInches] = useState<number>(calculatedInches);
+
+  // Sync with external value changes
   useEffect(() => {
-    // Convert inches to feet and inches when value changes
-    const totalInches = Number(value);
-    setFeet(Math.floor(totalInches / 12).toString());
-    setInches((totalInches % 12).toString());
+    // Skip the first render to avoid circular updates
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const newTotalInches = parseInt(value) || 0;
+    const newFeet = Math.floor(newTotalInches / 12);
+    const newInches = newTotalInches % 12;
+
+    // Only update if values actually changed
+    if (newFeet !== feet) {
+      setFeet(newFeet);
+    }
+
+    if (newInches !== inches) {
+      setInches(newInches);
+    }
   }, [value]);
 
-  const handleFeetChange = (newFeet: string) => {
+  // Handle feet change without triggering unnecessary state updates
+  const handleFeetChange = (newFeetStr: string) => {
+    const newFeet = parseInt(newFeetStr) || 0;
     setFeet(newFeet);
-    const totalInches = Number(newFeet) * 12 + Number(inches);
-    onChange(totalInches);
+
+    // Calculate and report the total inches
+    const newTotalInches = newFeet * 12 + inches;
+    onChange(newTotalInches);
   };
 
-  const handleInchesChange = (newInches: string) => {
+  // Handle inches change without triggering unnecessary state updates
+  const handleInchesChange = (newInchesStr: string) => {
+    const newInches = parseInt(newInchesStr) || 0;
     setInches(newInches);
-    const totalInches = Number(feet) * 12 + Number(newInches);
-    onChange(totalInches);
+
+    // Calculate and report the total inches
+    const newTotalInches = feet * 12 + newInches;
+    onChange(newTotalInches);
   };
 
   return (
     <div className="flex gap-2">
-      <Select value={feet} onValueChange={handleFeetChange}>
+      <Select value={feet.toString()} onValueChange={handleFeetChange}>
         <SelectTrigger>
           <SelectValue placeholder="Feet" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="0">0'</SelectItem>
           <SelectItem value="1">1'</SelectItem>
           <SelectItem value="2">2'</SelectItem>
           <SelectItem value="3">3'</SelectItem>
@@ -50,10 +85,9 @@ export default function FeetInchesSelect({
           <SelectItem value="5">5'</SelectItem>
           <SelectItem value="6">6'</SelectItem>
           <SelectItem value="7">7'</SelectItem>
-          <SelectItem value="8">8'</SelectItem>
         </SelectContent>
       </Select>
-      <Select value={inches} onValueChange={handleInchesChange}>
+      <Select value={inches.toString()} onValueChange={handleInchesChange}>
         <SelectTrigger>
           <SelectValue placeholder="Inches" />
         </SelectTrigger>

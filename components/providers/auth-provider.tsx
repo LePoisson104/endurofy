@@ -27,6 +27,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setIsOpen(false);
     }
+  }, [userInfo]);
+
+  useEffect(() => {
     const verifyRefreshToken = async () => {
       try {
         console.log("Verifying refresh token...");
@@ -47,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       effectRan.current = true; // Prevent re-runs in React Strict Mode
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, persist, refresh, userInfo]);
+  }, [token, persist, refresh]);
 
   useEffect(() => {
     if (isError) {
@@ -71,8 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           {children}
           <UsersProfileModal
             isOpen={isOpen}
-            userId={user?.user_id || ""}
-            email={user?.email || ""}
+            profileStatus={userInfo?.data?.profile_status}
           />
         </>
       );
@@ -80,7 +82,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       content = children;
     }
   } else if (token && isUninitialized) {
-    content = children;
+    if (isOpen) {
+      content = (
+        <>
+          {children}
+          <UsersProfileModal
+            isOpen={isOpen}
+            profileStatus={userInfo?.data?.profile_status}
+          />
+        </>
+      );
+    } else {
+      content = children;
+    }
   }
 
   return content;
