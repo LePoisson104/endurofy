@@ -36,6 +36,7 @@ import { Loader2 } from "lucide-react";
 interface UsersProfileModalProps {
   isOpen: boolean;
   profileStatus: string;
+  setIsProfileSuccessNoticeOpen: (isSuccess: boolean) => void;
 }
 
 interface FormData {
@@ -60,6 +61,7 @@ const LB_TO_KG = 0.453592;
 export default function UsersProfileModal({
   isOpen,
   profileStatus,
+  setIsProfileSuccessNoticeOpen,
 }: UsersProfileModalProps) {
   const user = useSelector(selectCurrentUser);
   const [error, setError] = useState<string | null>(null);
@@ -115,6 +117,7 @@ export default function UsersProfileModal({
         goal: "",
         profile_status: "",
       });
+      setIsProfileSuccessNoticeOpen(true);
     } catch (err: any) {
       if (err.status === 400) {
         setError(err.data?.message || "Failed to update profile");
@@ -125,7 +128,7 @@ export default function UsersProfileModal({
   };
 
   // Generic input change handler
-  const updateField = (field: keyof FormData, value: string) => {
+  const updateField = (field: keyof FormData, value: string | number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -200,7 +203,7 @@ export default function UsersProfileModal({
 
   // Special handler for feet/inches selection
   const handleFeetInchesChange = (totalInches: number) => {
-    updateField("height", totalInches.toString());
+    updateField("height", totalInches);
   };
 
   return (
@@ -291,7 +294,7 @@ export default function UsersProfileModal({
                             // Ensure the value stays within the allowed range
                             if (value < 1) value = 1;
                             if (value > 251) value = 251;
-                            updateField("height", value.toString());
+                            updateField("height", value);
                           }}
                           className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
@@ -326,7 +329,7 @@ export default function UsersProfileModal({
                           // Ensure the value stays within the allowed range
                           if (value < 1) value = 1;
                           if (value > 1000) value = 1000;
-                          updateField("weight", value.toString());
+                          updateField("weight", value);
                         }}
                         required
                         className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -361,7 +364,7 @@ export default function UsersProfileModal({
                           // Ensure the value stays within the allowed range
                           if (value < 1) value = 1;
                           if (value > 1000) value = 1000;
-                          updateField("weight_goal", value.toString());
+                          updateField("weight_goal", value);
                         }}
                         required
                         className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"

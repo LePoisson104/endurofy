@@ -8,6 +8,7 @@ import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
 import DotPulse from "@/components/global/dot-pulse";
 import UsersProfileModal from "@/components/modals/users-profile-modal";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
+import ProfileSuccessNotice from "@/components/modals/profile-success-notice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
@@ -17,6 +18,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const effectRan = useRef(false);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
+    useState(false);
   const [trueSuccess, setTrueSuccess] = useState(false);
   const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =
     useRefreshMutation();
@@ -24,8 +27,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (userInfo?.data?.profile_status === "incomplete") {
       setIsOpen(true);
-    } else {
-      setIsOpen(false);
+    } else if (userInfo?.data?.profile_status === "complete") {
+      setTimeout(() => {
+        setIsOpen(false);
+      }, 1000);
     }
   }, [userInfo]);
 
@@ -75,11 +80,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           <UsersProfileModal
             isOpen={isOpen}
             profileStatus={userInfo?.data?.profile_status}
+            setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
           />
         </>
       );
     } else {
-      content = children;
+      content = (
+        <>
+          <ProfileSuccessNotice open={isProfileSuccessNoticeOpen} />
+          {children}
+        </>
+      );
     }
   } else if (token && isUninitialized) {
     if (isOpen) {
@@ -89,11 +100,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           <UsersProfileModal
             isOpen={isOpen}
             profileStatus={userInfo?.data?.profile_status}
+            setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
           />
         </>
       );
     } else {
-      content = children;
+      content = (
+        <>
+          <ProfileSuccessNotice open={isProfileSuccessNoticeOpen} />
+          {children}
+        </>
+      );
     }
   }
 
