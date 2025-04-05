@@ -51,7 +51,8 @@ import WeightLogHistory from "@/components/tables/weight-log-history";
 import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-
+import { selectWeightStates } from "@/api/user/user-slice";
+import { Skeleton } from "@/components/ui/skeleton";
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
@@ -66,14 +67,20 @@ export default function WeightLogPage() {
     endDate: "2025-03-19",
   });
 
-  console.log(weightLog);
-  // Mock data
-  const currentWeight = 183;
-  const heightInInches = 70; // 5'10"
-  // BMI formula: (weight in pounds / (height in inches)²) × 703
-  const bmi =
-    Math.round((currentWeight / Math.pow(heightInInches, 2)) * 703 * 10) / 10;
-  const bmiCategory = getBmiCategory(bmi);
+  const weightStates = useSelector(selectWeightStates);
+  const currentWeight = Number(weightStates.current_weight);
+  const startWeight = Number(weightStates.starting_weight);
+  const goalWeight = Number(weightStates.weight_goal);
+  const weightProgress = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
+      )
+    )
+  );
+
   const [date, setDate] = React.useState<Date>();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -208,62 +215,88 @@ export default function WeightLogPage() {
               </Card>
 
               {/* Current Weight & Goal */}
-              <Card className="shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-medium">
-                    Current Stats
-                  </CardTitle>
-                  <Activity className="h-4 w-4 text-teal-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between">
-                    <p className="text-2xl font-bold mb-2">Goal: 173 lbs</p>
-                    <p className="text-xs text-green-500 flex mt-2">
-                      <ChevronDown className="h-4 w-4 text-green-500" /> 2 lbs
-                      since last week
+              {weightStates?.current_weight ? (
+                <Card className="shadow-sm">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-base font-medium">
+                      Current Stats
+                    </CardTitle>
+                    <Activity className="h-4 w-4 text-teal-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between">
+                      <p className="text-2xl font-bold mb-2">
+                        Goal: {goalWeight}{" "}
+                        {weightStates.starting_weight_unit === "lb"
+                          ? "lbs"
+                          : "kg"}
+                      </p>
+                      <p className="text-xs text-green-500 flex mt-2">
+                        <ChevronDown className="h-4 w-4 text-green-500" /> 2 lbs
+                        since last week
+                      </p>
+                    </div>
+                    <Progress value={weightProgress} />
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-muted-foreground">
+                        {startWeight}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Current: {currentWeight}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {goalWeight}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Progress: {weightProgress}%
                     </p>
-                  </div>
-                  <Progress value={33} />
-                  <div className="flex justify-between mt-2">
-                    <p className="text-xs text-muted-foreground">185 </p>
-                    <p className="text-xs text-muted-foreground">
-                      Current: 183
-                    </p>
-                    <p className="text-xs text-muted-foreground">173</p>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Progress: 33% of your goal
-                  </p>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Skeleton className="h-[220px] w-full" />
+              )}
 
               {/* BMI Chart */}
-              <Card className="shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-medium">
-                    Body Mass Index (BMI)
-                  </CardTitle>
-                  <BarChart3 className="h-4 w-4 text-blue-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Your BMI</p>
-                      <p className="text-3xl font-bold">{bmi}</p>
-                      <p className="text-sm mt-1">{bmiCategory}</p>
+              {weightStates?.bmi ? (
+                <Card className="shadow-sm">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-base font-medium">
+                      Body Mass Index (BMI)
+                    </CardTitle>
+                    <BarChart3 className="h-4 w-4 text-blue-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Your BMI
+                        </p>
+                        <p className="text-3xl font-bold">
+                          {weightStates?.bmi}
+                        </p>
+                        <p className="text-sm mt-1">
+                          {weightStates?.bmi_category}
+                        </p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <BMIIndicator
+                          bmi={weightStates?.bmi}
+                          bmiCategory={weightStates?.bmi_category}
+                        />
+                      </div>
                     </div>
-                    <div className="md:col-span-2">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        BMI Range
-                      </p>
-                      <BMIIndicator bmi={bmi} bmiCategory={bmiCategory} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Skeleton className="h-[220px] w-full" />
+              )}
 
               {/* Weight History */}
-              <WeightLogHistory weightHistory={weightLog} />
+              <WeightLogHistory
+                weightHistory={weightLog}
+                goal={weightStates.goal}
+              />
             </div>
 
             {/* Right Column - 1/4 width on large screens, hidden on small screens */}
@@ -292,21 +325,4 @@ export default function WeightLogPage() {
       </Dialog>
     </div>
   );
-}
-
-// Helper functions
-function getBmiCategory(bmi: number): string {
-  if (bmi < 18.5) return "Underweight";
-  if (bmi < 25) return "Normal weight";
-  if (bmi < 30) return "Overweight";
-  return "Obese";
-}
-
-function getBmiProgress(bmi: number): number {
-  // Returns position percentage for BMI indicator
-  if (bmi < 18.5) return (bmi / 18.5) * 18.5;
-  if (bmi < 25) return 18.5 + ((bmi - 18.5) / 6.5) * 18.5;
-  if (bmi < 30) return 37.0 + ((bmi - 25) / 5) * 18.5;
-  if (bmi < 40) return 55.5 + ((bmi - 30) / 10) * 18.5;
-  return 74.0; // Max value
 }

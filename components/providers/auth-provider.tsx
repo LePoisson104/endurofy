@@ -9,15 +9,18 @@ import DotPulse from "@/components/global/dot-pulse";
 import UsersProfileModal from "@/components/modals/users-profile-modal";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import ProfileSuccessNotice from "@/components/modals/profile-success-notice";
+import { useDispatch } from "react-redux";
+import { setWeightStates } from "@/api/user/user-slice";
+import { calculateBMI } from "@/helper/calculate-bmi";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
+  const dispatch = useDispatch();
+  const router = useRouter();
   const token = useSelector(selectCurrentToken);
   const user = useSelector(selectCurrentUser);
   const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id || "");
-  console.log(userInfo);
   const effectRan = useRef(false);
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
@@ -34,6 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }, 1000);
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    if (userInfo?.data) {
+      const bmiResults = calculateBMI(userInfo);
+      dispatch(setWeightStates({ ...userInfo.data, ...bmiResults }));
+    }
+  }, [userInfo, dispatch]);
 
   useEffect(() => {
     const verifyRefreshToken = async () => {

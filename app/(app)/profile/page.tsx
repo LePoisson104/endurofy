@@ -29,7 +29,6 @@ import BMIIndicator from "@/components/global/bmi-indicator";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import { calculateBMI } from "@/helper/calculate-bmi";
 import { getActivityMultiplier } from "@/helper/constants/activity-level-contants";
 import {
   convertHeight,
@@ -43,6 +42,7 @@ import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
+import { selectWeightStates } from "@/api/user/user-slice";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
@@ -56,13 +56,10 @@ export default function ProfilePage() {
   const [editedProfile, setEditedProfile] = useState<UpdateUserInfo | null>(
     null
   );
-
+  const weightStates = useSelector(selectWeightStates);
   const [isEditing, setIsEditing] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [bmi, setBmi] = useState(0);
-  const [bmiCategory, setBmiCategory] = useState("");
-  const [bmiCategoryColor, setBmiCategoryColor] = useState("");
   const [userHeight, setUserHeight] = useState("");
   const lastUpdated = convertDateFormat(
     userInfo?.data?.user_profile_updated_at
@@ -70,10 +67,7 @@ export default function ProfilePage() {
   // Run calculations when `profile` or `weightHistoryData` changes
   useEffect(() => {
     if (!userInfo) return;
-    const bmiResults = calculateBMI(userInfo);
-    setBmi(bmiResults?.bmi || 0);
-    setBmiCategory(bmiResults?.bmiCategory || "");
-    setBmiCategoryColor(bmiResults?.bmiCategoryColor || "");
+
     const heightInFeetAndMeters = getHeightInFeetAndMeters(
       userInfo?.data?.height,
       userInfo?.data?.height_unit
@@ -84,12 +78,14 @@ export default function ProfilePage() {
   useEffect(() => {
     if (userInfo) {
       setEditedProfile({
+        current_weight: userInfo.data.current_weight,
+        current_weight_unit: userInfo.data.current_weight_unit,
         gender: userInfo.data.gender,
         birth_date: userInfo.data.birth_date?.split("T")[0],
         height: userInfo.data.height,
         height_unit: userInfo.data.height_unit,
-        weight: userInfo.data.weight,
-        weight_unit: userInfo.data.weight_unit,
+        starting_weight: userInfo.data.starting_weight,
+        starting_weight_unit: userInfo.data.starting_weight_unit,
         activity_level: userInfo.data.activity_level,
         weight_goal: userInfo.data.weight_goal,
         weight_goal_unit: userInfo.data.weight_goal_unit,
@@ -97,7 +93,7 @@ export default function ProfilePage() {
         profile_status: userInfo.data.profile_status,
       });
     }
-  }, [userInfo]);
+  }, [userInfo, isEditing]);
 
   // Calculate TDEE (Total Daily Energy Expenditure)
   const calculateTDEE = useCallback(
@@ -109,6 +105,36 @@ export default function ProfilePage() {
     [userInfo?.data?.activity_level]
   );
 
+  const calculateBMR = useCallback(
+    (
+      birthDate: string,
+      gender: string,
+      weight: number,
+      weightUnit: string,
+      height: number,
+      heightUnit: string
+    ) => {
+      const today = new Date();
+      const birthDateObj = new Date(birthDate);
+      const age = today.getFullYear() - birthDateObj.getFullYear();
+
+      // Convert weight to kg if in lbs
+      const weightKg = weightUnit === "lb" ? weight * 0.453592 : weight;
+
+      // Convert height to cm if in inches
+      const heightCm = heightUnit === "ft" ? height * 2.54 : height;
+
+      // BMR Calculation
+      const genderFactor = gender === "male" ? 5 : -161;
+      const BMR = Math.round(
+        10 * weightKg + 6.25 * heightCm - 5 * age + genderFactor
+      );
+
+      return BMR;
+    },
+    [userInfo]
+  );
+
   // Handle form input changes
   const handleInputChange = (
     field: keyof UpdateUserInfo,
@@ -116,6 +142,7 @@ export default function ProfilePage() {
   ) => {
     setEditedProfile((prevProfile) => {
       if (!prevProfile) return null; // Ensure there is an existing profile
+
       return {
         ...prevProfile,
         [field]: value,
@@ -133,6 +160,7 @@ export default function ProfilePage() {
       setErrMsg("All fields are required");
       return;
     }
+
     try {
       if (!editedProfile) return;
 
@@ -329,7 +357,31 @@ export default function ProfilePage() {
                     </Select>
                   </div>
                 </div>
-
+                {/* goal */}
+                <div className="space-y-2">
+                  <Label htmlFor="goal">Goal</Label>
+                  <Select
+                    defaultValue={userInfo?.data?.goal || ""}
+                    onValueChange={(value) => {
+                      handleInputChange("goal", value);
+                      if (value === "maintain") {
+                        handleInputChange(
+                          "weight_goal",
+                          editedProfile?.starting_weight || 0
+                        );
+                      }
+                    }}
+                  >
+                    <SelectTrigger id="goal" className="w-full">
+                      <SelectValue placeholder="Select goal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lose">Lose Weight</SelectItem>
+                      <SelectItem value="gain">Gain Weight</SelectItem>
+                      <SelectItem value="maintain">Maintain Weight</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 {/* Current Weight */}
                 <div className="space-y-2">
                   <Label htmlFor="currentWeight">Current Weight</Label>
@@ -337,20 +389,24 @@ export default function ProfilePage() {
                     <Input
                       id="weight"
                       type="number"
-                      value={editedProfile?.weight || ""}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "weight",
-                          Number.parseFloat(e.target.value)
-                        )
-                      }
+                      value={editedProfile?.starting_weight?.toString() || ""}
+                      onChange={(e) => {
+                        let value = Number.parseFloat(e.target.value);
+                        if (value < 1) value = 1;
+                        if (value > 1000) value = 1000;
+                        handleInputChange("starting_weight", value);
+                        handleInputChange("current_weight", value);
+                        if (editedProfile?.goal === "maintain") {
+                          handleInputChange("weight_goal", value);
+                        }
+                      }}
                       className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <Select
-                      value={editedProfile?.weight_unit || "kg"}
+                      value={editedProfile?.starting_weight_unit || "kg"}
                       onValueChange={(value) => {
                         const currentWeight = Number(
-                          editedProfile?.weight || 0
+                          editedProfile?.starting_weight || 0
                         );
                         const goalWeight = Number(
                           editedProfile?.weight_goal || 0
@@ -360,7 +416,7 @@ export default function ProfilePage() {
 
                         if (
                           value === "lb" &&
-                          editedProfile?.weight_unit === "kg"
+                          editedProfile?.starting_weight_unit === "kg"
                         ) {
                           // Convert from kg to lbs
                           newCurrentWeight = Math.round(
@@ -369,7 +425,7 @@ export default function ProfilePage() {
                           newGoalWeight = Math.round(goalWeight * 2.20462);
                         } else if (
                           value === "kg" &&
-                          editedProfile?.weight_unit === "lb"
+                          editedProfile?.starting_weight_unit === "lb"
                         ) {
                           // Convert from lbs to kg
                           newCurrentWeight = Math.round(
@@ -379,15 +435,16 @@ export default function ProfilePage() {
                         }
 
                         handleInputChange(
-                          "weight",
+                          "starting_weight",
                           Number(newCurrentWeight.toFixed(2))
                         );
                         handleInputChange(
                           "weight_goal",
                           Number(newGoalWeight.toFixed(2))
                         );
-                        handleInputChange("weight_unit", value);
+                        handleInputChange("starting_weight_unit", value);
                         handleInputChange("weight_goal_unit", value);
+                        handleInputChange("current_weight_unit", value);
                       }}
                     >
                       <SelectTrigger className="w-[100px]">
@@ -402,26 +459,31 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Goal Weight */}
-                <div className="space-y-2">
-                  <Label htmlFor="goalWeight">Goal Weight</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="weight_goal"
-                      type="number"
-                      value={editedProfile?.weight_goal || ""}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "weight_goal",
-                          Number.parseFloat(e.target.value)
-                        )
-                      }
-                      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
-                      {editedProfile?.weight_unit === "lb" ? "lbs" : "kg"}
+                {(editedProfile?.goal === "lose" ||
+                  editedProfile?.goal === "gain") && (
+                  <div className="space-y-2">
+                    <Label htmlFor="goalWeight">Goal Weight</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="weight_goal"
+                        type="number"
+                        value={editedProfile?.weight_goal?.toString() || ""}
+                        onChange={(e) => {
+                          let value = Number.parseFloat(e.target.value);
+                          if (value < 1) value = 1;
+                          if (value > 1000) value = 1000;
+                          handleInputChange("weight_goal", value);
+                        }}
+                        className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
+                        {editedProfile?.starting_weight_unit === "lb"
+                          ? "lbs"
+                          : "kg"}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Activity Level */}
                 <div className="space-y-2">
@@ -451,23 +513,6 @@ export default function ProfilePage() {
                       <SelectItem value="extra_active">
                         Extremely Active (very hard exercise, physical job)
                       </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* goal */}
-                <div className="space-y-2">
-                  <Label htmlFor="goal">Goal</Label>
-                  <Select
-                    defaultValue={userInfo?.data?.goal || ""}
-                    onValueChange={(value) => handleInputChange("goal", value)}
-                  >
-                    <SelectTrigger id="goal" className="w-full">
-                      <SelectValue placeholder="Select goal" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lose">Lose Weight</SelectItem>
-                      <SelectItem value="gain">Gain Weight</SelectItem>
-                      <SelectItem value="maintain">Maintain Weight</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -568,13 +613,16 @@ export default function ProfilePage() {
                           Current Weight
                         </h3>
                         <p className="text-lg font-medium">
-                          {userInfo?.data?.weight} {userInfo?.data?.weight_unit}{" "}
-                          (
+                          {Number(userInfo?.data?.current_weight)}{" "}
+                          {userInfo?.data?.current_weight_unit} (
                           {convertWeight(
-                            userInfo?.data?.weight,
-                            userInfo?.data?.weight_unit
+                            Number(userInfo?.data?.current_weight),
+                            userInfo?.data?.current_weight_unit
                           )}{" "}
-                          {userInfo?.data?.weight_unit === "lb" ? "kg" : "lbs"})
+                          {userInfo?.data?.current_weight_unit === "lb"
+                            ? "kg"
+                            : "lbs"}
+                          )
                         </p>
                       </div>
                       <div>
@@ -582,10 +630,10 @@ export default function ProfilePage() {
                           Goal Weight
                         </h3>
                         <p className="text-lg font-medium">
-                          {userInfo?.data?.weight_goal}{" "}
+                          {Number(userInfo?.data?.weight_goal)}{" "}
                           {userInfo?.data?.weight_goal_unit} (
                           {convertWeight(
-                            userInfo?.data?.weight_goal,
+                            Number(userInfo?.data?.weight_goal),
                             userInfo?.data?.weight_goal_unit
                           )}{" "}
                           {userInfo?.data?.weight_goal_unit === "lb"
@@ -604,18 +652,20 @@ export default function ProfilePage() {
                           BMI (Body Mass Index)
                         </h3>
                         <span
-                          className={`text-sm font-medium ${bmiCategoryColor}`}
+                          className={`text-sm font-medium ${weightStates.bmi_category_color}`}
                         >
-                          {bmiCategory}
+                          {weightStates.bmi_category}
                         </span>
                       </div>
-                      <p className="text-3xl font-bold mt-1">{bmi}</p>
+                      <p className="text-3xl font-bold mt-1">
+                        {weightStates.bmi}
+                      </p>
 
                       {/* BMI Scale Visualization */}
                       <div className="mt-4">
                         <BMIIndicator
-                          bmi={bmi}
-                          bmiCategory={bmiCategory}
+                          bmi={weightStates.bmi}
+                          bmiCategory={weightStates.bmi_category}
                           showLabels={true}
                         />
                       </div>
@@ -640,7 +690,14 @@ export default function ProfilePage() {
                             Basal Metabolic Rate (BMR)
                           </h3>
                           <p className="text-3xl font-bold mt-1">
-                            {Math.round(userInfo?.data?.BMR?.toString())}{" "}
+                            {calculateBMR(
+                              userInfo?.data?.birth_date,
+                              userInfo?.data?.gender,
+                              Number(userInfo?.data?.current_weight),
+                              userInfo?.data?.current_weight_unit,
+                              Number(userInfo?.data?.height),
+                              userInfo?.data?.height_unit
+                            )}{" "}
                             calories/day
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -687,7 +744,17 @@ export default function ProfilePage() {
                             Total Daily Energy Expenditure (TDEE)
                           </h3>
                           <p className="text-3xl font-bold mt-1">
-                            {calculateTDEE(userInfo?.data?.BMR)} calories/day
+                            {calculateTDEE(
+                              calculateBMR(
+                                userInfo?.data?.birth_date,
+                                userInfo?.data?.gender,
+                                Number(userInfo?.data?.current_weight),
+                                userInfo?.data?.current_weight_unit,
+                                Number(userInfo?.data?.height),
+                                userInfo?.data?.height_unit
+                              )
+                            )}{" "}
+                            calories/day
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             The total calories you burn each day based on your
@@ -705,12 +772,21 @@ export default function ProfilePage() {
                             <div className="bg-primary/10 rounded-lg p-3">
                               <p className="text-sm font-medium">
                                 To Lose Weight ~{" "}
-                                {userInfo?.data?.weight_unit === "lb"
+                                {userInfo?.data?.starting_weight_unit === "lb"
                                   ? "1lb/week"
                                   : "0.5kg/week"}
                               </p>
                               <p className="text-lg font-bold">
-                                {calculateTDEE(userInfo?.data?.BMR) - 500}{" "}
+                                {calculateTDEE(
+                                  calculateBMR(
+                                    userInfo?.data?.birth_date,
+                                    userInfo?.data?.gender,
+                                    Number(userInfo?.data?.current_weight),
+                                    userInfo?.data?.current_weight_unit,
+                                    Number(userInfo?.data?.height),
+                                    userInfo?.data?.height_unit
+                                  )
+                                ) - 500}{" "}
                                 cal/day
                               </p>
                               <p className="text-xs text-muted-foreground">
@@ -720,12 +796,21 @@ export default function ProfilePage() {
                             <div className="bg-primary/10 rounded-lg p-3">
                               <p className="text-sm font-medium">
                                 To Gain Weight ~{" "}
-                                {userInfo?.data?.weight_unit === "lb"
+                                {userInfo?.data?.starting_weight_unit === "lb"
                                   ? "1lb/week"
                                   : "0.5kg/week"}
                               </p>
                               <p className="text-lg font-bold">
-                                {calculateTDEE(userInfo?.data?.BMR) + 500}{" "}
+                                {calculateTDEE(
+                                  calculateBMR(
+                                    userInfo?.data?.birth_date,
+                                    userInfo?.data?.gender,
+                                    Number(userInfo?.data?.current_weight),
+                                    userInfo?.data?.current_weight_unit,
+                                    Number(userInfo?.data?.height),
+                                    userInfo?.data?.height_unit
+                                  )
+                                ) + 500}{" "}
                                 cal/day
                               </p>
                               <p className="text-xs text-muted-foreground">

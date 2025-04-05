@@ -47,10 +47,7 @@ export default function BMIIndicator({
   return (
     <div className={cn("space-y-2", className)}>
       {showLabels && (
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-muted-foreground">
-            BMI (Body Mass Index)
-          </span>
+        <div className="flex justify-end items-center">
           <span className={`text-sm font-medium ${categoryColor}`}>
             {displayCategory}
           </span>

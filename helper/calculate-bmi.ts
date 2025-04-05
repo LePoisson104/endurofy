@@ -9,23 +9,26 @@ export const calculateBMI = (userInfo: UserInfo) => {
   let bmiCategoryColor = "";
   let userHeight = 0;
 
-  if (!userInfo?.data?.height || !userInfo?.data?.weight) return;
+  if (!userInfo?.data?.height || !userInfo?.data?.current_weight) return;
 
   if (
     userInfo?.data?.height_unit === "cm" &&
-    userInfo?.data?.weight_unit === "kg"
+    userInfo?.data?.current_weight_unit === "kg"
   ) {
     userHeight = userInfo?.data?.height / 100;
     bmi = Number.parseFloat(
-      (userInfo?.data?.weight / (userHeight * userHeight)).toFixed(1)
+      (userInfo?.data?.current_weight / (userHeight * userHeight)).toFixed(1)
     );
   } else if (
     userInfo?.data?.height_unit === "ft" &&
-    userInfo?.data?.weight_unit === "lb"
+    userInfo?.data?.current_weight_unit === "lb"
   ) {
     userHeight = userInfo?.data?.height; // in inches
     bmi = Number.parseFloat(
-      ((userInfo?.data?.weight / (userHeight * userHeight)) * 703).toFixed(1)
+      (
+        (userInfo?.data?.current_weight / (userHeight * userHeight)) *
+        703
+      ).toFixed(1)
     );
   }
 

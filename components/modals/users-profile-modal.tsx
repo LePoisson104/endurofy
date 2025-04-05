@@ -44,9 +44,12 @@ interface FormData {
   birth_date: string;
   height: number;
   height_unit: string;
-  weight: number;
-  weight_unit: string;
+  current_weight: number;
+  current_weight_unit: string;
+  starting_weight: number;
+  starting_weight_unit: string;
   weight_goal: number;
+  weight_goal_unit: string;
   activity_level: string;
   goal: string;
   profile_status: string;
@@ -73,9 +76,12 @@ export default function UsersProfileModal({
     birth_date: "",
     height: 0,
     height_unit: "ft",
-    weight: 0,
-    weight_unit: "lb",
+    current_weight: 0,
+    current_weight_unit: "lb",
+    starting_weight: 0,
+    starting_weight_unit: "lb",
     weight_goal: 0,
+    weight_goal_unit: "lb",
     activity_level: "sedentary",
     goal: "",
     profile_status: profileStatus,
@@ -88,7 +94,8 @@ export default function UsersProfileModal({
       formData.gender === "" ||
       formData.birth_date === "" ||
       formData.height === 0 ||
-      formData.weight === 0 ||
+      formData.current_weight === 0 ||
+      formData.starting_weight === 0 ||
       formData.weight_goal === 0 ||
       formData.activity_level === "" ||
       formData.goal === ""
@@ -102,7 +109,6 @@ export default function UsersProfileModal({
         userId: user?.user_id || "",
         payload: {
           ...formData,
-          weight_goal_unit: formData.weight_unit,
         },
       }).unwrap();
       setFormData({
@@ -110,9 +116,12 @@ export default function UsersProfileModal({
         birth_date: "",
         height: 0,
         height_unit: "ft",
-        weight: 0,
-        weight_unit: "lb",
+        current_weight: 0,
+        current_weight_unit: "lb",
+        starting_weight: 0,
+        starting_weight_unit: "lb",
         weight_goal: 0,
+        weight_goal_unit: "lb",
         activity_level: "sedentary",
         goal: "",
         profile_status: "",
@@ -165,8 +174,8 @@ export default function UsersProfileModal({
 
   // Handle weight unit changes with proper conversion
   const handleWeightUnitChange = (newUnit: string) => {
-    const currentUnit = formData.weight_unit;
-    const currentWeight = formData.weight;
+    const currentUnit = formData.starting_weight_unit;
+    const currentWeight = formData.starting_weight;
     const goalWeight = formData.weight_goal;
 
     let newCurrentWeight = currentWeight;
@@ -195,9 +204,12 @@ export default function UsersProfileModal({
     // Update all weight-related fields at once
     setFormData((prev) => ({
       ...prev,
-      weight: newCurrentWeight,
+      starting_weight: newCurrentWeight,
+      starting_weight_unit: newUnit,
       weight_goal: newGoalWeight,
       weight_goal_unit: newUnit,
+      current_weight: newCurrentWeight,
+      current_weight_unit: newUnit,
     }));
   };
 
@@ -314,6 +326,30 @@ export default function UsersProfileModal({
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="goal">Goal</Label>
+                    <Select
+                      value={formData.goal || ""}
+                      onValueChange={(value) => {
+                        updateField("goal", value);
+                        if (value === "maintain") {
+                          updateField("weight_goal", formData.starting_weight);
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="goal" className="w-full">
+                        <SelectValue placeholder="Select goal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lose">Lose Weight</SelectItem>
+                        <SelectItem value="gain">Gain Weight</SelectItem>
+                        <SelectItem value="maintain">
+                          Maintain Weight
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Current Weight Section */}
                   <div className="space-y-2">
                     <Label htmlFor="weight">Current Weight</Label>
@@ -322,20 +358,24 @@ export default function UsersProfileModal({
                         id="weight"
                         placeholder="Weight"
                         type="number"
-                        value={formData.weight || ""}
+                        value={formData.starting_weight || ""}
                         onChange={(e) => {
                           let value = Number.parseFloat(e.target.value);
 
                           // Ensure the value stays within the allowed range
                           if (value < 1) value = 1;
                           if (value > 1000) value = 1000;
-                          updateField("weight", value);
+                          updateField("starting_weight", value);
+                          updateField("current_weight", value);
+                          if (formData.goal === "maintain") {
+                            updateField("weight_goal", value);
+                          }
                         }}
                         required
                         className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <Select
-                        value={formData.weight_unit}
+                        value={formData.starting_weight_unit}
                         onValueChange={handleWeightUnitChange}
                       >
                         <SelectTrigger className="w-[100px]">
@@ -349,40 +389,37 @@ export default function UsersProfileModal({
                     </div>
                   </div>
 
-                  {/* Goal Weight Section */}
-                  <div className="space-y-2">
-                    <Label htmlFor="weight_goal">Goal Weight</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="weight_goal"
-                        placeholder="Goal Weight"
-                        type="number"
-                        value={formData.weight_goal || ""}
-                        onChange={(e) => {
-                          let value = Number.parseFloat(e.target.value);
+                  {(formData.goal === "lose" ||
+                    formData.goal === "gain" ||
+                    formData.goal === "") && (
+                    <div className="space-y-2 flex flex-col gap-2">
+                      <Label htmlFor="weight_goal">Goal Weight</Label>
 
-                          // Ensure the value stays within the allowed range
-                          if (value < 1) value = 1;
-                          if (value > 1000) value = 1000;
-                          updateField("weight_goal", value);
-                        }}
-                        required
-                        className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                      <Select
-                        value={formData.weight_unit}
-                        onValueChange={handleWeightUnitChange}
-                      >
-                        <SelectTrigger className="w-[100px]">
-                          <SelectValue placeholder="Unit" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="lb">lbs</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex gap-6 items-center">
+                        <Input
+                          id="weight_goal"
+                          placeholder="Goal Weight"
+                          type="number"
+                          value={formData.weight_goal || ""}
+                          onChange={(e) => {
+                            let value = Number.parseFloat(e.target.value);
+
+                            // Ensure the value stays within the allowed range
+                            if (value < 1) value = 1;
+                            if (value > 1000) value = 1000;
+                            updateField("weight_goal", value);
+                          }}
+                          required
+                          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <p className="text-sm text-muted-foreground flex justify-center  w-20">
+                          {formData.starting_weight_unit === "lb"
+                            ? "lbs"
+                            : "kg"}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Activity Level Section */}
                   <div className="space-y-2">
@@ -411,25 +448,6 @@ export default function UsersProfileModal({
                         </SelectItem>
                         <SelectItem value="extra_active">
                           Extremely Active (very hard exercise, physical job)
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="goal">Goal</Label>
-                    <Select
-                      value={formData.goal || ""}
-                      onValueChange={(value) => updateField("goal", value)}
-                    >
-                      <SelectTrigger id="goal" className="w-full">
-                        <SelectValue placeholder="Select goal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="lose">Lose Weight</SelectItem>
-                        <SelectItem value="gain">Gain Weight</SelectItem>
-                        <SelectItem value="maintain">
-                          Maintain Weight
                         </SelectItem>
                       </SelectContent>
                     </Select>
