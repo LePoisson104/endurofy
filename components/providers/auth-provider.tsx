@@ -15,6 +15,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const token = useSelector(selectCurrentToken);
   const user = useSelector(selectCurrentUser);
   const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id || "");
+  console.log(userInfo);
   const effectRan = useRef(false);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);

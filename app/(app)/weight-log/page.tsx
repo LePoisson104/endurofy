@@ -12,24 +12,11 @@ import LineChart from "@/components/charts/line-chart";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   ChevronDown,
-  ChevronUp,
   Activity,
-  EllipsisVertical,
   BarChart3,
   Plus,
-  History,
   CalendarIcon,
-  Pencil,
-  Trash2,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
@@ -45,12 +32,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import {
@@ -66,15 +47,26 @@ import {
   getCurrentTime,
 } from "@/helper/get-current-date-n-time";
 import { useEffect } from "react";
+import WeightLogHistory from "@/components/tables/weight-log-history";
+import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
-
+  const user = useSelector(selectCurrentUser);
   const [weight, setWeight] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
+  const { data: weightLog } = useGetWeightLogByDateQuery({
+    userId: user?.user_id || "",
+    startDate: "2025-03-16",
+    endDate: "2025-03-19",
+  });
+
+  console.log(weightLog);
   // Mock data
   const currentWeight = 183;
   const heightInInches = 70; // 5'10"
@@ -82,27 +74,12 @@ export default function WeightLogPage() {
   const bmi =
     Math.round((currentWeight / Math.pow(heightInInches, 2)) * 703 * 10) / 10;
   const bmiCategory = getBmiCategory(bmi);
-  const bmiProgress = getBmiProgress(bmi);
   const [date, setDate] = React.useState<Date>();
-
-  const weightHistory = [
-    { date: "2023-03-21", weight: 185, note: "Started new diet" },
-    { date: "2023-03-18", weight: 186, note: "Post vacation" },
-    { date: "2023-03-15", weight: 184, note: "After cardio session" },
-    { date: "2023-03-12", weight: 185, note: "" },
-    { date: "2023-03-09", weight: 187, note: "Cheat day yesterday" },
-    { date: "2023-03-06", weight: 186, note: "" },
-    { date: "2023-03-03", weight: 188, note: "Feeling bloated" },
-  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would add logic to save the weight entry
-    alert(`Logged weight: ${weight} lbs with note: ${note}`);
-    setWeight("");
-    setNote("");
-    setIsModalOpen(false);
   };
+
   useEffect(() => {
     setCurrentDate(getCurrentDate());
     setCurrentTime(getCurrentTime());
@@ -286,103 +263,7 @@ export default function WeightLogPage() {
               </Card>
 
               {/* Weight History */}
-              <Card className="shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base font-medium">
-                    Weight History
-                  </CardTitle>
-                  <History className="h-4 w-4 text-amber-400" />
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="text-center">
-                        <TableHead>Actions</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Weight (lbs)</TableHead>
-                        <TableHead>Rate</TableHead>
-                        <TableHead>Notes</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {weightHistory.map((entry, index) => {
-                        const prevWeight =
-                          index < weightHistory.length - 1
-                            ? weightHistory[index + 1].weight
-                            : entry.weight;
-                        const change = entry.weight - prevWeight;
-                        return (
-                          <TableRow key={entry.date}>
-                            <TableCell>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <EllipsisVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="center"
-                                  side="right"
-                                >
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      alert(`Edit entry from ${entry.date}`)
-                                    }
-                                  >
-                                    <Pencil className="h-4 w-4 mr-2" />
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      alert(`Delete entry from ${entry.date}`)
-                                    }
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
-                            <TableCell>
-                              {format(new Date(entry.date), "MMM d, yyyy")}
-                            </TableCell>
-                            <TableCell>
-                              {entry.weight}{" "}
-                              <span className="text-xs text-muted-foreground">
-                                lbs
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              {index < weightHistory.length - 1 && (
-                                <span
-                                  className={`flex items-center py-2 ${
-                                    change < 0
-                                      ? "text-green-400"
-                                      : change > 0
-                                      ? "text-red-400"
-                                      : "text-gray-400"
-                                  }`}
-                                >
-                                  {change < 0 ? (
-                                    <ChevronDown className="h-4 w-4 text-green-400" />
-                                  ) : change > 0 ? (
-                                    <ChevronUp className="h-4 w-4 text-red-400" />
-                                  ) : (
-                                    ""
-                                  )}
-                                  {Math.abs(change)}
-                                  {change > 1 ? "lbs" : "lb"}
-                                </span>
-                              )}
-                            </TableCell>
-                            <TableCell>{entry.note}</TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              <WeightLogHistory weightHistory={weightLog} />
             </div>
 
             {/* Right Column - 1/4 width on large screens, hidden on small screens */}
