@@ -53,12 +53,13 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { selectWeightStates } from "@/api/user/user-slice";
 import { Skeleton } from "@/components/ui/skeleton";
+import WeightForm from "@/components/form/weight-form";
+
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const user = useSelector(selectCurrentUser);
-  const [weight, setWeight] = useState<string>("");
-  const [note, setNote] = useState<string>("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
   const { data: weightLog } = useGetWeightLogByDateQuery({
@@ -81,78 +82,10 @@ export default function WeightLogPage() {
     )
   );
 
-  const [date, setDate] = React.useState<Date>();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
   useEffect(() => {
     setCurrentDate(getCurrentDate());
     setCurrentTime(getCurrentTime());
   }, []);
-
-  // Form component that's reused in both desktop and mobile views
-  const WeightForm = () => (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="weight">Weight (lbs)</Label>
-        <Input
-          id="weight"
-          type="number"
-          placeholder="Enter weight"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="date">Date</Label>
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-fit justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(day) => setDate(day)}
-              />
-            </PopoverContent>
-          </Popover>
-          <Input
-            id="date"
-            type="text"
-            pattern="\d{4}-\d{2}-\d{2}"
-            placeholder="YYYY-MM-DD"
-            defaultValue={format(new Date(), "MM/dd/yyyy")}
-            className="w-full"
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="note">Notes (optional)</Label>
-        <Input
-          id="note"
-          placeholder="Add notes (50 characters max)"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
-      </div>
-      <Button type="submit" className="w-full">
-        Add Entry
-      </Button>
-    </form>
-  );
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem] relative">
@@ -301,14 +234,18 @@ export default function WeightLogPage() {
 
             {/* Right Column - 1/4 width on large screens, hidden on small screens */}
             <div className="lg:col-span-1 hidden lg:block">
-              <Card className="shadow-sm sticky top-20">
-                <CardHeader>
-                  <CardTitle>Add Weight Entry</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <WeightForm />
-                </CardContent>
-              </Card>
+              {weightStates.current_weight_unit ? (
+                <Card className="shadow-sm sticky top-20">
+                  <CardHeader>
+                    <CardTitle>Add Weight Entry</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <WeightForm />
+                  </CardContent>
+                </Card>
+              ) : (
+                <Skeleton className="h-[330px] w-full" />
+              )}
             </div>
           </div>
         </div>

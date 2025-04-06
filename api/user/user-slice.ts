@@ -57,9 +57,21 @@ const userSlice = createSlice({
       state.bmi_category = action.payload.bmi_category;
       state.bmi_category_color = action.payload.bmi_category_color;
     },
+    resetWeightStates: (state) => {
+      state.starting_weight = 0;
+      state.starting_weight_unit = "";
+      state.current_weight = 0;
+      state.current_weight_unit = "";
+      state.weight_goal = 0;
+      state.weight_goal_unit = "";
+      state.goal = "";
+      state.bmi = 0;
+      state.bmi_category = "";
+      state.bmi_category_color = "";
+    },
   },
 });
 
-export const { setWeightStates } = userSlice.actions;
+export const { setWeightStates, resetWeightStates } = userSlice.actions;
 export const selectWeightStates = (state: RootState) => state.user;
 export default userSlice.reducer;

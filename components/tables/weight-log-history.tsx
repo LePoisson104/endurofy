@@ -13,7 +13,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { format } from "date-fns";
-
+import { useCallback } from "react";
 import {
   Table,
   TableHead,
@@ -33,6 +33,15 @@ export default function WeightLogHistory({
   weightHistory: any;
   goal: string;
 }) {
+  const areAllNotesEmpty = useCallback((): boolean => {
+    if (!weightHistory?.data) return true;
+    return weightHistory?.data.every(
+      (log: any) => log.notes === null || log.notes.length === 0
+    );
+  }, [weightHistory]);
+
+  const isNotesEmpty = areAllNotesEmpty();
+
   const handleWeightUnit = (weight_unit: string, rateChange: number) => {
     if (weight_unit === "lb" && Math.abs(rateChange) > 1) {
       return "lbs";
@@ -97,13 +106,30 @@ export default function WeightLogHistory({
       {weightHistory ? (
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-medium">
-              Weight History
-            </CardTitle>
+            <div>
+              <CardTitle className="text-base font-medium">
+                Weight History
+              </CardTitle>
+              <span className="text-sm text-muted-foreground">
+                {format(
+                  new Date(
+                    weightHistory?.data?.[
+                      weightHistory?.data?.length - 1
+                    ].log_date
+                  ),
+                  "MMM d, yyyy"
+                )}{" "}
+                -{" "}
+                {format(
+                  new Date(weightHistory?.data?.[0].log_date),
+                  "MMM d, yyyy"
+                )}
+              </span>
+            </div>
             <History className="h-4 w-4 text-amber-400" />
           </CardHeader>
           <CardContent>
-            {weightHistory.length > 0 ? (
+            {weightHistory?.data?.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow className="text-center">
@@ -117,16 +143,12 @@ export default function WeightLogHistory({
                       )
                     </TableHead>
                     <TableHead>Rate</TableHead>
-                    <TableHead>Notes</TableHead>
+                    <TableHead>Calories (Kcal)</TableHead>
+                    {!isNotesEmpty && <TableHead>Notes</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {weightHistory?.data?.map((entry: any, index: number) => {
-                    const prevWeight =
-                      index < weightHistory?.data?.length - 1
-                        ? weightHistory?.data?.[index + 1].weight
-                        : entry.weight;
-                    const change = entry.weight - prevWeight;
+                  {weightHistory?.data?.map((entry: any) => {
                     return (
                       <TableRow key={entry.log_date}>
                         <TableCell>
@@ -157,8 +179,12 @@ export default function WeightLogHistory({
                           </DropdownMenu>
                         </TableCell>
                         <TableCell>
-                          {format(new Date(entry.log_date), "MMM d, yyyy")}
+                          {new Date(entry.log_date).getFullYear() ===
+                          new Date().getFullYear()
+                            ? format(new Date(entry.log_date), "MMM d")
+                            : format(new Date(entry.log_date), "MMM d, yyyy")}
                         </TableCell>
+
                         <TableCell>
                           {Number(entry.weight)}{" "}
                           <span className="text-xs text-muted-foreground">
@@ -172,7 +198,13 @@ export default function WeightLogHistory({
                             entry.weight_unit
                           )}
                         </TableCell>
-                        <TableCell>{entry.note}</TableCell>
+                        <TableCell>
+                          {Number(entry.calories_intake)}{" "}
+                          <span className="text-xs text-muted-foreground">
+                            Kcal
+                          </span>
+                        </TableCell>
+                        {!isNotesEmpty && <TableCell>{entry.notes}</TableCell>}
                       </TableRow>
                     );
                   })}

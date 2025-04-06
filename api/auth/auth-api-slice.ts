@@ -1,6 +1,7 @@
 import { apiSlice } from "../api-slice";
 import { User } from "@/interfaces/user-interfaces";
 import { setCredentials, logOut } from "@/api/auth/auth-slice";
+import { resetWeightStates } from "@/api/user/user-slice";
 
 interface AuthResponse {
   data: {
@@ -94,6 +95,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled;
           dispatch(logOut());
+          dispatch(resetWeightStates());
           setTimeout(() => {
             dispatch(apiSlice.util.resetApiState());
           }, 1000);

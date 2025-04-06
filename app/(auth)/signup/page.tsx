@@ -157,9 +157,6 @@ export default function Signup() {
       setPassword("");
       setConfirmPassword("");
 
-      console.log(response?.data?.user.user_id);
-      console.log(response?.data?.user.email);
-
       sessionStorage.setItem("user_id", response?.data?.user.user_id);
       sessionStorage.setItem("email", response?.data?.user.email);
 
