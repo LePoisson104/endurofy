@@ -14,7 +14,7 @@ interface WeightForm {
   weight: number;
   weightUnit: string;
   caloriesIntake: number;
-  date: string;
+  logDate: string;
   notes: string;
 }
 
@@ -23,7 +23,7 @@ export default function WeightForm() {
   const [weightForm, setWeightForm] = useState<WeightForm>({
     weight: 0,
     weightUnit: weightStates.current_weight_unit,
-    date: "",
+    logDate: "",
     notes: "",
     caloriesIntake: 0,
   });
@@ -32,13 +32,13 @@ export default function WeightForm() {
   useEffect(() => {
     setWeightForm((prev) => ({
       ...prev,
-      date: calendarDate ? format(calendarDate, "MM/dd/yyyy") : "",
+      logDate: calendarDate ? format(calendarDate, "MM/dd/yyyy") : "",
     }));
   }, [calendarDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    weightForm.date = format(weightForm.date, "yyyy-MM-dd");
+    weightForm.logDate = format(weightForm.logDate, "yyyy-MM-dd");
     weightForm.caloriesIntake = Math.round(weightForm.caloriesIntake);
     console.log(weightForm);
   };
@@ -115,9 +115,9 @@ export default function WeightForm() {
             pattern="\d{2}/\d{2}/\d{4}"
             placeholder="MM/DD/YYYY"
             className="placeholder:text-sm w-full"
-            defaultValue={weightForm.date}
+            defaultValue={weightForm.logDate}
             onChange={(e) => {
-              setWeightForm({ ...weightForm, date: e.target.value });
+              setWeightForm({ ...weightForm, logDate: e.target.value });
             }}
           />
         </div>
@@ -134,6 +134,7 @@ export default function WeightForm() {
           onChange={(e) =>
             setWeightForm({ ...weightForm, notes: e.target.value })
           }
+          // maxLength={50}
         />
       </div>
       <Button type="submit" className="w-full">

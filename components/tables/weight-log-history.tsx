@@ -110,21 +110,23 @@ export default function WeightLogHistory({
               <CardTitle className="text-base font-medium">
                 Weight History
               </CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {format(
-                  new Date(
-                    weightHistory?.data?.[
-                      weightHistory?.data?.length - 1
-                    ].log_date
-                  ),
-                  "MMM d, yyyy"
-                )}{" "}
-                -{" "}
-                {format(
-                  new Date(weightHistory?.data?.[0].log_date),
-                  "MMM d, yyyy"
-                )}
-              </span>
+              {weightHistory?.data?.log_date && (
+                <span className="text-sm text-muted-foreground">
+                  {format(
+                    new Date(
+                      weightHistory?.data?.[
+                        weightHistory?.data?.length - 1
+                      ]?.log_date
+                    ),
+                    "MMM d, yyyy"
+                  )}{" "}
+                  -{" "}
+                  {format(
+                    new Date(weightHistory?.data?.[0]?.log_date),
+                    "MMM d, yyyy"
+                  )}
+                </span>
+              )}
             </div>
             <History className="h-4 w-4 text-amber-400" />
           </CardHeader>
@@ -150,7 +152,7 @@ export default function WeightLogHistory({
                 <TableBody>
                   {weightHistory?.data?.map((entry: any) => {
                     return (
-                      <TableRow key={entry.log_date}>
+                      <TableRow key={entry?.log_date}>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -161,7 +163,7 @@ export default function WeightLogHistory({
                             <DropdownMenuContent align="center" side="right">
                               <DropdownMenuItem
                                 onClick={() =>
-                                  alert(`Edit entry from ${entry.log_date}`)
+                                  alert(`Edit entry from ${entry?.log_date}`)
                                 }
                               >
                                 <Pencil className="h-4 w-4 mr-2" />
@@ -169,7 +171,7 @@ export default function WeightLogHistory({
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
-                                  alert(`Delete entry from ${entry.log_date}`)
+                                  alert(`Delete entry from ${entry?.log_date}`)
                                 }
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
@@ -179,32 +181,32 @@ export default function WeightLogHistory({
                           </DropdownMenu>
                         </TableCell>
                         <TableCell>
-                          {new Date(entry.log_date).getFullYear() ===
+                          {new Date(entry?.log_date).getFullYear() ===
                           new Date().getFullYear()
-                            ? format(new Date(entry.log_date), "MMM d")
-                            : format(new Date(entry.log_date), "MMM d, yyyy")}
+                            ? format(new Date(entry?.log_date), "MMM d")
+                            : format(new Date(entry?.log_date), "MMM d, yyyy")}
                         </TableCell>
 
                         <TableCell>
-                          {Number(entry.weight)}{" "}
+                          {Number(entry?.weight)}{" "}
                           <span className="text-xs text-muted-foreground">
-                            {entry.weight_unit === "lb" ? "lbs" : "kg"}
+                            {entry?.weight_unit === "lb" ? "lbs" : "kg"}
                           </span>
                         </TableCell>
                         <TableCell>
                           {handleRateChangeColor(
-                            entry.rateChange,
+                            entry?.rateChange,
                             goal,
-                            entry.weight_unit
+                            entry?.weight_unit
                           )}
                         </TableCell>
                         <TableCell>
-                          {Number(entry.calories_intake)}{" "}
+                          {Number(entry?.calories_intake)}{" "}
                           <span className="text-xs text-muted-foreground">
                             Kcal
                           </span>
                         </TableCell>
-                        {!isNotesEmpty && <TableCell>{entry.notes}</TableCell>}
+                        {!isNotesEmpty && <TableCell>{entry?.notes}</TableCell>}
                       </TableRow>
                     );
                   })}
