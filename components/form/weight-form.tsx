@@ -39,6 +39,7 @@ export default function WeightForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     weightForm.date = format(weightForm.date, "yyyy-MM-dd");
+    weightForm.caloriesIntake = Math.round(weightForm.caloriesIntake);
     console.log(weightForm);
   };
 
@@ -103,7 +104,8 @@ export default function WeightForm() {
               <Calendar
                 mode="single"
                 selected={calendarDate}
-                onSelect={(day) => setCalendarDate(day)}
+                onSelect={(day: Date | undefined) => setCalendarDate(day)}
+                required
               />
             </PopoverContent>
           </Popover>
