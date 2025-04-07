@@ -4,11 +4,13 @@ import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { selectWeightStates } from "@/api/user/user-slice";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
+import { useCreateWeightLogMutation } from "@/api/weight-log/weight-log-api-slice";
 
 interface WeightForm {
   weight: number;
@@ -18,8 +20,13 @@ interface WeightForm {
   notes: string;
 }
 
-export default function WeightForm() {
+export default function WeightForm({
+  setError,
+}: {
+  setError: (error: string) => void;
+}) {
   const weightStates = useSelector(selectWeightStates);
+  const user = useSelector(selectCurrentUser);
   const [weightForm, setWeightForm] = useState<WeightForm>({
     weight: 0,
     weightUnit: weightStates.current_weight_unit,
@@ -28,6 +35,7 @@ export default function WeightForm() {
     caloriesIntake: 0,
   });
   const [calendarDate, setCalendarDate] = useState<Date>();
+  const [createWeightLog, { isLoading }] = useCreateWeightLogMutation();
 
   useEffect(() => {
     setWeightForm((prev) => ({
@@ -36,17 +44,38 @@ export default function WeightForm() {
     }));
   }, [calendarDate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     weightForm.logDate = format(weightForm.logDate, "yyyy-MM-dd");
     weightForm.caloriesIntake = Math.round(weightForm.caloriesIntake);
-    console.log(weightForm);
+
+    try {
+      await createWeightLog({
+        userId: user?.user_id,
+        weightLogPayload: weightForm,
+      }).unwrap();
+      setWeightForm({
+        weight: 0,
+        weightUnit: weightStates.current_weight_unit,
+        logDate: "",
+        notes: "",
+        caloriesIntake: 0,
+      });
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else if (error.status === 400) {
+        setError(error.data?.message);
+      } else {
+        setError(error.data?.message);
+      }
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="weight" className="text-sm ">
+        <Label htmlFor="weight" className="text-sm">
           Weight ({weightForm.weightUnit === "lb" ? "lbs" : "kg"})
         </Label>
         <Input
@@ -134,11 +163,11 @@ export default function WeightForm() {
           onChange={(e) =>
             setWeightForm({ ...weightForm, notes: e.target.value })
           }
-          // maxLength={50}
+          maxLength={50}
         />
       </div>
-      <Button type="submit" className="w-full">
-        Add Entry
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? <Loader2 className="animate-spin" /> : "Add Entry"}
       </Button>
     </form>
   );

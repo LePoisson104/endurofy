@@ -54,18 +54,25 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { selectWeightStates } from "@/api/user/user-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import WeightForm from "@/components/form/weight-form";
+import ErrorAlert from "@/components/alerts/error-alert";
+import { startOfWeek, endOfWeek } from "date-fns";
 
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const user = useSelector(selectCurrentUser);
-
+  const [error, setError] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
+  const now = new Date();
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
+  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }); // Sunday
   const { data: weightLog } = useGetWeightLogByDateQuery({
     userId: user?.user_id || "",
-    startDate: "2025-03-16",
-    endDate: "2025-03-19",
+    // startDate: format(weekStart, "yyyy-MM-dd"),
+    // endDate: format(weekEnd, "yyyy-MM-dd"),
+    startDate: "2025-04-05",
+    endDate: "2025-04-15",
   });
 
   const weightStates = useSelector(selectWeightStates);
@@ -89,6 +96,7 @@ export default function WeightLogPage() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem] relative">
+      <ErrorAlert error={error} setError={setError} />
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}
@@ -229,6 +237,8 @@ export default function WeightLogPage() {
               <WeightLogHistory
                 weightHistory={weightLog}
                 goal={weightStates.goal}
+                startDate={format(weekStart, "yyyy-MM-dd")}
+                endDate={format(weekEnd, "yyyy-MM-dd")}
               />
             </div>
 
@@ -240,7 +250,7 @@ export default function WeightLogPage() {
                     <CardTitle>Add Weight Entry</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <WeightForm />
+                    <WeightForm setError={setError} />
                   </CardContent>
                 </Card>
               ) : (
@@ -257,7 +267,7 @@ export default function WeightLogPage() {
           <DialogHeader>
             <DialogTitle>Add Weight Entry</DialogTitle>
           </DialogHeader>
-          <WeightForm />
+          <WeightForm setError={setError} />
         </DialogContent>
       </Dialog>
     </div>
