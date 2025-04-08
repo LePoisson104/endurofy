@@ -124,9 +124,9 @@ export default function WeightLogHistory({
           </CardHeader>
           <CardContent className="">
             {weightHistory?.data?.length > 0 ? (
-              <div>
+              <div className="max-h-[440px] overflow-y-auto scroll-bar">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 z-10">
                     <TableRow className="text-center border-b-2">
                       <TableHead className="px-3 sm:px-6 py-4 text-center w-[10%]">
                         Actions

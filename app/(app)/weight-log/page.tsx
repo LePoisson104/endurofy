@@ -72,7 +72,7 @@ export default function WeightLogPage() {
     // startDate: format(weekStart, "yyyy-MM-dd"),
     // endDate: format(weekEnd, "yyyy-MM-dd"),
     startDate: "2025-04-05",
-    endDate: "2025-04-15",
+    endDate: "2025-04-24",
   });
 
   const weightStates = useSelector(selectWeightStates);
