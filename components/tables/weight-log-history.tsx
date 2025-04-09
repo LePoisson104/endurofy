@@ -13,7 +13,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { format } from "date-fns";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   Table,
   TableHead,
@@ -27,7 +27,13 @@ import { History } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDeleteWeightLogMutation } from "@/api/weight-log/weight-log-api-slice";
-import WeightForm from "../form/weight-form";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
 
 export default function WeightLogHistory({
   weightHistory,
@@ -36,6 +42,8 @@ export default function WeightLogHistory({
   endDate,
   userId,
   setWeightLogData,
+  options,
+  setOptions,
 }: {
   weightHistory: any;
   goal: string;
@@ -43,6 +51,8 @@ export default function WeightLogHistory({
   endDate: string;
   userId: string;
   setWeightLogData: (weightLogData: any) => void;
+  options: string;
+  setOptions: (options: string) => void;
 }) {
   const isMobile = useIsMobile();
   const [deleteWeightLog] = useDeleteWeightLogMutation();
@@ -116,9 +126,10 @@ export default function WeightLogHistory({
     <>
       {weightHistory ? (
         <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
             <div>
-              <CardTitle className="text-base font-medium">
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <History className="h-4 w-4 text-amber-400" />
                 Weight History
               </CardTitle>
 
@@ -127,7 +138,28 @@ export default function WeightLogHistory({
                 {format(new Date(endDate), "MMM d, yyyy")}
               </span>
             </div>
-            <History className="h-4 w-4 text-amber-400" />
+            <Select value={options} onValueChange={setOptions}>
+              <SelectTrigger
+                className="w-fit rounded-lg sm:ml-auto"
+                aria-label="Select a value"
+              >
+                <SelectValue placeholder="Last 3 months" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="all" className="rounded-lg">
+                  All
+                </SelectItem>
+                <SelectItem value="90d" className="rounded-lg">
+                  Last 3 months
+                </SelectItem>
+                <SelectItem value="30d" className="rounded-lg">
+                  Last 30 days
+                </SelectItem>
+                <SelectItem value="7d" className="rounded-lg">
+                  Last 7 days
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </CardHeader>
           <CardContent className="">
             {weightHistory?.data?.length > 0 ? (

@@ -72,7 +72,7 @@ export default function UpdateEmailModal({
     <>
       <ErrorAlert error={error} setError={setError} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+        <DialogContent className="bg-card">
           <DialogHeader>
             <DialogTitle>Update Email</DialogTitle>
             <DialogDescription>

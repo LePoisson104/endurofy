@@ -256,7 +256,7 @@ export function WorkoutLogForm({
           value={selectedDay || undefined}
           onValueChange={(value) => setSelectedDay(value as DayOfWeek)}
         >
-          <TabsList className={`mb-4 grid grid-cols-${program?.days.length}`}>
+          <TabsList className={`mb-4 flex`}>
             {daysWithExercises.map((day) => (
               <TabsTrigger key={day.day} value={day.day}>
                 {formatDayName(day.day).slice(0, 3)}

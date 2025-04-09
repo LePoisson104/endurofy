@@ -21,7 +21,7 @@ export default function ProfileSuccessNotice({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-[425px]" closeXButton={true}>
+      <DialogContent className="sm:max-w-[425px] bg-card" closeXButton={true}>
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
             Profile Created Successfully!

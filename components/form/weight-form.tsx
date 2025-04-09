@@ -78,6 +78,7 @@ export default function WeightForm({
           weightLogId: weightLogData.weight_log_id,
           weightLogPayload: {
             ...weightForm,
+            logDate: format(weightForm.logDate, "yyyy-MM-dd"),
           },
         }).unwrap();
       } else {

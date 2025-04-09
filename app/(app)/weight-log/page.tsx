@@ -9,15 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LineChart from "@/components/charts/line-chart";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  ChevronDown,
-  Activity,
-  BarChart3,
-  Plus,
-  CalendarIcon,
-} from "lucide-react";
+import { ChevronDown, Activity, BarChart3, Plus, Goal } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import {
@@ -27,13 +19,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import BMIIndicator from "@/components/global/bmi-indicator";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -56,6 +41,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import WeightForm from "@/components/form/weight-form";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { startOfWeek, endOfWeek } from "date-fns";
+import BMIDialog from "@/components/dialog/bmi-dialog";
 
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
@@ -64,16 +50,15 @@ export default function WeightLogPage() {
   const [error, setError] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
+  const [options, setOptions] = useState("90d");
   const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }); // Sunday
-  const { data: weightLog } = useGetWeightLogByDateQuery({
-    userId: user?.user_id || "",
-    // startDate: format(weekStart, "yyyy-MM-dd"),
-    // endDate: format(weekEnd, "yyyy-MM-dd"),
-    startDate: "2025-04-05",
-    endDate: "2025-04-24",
-  });
+  const [startDate, setStartDate] = useState<Date | null>(
+    startOfWeek(now, { weekStartsOn: 1 })
+  );
+  const [endDate, setEndDate] = useState<Date | null>(
+    endOfWeek(now, { weekStartsOn: 1 })
+  );
+
   const [weightLogData, setWeightLogData] = useState<any>(null); // for updating weight log
   const weightStates = useSelector(selectWeightStates);
   const currentWeight = Number(weightStates.current_weight);
@@ -88,6 +73,20 @@ export default function WeightLogPage() {
       )
     )
   );
+
+  const { data: weightLog } = useGetWeightLogByDateQuery({
+    userId: user?.user_id || "",
+    startDate: format(startDate || "", "yyyy-MM-dd"),
+    endDate: format(endDate || "", "yyyy-MM-dd"),
+    options: options !== "all" ? "date" : "all",
+  });
+
+  useEffect(() => {
+    if (options === "all") {
+      setStartDate(null);
+      setEndDate(null);
+    }
+  }, [options]);
 
   useEffect(() => {
     setCurrentDate(getCurrentDate());
@@ -123,17 +122,19 @@ export default function WeightLogPage() {
             <div className="lg:col-span-3 space-y-6">
               {/* Weight Chart */}
               <Card className="md:pb-24 sm:pb-0 h-[500px] ">
-                <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
                   <div className="flex flex-col w-full gap-2">
-                    <CardTitle>Weight log overview</CardTitle>
+                    <CardTitle className="flex flex-row items-center gap-2">
+                      <Activity className="h-4 w-4 text-blue-400" />
+                      Weight log overview
+                    </CardTitle>
                     <CardDescription>
                       March 15, 2025 - March 21, 2025
                     </CardDescription>
                   </div>
-
                   <Select value={timeRange} onValueChange={setTimeRange}>
                     <SelectTrigger
-                      className="w-[160px] rounded-lg sm:ml-auto"
+                      className="w-fit rounded-lg"
                       aria-label="Select a value"
                     >
                       <SelectValue placeholder="Last 3 months" />
@@ -160,9 +161,9 @@ export default function WeightLogPage() {
                 <Card className="shadow-sm">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-base font-medium">
-                      Current Stats
+                      Goal Progress
                     </CardTitle>
-                    <Activity className="h-4 w-4 text-teal-400" />
+                    <Goal className="h-4 w-4 text-teal-400" />
                   </CardHeader>
                   <CardContent>
                     <div className="flex justify-between">
@@ -202,10 +203,13 @@ export default function WeightLogPage() {
               {weightStates?.bmi ? (
                 <Card className="shadow-sm">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-base font-medium">
-                      Body Mass Index (BMI)
-                    </CardTitle>
-                    <BarChart3 className="h-4 w-4 text-blue-400" />
+                    <div className="flex flex-row items-center gap-2">
+                      <CardTitle className="text-base font-medium">
+                        Body Mass Index (BMI)
+                      </CardTitle>
+                      <BMIDialog />
+                    </div>
+                    <BarChart3 className="h-4 w-4 text-green-400" />
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -237,10 +241,12 @@ export default function WeightLogPage() {
               <WeightLogHistory
                 weightHistory={weightLog}
                 goal={weightStates.goal}
-                startDate={format(weekStart, "yyyy-MM-dd")}
-                endDate={format(weekEnd, "yyyy-MM-dd")}
+                startDate={format(startDate || "", "yyyy-MM-dd")}
+                endDate={format(endDate || "", "yyyy-MM-dd")}
                 userId={user?.user_id || ""}
                 setWeightLogData={setWeightLogData}
+                options={options}
+                setOptions={setOptions}
               />
             </div>
 
@@ -269,7 +275,7 @@ export default function WeightLogPage() {
 
       {/* Modal for small screens */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-card">
           <DialogHeader>
             <DialogTitle>Add Weight Entry</DialogTitle>
           </DialogHeader>

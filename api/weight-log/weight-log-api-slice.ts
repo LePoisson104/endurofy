@@ -3,8 +3,8 @@ import { apiSlice } from "../api-slice";
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWeightLogByDate: builder.query({
-      query: ({ userId, startDate, endDate }) => ({
-        url: `/api/v1/weight-log/get-weight-log-by-date/${userId}?startDate=${startDate}&endDate=${endDate}`,
+      query: ({ userId, startDate, endDate, options }) => ({
+        url: `/api/v1/weight-log/get-weight-log-by-date/${userId}?startDate=${startDate}&endDate=${endDate}&options=${options}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId, startDate, endDate }) => [
@@ -12,6 +12,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         { type: "WeightLog", id: "LIST" },
       ],
     }),
+
     createWeightLog: builder.mutation({
       query: ({ userId, weightLogPayload }) => ({
         url: `/api/v1/weight-log/create-weight-log/${userId}`,
@@ -27,12 +28,13 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     updateWeightLog: builder.mutation({
       query: ({ userId, weightLogId, weightLogPayload }) => ({
         url: `/api/v1/weight-log/update-weight-log/${userId}/${weightLogId}`,
-        method: "PUT",
+        method: "PATCH",
         body: weightLogPayload,
       }),
       invalidatesTags: (result, error, arg) => [
         { type: "WeightLog", id: arg.userId }, // Ensure you pass userId correctly
         { type: "WeightLog", id: "LIST" },
+        { type: "User", id: arg.userId }, // Ensure you pass userId correctly
       ],
     }),
     deleteWeightLog: builder.mutation({
