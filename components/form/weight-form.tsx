@@ -10,7 +10,10 @@ import { selectWeightStates } from "@/api/user/user-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
-import { useCreateWeightLogMutation } from "@/api/weight-log/weight-log-api-slice";
+import {
+  useCreateWeightLogMutation,
+  useUpdateWeightLogMutation,
+} from "@/api/weight-log/weight-log-api-slice";
 
 interface WeightForm {
   weight: number;
@@ -39,7 +42,10 @@ export default function WeightForm({
     caloriesIntake: 0,
   });
   const [calendarDate, setCalendarDate] = useState<Date>();
-  const [createWeightLog, { isLoading }] = useCreateWeightLogMutation();
+  const [createWeightLog, { isLoading: isCreating }] =
+    useCreateWeightLogMutation();
+  const [updateWeightLog, { isLoading: isUpdating }] =
+    useUpdateWeightLogMutation();
 
   useEffect(() => {
     setWeightForm((prev) => ({
@@ -66,13 +72,24 @@ export default function WeightForm({
     weightForm.caloriesIntake = Math.round(weightForm.caloriesIntake);
 
     try {
-      await createWeightLog({
-        userId: user?.user_id,
-        weightLogPayload: {
-          ...weightForm,
-          logDate: format(weightForm.logDate, "yyyy-MM-dd"),
-        },
-      }).unwrap();
+      if (weightLogData) {
+        await updateWeightLog({
+          userId: user?.user_id,
+          weightLogId: weightLogData.weight_log_id,
+          weightLogPayload: {
+            ...weightForm,
+          },
+        }).unwrap();
+      } else {
+        await createWeightLog({
+          userId: user?.user_id,
+          weightLogPayload: {
+            ...weightForm,
+            logDate: format(weightForm.logDate, "yyyy-MM-dd"),
+          },
+        }).unwrap();
+      }
+
       setWeightForm({
         weight: 0,
         weightUnit: weightStates.current_weight_unit,
@@ -209,9 +226,9 @@ export default function WeightForm({
         <Button
           type="submit"
           className={weightLogData ? "flex-1" : "w-full"}
-          disabled={isLoading}
+          disabled={isCreating || isUpdating}
         >
-          {isLoading ? (
+          {isCreating || isUpdating ? (
             <Loader2 className="animate-spin" />
           ) : weightLogData ? (
             "Update Entry"
