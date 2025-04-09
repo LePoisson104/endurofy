@@ -21,9 +21,13 @@ interface WeightForm {
 }
 
 export default function WeightForm({
+  weightLogData,
   setError,
+  setWeightLogData,
 }: {
+  weightLogData: any;
   setError: (error: string) => void;
+  setWeightLogData: (weightLogData: any) => void;
 }) {
   const weightStates = useSelector(selectWeightStates);
   const user = useSelector(selectCurrentUser);
@@ -44,15 +48,30 @@ export default function WeightForm({
     }));
   }, [calendarDate]);
 
+  useEffect(() => {
+    // if weightLogData is not null, then it's update mode
+    if (weightLogData) {
+      setWeightForm({
+        weight: weightLogData.weight,
+        weightUnit: weightLogData.weight_unit,
+        caloriesIntake: weightLogData.calories_intake,
+        logDate: format(new Date(weightLogData.log_date), "MM/dd/yyyy"),
+        notes: weightLogData.notes || "",
+      });
+    }
+  }, [weightLogData]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    weightForm.logDate = format(weightForm.logDate, "yyyy-MM-dd");
     weightForm.caloriesIntake = Math.round(weightForm.caloriesIntake);
 
     try {
       await createWeightLog({
         userId: user?.user_id,
-        weightLogPayload: weightForm,
+        weightLogPayload: {
+          ...weightForm,
+          logDate: format(weightForm.logDate, "yyyy-MM-dd"),
+        },
       }).unwrap();
       setWeightForm({
         weight: 0,
@@ -61,6 +80,7 @@ export default function WeightForm({
         notes: "",
         caloriesIntake: 0,
       });
+      setWeightLogData(null);
     } catch (error: any) {
       if (!error.status) {
         setError("No Server Response");
@@ -166,9 +186,40 @@ export default function WeightForm({
           maxLength={50}
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? <Loader2 className="animate-spin" /> : "Add Entry"}
-      </Button>
+      <div className="flex w-full gap-2">
+        {weightLogData && (
+          <Button
+            type="button"
+            className="flex-1"
+            variant={"outline"}
+            onClick={() => {
+              setWeightForm({
+                weight: 0,
+                weightUnit: weightStates.current_weight_unit,
+                logDate: "",
+                notes: "",
+                caloriesIntake: 0,
+              });
+              setWeightLogData(null);
+            }}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button
+          type="submit"
+          className={weightLogData ? "flex-1" : "w-full"}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="animate-spin" />
+          ) : weightLogData ? (
+            "Update Entry"
+          ) : (
+            "Add Entry"
+          )}
+        </Button>
+      </div>
     </form>
   );
 }

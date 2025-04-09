@@ -74,7 +74,7 @@ export default function WeightLogPage() {
     startDate: "2025-04-05",
     endDate: "2025-04-24",
   });
-
+  const [weightLogData, setWeightLogData] = useState<any>(null); // for updating weight log
   const weightStates = useSelector(selectWeightStates);
   const currentWeight = Number(weightStates.current_weight);
   const startWeight = Number(weightStates.starting_weight);
@@ -239,6 +239,8 @@ export default function WeightLogPage() {
                 goal={weightStates.goal}
                 startDate={format(weekStart, "yyyy-MM-dd")}
                 endDate={format(weekEnd, "yyyy-MM-dd")}
+                userId={user?.user_id || ""}
+                setWeightLogData={setWeightLogData}
               />
             </div>
 
@@ -250,7 +252,11 @@ export default function WeightLogPage() {
                     <CardTitle>Add Weight Entry</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <WeightForm setError={setError} />
+                    <WeightForm
+                      setError={setError}
+                      weightLogData={weightLogData}
+                      setWeightLogData={setWeightLogData}
+                    />
                   </CardContent>
                 </Card>
               ) : (
@@ -267,7 +273,11 @@ export default function WeightLogPage() {
           <DialogHeader>
             <DialogTitle>Add Weight Entry</DialogTitle>
           </DialogHeader>
-          <WeightForm setError={setError} />
+          <WeightForm
+            setError={setError}
+            weightLogData={weightLogData}
+            setWeightLogData={setWeightLogData}
+          />
         </DialogContent>
       </Dialog>
     </div>
