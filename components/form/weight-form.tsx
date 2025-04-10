@@ -173,6 +173,7 @@ export default function WeightForm({
                 selected={calendarDate}
                 onSelect={(day: Date | undefined) => setCalendarDate(day)}
                 required
+                disabled={(date) => date > new Date()}
               />
             </PopoverContent>
           </Popover>

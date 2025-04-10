@@ -42,6 +42,8 @@ import WeightForm from "@/components/form/weight-form";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { startOfWeek, endOfWeek } from "date-fns";
 import BMIDialog from "@/components/dialog/bmi-dialog";
+import { getDayRange } from "@/helper/get-day-range";
+import { useMemo } from "react";
 
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
@@ -50,7 +52,7 @@ export default function WeightLogPage() {
   const [error, setError] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
-  const [options, setOptions] = useState("90d");
+  const [options, setOptions] = useState("current-week");
   const now = new Date();
   const [startDate, setStartDate] = useState<Date | null>(
     startOfWeek(now, { weekStartsOn: 1 })
@@ -73,7 +75,6 @@ export default function WeightLogPage() {
       )
     )
   );
-
   const { data: weightLog } = useGetWeightLogByDateQuery({
     userId: user?.user_id || "",
     startDate: format(startDate || "", "yyyy-MM-dd"),
@@ -82,11 +83,22 @@ export default function WeightLogPage() {
   });
 
   useEffect(() => {
-    if (options === "all") {
-      setStartDate(null);
-      setEndDate(null);
+    if (options === "all" && weightLog?.data) {
+      setStartDate(
+        new Date(weightLog?.data[weightLog?.data?.length - 1].log_date)
+      );
+      setEndDate(new Date(weightLog?.data[0].log_date));
     }
-  }, [options]);
+    if (options !== "all" && options !== "current-week") {
+      const { startDate, endDate } = getDayRange({ options });
+      setStartDate(startDate);
+      setEndDate(endDate);
+    }
+    if (options === "current-week") {
+      setStartDate(startOfWeek(now, { weekStartsOn: 1 }));
+      setEndDate(endOfWeek(now, { weekStartsOn: 1 }));
+    }
+  }, [options, weightLog?.data]);
 
   useEffect(() => {
     setCurrentDate(getCurrentDate());

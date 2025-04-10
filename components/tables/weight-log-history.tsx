@@ -12,8 +12,7 @@ import {
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { format } from "date-fns";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import {
   Table,
   TableHead,
@@ -34,6 +33,7 @@ import {
   SelectContent,
   SelectItem,
 } from "../ui/select";
+import { parse, format } from "date-fns";
 
 export default function WeightLogHistory({
   weightHistory,
@@ -54,6 +54,8 @@ export default function WeightLogHistory({
   options: string;
   setOptions: (options: string) => void;
 }) {
+  const parsedStart = parse(startDate, "yyyy-MM-dd", new Date());
+  const parsedEnd = parse(endDate, "yyyy-MM-dd", new Date());
   const isMobile = useIsMobile();
   const [deleteWeightLog] = useDeleteWeightLogMutation();
   const areAllNotesEmpty = useCallback((): boolean => {
@@ -134,8 +136,8 @@ export default function WeightLogHistory({
               </CardTitle>
 
               <span className="text-sm text-muted-foreground">
-                {format(new Date(startDate), "MMM d, yyyy")} -{" "}
-                {format(new Date(endDate), "MMM d, yyyy")}
+                {format(parsedStart, "MMM d, yyyy")} -{" "}
+                {format(parsedEnd, "MMM d, yyyy")}
               </span>
             </div>
             <Select value={options} onValueChange={setOptions}>
@@ -146,17 +148,20 @@ export default function WeightLogHistory({
                 <SelectValue placeholder="Last 3 months" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="all" className="rounded-lg">
-                  All
+                <SelectItem value="current-week" className="rounded-lg">
+                  Current Week
                 </SelectItem>
-                <SelectItem value="90d" className="rounded-lg">
-                  Last 3 months
+                <SelectItem value="7d" className="rounded-lg">
+                  Last 7 days
                 </SelectItem>
                 <SelectItem value="30d" className="rounded-lg">
                   Last 30 days
                 </SelectItem>
-                <SelectItem value="7d" className="rounded-lg">
-                  Last 7 days
+                <SelectItem value="90d" className="rounded-lg">
+                  Last 3 months
+                </SelectItem>
+                <SelectItem value="all" className="rounded-lg">
+                  All
                 </SelectItem>
               </SelectContent>
             </Select>
