@@ -43,29 +43,34 @@ import ErrorAlert from "@/components/alerts/error-alert";
 import { startOfWeek, endOfWeek } from "date-fns";
 import BMIDialog from "@/components/dialog/bmi-dialog";
 import { getDayRange } from "@/helper/get-day-range";
-import { useMemo } from "react";
+import { WeightForm as WeightFormType } from "@/components/form/weight-form";
+import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
+import handleRateChangeColor from "@/helper/handle-rate-change";
 
 export default function WeightLogPage() {
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
+
   const user = useSelector(selectCurrentUser);
+  const weightStates = useSelector(selectWeightStates);
+
   const [error, setError] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
   const [options, setOptions] = useState("current-week");
-  const now = new Date();
-  const [startDate, setStartDate] = useState<Date | null>(
-    startOfWeek(now, { weekStartsOn: 1 })
-  );
-  const [endDate, setEndDate] = useState<Date | null>(
-    endOfWeek(now, { weekStartsOn: 1 })
-  );
-
   const [weightLogData, setWeightLogData] = useState<any>(null); // for updating weight log
-  const weightStates = useSelector(selectWeightStates);
+  const [weightFormData, setWeightFormData] = useState<WeightFormType>({
+    weight: 0,
+    weightUnit: weightStates.current_weight_unit,
+    caloriesIntake: 0,
+    logDate: "",
+    notes: "",
+  });
+
   const currentWeight = Number(weightStates.current_weight);
   const startWeight = Number(weightStates.starting_weight);
   const goalWeight = Number(weightStates.weight_goal);
+
   const weightProgress = Math.max(
     0,
     Math.min(
@@ -75,6 +80,15 @@ export default function WeightLogPage() {
       )
     )
   );
+
+  const now = new Date();
+  const [startDate, setStartDate] = useState<Date | null>(
+    startOfWeek(now, { weekStartsOn: 1 })
+  );
+  const [endDate, setEndDate] = useState<Date | null>(
+    endOfWeek(now, { weekStartsOn: 0 })
+  );
+
   const { data: weightLog } = useGetWeightLogByDateQuery({
     userId: user?.user_id || "",
     startDate: format(startDate || "", "yyyy-MM-dd"),
@@ -82,6 +96,11 @@ export default function WeightLogPage() {
     options: options !== "all" ? "date" : "all",
   });
 
+  const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
+    userId: user?.user_id || "",
+  });
+
+  console.log(weeklyWeightDifference);
   useEffect(() => {
     if (options === "all" && weightLog?.data) {
       setStartDate(
@@ -185,9 +204,13 @@ export default function WeightLogPage() {
                           ? "lbs"
                           : "kg"}
                       </p>
-                      <p className="text-xs text-green-500 flex mt-2">
-                        <ChevronDown className="h-4 w-4 text-green-500" /> 2 lbs
-                        since last week
+                      <p className="text-xs flex items-center gap-1 mt-2">
+                        {handleRateChangeColor(
+                          weeklyWeightDifference?.data?.weeklyDifference,
+                          weightStates.goal,
+                          weightStates.starting_weight_unit,
+                          " since last week"
+                        )}
                       </p>
                     </div>
                     <Progress value={weightProgress} />
@@ -259,6 +282,7 @@ export default function WeightLogPage() {
                 setWeightLogData={setWeightLogData}
                 options={options}
                 setOptions={setOptions}
+                setModalOpen={setIsModalOpen}
               />
             </div>
 
@@ -274,6 +298,9 @@ export default function WeightLogPage() {
                       setError={setError}
                       weightLogData={weightLogData}
                       setWeightLogData={setWeightLogData}
+                      formData={weightFormData}
+                      setFormData={setWeightFormData}
+                      setModalOpen={setIsModalOpen}
                     />
                   </CardContent>
                 </Card>
@@ -287,7 +314,7 @@ export default function WeightLogPage() {
 
       {/* Modal for small screens */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-card">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add Weight Entry</DialogTitle>
           </DialogHeader>
@@ -295,6 +322,9 @@ export default function WeightLogPage() {
             setError={setError}
             weightLogData={weightLogData}
             setWeightLogData={setWeightLogData}
+            formData={weightFormData}
+            setFormData={setWeightFormData}
+            setModalOpen={setIsModalOpen}
           />
         </DialogContent>
       </Dialog>

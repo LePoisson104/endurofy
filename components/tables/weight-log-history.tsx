@@ -1,10 +1,4 @@
-import {
-  ChevronUp,
-  ChevronDown,
-  EllipsisVertical,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { EllipsisVertical, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -34,6 +28,8 @@ import {
   SelectItem,
 } from "../ui/select";
 import { parse, format } from "date-fns";
+import useBreakpoint from "@/hooks/use-break-point";
+import handleRateChangeColor from "@/helper/handle-rate-change";
 
 export default function WeightLogHistory({
   weightHistory,
@@ -44,16 +40,19 @@ export default function WeightLogHistory({
   setWeightLogData,
   options,
   setOptions,
+  setModalOpen,
 }: {
   weightHistory: any;
   goal: string;
   startDate: string;
   endDate: string;
   userId: string;
-  setWeightLogData: (weightLogData: any) => void;
   options: string;
   setOptions: (options: string) => void;
+  setWeightLogData: (weightLogData: any) => void;
+  setModalOpen: (modalOpen: boolean) => void;
 }) {
+  const breakpoint = useBreakpoint();
   const parsedStart = parse(startDate, "yyyy-MM-dd", new Date());
   const parsedEnd = parse(endDate, "yyyy-MM-dd", new Date());
   const isMobile = useIsMobile();
@@ -66,63 +65,6 @@ export default function WeightLogHistory({
   }, [weightHistory]);
 
   const isNotesEmpty = areAllNotesEmpty();
-
-  const handleWeightUnit = (weight_unit: string, rateChange: number) => {
-    if (weight_unit === "lb" && Math.abs(rateChange) > 1) {
-      return "lbs";
-    } else if (weight_unit === "lb" && Math.abs(rateChange) <= 1) {
-      return "lb";
-    } else {
-      return "kg";
-    }
-  };
-
-  const handleRateChangeColor = (
-    rateChange: number,
-    goal: string,
-    weight_unit: string
-  ) => {
-    if (goal === "lose" && rateChange < 0) {
-      return (
-        <span className="text-green-400 flex items-center justify-center">
-          <ChevronDown className="h-4 w-4" />
-          {Math.abs(rateChange)}
-          {handleWeightUnit(weight_unit, rateChange)}
-        </span>
-      );
-    } else if (goal === "lose" && rateChange > 0) {
-      return (
-        <span className="text-red-400 flex items-center justify-center">
-          <ChevronUp className="h-4 w-4" />
-          {Math.abs(rateChange)}
-          {handleWeightUnit(weight_unit, rateChange)}
-        </span>
-      );
-    } else if (goal === "gain" && rateChange < 0) {
-      return (
-        <span className="text-red-400 flex items-center justify-center">
-          <ChevronDown className="h-4 w-4" />
-          {Math.abs(rateChange)}
-          {handleWeightUnit(weight_unit, rateChange)}
-        </span>
-      );
-    } else if (goal === "gain" && rateChange > 0) {
-      return (
-        <span className="text-green-400 flex items-center justify-center">
-          <ChevronUp className="h-4 w-4" />
-          {Math.abs(rateChange)}
-          {handleWeightUnit(weight_unit, rateChange)}
-        </span>
-      );
-    } else {
-      return (
-        <span className="text-gray-400 flex items-center justify-center">
-          {Math.abs(rateChange)}
-          {handleWeightUnit(weight_unit, rateChange)}
-        </span>
-      );
-    }
-  };
 
   return (
     <>
@@ -223,18 +165,21 @@ export default function WeightLogHistory({
                                   <DropdownMenuItem
                                     onClick={() => {
                                       setWeightLogData(entry);
+                                      if (breakpoint !== "lg") {
+                                        setModalOpen(true);
+                                      }
                                     }}
                                   >
                                     <Pencil className="h-4 w-4 mr-2" />
                                     Edit
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    onClick={() =>
+                                    onClick={() => {
                                       deleteWeightLog({
                                         userId: userId,
                                         weightLogId: entry.weight_log_id,
-                                      })
-                                    }
+                                      });
+                                    }}
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
                                     Delete
@@ -277,7 +222,7 @@ export default function WeightLogHistory({
                               </span>
                             </TableCell>
                             {!isNotesEmpty && (
-                              <TableCell className="px-3 sm:px-6 py-4 w-[35%]">
+                              <TableCell className="px-3 sm:px-6 w-[35%]">
                                 {entry.notes}
                               </TableCell>
                             )}

@@ -12,7 +12,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         { type: "WeightLog", id: "LIST" },
       ],
     }),
-
+    getWeeklyWeightDifference: builder.query({
+      query: ({ userId }) => ({
+        url: `/api/v1/weight-log/get-weekly-weight-difference/${userId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { userId }) => [
+        { type: "WeightLog", id: `${userId}-weekly-weight-difference` },
+        { type: "WeightLog", id: "LIST" },
+      ],
+    }),
     createWeightLog: builder.mutation({
       query: ({ userId, weightLogPayload }) => ({
         url: `/api/v1/weight-log/create-weight-log/${userId}`,
@@ -55,4 +64,5 @@ export const {
   useCreateWeightLogMutation,
   useUpdateWeightLogMutation,
   useDeleteWeightLogMutation,
+  useGetWeeklyWeightDifferenceQuery,
 } = usersApiSlice;

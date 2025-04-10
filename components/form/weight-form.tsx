@@ -14,8 +14,9 @@ import {
   useCreateWeightLogMutation,
   useUpdateWeightLogMutation,
 } from "@/api/weight-log/weight-log-api-slice";
+import useBreakpoint from "@/hooks/use-break-point";
 
-interface WeightForm {
+export interface WeightForm {
   weight: number;
   weightUnit: string;
   caloriesIntake: number;
@@ -27,20 +28,20 @@ export default function WeightForm({
   weightLogData,
   setError,
   setWeightLogData,
+  formData,
+  setFormData,
+  setModalOpen,
 }: {
   weightLogData: any;
   setError: (error: string) => void;
   setWeightLogData: (weightLogData: any) => void;
+  formData: WeightForm;
+  setFormData: React.Dispatch<React.SetStateAction<WeightForm>>;
+  setModalOpen: (modalOpen: boolean) => void;
 }) {
+  const breakpoint = useBreakpoint();
   const weightStates = useSelector(selectWeightStates);
   const user = useSelector(selectCurrentUser);
-  const [weightForm, setWeightForm] = useState<WeightForm>({
-    weight: 0,
-    weightUnit: weightStates.current_weight_unit,
-    logDate: "",
-    notes: "",
-    caloriesIntake: 0,
-  });
   const [calendarDate, setCalendarDate] = useState<Date>();
   const [createWeightLog, { isLoading: isCreating }] =
     useCreateWeightLogMutation();
@@ -48,16 +49,16 @@ export default function WeightForm({
     useUpdateWeightLogMutation();
 
   useEffect(() => {
-    setWeightForm((prev) => ({
+    setFormData((prev: WeightForm) => ({
       ...prev,
       logDate: calendarDate ? format(calendarDate, "MM/dd/yyyy") : "",
     }));
-  }, [calendarDate]);
+  }, [calendarDate, setFormData]);
 
   useEffect(() => {
     // if weightLogData is not null, then it's update mode
     if (weightLogData) {
-      setWeightForm({
+      setFormData({
         weight: weightLogData.weight,
         weightUnit: weightLogData.weight_unit,
         caloriesIntake: weightLogData.calories_intake,
@@ -65,11 +66,14 @@ export default function WeightForm({
         notes: weightLogData.notes || "",
       });
     }
-  }, [weightLogData]);
+  }, [weightLogData, setFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    weightForm.caloriesIntake = Math.round(weightForm.caloriesIntake);
+    const submitData = {
+      ...formData,
+      caloriesIntake: Math.round(formData.caloriesIntake),
+    };
 
     try {
       if (weightLogData) {
@@ -77,21 +81,22 @@ export default function WeightForm({
           userId: user?.user_id,
           weightLogId: weightLogData.weight_log_id,
           weightLogPayload: {
-            ...weightForm,
-            logDate: format(weightForm.logDate, "yyyy-MM-dd"),
+            ...submitData,
+            logDate: format(submitData.logDate, "yyyy-MM-dd"),
           },
         }).unwrap();
       } else {
         await createWeightLog({
           userId: user?.user_id,
           weightLogPayload: {
-            ...weightForm,
-            logDate: format(weightForm.logDate, "yyyy-MM-dd"),
+            ...submitData,
+            logDate: format(submitData.logDate, "yyyy-MM-dd"),
           },
         }).unwrap();
       }
 
-      setWeightForm({
+      // Reset form data
+      setFormData({
         weight: 0,
         weightUnit: weightStates.current_weight_unit,
         logDate: "",
@@ -99,6 +104,9 @@ export default function WeightForm({
         caloriesIntake: 0,
       });
       setWeightLogData(null);
+      if (breakpoint !== "lg") {
+        setModalOpen(false);
+      }
     } catch (error: any) {
       if (!error.status) {
         setError("No Server Response");
@@ -114,19 +122,19 @@ export default function WeightForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="weight" className="text-sm">
-          Weight ({weightForm.weightUnit === "lb" ? "lbs" : "kg"})
+          Weight ({formData.weightUnit === "lb" ? "lbs" : "kg"})
         </Label>
         <Input
           id="weight"
           type="number"
           placeholder="Enter weight"
           className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm"
-          value={weightForm?.weight || ""}
+          value={formData.weight || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);
             if (value < 1) value = 1;
             if (value > 1000) value = 1000;
-            setWeightForm({ ...weightForm, weight: value });
+            setFormData({ ...formData, weight: value });
           }}
           required
         />
@@ -140,12 +148,12 @@ export default function WeightForm({
           type="number"
           placeholder="Enter calories"
           className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm"
-          value={weightForm?.caloriesIntake || ""}
+          value={formData.caloriesIntake || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);
             if (value < 1) value = 1;
             if (value > 100000) value = 100000;
-            setWeightForm({ ...weightForm, caloriesIntake: value });
+            setFormData({ ...formData, caloriesIntake: value });
           }}
           required
         />
@@ -183,9 +191,9 @@ export default function WeightForm({
             pattern="\d{2}/\d{2}/\d{4}"
             placeholder="MM/DD/YYYY"
             className="placeholder:text-sm w-full"
-            defaultValue={weightForm.logDate}
+            value={formData.logDate}
             onChange={(e) => {
-              setWeightForm({ ...weightForm, logDate: e.target.value });
+              setFormData({ ...formData, logDate: e.target.value });
             }}
           />
         </div>
@@ -198,10 +206,8 @@ export default function WeightForm({
           id="note"
           placeholder="Add notes (50 characters max)"
           className="placeholder:text-sm"
-          value={weightForm.notes}
-          onChange={(e) =>
-            setWeightForm({ ...weightForm, notes: e.target.value })
-          }
+          value={formData.notes}
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           maxLength={50}
         />
       </div>
@@ -212,7 +218,7 @@ export default function WeightForm({
             className="flex-1"
             variant={"outline"}
             onClick={() => {
-              setWeightForm({
+              setFormData({
                 weight: 0,
                 weightUnit: weightStates.current_weight_unit,
                 logDate: "",
