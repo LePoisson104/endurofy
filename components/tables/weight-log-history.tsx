@@ -132,27 +132,28 @@ export default function WeightLogHistory({
                   <Table>
                     <TableHeader className="sticky top-0 z-10">
                       <TableRow className="text-center border-b-2">
-                        <TableHead className="px-3 sm:px-6 py-4 text-center w-[5%]">
+                        <TableHead className="py-4 text-center">
                           Actions
                         </TableHead>
-                        <TableHead className="px-3 sm:px-6 py-4 text-center w-[15%]">
-                          Date
-                        </TableHead>
-                        <TableHead className="px-3 sm:px-6 py-4 text-center w-[15%]">
+                        <TableHead className="py-4 text-center">Date</TableHead>
+                        <TableHead className="py-4 text-center">
                           Weight (
                           {weightHistory?.data?.[0]?.weight_unit === "lb"
                             ? "lbs"
                             : "kg"}
                           )
                         </TableHead>
-                        <TableHead className="px-3 sm:px-6 py-4 text-center w-[15%]">
-                          Rate
+                        <TableHead className="py-4 text-center">
+                          Daily Rate
                         </TableHead>
-                        <TableHead className="px-3 sm:px-6 py-4 text-center w-[15%]">
+                        <TableHead className="py-4 text-center">
+                          Weekly Rate
+                        </TableHead>
+                        <TableHead className="py-4 text-center">
                           Calories (Kcal)
                         </TableHead>
                         {!isNotesEmpty && (
-                          <TableHead className="px-3 sm:px-6 py-4 text-center w-[35%]">
+                          <TableHead className="py-4 text-center">
                             Notes
                           </TableHead>
                         )}
@@ -176,7 +177,7 @@ export default function WeightLogHistory({
                                 }px)`,
                               }}
                             >
-                              <TableCell className="px-3 sm:px-6 py-2 text-center w-[5%]">
+                              <TableCell className="py-2 text-center ">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon">
@@ -212,7 +213,7 @@ export default function WeightLogHistory({
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </TableCell>
-                              <TableCell className="px-3 sm:px-6 py-4 text-center w-[15%]">
+                              <TableCell className="py-4 text-center">
                                 {isMobile
                                   ? new Date(entry?.log_date).getFullYear() ===
                                     new Date().getFullYear()
@@ -227,27 +228,34 @@ export default function WeightLogHistory({
                                     )}
                               </TableCell>
 
-                              <TableCell className="px-3 sm:px-6 py-4 text-center w-[15%]">
+                              <TableCell className="px-1 py-4 text-center">
                                 {Number(entry.weight)}{" "}
                                 <span className="text-xs text-muted-foreground">
                                   {entry.weight_unit === "lb" ? "lbs" : "kg"}
                                 </span>
                               </TableCell>
-                              <TableCell className="px-3 sm:px-6 py-4 text-center w-[15%]">
+                              <TableCell className="py-4 text-center">
                                 {handleRateChangeColor(
-                                  entry.rateChange,
+                                  entry.weightChange,
                                   goal,
                                   entry.weight_unit
                                 )}
                               </TableCell>
-                              <TableCell className="px-3 sm:px-6 py-4 text-center w-[15%]">
+                              <TableCell className="py-4 text-center">
+                                {handleRateChangeColor(
+                                  entry.weeklyRate,
+                                  goal,
+                                  entry.weight_unit
+                                )}
+                              </TableCell>
+                              <TableCell className="py-4 text-center">
                                 {Number(entry.calories_intake)}{" "}
                                 <span className="text-xs text-muted-foreground">
                                   Kcal
                                 </span>
                               </TableCell>
                               {!isNotesEmpty && (
-                                <TableCell className="px-3 sm:px-6 w-[35%]">
+                                <TableCell className="py-4 pl-8">
                                   {entry.notes}
                                 </TableCell>
                               )}

@@ -207,11 +207,11 @@ export default function WeightForm({
         </Label>
         <Input
           id="note"
-          placeholder="Add notes (60 characters max)"
+          placeholder="Add notes (50 characters max)"
           className="placeholder:text-sm"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          maxLength={60}
+          maxLength={50}
         />
       </div>
       <div className="flex w-full gap-2">

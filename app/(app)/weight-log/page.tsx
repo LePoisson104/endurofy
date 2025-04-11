@@ -103,9 +103,9 @@ export default function WeightLogPage() {
   useEffect(() => {
     if (options === "all" && weightLog?.data) {
       setStartDate(
-        new Date(weightLog?.data[weightLog?.data?.length - 1].log_date)
+        new Date(weightLog.data[weightLog.data.length - 1].log_date)
       );
-      setEndDate(new Date(weightLog?.data[0].log_date));
+      setEndDate(new Date(weightLog.data[0].log_date));
     }
     if (options !== "all" && options !== "current-week") {
       const { startDate, endDate } = getDayRange({ options });
