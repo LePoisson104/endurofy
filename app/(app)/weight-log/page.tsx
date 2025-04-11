@@ -61,7 +61,7 @@ export default function WeightLogPage() {
   const [weightLogData, setWeightLogData] = useState<any>(null); // for updating weight log
   const [weightFormData, setWeightFormData] = useState<WeightFormType>({
     weight: 0,
-    weightUnit: weightStates.current_weight_unit,
+    weightUnit: "",
     caloriesIntake: 0,
     logDate: "",
     notes: "",
@@ -100,7 +100,6 @@ export default function WeightLogPage() {
     userId: user?.user_id || "",
   });
 
-  console.log(weeklyWeightDifference);
   useEffect(() => {
     if (options === "all" && weightLog?.data) {
       setStartDate(

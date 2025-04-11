@@ -13,9 +13,9 @@
 
 ### Tech Stack:
 
-- **Frontend:** NextJs, Shadcn UI, RTK query, Redux
-- **Backend:** Node.js, Express.js, MySQL (https://github.com/LePoisson104/Endurofy_api.git)
-- **Hosting:** AWS RDS, AWS EC2, AWS Amplify
+- **Frontend:** NextJs 15, TypeScript, Shadcn UI, Tailwind CSS v4, RTK query, Redux, Tanstack virtual (optimize to render large lists)
+- **Backend:** Node.js/TypeScript, Express.js, MySQL (https://github.com/LePoisson104/Endurofy_api.git)
+- **Hosting:** AWS RDS, AWS EC2, Vercel
 
 ## Installation
 

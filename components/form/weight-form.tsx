@@ -76,6 +76,7 @@ export default function WeightForm({
     };
 
     try {
+      // edit weight log
       if (weightLogData) {
         await updateWeightLog({
           userId: user?.user_id,
@@ -86,11 +87,13 @@ export default function WeightForm({
           },
         }).unwrap();
       } else {
+        // create weight log
         await createWeightLog({
           userId: user?.user_id,
           weightLogPayload: {
             ...submitData,
             logDate: format(submitData.logDate, "yyyy-MM-dd"),
+            weightUnit: weightStates.current_weight_unit,
           },
         }).unwrap();
       }
@@ -98,7 +101,7 @@ export default function WeightForm({
       // Reset form data
       setFormData({
         weight: 0,
-        weightUnit: weightStates.current_weight_unit,
+        weightUnit: "",
         logDate: "",
         notes: "",
         caloriesIntake: 0,
@@ -204,11 +207,11 @@ export default function WeightForm({
         </Label>
         <Input
           id="note"
-          placeholder="Add notes (50 characters max)"
+          placeholder="Add notes (60 characters max)"
           className="placeholder:text-sm"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          maxLength={50}
+          maxLength={60}
         />
       </div>
       <div className="flex w-full gap-2">
@@ -220,7 +223,7 @@ export default function WeightForm({
             onClick={() => {
               setFormData({
                 weight: 0,
-                weightUnit: weightStates.current_weight_unit,
+                weightUnit: "",
                 logDate: "",
                 notes: "",
                 caloriesIntake: 0,
