@@ -313,7 +313,7 @@ export default function WeightLogPage() {
 
       {/* Modal for small screens */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-card">
           <DialogHeader>
             <DialogTitle>Add Weight Entry</DialogTitle>
           </DialogHeader>
