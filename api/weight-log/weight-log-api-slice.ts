@@ -3,8 +3,8 @@ import { apiSlice } from "../api-slice";
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWeightLogByDate: builder.query({
-      query: ({ userId, startDate, endDate, options }) => ({
-        url: `/api/v1/weight-log/get-weight-log-by-date/${userId}?startDate=${startDate}&endDate=${endDate}&options=${options}`,
+      query: ({ userId, startDate, endDate, options, withRates }) => ({
+        url: `/api/v1/weight-log/get-weight-log-by-date/${userId}?startDate=${startDate}&endDate=${endDate}&options=${options}&withRates=${withRates}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId, startDate, endDate }) => [

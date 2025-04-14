@@ -36,7 +36,7 @@ import {
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-
+import { format } from "date-fns";
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("90d");
   const [currentDate, setCurrentDate] = useState("");
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                     </SelectContent>
                   </Select>
                 </CardHeader>
-                <LineChart timeRange={timeRange} setTimeRange={setTimeRange} />
+                <LineChart weightLogData={[]} view={"both"} />
               </Card>
             </div>
           </div>

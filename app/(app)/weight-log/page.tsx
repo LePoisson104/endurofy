@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -31,7 +31,6 @@ import {
   getCurrentDate,
   getCurrentTime,
 } from "@/helper/get-current-date-n-time";
-import { useEffect } from "react";
 import WeightLogHistory from "@/components/tables/weight-log-history";
 import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
 import { useSelector } from "react-redux";
@@ -48,6 +47,7 @@ import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-a
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SuccessAlert from "@/components/alerts/success-alert";
+
 export default function WeightLogPage() {
   const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState("");
@@ -59,8 +59,8 @@ export default function WeightLogPage() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [timeRange, setTimeRange] = useState("90d");
-  const [options, setOptions] = useState("current-week");
+  const [lineChartOptions, setLineChartOptions] = useState("current-week");
+  const [historyOptions, setHistoryOptions] = useState("current-week");
   const [weightLogData, setWeightLogData] = useState<any>(null); // for updating weight log
   const [weightFormData, setWeightFormData] = useState<WeightFormType>({
     weight: 0,
@@ -74,15 +74,17 @@ export default function WeightLogPage() {
   const startWeight = Number(weightStates.starting_weight);
   const goalWeight = Number(weightStates.weight_goal);
 
-  const weightProgress = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(
-        ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
+  const weightProgress = useMemo(() => {
+    return Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
+        )
       )
-    )
-  );
+    );
+  }, [startWeight, currentWeight, goalWeight]);
 
   const now = new Date();
   const [startDate, setStartDate] = useState<Date | null>(
@@ -92,34 +94,93 @@ export default function WeightLogPage() {
     endOfWeek(now, { weekStartsOn: 0 })
   );
 
-  const { data: weightLog } = useGetWeightLogByDateQuery({
-    userId: user?.user_id || "",
-    startDate: format(startDate || "", "yyyy-MM-dd"),
-    endDate: format(endDate || "", "yyyy-MM-dd"),
-    options: options !== "all" ? "date" : "all",
-  });
+  const [startDateForLineChart, setStartDateForLineChart] =
+    useState<Date | null>(startOfWeek(now, { weekStartsOn: 1 }));
+  const [endDateForLineChart, setEndDateForLineChart] = useState<Date | null>(
+    endOfWeek(now, { weekStartsOn: 0 })
+  );
+  const [view, setView] = useState("both");
 
+  // Function to set history date range
+  const setHistoryDateRange = useCallback(
+    (options: string, data: any[] | undefined) => {
+      if (options === "all" && data) {
+        setStartDate(new Date(data[data.length - 1].log_date));
+        setEndDate(new Date(data[0].log_date));
+      } else if (options !== "all" && options !== "current-week") {
+        const { startDate, endDate } = getDayRange({ options });
+        setStartDate(startDate);
+        setEndDate(endDate);
+      } else if (options === "current-week") {
+        setStartDate(startOfWeek(now, { weekStartsOn: 1 }));
+        setEndDate(endOfWeek(now, { weekStartsOn: 1 }));
+      }
+    },
+    []
+  );
+
+  // Function to set line chart date range
+  const setLineChartDateRange = useCallback(
+    (options: string, data: any[] | undefined) => {
+      if (options === "all" && data) {
+        setStartDateForLineChart(new Date(data[data.length - 1].log_date));
+        setEndDateForLineChart(new Date(data[0].log_date));
+      } else if (options !== "all" && options !== "current-week") {
+        const { startDate, endDate } = getDayRange({ options });
+        setStartDateForLineChart(startDate);
+        setEndDateForLineChart(endDate);
+      } else if (options === "current-week") {
+        setStartDateForLineChart(startOfWeek(now, { weekStartsOn: 1 }));
+        setEndDateForLineChart(endOfWeek(now, { weekStartsOn: 1 }));
+      }
+    },
+    []
+  );
+
+  // Memoize query parameters to prevent unnecessary re-renders
+  const historyQueryParams = useMemo(
+    () => ({
+      userId: user?.user_id || "",
+      startDate: format(startDate || "", "yyyy-MM-dd"),
+      endDate: format(endDate || "", "yyyy-MM-dd"),
+      options: historyOptions !== "all" ? "date" : "all",
+      withRates: true,
+    }),
+    [user?.user_id, startDate, endDate, historyOptions]
+  );
+
+  const lineChartQueryParams = useMemo(
+    () => ({
+      userId: user?.user_id || "",
+      startDate: format(startDateForLineChart || "", "yyyy-MM-dd"),
+      endDate: format(endDateForLineChart || "", "yyyy-MM-dd"),
+      options: lineChartOptions !== "all" ? "date" : "all",
+      withRates: false,
+    }),
+    [
+      user?.user_id,
+      startDateForLineChart,
+      endDateForLineChart,
+      lineChartOptions,
+    ]
+  );
+
+  const { data: weightLogWithRates } =
+    useGetWeightLogByDateQuery(historyQueryParams);
+  const { data: weightLog, isLoading: isLoadingWeightLog } =
+    useGetWeightLogByDateQuery(lineChartQueryParams);
   const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
     userId: user?.user_id || "",
   });
 
+  // Memoize the date range effect to prevent unnecessary updates
   useEffect(() => {
-    if (options === "all" && weightLog?.data) {
-      setStartDate(
-        new Date(weightLog.data[weightLog.data.length - 1].log_date)
-      );
-      setEndDate(new Date(weightLog.data[0].log_date));
-    }
-    if (options !== "all" && options !== "current-week") {
-      const { startDate, endDate } = getDayRange({ options });
-      setStartDate(startDate);
-      setEndDate(endDate);
-    }
-    if (options === "current-week") {
-      setStartDate(startOfWeek(now, { weekStartsOn: 1 }));
-      setEndDate(endOfWeek(now, { weekStartsOn: 1 }));
-    }
-  }, [options, weightLog?.data]);
+    setHistoryDateRange(historyOptions, weightLogWithRates?.data);
+  }, [historyOptions, weightLogWithRates?.data]);
+
+  useEffect(() => {
+    setLineChartDateRange(lineChartOptions, weightLogWithRates?.data);
+  }, [lineChartOptions, weightLogWithRates?.data]);
 
   useEffect(() => {
     setCurrentDate(getCurrentDate());
@@ -137,7 +198,9 @@ export default function WeightLogPage() {
             <div className="flex flex-col">
               <PageTitle
                 title="Weight Log"
-                subTitle={`${currentDate} | ${currentTime}`}
+                subTitle={`${
+                  currentDate ? `${currentDate} | ${currentTime}` : ""
+                }`}
               />
             </div>
             {/* Mobile add button - only visible on small screens */}
@@ -155,40 +218,78 @@ export default function WeightLogPage() {
             {/* Left Column - 3/4 width on large screens */}
             <div className="lg:col-span-3 space-y-6">
               {/* Weight Chart */}
-              <Card className="md:pb-24 sm:pb-0 h-[500px] ">
-                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
-                  <div className="flex flex-col w-full gap-2">
-                    <CardTitle className="flex flex-row items-center gap-2">
-                      <Activity className="h-4 w-4 text-blue-400" />
-                      Weight log overview
-                    </CardTitle>
-                    <CardDescription>
-                      March 15, 2025 - March 21, 2025
-                    </CardDescription>
-                  </div>
-                  <Select value={timeRange} onValueChange={setTimeRange}>
-                    <SelectTrigger
-                      className="w-fit rounded-lg"
-                      aria-label="Select a value"
-                    >
-                      <SelectValue placeholder="Last 3 months" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="90d" className="rounded-lg">
-                        Last 3 months
-                      </SelectItem>
-                      <SelectItem value="30d" className="rounded-lg">
-                        Last 30 days
-                      </SelectItem>
-                      <SelectItem value="7d" className="rounded-lg">
-                        Last 7 days
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </CardHeader>
+              {!isLoadingWeightLog ? (
+                <Card className="md:pb-24 sm:pb-0 h-[500px] ">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
+                    <div className="flex flex-col w-full gap-2">
+                      <CardTitle className="flex flex-row items-center gap-2">
+                        <Activity className="h-4 w-4 text-blue-400" />
+                        Weight log overview
+                      </CardTitle>
+                      <CardDescription>
+                        {format(startDateForLineChart || "", "MMMM d, yyyy")} -{" "}
+                        {format(endDateForLineChart || "", "MMMM d, yyyy")}
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                      <Select value={view} onValueChange={setView}>
+                        <SelectTrigger
+                          className="w-fit rounded-lg"
+                          aria-label="Select a value"
+                        >
+                          <SelectValue placeholder="Last 3 months" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="both" className="rounded-lg">
+                            View Both
+                          </SelectItem>
+                          <SelectItem value="weight" className="rounded-lg">
+                            View Weight
+                          </SelectItem>
+                          <SelectItem value="calories" className="rounded-lg">
+                            View Calories
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={lineChartOptions}
+                        onValueChange={setLineChartOptions}
+                      >
+                        <SelectTrigger
+                          className="w-fit rounded-lg"
+                          aria-label="Select a value"
+                        >
+                          <SelectValue placeholder="Last 3 months" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem
+                            value="current-week"
+                            className="rounded-lg"
+                          >
+                            Current Week
+                          </SelectItem>
+                          <SelectItem value="7d" className="rounded-lg">
+                            Last 7 days
+                          </SelectItem>
+                          <SelectItem value="14d" className="rounded-lg">
+                            Last 14 days
+                          </SelectItem>
+                          <SelectItem value="30d" className="rounded-lg">
+                            Last 30 days
+                          </SelectItem>
+                          <SelectItem value="all" className="rounded-lg">
+                            All
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardHeader>
 
-                <LineChart timeRange={timeRange} setTimeRange={setTimeRange} />
-              </Card>
+                  <LineChart weightLogData={weightLog?.data} view={view} />
+                </Card>
+              ) : (
+                <Skeleton className="h-[500px] w-full" />
+              )}
 
               {/* Current Weight & Goal */}
               {weightStates?.current_weight ? (
@@ -285,14 +386,14 @@ export default function WeightLogPage() {
 
               {/* Weight History */}
               <WeightLogHistory
-                weightHistory={weightLog}
+                weightHistory={weightLogWithRates}
                 goal={weightStates.goal}
                 startDate={format(startDate || "", "yyyy-MM-dd")}
                 endDate={format(endDate || "", "yyyy-MM-dd")}
                 userId={user?.user_id || ""}
                 setWeightLogData={setWeightLogData}
-                options={options}
-                setOptions={setOptions}
+                options={historyOptions}
+                setOptions={setHistoryOptions}
                 setModalOpen={setIsModalOpen}
               />
             </div>
@@ -317,7 +418,7 @@ export default function WeightLogPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <Skeleton className="h-[330px] w-full" />
+                <Skeleton className="h-[400px] w-full" />
               )}
             </div>
           </div>

@@ -198,7 +198,7 @@ export default function StatisticsPage() {
         </CardHeader>
         <div className={`w-full ${isMobile ? "h-fit" : "h-[500px]"}`}>
           {selectedTab === "line" ? (
-            <LineChart timeRange={timeRange} setTimeRange={setTimeRange} />
+            <LineChart weightLogData={[]} view={"both"} />
           ) : (
             <BarChart className={`${isMobile ? "h-fit" : "h-[500px]"}`} />
           )}
