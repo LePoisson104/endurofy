@@ -135,7 +135,7 @@ export default function WeightForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="weight" className="text-sm">
-          Weight ({formData.weightUnit === "lb" ? "lbs" : "kg"})
+          Weight ({weightStates.current_weight_unit === "lb" ? "lbs" : "kg"})
         </Label>
         <Input
           id="weight"

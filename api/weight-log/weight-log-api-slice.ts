@@ -46,6 +46,19 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         { type: "User", id: arg.userId }, // Ensure you pass userId correctly
       ],
     }),
+    convertAllWeightLogsByUnits: builder.mutation({
+      query: ({ userId, payload }) => ({
+        url: `/api/v1/weight-log/convert-all-weight-logs-by-units/${userId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "WeightLog", id: arg.userId }, // Ensure you pass userId correctly
+        { type: "WeightLog", id: "LIST" },
+        { type: "User", id: arg.userId }, // Ensure you pass userId correctly
+      ],
+    }),
+
     deleteWeightLog: builder.mutation({
       query: ({ userId, weightLogId }) => ({
         url: `/api/v1/weight-log/delete-weight-log/${userId}/${weightLogId}`,
@@ -65,4 +78,5 @@ export const {
   useUpdateWeightLogMutation,
   useDeleteWeightLogMutation,
   useGetWeeklyWeightDifferenceQuery,
+  useConvertAllWeightLogsByUnitsMutation,
 } = usersApiSlice;

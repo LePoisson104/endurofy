@@ -43,20 +43,24 @@ import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
 import { selectWeightStates } from "@/api/user/user-slice";
+import { useConvertAllWeightLogsByUnitsMutation } from "@/api/weight-log/weight-log-api-slice";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
+  const weightStates = useSelector(selectWeightStates);
+
   const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id);
   const age =
     new Date().getFullYear() -
     new Date(userInfo?.data?.birth_date).getFullYear();
   const [updateUserProfile, { isLoading: isUpdatingProfile }] =
     useUpdateUsersProfileMutation();
+  const [convertAllWeightLogsByUnits, { isLoading: isConverting }] =
+    useConvertAllWeightLogsByUnitsMutation();
 
   const [editedProfile, setEditedProfile] = useState<UpdateUserInfo | null>(
     null
   );
-  const weightStates = useSelector(selectWeightStates);
   const [isEditing, setIsEditing] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -161,13 +165,34 @@ export default function ProfilePage() {
       return;
     }
 
+    if (
+      editedProfile?.current_weight_unit !== userInfo?.data?.current_weight_unit
+    ) {
+      alert("Are you sure you want to change the unit of your weight?");
+    }
+
     try {
       if (!editedProfile) return;
+
+      if (
+        editedProfile?.current_weight_unit !==
+        userInfo?.data?.current_weight_unit
+      ) {
+        await updateUserProfile({
+          userId: user?.user_id || "",
+          payload: editedProfile,
+        }).unwrap();
+        await convertAllWeightLogsByUnits({
+          userId: user?.user_id || "",
+          payload: { weightUnit: editedProfile?.current_weight_unit || "" },
+        }).unwrap();
+      }
 
       await updateUserProfile({
         userId: user?.user_id || "",
         payload: editedProfile,
       }).unwrap();
+
       setIsEditing(false);
       setSuccessMsg("Profile updated successfully");
     } catch (error: any) {
