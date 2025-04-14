@@ -8,6 +8,10 @@ export const getDayRange = ({ options }: { options: string }) => {
     startDate = subDays(new Date(), 7);
     endDate = new Date();
   }
+  if (options === "14d") {
+    startDate = subDays(new Date(), 14);
+    endDate = new Date();
+  }
   if (options === "30d") {
     startDate = subDays(new Date(), 30);
     endDate = new Date();

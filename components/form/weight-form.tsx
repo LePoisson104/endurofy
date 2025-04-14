@@ -31,6 +31,7 @@ export default function WeightForm({
   formData,
   setFormData,
   setModalOpen,
+  setSuccess,
 }: {
   weightLogData: any;
   setError: (error: string) => void;
@@ -38,6 +39,7 @@ export default function WeightForm({
   formData: WeightForm;
   setFormData: React.Dispatch<React.SetStateAction<WeightForm>>;
   setModalOpen: (modalOpen: boolean) => void;
+  setSuccess: (success: string) => void;
 }) {
   const breakpoint = useBreakpoint();
   const weightStates = useSelector(selectWeightStates);
@@ -47,6 +49,8 @@ export default function WeightForm({
     useCreateWeightLogMutation();
   const [updateWeightLog, { isLoading: isUpdating }] =
     useUpdateWeightLogMutation();
+
+  const [notes, setNotes] = useState<string>("");
 
   useEffect(() => {
     setFormData((prev: WeightForm) => ({
@@ -65,14 +69,17 @@ export default function WeightForm({
         logDate: format(new Date(weightLogData.log_date), "MM/dd/yyyy"),
         notes: weightLogData.notes || "",
       });
+      setNotes(weightLogData.notes || "");
     }
   }, [weightLogData, setFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const submitData = {
       ...formData,
       caloriesIntake: Math.round(formData.caloriesIntake),
+      notes: notes,
     };
 
     try {
@@ -86,6 +93,7 @@ export default function WeightForm({
             logDate: format(submitData.logDate, "yyyy-MM-dd"),
           },
         }).unwrap();
+        setSuccess("Weight log updated successfully");
       } else {
         // create weight log
         await createWeightLog({
@@ -96,6 +104,7 @@ export default function WeightForm({
             weightUnit: weightStates.current_weight_unit,
           },
         }).unwrap();
+        setSuccess("Weight log created successfully");
       }
 
       // Reset form data
@@ -107,6 +116,7 @@ export default function WeightForm({
         caloriesIntake: 0,
       });
       setWeightLogData(null);
+      setNotes("");
       if (breakpoint !== "lg") {
         setModalOpen(false);
       }
@@ -209,8 +219,8 @@ export default function WeightForm({
           id="note"
           placeholder="Add notes (50 characters max)"
           className="placeholder:text-sm"
-          value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
           maxLength={50}
         />
       </div>

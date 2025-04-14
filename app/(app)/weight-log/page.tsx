@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LineChart from "@/components/charts/line-chart";
-import { ChevronDown, Activity, BarChart3, Plus, Goal } from "lucide-react";
+import { Activity, BarChart3, Plus, Goal } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import {
@@ -46,8 +46,10 @@ import { getDayRange } from "@/helper/get-day-range";
 import { WeightForm as WeightFormType } from "@/components/form/weight-form";
 import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
 import handleRateChangeColor from "@/helper/handle-rate-change";
-
+import { useIsMobile } from "@/hooks/use-mobile";
+import SuccessAlert from "@/components/alerts/success-alert";
 export default function WeightLogPage() {
+  const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
 
@@ -55,6 +57,7 @@ export default function WeightLogPage() {
   const weightStates = useSelector(selectWeightStates);
 
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState("90d");
   const [options, setOptions] = useState("current-week");
@@ -126,6 +129,7 @@ export default function WeightLogPage() {
   return (
     <div className="flex min-h-screen flex-col p-[1rem] relative">
       <ErrorAlert error={error} setError={setError} />
+      <SuccessAlert success={success} setSuccess={setSuccess} />
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}
@@ -196,14 +200,22 @@ export default function WeightLogPage() {
                     <Goal className="h-4 w-4 text-teal-400" />
                   </CardHeader>
                   <CardContent>
-                    <div className="flex justify-between">
-                      <p className="text-2xl font-bold mb-2">
+                    <div
+                      className={`flex justify-between ${
+                        isMobile ? "flex-col" : "flex-row"
+                      }`}
+                    >
+                      <p
+                        className={`text-2xl font-bold ${
+                          isMobile ? "mb-1" : "mb-2"
+                        }`}
+                      >
                         Goal: {goalWeight}{" "}
                         {weightStates.starting_weight_unit === "lb"
                           ? "lbs"
                           : "kg"}
                       </p>
-                      <p className="text-xs flex items-center gap-1 mt-2">
+                      <p className="text-xs flex items-center gap-1 mb-2">
                         {handleRateChangeColor(
                           weeklyWeightDifference?.data?.weeklyDifference,
                           weightStates.goal,
@@ -300,6 +312,7 @@ export default function WeightLogPage() {
                       formData={weightFormData}
                       setFormData={setWeightFormData}
                       setModalOpen={setIsModalOpen}
+                      setSuccess={setSuccess}
                     />
                   </CardContent>
                 </Card>
@@ -324,6 +337,7 @@ export default function WeightLogPage() {
             formData={weightFormData}
             setFormData={setWeightFormData}
             setModalOpen={setIsModalOpen}
+            setSuccess={setSuccess}
           />
         </DialogContent>
       </Dialog>

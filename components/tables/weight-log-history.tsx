@@ -72,7 +72,7 @@ export default function WeightLogHistory({
     count: weightHistory?.data?.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 50,
-    overscan: 10,
+    overscan: 20,
   });
 
   return (
@@ -105,11 +105,11 @@ export default function WeightLogHistory({
                 <SelectItem value="7d" className="rounded-lg">
                   Last 7 days
                 </SelectItem>
+                <SelectItem value="14d" className="rounded-lg">
+                  Last 14 days
+                </SelectItem>
                 <SelectItem value="30d" className="rounded-lg">
                   Last 30 days
-                </SelectItem>
-                <SelectItem value="90d" className="rounded-lg">
-                  Last 3 months
                 </SelectItem>
                 <SelectItem value="all" className="rounded-lg">
                   All
@@ -125,7 +125,7 @@ export default function WeightLogHistory({
               >
                 <div
                   style={{
-                    height: `${rowVirtualizer.getTotalSize() + 70}px`,
+                    height: `${rowVirtualizer.getTotalSize() + 75}px`,
                     position: "relative",
                   }}
                 >

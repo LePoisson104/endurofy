@@ -12,7 +12,7 @@
 
 # testing
 /coverage
-
+/list.todo
 # next.js
 /.next/
 /out/
