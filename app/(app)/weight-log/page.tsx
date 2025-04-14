@@ -102,40 +102,34 @@ export default function WeightLogPage() {
   const [view, setView] = useState("both");
 
   // Function to set history date range
-  const setHistoryDateRange = useCallback(
-    (options: string, data: any[] | undefined) => {
-      if (options === "all" && data) {
-        setStartDate(new Date(data[data.length - 1].log_date));
-        setEndDate(new Date(data[0].log_date));
-      } else if (options !== "all" && options !== "current-week") {
-        const { startDate, endDate } = getDayRange({ options });
-        setStartDate(startDate);
-        setEndDate(endDate);
-      } else if (options === "current-week") {
-        setStartDate(startOfWeek(now, { weekStartsOn: 1 }));
-        setEndDate(endOfWeek(now, { weekStartsOn: 1 }));
-      }
-    },
-    []
-  );
+  const setHistoryDateRange = useCallback((options: string, data: any[]) => {
+    if (options === "all" && data.length > 0) {
+      setStartDate(new Date(data[data.length - 1]?.log_date));
+      setEndDate(new Date(data[0]?.log_date));
+    } else if (options !== "all" && options !== "current-week") {
+      const { startDate, endDate } = getDayRange({ options });
+      setStartDate(startDate);
+      setEndDate(endDate);
+    } else if (options === "current-week") {
+      setStartDate(startOfWeek(now, { weekStartsOn: 1 }));
+      setEndDate(endOfWeek(now, { weekStartsOn: 1 }));
+    }
+  }, []);
 
   // Function to set line chart date range
-  const setLineChartDateRange = useCallback(
-    (options: string, data: any[] | undefined) => {
-      if (options === "all" && data) {
-        setStartDateForLineChart(new Date(data[data.length - 1].log_date));
-        setEndDateForLineChart(new Date(data[0].log_date));
-      } else if (options !== "all" && options !== "current-week") {
-        const { startDate, endDate } = getDayRange({ options });
-        setStartDateForLineChart(startDate);
-        setEndDateForLineChart(endDate);
-      } else if (options === "current-week") {
-        setStartDateForLineChart(startOfWeek(now, { weekStartsOn: 1 }));
-        setEndDateForLineChart(endOfWeek(now, { weekStartsOn: 1 }));
-      }
-    },
-    []
-  );
+  const setLineChartDateRange = useCallback((options: string, data: any[]) => {
+    if (options === "all" && data.length > 0) {
+      setStartDateForLineChart(new Date(data[data.length - 1]?.log_date));
+      setEndDateForLineChart(new Date(data[0]?.log_date));
+    } else if (options !== "all" && options !== "current-week") {
+      const { startDate, endDate } = getDayRange({ options });
+      setStartDateForLineChart(startDate);
+      setEndDateForLineChart(endDate);
+    } else if (options === "current-week") {
+      setStartDateForLineChart(startOfWeek(now, { weekStartsOn: 1 }));
+      setEndDateForLineChart(endOfWeek(now, { weekStartsOn: 1 }));
+    }
+  }, []);
 
   // Memoize query parameters to prevent unnecessary re-renders
   const historyQueryParams = useMemo(

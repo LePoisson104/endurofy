@@ -238,6 +238,7 @@ export default function WeightForm({
                 notes: "",
                 caloriesIntake: 0,
               });
+              setNotes("");
               setWeightLogData(null);
             }}
           >

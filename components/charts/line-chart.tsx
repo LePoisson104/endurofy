@@ -11,13 +11,12 @@ import {
 } from "@/components/ui/chart";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Define types for our data
 interface WeightLogItem {
   date: string;
   weight: number;
   calories_intake: number;
   isPlaceholder?: boolean;
-  [key: string]: any; // For other properties
+  [key: string]: any;
 }
 
 const chartConfig = {
@@ -31,7 +30,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-// Custom legend component to ensure both items are displayed
 const CustomLegend = () => {
   return (
     <div className="flex items-center justify-center gap-4 pt-3">
@@ -77,23 +75,18 @@ export default function Component({
     }
   }, [view]);
 
-  // Format the data to ensure dates are properly formatted
   const formattedData = useMemo(() => {
     if (!weightLogData) return [];
 
-    // First format the data
     const formatted = weightLogData.map((item: any) => ({
       ...item,
-      // Ensure date is in a consistent format
       date: item.log_date
         ? format(parseISO(item.log_date), "yyyy-MM-dd")
         : item.date,
-      // Ensure numeric values
       weight: Number(item.weight) || 0,
       calories_intake: Number(item.calories_intake) || 0,
     }));
 
-    // Then sort by date in ascending order (oldest to newest)
     return formatted.sort((a: { date: string }, b: { date: string }) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
@@ -101,25 +94,22 @@ export default function Component({
     });
   }, [weightLogData]);
 
-  // Generate placeholder data for empty weeks
   const dataWithPlaceholders = useMemo(() => {
     if (formattedData.length > 0) return formattedData;
 
-    // Create placeholder data for the current week
     const today = new Date();
-    const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Monday
-    const weekEnd = endOfWeek(today, { weekStartsOn: 1 }); // Sunday
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
 
     const placeholderData: WeightLogItem[] = [];
     let currentDate = weekStart;
 
-    // Generate 7 days of placeholder data
     while (currentDate <= weekEnd) {
       placeholderData.push({
         date: format(currentDate, "yyyy-MM-dd"),
         weight: 0,
         calories_intake: 0,
-        isPlaceholder: true, // Flag to identify placeholder data
+        isPlaceholder: true,
       });
       currentDate = addDays(currentDate, 1);
     }
@@ -127,25 +117,14 @@ export default function Component({
     return placeholderData;
   }, [formattedData]);
 
-  // Find min and max values for better axis scaling
   const weightRange = useMemo(() => {
-    if (!dataWithPlaceholders.length) return { min: 0, max: 100 };
+    const realData = dataWithPlaceholders.filter((d: any) => !d.isPlaceholder);
+    if (realData.length === 0) return { min: 0, max: 100 };
 
-    // Filter out placeholder data for range calculation
-    const realData = dataWithPlaceholders.filter(
-      (item: WeightLogItem) => !item.isPlaceholder
-    );
-
-    if (realData.length === 0) {
-      // Default range for placeholder data
-      return { min: 0, max: 100 };
-    }
-
-    const weights = realData.map((item: WeightLogItem) => item.weight);
+    const weights = realData.map((d: any) => d.weight);
     const min = Math.min(...weights);
     const max = Math.max(...weights);
 
-    // Add some padding to the range
     return {
       min: Math.floor(min - (max - min) * 0.1),
       max: Math.ceil(max + (max - min) * 0.1),
@@ -153,67 +132,36 @@ export default function Component({
   }, [dataWithPlaceholders]);
 
   const caloriesRange = useMemo(() => {
-    if (!dataWithPlaceholders.length) return { min: 0, max: 2000 };
+    const realData = dataWithPlaceholders.filter((d: any) => !d.isPlaceholder);
+    if (realData.length === 0) return { min: 0, max: 2000 };
 
-    // Filter out placeholder data for range calculation
-    const realData = dataWithPlaceholders.filter(
-      (item: WeightLogItem) => !item.isPlaceholder
-    );
-
-    if (realData.length === 0) {
-      // Default range for placeholder data
-      return { min: 0, max: 2000 };
-    }
-
-    const calories = realData.map(
-      (item: WeightLogItem) => item.calories_intake
-    );
+    const calories = realData.map((d: any) => d.calories_intake);
     const min = Math.min(...calories);
     const max = Math.max(...calories);
 
-    // Add some padding to the range
     return {
       min: Math.floor(min - (max - min) * 0.1),
       max: Math.ceil(max + (max - min) * 0.1),
     };
   }, [dataWithPlaceholders]);
 
-  // Calculate dynamic tick count based on data length
   const tickCount = useMemo(() => {
     if (!dataWithPlaceholders.length) return 5;
-
-    // For small datasets, show all ticks
     if (dataWithPlaceholders.length <= 5) return dataWithPlaceholders.length;
-
-    // For medium datasets, show a reasonable number of ticks
     if (dataWithPlaceholders.length <= 10) return 5;
-
-    // For large datasets, scale the number of ticks
     return Math.min(10, Math.floor(dataWithPlaceholders.length / 5));
   }, [dataWithPlaceholders]);
 
-  // Generate unique ticks for calories axis
+  // ✅ FIX: Safe and unique calories ticks
   const caloriesTicks = useMemo(() => {
-    // If we have only one data point, create a custom range with unique values
-    if (dataWithPlaceholders.length === 1) {
-      const value = dataWithPlaceholders[0].calories_intake;
-      // Create a range around the single value
-      const min = Math.max(0, Math.floor(value * 0.8));
-      const max = Math.ceil(value * 1.2);
-      const step = Math.ceil((max - min) / 5);
-
-      // Generate ticks with unique values
-      return Array.from({ length: 6 }, (_, i) => {
-        const tickValue = min + i * step;
-        // Ensure we don't have duplicate values
-        return i === 0 ? min : i === 5 ? max : tickValue;
-      });
-    }
-
-    // For multiple data points, use the standard approach
-    const step = Math.round((caloriesRange.max - caloriesRange.min) / 5);
-    return Array.from({ length: 6 }, (_, i) => caloriesRange.min + i * step);
-  }, [caloriesRange, dataWithPlaceholders]);
+    const range = caloriesRange.max - caloriesRange.min;
+    const safeStep = Math.max(1, Math.round(range / 5));
+    const ticks = Array.from(
+      { length: 6 },
+      (_, i) => caloriesRange.min + i * safeStep
+    );
+    return [...new Set(ticks)]; // Ensure unique ticks
+  }, [caloriesRange]);
 
   return (
     <Card className="h-full w-full p-0 border-none">
@@ -268,12 +216,11 @@ export default function Component({
               tickFormatter={(value) => {
                 try {
                   return format(parseISO(value), "MMM d");
-                } catch (e) {
+                } catch {
                   return value;
                 }
               }}
             />
-
             {weightActive && (
               <YAxis
                 yAxisId="left"
@@ -288,15 +235,10 @@ export default function Component({
                 width={40}
               />
             )}
-
             {caloriesActive && (
               <YAxis
                 yAxisId="right"
-                orientation={
-                  weightActive === false && caloriesActive === true
-                    ? "left"
-                    : "right"
-                }
+                orientation={!weightActive && caloriesActive ? "left" : "right"}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={2}
@@ -307,7 +249,6 @@ export default function Component({
                 width={40}
               />
             )}
-
             <ChartTooltip
               cursor={false}
               content={
@@ -315,7 +256,7 @@ export default function Component({
                   labelFormatter={(value) => {
                     try {
                       return format(parseISO(value), "MMM d, yyyy");
-                    } catch (e) {
+                    } catch {
                       return value;
                     }
                   }}
@@ -334,13 +275,10 @@ export default function Component({
                 name="weight"
                 fillOpacity={0.8}
                 isAnimationActive={
-                  !dataWithPlaceholders.some(
-                    (item: WeightLogItem) => item.isPlaceholder
-                  )
+                  !dataWithPlaceholders.some((item: any) => item.isPlaceholder)
                 }
               />
             )}
-
             {caloriesActive && (
               <Area
                 yAxisId="right"
@@ -352,9 +290,7 @@ export default function Component({
                 name="caloriesIntake"
                 fillOpacity={0.8}
                 isAnimationActive={
-                  !dataWithPlaceholders.some(
-                    (item: WeightLogItem) => item.isPlaceholder
-                  )
+                  !dataWithPlaceholders.some((item: any) => item.isPlaceholder)
                 }
               />
             )}
