@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import { Loader2 } from "lucide-react";
+import { MessageCircleWarning } from "lucide-react";
 
 export default function UpdateWeightUnitNotice({
   isOpen,
@@ -70,18 +71,20 @@ export default function UpdateWeightUnitNotice({
     <AlertDialog open={isOpen}>
       <AlertDialogContent className="bg-card">
         <AlertDialogHeader>
-          <AlertDialogTitle>Notice</AlertDialogTitle>
+          <AlertDialogTitle className="flex items-center gap-1 ">
+            <MessageCircleWarning className="w-5 h-5 text-yellow-500" />
+            Notice
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Updating your weight unit will result in all weight logs and workout
-            logs will be converted to your new weight unit, this is to insure
-            consistent data across your account. This process may take some time
-            depending on the number of weight logs and workout logs you have.
+            Updating your weight unit will convert all weight and workout logs
+            to match. This may take time depending on your log history.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="flex flex-row justify-end gap-2">
           <AlertDialogCancel
             onClick={() => setIsOpen(false)}
             disabled={isLoading}
+            className="w-[100px]"
           >
             Cancel
           </AlertDialogCancel>

@@ -316,6 +316,7 @@ export default function ProfilePage() {
                       handleInputChange("birth_date", e.target.value)
                     }
                     max={new Date().toISOString().split("T")[0]} // Prevents selecting future dates
+                    className="text-sm"
                   />
                 </div>
 
@@ -421,7 +422,7 @@ export default function ProfilePage() {
                           handleInputChange("weight_goal", value);
                         }
                       }}
-                      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
                     />
                     <Select
                       value={editedProfile?.starting_weight_unit || "kg"}
@@ -495,7 +496,7 @@ export default function ProfilePage() {
                           if (value > 1000) value = 1000;
                           handleInputChange("weight_goal", value);
                         }}
-                        className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
                       />
                       <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
                         {editedProfile?.starting_weight_unit === "lb"

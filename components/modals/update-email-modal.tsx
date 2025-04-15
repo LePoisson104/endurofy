@@ -89,11 +89,13 @@ export default function UpdateEmailModal({
               placeholder="Enter your new email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
+              className="text-sm"
             />
             <Input
               placeholder="Confirm your new email"
               value={confirmNewEmail}
               onChange={(e) => setConfirmNewEmail(e.target.value)}
+              className="text-sm"
             />
 
             <DialogFooter className="mt-4">

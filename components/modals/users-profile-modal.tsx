@@ -268,6 +268,7 @@ export default function UsersProfileModal({
                       id="birth_date"
                       type="date"
                       value={formData.birth_date || ""}
+                      className="text-sm"
                       onChange={(e) =>
                         updateField("birth_date", e.target.value)
                       }
@@ -311,7 +312,7 @@ export default function UsersProfileModal({
                             if (value > 251) value = 251;
                             updateField("height", value);
                           }}
-                          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
                         />
                       )}
                       <Select
@@ -375,7 +376,7 @@ export default function UsersProfileModal({
                           }
                         }}
                         required
-                        className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
                       />
                       <Select
                         value={formData.starting_weight_unit}
@@ -413,7 +414,7 @@ export default function UsersProfileModal({
                             updateField("weight_goal", value);
                           }}
                           required
-                          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
                         />
                         <p className="text-sm text-muted-foreground flex justify-center  w-20">
                           {formData.starting_weight_unit === "lb"

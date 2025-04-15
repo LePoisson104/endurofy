@@ -210,11 +210,11 @@ export default function Signup() {
                 value={firstName}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className={
+                className={`${
                   touched.firstName && formErrors.firstName
                     ? "border-red-500"
                     : ""
-                }
+                } text-sm`}
               />
               {touched.firstName && formErrors.firstName && (
                 <p className="text-sm text-red-500">{formErrors.firstName}</p>
@@ -230,11 +230,11 @@ export default function Signup() {
                 value={lastName}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className={
+                className={`${
                   touched.lastName && formErrors.lastName
                     ? "border-red-500"
                     : ""
-                }
+                } text-sm`}
               />
               {touched.lastName && formErrors.lastName && (
                 <p className="text-sm text-red-500">{formErrors.lastName}</p>
@@ -252,9 +252,9 @@ export default function Signup() {
               value={email}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={
+              className={`${
                 touched.email && formErrors.email ? "border-red-500" : ""
-              }
+              } text-sm`}
             />
             {touched.email && formErrors.email && (
               <p className="text-sm text-red-500">{formErrors.email}</p>
