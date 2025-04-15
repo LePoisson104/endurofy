@@ -74,8 +74,8 @@ export default function UpdateWeightUnitNotice({
           <AlertDialogDescription>
             Updating your weight unit will result in all weight logs and workout
             logs will be converted to your new weight unit, this is to insure
-            consistent data across your account. This process may take some
-            time.
+            consistent data across your account. This process may take some time
+            depending on the number of weight logs and workout logs you have.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
