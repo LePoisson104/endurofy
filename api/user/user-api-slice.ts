@@ -52,6 +52,18 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         { type: "User", id: arg.userId }, // Ensure you pass userId correctly
       ],
     }),
+    updateUsersAndConvertWeightLogs: builder.mutation({
+      query: ({ userId, payload }) => ({
+        url: `/api/v1/users/update-profile-and-convert-weight-logs/${userId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "WeightLog", id: arg.userId }, // Ensure you pass userId correctly
+        { type: "WeightLog", id: "LIST" },
+        { type: "User", id: arg.userId }, // Ensure you pass userId correctly
+      ],
+    }),
     updateUsersEmail: builder.mutation<void, updateEmailRequest>({
       query: ({ userId, email, newEmail, password }) => ({
         url: `/api/v1/users/update-email/${userId}`,
@@ -103,4 +115,5 @@ export const {
   useVerifyUpdateEmailMutation,
   useUpdateUsersPasswordMutation,
   useDeleteUsersAccountMutation,
+  useUpdateUsersAndConvertWeightLogsMutation,
 } = usersApiSlice;
