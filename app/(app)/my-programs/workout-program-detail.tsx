@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { WorkoutProgram, DayOfWeek, Exercise } from "./page";
 
 interface WorkoutProgramDetailProps {
@@ -42,6 +43,7 @@ export function WorkoutProgramDetail({
   onUpdate,
   onDelete,
 }: WorkoutProgramDetailProps) {
+  const isMobile = useIsMobile();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [activeDay, setActiveDay] = useState<DayOfWeek | null>(
@@ -180,10 +182,10 @@ export function WorkoutProgramDetail({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
           <ArrowLeft className="h-4 w-4" />
-          Back to Programs
+          My Programs
         </Button>
         <div className="flex gap-2">
           {isEditing ? (
@@ -199,7 +201,7 @@ export function WorkoutProgramDetail({
               </Button>
               <Button size="sm" onClick={handleSaveChanges} className="gap-1">
                 <Save className="h-4 w-4" />
-                Save Changes
+                Save
               </Button>
             </>
           ) : (
@@ -211,7 +213,7 @@ export function WorkoutProgramDetail({
                 className="gap-1"
               >
                 <Edit className="h-4 w-4" />
-                Edit Program
+                Edit
               </Button>
               <Button
                 variant="destructive"

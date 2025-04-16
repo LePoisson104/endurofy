@@ -29,13 +29,13 @@ export function WorkoutProgramCreator({
   const [description, setDescription] = useState("");
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([
-    { day: "monday", exercises: [] },
-    { day: "tuesday", exercises: [] },
-    { day: "wednesday", exercises: [] },
-    { day: "thursday", exercises: [] },
-    { day: "friday", exercises: [] },
-    { day: "saturday", exercises: [] },
-    { day: "sunday", exercises: [] },
+    { day: "monday", exercises: [], title: "" },
+    { day: "tuesday", exercises: [], title: "" },
+    { day: "wednesday", exercises: [], title: "" },
+    { day: "thursday", exercises: [], title: "" },
+    { day: "friday", exercises: [], title: "" },
+    { day: "saturday", exercises: [], title: "" },
+    { day: "sunday", exercises: [], title: "" },
   ]);
 
   // Handle adding a new exercise to a day
@@ -108,13 +108,13 @@ export function WorkoutProgramCreator({
     setName("");
     setDescription("");
     setWorkoutDays([
-      { day: "monday", exercises: [] },
-      { day: "tuesday", exercises: [] },
-      { day: "wednesday", exercises: [] },
-      { day: "thursday", exercises: [] },
-      { day: "friday", exercises: [] },
-      { day: "saturday", exercises: [] },
-      { day: "sunday", exercises: [] },
+      { day: "monday", exercises: [], title: "" },
+      { day: "tuesday", exercises: [], title: "" },
+      { day: "wednesday", exercises: [], title: "" },
+      { day: "thursday", exercises: [], title: "" },
+      { day: "friday", exercises: [], title: "" },
+      { day: "saturday", exercises: [], title: "" },
+      { day: "sunday", exercises: [], title: "" },
     ]);
   };
 

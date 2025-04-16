@@ -86,15 +86,11 @@ export default function PrivacySettings() {
                 </p>
               </div>
               <div className={`flex gap-2 ${isMobile ? "w-full" : ""}`}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={isMobile ? "flex-1" : ""}
-                >
+                <Button variant="outline" size="sm" className="w-1/2">
                   <FileDown className="mr-2 h-4 w-4" />
                   CSV
                 </Button>
-                <Button size="sm" className={isMobile ? "flex-1" : ""}>
+                <Button size="sm" className="w-1/2">
                   <Download className="mr-2 h-4 w-4" />
                   JSON
                 </Button>

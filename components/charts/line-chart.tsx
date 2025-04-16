@@ -163,6 +163,26 @@ export default function Component({
     return [...new Set(ticks)]; // Ensure unique ticks
   }, [caloriesRange]);
 
+  const xAxisTicks = useMemo(() => {
+    if (!dataWithPlaceholders || dataWithPlaceholders.length === 0) return [];
+
+    // For small datasets, show all points
+    if (dataWithPlaceholders.length <= 3) {
+      return dataWithPlaceholders.map((item: WeightLogItem) => item.date);
+    }
+
+    // Always include first and last dates
+    const firstDate = dataWithPlaceholders[0].date;
+    const lastDate = dataWithPlaceholders[dataWithPlaceholders.length - 1].date;
+
+    // Find the middle date
+    const middleIndex = Math.floor(dataWithPlaceholders.length / 2);
+    const middleDate = dataWithPlaceholders[middleIndex].date;
+
+    // Return exactly 3 ticks: first, middle, last
+    return [firstDate, middleDate, lastDate];
+  }, [dataWithPlaceholders]);
+
   return (
     <Card className="h-full w-full p-0 border-none">
       <CardContent className="h-full w-full px-0">
@@ -208,11 +228,9 @@ export default function Component({
               dataKey="date"
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
-              minTickGap={20}
+              tickMargin={10}
               fontSize={isMobile ? "10px" : "12px"}
-              interval="preserveStartEnd"
-              tickCount={tickCount}
+              ticks={xAxisTicks}
               tickFormatter={(value) => {
                 try {
                   return format(parseISO(value), "MMM d");

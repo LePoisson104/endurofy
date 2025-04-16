@@ -9,12 +9,15 @@ import { useSelector } from "react-redux";
 import { selectWeightStates } from "@/api/user/user-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   useCreateWeightLogMutation,
   useUpdateWeightLogMutation,
 } from "@/api/weight-log/weight-log-api-slice";
 import useBreakpoint from "@/hooks/use-break-point";
+import { getDateRange } from "@/helper/get-day-range";
+import { useGetWeightLogDatesQuery } from "@/api/weight-log/weight-log-api-slice";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export interface WeightForm {
   weight: number;
@@ -41,14 +44,32 @@ export default function WeightForm({
   setModalOpen: (modalOpen: boolean) => void;
   setSuccess: (success: string) => void;
 }) {
+  const isDark = useGetCurrentTheme();
   const breakpoint = useBreakpoint();
   const weightStates = useSelector(selectWeightStates);
   const user = useSelector(selectCurrentUser);
+
   const [calendarDate, setCalendarDate] = useState<Date>();
+  const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
+
   const [createWeightLog, { isLoading: isCreating }] =
     useCreateWeightLogMutation();
   const [updateWeightLog, { isLoading: isUpdating }] =
     useUpdateWeightLogMutation();
+
+  const getWeightLogDates = useGetWeightLogDatesQuery({
+    userId: user?.user_id,
+    startDate: getDateRange({
+      currentMonth: visibleMonth,
+    }).startDateOfPreviousMonth,
+    endDate: getDateRange({
+      currentMonth: visibleMonth,
+    }).endDateOfPreviousMonth,
+  });
+
+  const highlightedDays = getWeightLogDates?.data?.data?.map(
+    (date: any) => new Date(date.log_date)
+  );
 
   const [notes, setNotes] = useState<string>("");
 
@@ -131,6 +152,32 @@ export default function WeightForm({
     }
   };
 
+  const getOutsideModifiers = (date: Date) => {
+    const isOutside =
+      date.getMonth() !== visibleMonth.getMonth() ||
+      date.getFullYear() !== visibleMonth.getFullYear();
+
+    const isHighlighted = highlightedDays.some(
+      (d: Date) =>
+        d.getFullYear() === date.getFullYear() &&
+        d.getMonth() === date.getMonth() &&
+        d.getDate() === date.getDate()
+    );
+
+    if (isOutside && isHighlighted) return "outsideHighlighted";
+    if (isOutside && !isHighlighted) return "outsideNonHighlighted";
+
+    return null;
+  };
+
+  const modifiers = {
+    highlighted: highlightedDays,
+    outsideHighlighted: (date: Date) =>
+      getOutsideModifiers(date) === "outsideHighlighted",
+    outsideNonHighlighted: (date: Date) =>
+      getOutsideModifiers(date) === "outsideNonHighlighted",
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -195,6 +242,15 @@ export default function WeightForm({
                 onSelect={(day: Date | undefined) => setCalendarDate(day)}
                 required
                 disabled={(date) => date > new Date()}
+                modifiers={modifiers}
+                modifiersClassNames={{
+                  highlighted: `text-blue-400 ${
+                    isDark ? "hover:!bg-blue-500" : "hover:!bg-blue-300"
+                  }`,
+                  outsideHighlighted: "!text-[#90D5FF] hover:!text-black",
+                  outsideNonHighlighted: "text-muted-foreground",
+                }}
+                onMonthChange={(month) => setVisibleMonth(month)}
               />
             </PopoverContent>
           </Popover>
