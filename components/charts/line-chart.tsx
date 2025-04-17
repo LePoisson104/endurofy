@@ -145,14 +145,6 @@ export default function Component({
     };
   }, [dataWithPlaceholders]);
 
-  const tickCount = useMemo(() => {
-    if (!dataWithPlaceholders.length) return 5;
-    if (dataWithPlaceholders.length <= 5) return dataWithPlaceholders.length;
-    if (dataWithPlaceholders.length <= 10) return 5;
-    return Math.min(10, Math.floor(dataWithPlaceholders.length / 5));
-  }, [dataWithPlaceholders]);
-
-  // ✅ FIX: Safe and unique calories ticks
   const caloriesTicks = useMemo(() => {
     const range = caloriesRange.max - caloriesRange.min;
     const safeStep = Math.max(1, Math.round(range / 5));
@@ -166,21 +158,7 @@ export default function Component({
   const xAxisTicks = useMemo(() => {
     if (!dataWithPlaceholders || dataWithPlaceholders.length === 0) return [];
 
-    // For small datasets, show all points
-    if (dataWithPlaceholders.length <= 3) {
-      return dataWithPlaceholders.map((item: WeightLogItem) => item.date);
-    }
-
-    // Always include first and last dates
-    const firstDate = dataWithPlaceholders[0].date;
-    const lastDate = dataWithPlaceholders[dataWithPlaceholders.length - 1].date;
-
-    // Find the middle date
-    const middleIndex = Math.floor(dataWithPlaceholders.length / 2);
-    const middleDate = dataWithPlaceholders[middleIndex].date;
-
-    // Return exactly 3 ticks: first, middle, last
-    return [firstDate, middleDate, lastDate];
+    return dataWithPlaceholders.map((item: WeightLogItem) => item.date);
   }, [dataWithPlaceholders]);
 
   return (
@@ -231,6 +209,8 @@ export default function Component({
               tickMargin={10}
               fontSize={isMobile ? "10px" : "12px"}
               ticks={xAxisTicks}
+              interval="preserveStartEnd" // Ensures first & last ticks are preserved
+              minTickGap={10} // Allow tighter spacing before it starts skipping
               tickFormatter={(value) => {
                 try {
                   return format(parseISO(value), "MMM d");
@@ -239,6 +219,7 @@ export default function Component({
                 }
               }}
             />
+
             {weightActive && (
               <YAxis
                 yAxisId="left"
