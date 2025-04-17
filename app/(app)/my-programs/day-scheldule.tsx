@@ -107,18 +107,6 @@ export function DaySchedule({
                         <Label htmlFor="exercise-notes" className="sr-only">
                           Notes
                         </Label>
-                        {/* <Textarea
-                          id="exercise-notes"
-                          value={editedExercise.notes || ""}
-                          onChange={(e) =>
-                            setEditedExercise({
-                              ...editedExercise,
-                              notes: e.target.value || undefined,
-                            })
-                          }
-                          placeholder="Notes (optional)"
-                          className="h-20 resize-none"
-                        /> */}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -136,7 +124,7 @@ export function DaySchedule({
                             sets: Number.parseInt(e.target.value) || 1,
                           })
                         }
-                        className="w-16 text-center mx-auto"
+                        className="w-16 text-center mx-auto flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
                       />
                     </TableCell>
                     <TableCell>
@@ -155,7 +143,7 @@ export function DaySchedule({
                               minReps: Number.parseInt(e.target.value) || 1,
                             })
                           }
-                          className="w-16 text-center"
+                          className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
                         />
                         <span>-</span>
                         <Label htmlFor="exercise-max-reps" className="sr-only">
@@ -172,7 +160,7 @@ export function DaySchedule({
                               maxReps: Number.parseInt(e.target.value) || 1,
                             })
                           }
-                          className="w-16 text-center"
+                          className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
                         />
                       </div>
                     </TableCell>

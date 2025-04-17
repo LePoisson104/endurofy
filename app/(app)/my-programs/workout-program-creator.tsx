@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import type { WorkoutProgram, WorkoutDay, DayOfWeek, Exercise } from "./page";
 
@@ -25,6 +26,7 @@ interface WorkoutProgramCreatorProps {
 export function WorkoutProgramCreator({
   onCreateProgram,
 }: WorkoutProgramCreatorProps) {
+  const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
@@ -133,7 +135,7 @@ export function WorkoutProgramCreator({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Workout Program</CardTitle>
+          <CardTitle className="text-base">Create Workout Program</CardTitle>
           <CardDescription>
             Create a new workout program by adding exercises for each day of the
             week.
@@ -144,9 +146,10 @@ export function WorkoutProgramCreator({
             <Label htmlFor="program-name">Program Name</Label>
             <Input
               id="program-name"
-              placeholder="e.g., 5x5 Strength Program"
+              placeholder="e.g., Hypertrophy Program"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="text-sm"
             />
           </div>
 
@@ -154,10 +157,10 @@ export function WorkoutProgramCreator({
             <Label htmlFor="program-description">Description (optional)</Label>
             <Textarea
               id="program-description"
-              placeholder="Describe your workout program..."
+              placeholder="Describe your workout program... (50 characters max)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[100px] text-sm"
             />
           </div>
         </CardContent>
@@ -165,7 +168,7 @@ export function WorkoutProgramCreator({
 
       <Card>
         <CardHeader>
-          <CardTitle>Workout Schedule</CardTitle>
+          <CardTitle className="text-base">Workout Schedule</CardTitle>
           <CardDescription>
             Add exercises for each day of your workout program.
           </CardDescription>
@@ -206,11 +209,11 @@ export function WorkoutProgramCreator({
                   }
                 />
 
-                <Card>
-                  <CardHeader>
+                <Card className={`${isMobile ? "border-none" : ""}`}>
+                  <CardHeader className={`${isMobile ? "p-0" : ""}`}>
                     <CardTitle className="text-base">Add Exercise</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className={`${isMobile ? "p-0" : ""}`}>
                     <ExerciseForm onAddExercise={handleAddExercise} />
                   </CardContent>
                 </Card>

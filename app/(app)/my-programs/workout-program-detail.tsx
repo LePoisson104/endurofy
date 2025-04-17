@@ -15,19 +15,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DeleteProgramDialog from "@/components/dialog/delete-program";
 import type { WorkoutProgram, DayOfWeek, Exercise } from "./page";
 
 interface WorkoutProgramDetailProps {
@@ -247,7 +238,7 @@ export function WorkoutProgramDetail({
               <CardTitle>{program.name}</CardTitle>
             )}
             {isEditing ? (
-              <div className="space-y-2 mt-4">
+              <div className="space-y-2 mt-1">
                 <Label htmlFor="program-description">Description</Label>
                 <Textarea
                   id="program-description"
@@ -262,9 +253,7 @@ export function WorkoutProgramDetail({
                 />
               </div>
             ) : (
-              <CardDescription>
-                {program.description || "No description"}
-              </CardDescription>
+              <CardDescription>{program.description || ""}</CardDescription>
             )}
           </div>
         </CardHeader>
@@ -326,13 +315,13 @@ export function WorkoutProgramDetail({
                     />
 
                     {isEditing && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">
+                      <Card className={`${isMobile ? "border-none" : ""}`}>
+                        <CardHeader className={`${isMobile ? "p-0" : ""}`}>
+                          <CardTitle className="text-base border-b w-fit border-slate-200">
                             Add Exercise
                           </CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className={`${isMobile ? "p-0" : ""}`}>
                           <ExerciseForm onAddExercise={handleAddExercise} />
                         </CardContent>
                       </Card>
@@ -344,28 +333,11 @@ export function WorkoutProgramDetail({
           </Tabs>
         </CardContent>
       </Card>
-
-      {/* Delete confirmation dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Workout Program</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this workout program? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteProgram}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteProgramDialog
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        handleDeleteProgram={handleDeleteProgram}
+      />
     </div>
   );
 }

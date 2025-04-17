@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import type { WorkoutProgram } from "./page";
+import DeleteProgramDialog from "@/components/dialog/delete-program";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
@@ -125,7 +126,7 @@ export default function WorkoutProgramList({
                         View details
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="text-red-600"
+                        variant="destructive"
                         onClick={() => setProgramToDelete(program.id)}
                       >
                         Delete program
@@ -159,29 +160,11 @@ export default function WorkoutProgramList({
       )}
 
       {/* Delete confirmation dialog */}
-      <AlertDialog
-        open={!!programToDelete}
-        onOpenChange={(open) => !open && setProgramToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Workout Program</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this workout program? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteProgramDialog
+        showDeleteDialog={!!programToDelete}
+        setShowDeleteDialog={(open) => !open && setProgramToDelete(null)}
+        handleDeleteProgram={handleDeleteConfirm}
+      />
     </div>
   );
 }

@@ -155,12 +155,6 @@ export default function Component({
     return [...new Set(ticks)]; // Ensure unique ticks
   }, [caloriesRange]);
 
-  const xAxisTicks = useMemo(() => {
-    if (!dataWithPlaceholders || dataWithPlaceholders.length === 0) return [];
-
-    return dataWithPlaceholders.map((item: WeightLogItem) => item.date);
-  }, [dataWithPlaceholders]);
-
   return (
     <Card className="h-full w-full p-0 border-none">
       <CardContent className="h-full w-full px-0">
@@ -208,7 +202,7 @@ export default function Component({
               axisLine={false}
               tickMargin={10}
               fontSize={isMobile ? "10px" : "12px"}
-              ticks={xAxisTicks}
+              ticks={dataWithPlaceholders}
               interval="preserveStartEnd" // Ensures first & last ticks are preserved
               minTickGap={10} // Allow tighter spacing before it starts skipping
               tickFormatter={(value) => {

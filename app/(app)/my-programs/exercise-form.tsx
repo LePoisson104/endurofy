@@ -74,6 +74,7 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
           placeholder="e.g., Bench Press"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="text-sm"
         />
       </div>
 
@@ -86,6 +87,7 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
             min="1"
             value={sets}
             onChange={(e) => setSets(Number.parseInt(e.target.value) || 1)}
+            className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
         <div className="space-y-2">
@@ -96,6 +98,7 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
             min="1"
             value={minReps}
             onChange={(e) => setMinReps(Number.parseInt(e.target.value) || 1)}
+            className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
         <div className="space-y-2">
@@ -106,6 +109,7 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
             min="1"
             value={maxReps}
             onChange={(e) => setMaxReps(Number.parseInt(e.target.value) || 1)}
+            className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
       </div>
@@ -117,7 +121,7 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
           placeholder="Add any notes about the exercise..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="min-h-[80px]"
+          className="min-h-[80px] text-sm"
         />
       </div>
 
