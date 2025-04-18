@@ -202,7 +202,7 @@ export default function Component({
               axisLine={false}
               tickMargin={10}
               fontSize={isMobile ? "10px" : "12px"}
-              ticks={dataWithPlaceholders}
+              ticks={dataWithPlaceholders.map((item: any) => item.date)}
               interval="preserveStartEnd" // Ensures first & last ticks are preserved
               minTickGap={10} // Allow tighter spacing before it starts skipping
               tickFormatter={(value) => {
