@@ -137,8 +137,7 @@ export function WorkoutProgramCreator({
         <CardHeader>
           <CardTitle className="text-base">Create Workout Program</CardTitle>
           <CardDescription>
-            Create a new workout program by adding exercises for each day of the
-            week.
+            Customize your program to your needs.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
