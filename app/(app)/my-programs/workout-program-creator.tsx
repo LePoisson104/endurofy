@@ -165,7 +165,7 @@ export function WorkoutProgramCreator({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="pb-0">
         <CardHeader>
           <CardTitle className="text-base">Workout Schedule</CardTitle>
           <CardDescription>
