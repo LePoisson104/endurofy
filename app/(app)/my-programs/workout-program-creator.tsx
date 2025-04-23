@@ -29,6 +29,7 @@ export function WorkoutProgramCreator({
   const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [exercises, setExercises] = useState({});
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([
     { day: "monday", exercises: [], title: "" },
@@ -39,86 +40,6 @@ export function WorkoutProgramCreator({
     { day: "saturday", exercises: [], title: "" },
     { day: "sunday", exercises: [], title: "" },
   ]);
-
-  // Handle adding a new exercise to a day
-  const handleAddExercise = (exercise: Omit<Exercise, "id">) => {
-    const newExercise: Exercise = {
-      ...exercise,
-      id: Math.random().toString(36).substring(2, 9),
-    };
-
-    setWorkoutDays(
-      workoutDays.map((day) =>
-        day.day === activeDay
-          ? {
-              ...day,
-              exercises: [...day.exercises, newExercise],
-            }
-          : day
-      )
-    );
-  };
-
-  // Handle removing an exercise from a day
-  const handleRemoveExercise = (day: DayOfWeek, exerciseId: string) => {
-    setWorkoutDays(
-      workoutDays.map((workoutDay) =>
-        workoutDay.day === day
-          ? {
-              ...workoutDay,
-              exercises: workoutDay.exercises.filter(
-                (exercise) => exercise.id !== exerciseId
-              ),
-            }
-          : workoutDay
-      )
-    );
-  };
-
-  // Handle updating an exercise
-  const handleUpdateExercise = (day: DayOfWeek, updatedExercise: Exercise) => {
-    setWorkoutDays(
-      workoutDays.map((workoutDay) =>
-        workoutDay.day === day
-          ? {
-              ...workoutDay,
-              exercises: workoutDay.exercises.map((exercise) =>
-                exercise.id === updatedExercise.id ? updatedExercise : exercise
-              ),
-            }
-          : workoutDay
-      )
-    );
-  };
-
-  // Handle creating the workout program
-  const handleCreateProgram = () => {
-    if (!name.trim()) return;
-
-    // Filter out days with no exercises
-    const daysWithExercises = workoutDays.filter(
-      (day) => day.exercises.length > 0
-    );
-
-    onCreateProgram({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      days: daysWithExercises,
-    });
-
-    // Reset form
-    setName("");
-    setDescription("");
-    setWorkoutDays([
-      { day: "monday", exercises: [], title: "" },
-      { day: "tuesday", exercises: [], title: "" },
-      { day: "wednesday", exercises: [], title: "" },
-      { day: "thursday", exercises: [], title: "" },
-      { day: "friday", exercises: [], title: "" },
-      { day: "saturday", exercises: [], title: "" },
-      { day: "sunday", exercises: [], title: "" },
-    ]);
-  };
 
   // Format day name
   const formatDayName = (day: DayOfWeek) => {
@@ -201,10 +122,12 @@ export function WorkoutProgramCreator({
                 <DaySchedule
                   exercises={day.exercises}
                   onRemoveExercise={(exerciseId) =>
-                    handleRemoveExercise(day.day, exerciseId)
+                    // handleRemoveExercise(day.day, exerciseId)
+                    console.log("remove exercise", exerciseId)
                   }
                   onUpdateExercise={(exercise) =>
-                    handleUpdateExercise(day.day, exercise)
+                    // handleUpdateExercise(day.day, exercise)
+                    console.log("update exercise", exercise)
                   }
                 />
 
@@ -213,7 +136,7 @@ export function WorkoutProgramCreator({
                     <CardTitle className="text-base">Add Exercise</CardTitle>
                   </CardHeader>
                   <CardContent className={`${isMobile ? "p-0" : ""}`}>
-                    <ExerciseForm onAddExercise={handleAddExercise} />
+                    <ExerciseForm onAddExercise={setExercises} />
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -223,7 +146,7 @@ export function WorkoutProgramCreator({
       </Card>
 
       <div className="flex justify-end">
-        <Button size="lg" onClick={handleCreateProgram} disabled={!name.trim()}>
+        <Button size="lg" disabled={!name.trim()}>
           Create Workout Program
         </Button>
       </div>

@@ -15,59 +15,31 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-interface ExerciseFormProps {
-  onAddExercise: (exercise: Omit<Exercise, "id">) => void;
-}
 
-export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
+export function ExerciseForm({
+  onAddExercise,
+}: {
+  onAddExercise: (exercise: Exercise) => void;
+}) {
   const [name, setName] = useState("");
-  const [sets, setSets] = useState(3);
-  const [minReps, setMinReps] = useState(8);
-  const [maxReps, setMaxReps] = useState(12);
-  const [notes, setNotes] = useState("");
+  const [bodyPart, setBodyPart] = useState<string>("");
+  const [action, setAction] = useState<string>("bilateral");
+  const [sets, setSets] = useState<number | null>(null);
+  const [minReps, setMinReps] = useState<number | null>(null);
+  const [maxReps, setMaxReps] = useState<number | null>(null);
+
   const [error, setError] = useState<string | null>(null);
 
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate input
-    if (!name.trim()) {
-      setError("Please enter an exercise name");
-      return;
-    }
-
-    if (sets < 1) {
-      setError("Sets must be at least 1");
-      return;
-    }
-
-    if (minReps < 1) {
-      setError("Min reps must be at least 1");
-      return;
-    }
-
-    if (maxReps < minReps) {
-      setError("Max reps must be greater than or equal to min reps");
-      return;
-    }
-
-    // Add exercise
-    onAddExercise({
-      name: name.trim(),
-      sets,
-      minReps,
-      maxReps,
-      notes: notes.trim() || undefined,
-    });
-
-    // Reset form
-    setName("");
-    setSets(3);
-    setMinReps(8);
-    setMaxReps(12);
-    setNotes("");
-    setError(null);
+    // onAddExercise({
+    //   name,
+    //   bodyPart: bodyPart,
+    //   action,
+    //   sets: sets || 0,
+    //   minReps: minReps || 0,
+    //   maxReps: maxReps || 0,
+    // });
   };
 
   return (
@@ -84,9 +56,9 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
       </div>
       <div className="w-full flex flex-col space-y-2">
         <Label htmlFor="exercise-type">Body Part</Label>
-        <Select>
+        <Select value={bodyPart} onValueChange={(value) => setBodyPart(value)}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Body Part" />
+            <SelectValue placeholder="Select body part" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="chest">Chest</SelectItem>
@@ -109,7 +81,8 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
         <Label>Action</Label>
         <RadioGroup
           className="flex flex-col sm:flex-row gap-4"
-          value={"bilateral"}
+          value={action}
+          onValueChange={(value) => setAction(value)}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="bilateral" id="bilateral" />
@@ -128,9 +101,9 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
           <Input
             id="sets"
             type="number"
-            min="1"
-            value={sets}
-            onChange={(e) => setSets(Number.parseInt(e.target.value) || 1)}
+            placeholder="Enter sets"
+            value={sets || ""}
+            onChange={(e) => setSets(Number.parseInt(e.target.value))}
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
@@ -139,9 +112,9 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
           <Input
             id="min-reps"
             type="number"
-            min="1"
-            value={minReps}
-            onChange={(e) => setMinReps(Number.parseInt(e.target.value) || 1)}
+            placeholder="Enter min reps"
+            value={minReps || ""}
+            onChange={(e) => setMinReps(Number.parseInt(e.target.value))}
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
@@ -150,9 +123,9 @@ export function ExerciseForm({ onAddExercise }: ExerciseFormProps) {
           <Input
             id="max-reps"
             type="number"
-            min="1"
-            value={maxReps}
-            onChange={(e) => setMaxReps(Number.parseInt(e.target.value) || 1)}
+            placeholder="Enter max reps"
+            value={maxReps || ""}
+            onChange={(e) => setMaxReps(Number.parseInt(e.target.value))}
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
