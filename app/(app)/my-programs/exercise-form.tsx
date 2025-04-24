@@ -15,13 +15,15 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function ExerciseForm({
   onAddExercise,
 }: {
   onAddExercise: (exercise: Exercise) => void;
 }) {
-  const [name, setName] = useState("");
+  const isMobile = useIsMobile();
+  const [exerciseName, setExerciseName] = useState("");
   const [bodyPart, setBodyPart] = useState<string>("");
   const [action, setAction] = useState<string>("bilateral");
   const [sets, setSets] = useState<number | null>(null);
@@ -49,8 +51,8 @@ export function ExerciseForm({
         <Input
           id="exercise-name"
           placeholder="e.g., Bench Press"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={exerciseName}
+          onChange={(e) => setExerciseName(e.target.value)}
           className="text-sm"
         />
       </div>
@@ -95,19 +97,21 @@ export function ExerciseForm({
         </RadioGroup>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
+      <div
+        className={`flex justify-between gap-4 ${isMobile ? "flex-col" : ""}`}
+      >
+        <div className="space-y-2 w-full">
           <Label htmlFor="sets">Sets</Label>
           <Input
             id="sets"
             type="number"
-            placeholder="Enter sets"
+            placeholder="Enter number of sets"
             value={sets || ""}
             onChange={(e) => setSets(Number.parseInt(e.target.value))}
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <Label htmlFor="min-reps">Min Reps</Label>
           <Input
             id="min-reps"
@@ -118,7 +122,7 @@ export function ExerciseForm({
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <Label htmlFor="max-reps">Max Reps</Label>
           <Input
             id="max-reps"
@@ -134,7 +138,18 @@ export function ExerciseForm({
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div className="flex justify-end">
-        <Button type="submit" className="mt-4 w-fit">
+        <Button
+          type="submit"
+          className="mt-4 w-fit"
+          disabled={
+            !exerciseName ||
+            !bodyPart ||
+            !action ||
+            !sets ||
+            !minReps ||
+            !maxReps
+          }
+        >
           Add Exercise
         </Button>
       </div>

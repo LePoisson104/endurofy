@@ -31,6 +31,7 @@ export function WorkoutProgramCreator({
   const [description, setDescription] = useState("");
   const [exercises, setExercises] = useState({});
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
+  const [dayTitle, setDayTitle] = useState("");
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([
     { day: "monday", exercises: [], title: "" },
     { day: "tuesday", exercises: [], title: "" },
@@ -113,10 +114,16 @@ export function WorkoutProgramCreator({
 
             {workoutDays.map((day) => (
               <TabsContent key={day.day} value={day.day} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">
-                    {formatDayName(day.day)}
-                  </h3>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="day-title">Day Name</Label>
+                  <Input
+                    id="day-title"
+                    type="text"
+                    placeholder="e.g., Push A"
+                    value={dayTitle}
+                    onChange={(e) => setDayTitle(e.target.value)}
+                    className="text-sm w-fit"
+                  />
                 </div>
 
                 <DaySchedule
