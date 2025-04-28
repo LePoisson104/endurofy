@@ -47,8 +47,10 @@ import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-a
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SuccessAlert from "@/components/alerts/success-alert";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export default function WeightLogPage() {
+  const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
@@ -315,7 +317,8 @@ export default function WeightLogPage() {
                           weeklyWeightDifference?.data?.weeklyDifference,
                           weightStates.goal,
                           weightStates.starting_weight_unit,
-                          " since last week"
+                          " since last week",
+                          isDark
                         )}
                       </p>
                     </div>

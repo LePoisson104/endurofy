@@ -17,7 +17,12 @@ import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import type { WorkoutProgram, WorkoutDay, DayOfWeek, Exercise } from "./page";
+import type {
+  WorkoutProgram,
+  WorkoutDay,
+  DayOfWeek,
+  Exercise,
+} from "../../../interfaces/workout-program-interfaces";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: Omit<WorkoutProgram, "id" | "createdAt">) => void;
@@ -33,13 +38,13 @@ export function WorkoutProgramCreator({
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
   const [dayTitle, setDayTitle] = useState("");
   const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([
-    { day: "monday", exercises: [], title: "" },
-    { day: "tuesday", exercises: [], title: "" },
-    { day: "wednesday", exercises: [], title: "" },
-    { day: "thursday", exercises: [], title: "" },
-    { day: "friday", exercises: [], title: "" },
-    { day: "saturday", exercises: [], title: "" },
-    { day: "sunday", exercises: [], title: "" },
+    { dayId: "monday", exercises: [], dayName: "monday", dayNumber: 1 },
+    { dayId: "tuesday", exercises: [], dayName: "tuesday", dayNumber: 2 },
+    { dayId: "wednesday", exercises: [], dayName: "wednesday", dayNumber: 3 },
+    { dayId: "thursday", exercises: [], dayName: "thursday", dayNumber: 4 },
+    { dayId: "friday", exercises: [], dayName: "friday", dayNumber: 5 },
+    { dayId: "saturday", exercises: [], dayName: "saturday", dayNumber: 6 },
+    { dayId: "sunday", exercises: [], dayName: "sunday", dayNumber: 7 },
   ]);
 
   // Format day name
@@ -49,7 +54,7 @@ export function WorkoutProgramCreator({
 
   // Get exercises for the active day
   const getExercisesForActiveDay = () => {
-    const activeWorkoutDay = workoutDays.find((day) => day.day === activeDay);
+    const activeWorkoutDay = workoutDays.find((day) => day.dayId === activeDay);
     return activeWorkoutDay ? activeWorkoutDay.exercises : [];
   };
 
@@ -101,8 +106,12 @@ export function WorkoutProgramCreator({
           >
             <TabsList className="mb-4 grid w-full grid-cols-7">
               {workoutDays.map((day) => (
-                <TabsTrigger key={day.day} value={day.day} className="relative">
-                  {formatDayName(day.day).slice(0, 3)}
+                <TabsTrigger
+                  key={day.dayId}
+                  value={day.dayId}
+                  className="relative"
+                >
+                  {formatDayName(day.dayName as DayOfWeek).slice(0, 3)}
                   {day.exercises.length > 0 && (
                     <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
                       {day.exercises.length}
@@ -113,7 +122,11 @@ export function WorkoutProgramCreator({
             </TabsList>
 
             {workoutDays.map((day) => (
-              <TabsContent key={day.day} value={day.day} className="space-y-4">
+              <TabsContent
+                key={day.dayId}
+                value={day.dayId}
+                className="space-y-4"
+              >
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="day-title">Day Name</Label>
                   <Input

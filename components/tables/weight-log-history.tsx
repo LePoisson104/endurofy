@@ -31,6 +31,7 @@ import { parse, format } from "date-fns";
 import useBreakpoint from "@/hooks/use-break-point";
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export default function WeightLogHistory({
   weightHistory,
@@ -53,6 +54,7 @@ export default function WeightLogHistory({
   setWeightLogData: (weightLogData: any) => void;
   setModalOpen: (modalOpen: boolean) => void;
 }) {
+  const isDark = useGetCurrentTheme();
   const breakpoint = useBreakpoint();
   const parsedStart = parse(startDate, "yyyy-MM-dd", new Date());
   const parsedEnd = parse(endDate, "yyyy-MM-dd", new Date());
@@ -238,14 +240,18 @@ export default function WeightLogHistory({
                                 {handleRateChangeColor(
                                   entry.weightChange,
                                   goal,
-                                  entry.weight_unit
+                                  entry.weight_unit,
+                                  "",
+                                  isDark
                                 )}
                               </TableCell>
                               <TableCell className="py-4 text-center">
                                 {handleRateChangeColor(
                                   entry.weeklyRate,
                                   goal,
-                                  entry.weight_unit
+                                  entry.weight_unit,
+                                  "",
+                                  isDark
                                 )}
                               </TableCell>
                               <TableCell className="py-4 text-center">

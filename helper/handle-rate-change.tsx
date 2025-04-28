@@ -14,11 +14,16 @@ export default function handleRateChangeColor(
   rateChange: number,
   goal: string,
   weight_unit: string,
-  children?: string
+  children?: string,
+  isDark?: boolean
 ) {
   if (goal === "lose" && rateChange < 0) {
     return (
-      <span className="text-green-400 flex items-center justify-center gap-1">
+      <span
+        className={`${
+          isDark ? "text-green-400" : "text-green-500"
+        } flex items-center justify-center gap-1`}
+      >
         <ChevronDown className="h-4 w-4" />
         {Math.abs(rateChange)}
         {handleWeightUnit(weight_unit, rateChange)}
@@ -27,7 +32,11 @@ export default function handleRateChangeColor(
     );
   } else if (goal === "lose" && rateChange > 0) {
     return (
-      <span className="text-red-400 flex items-center justify-center gap-1">
+      <span
+        className={`${
+          isDark ? "text-red-400" : "text-red-500"
+        } flex items-center justify-center gap-1`}
+      >
         <ChevronUp className="h-4 w-4" />
         {Math.abs(rateChange)}
         {handleWeightUnit(weight_unit, rateChange)}
@@ -36,7 +45,11 @@ export default function handleRateChangeColor(
     );
   } else if (goal === "gain" && rateChange < 0) {
     return (
-      <span className="text-red-400 flex items-center justify-center gap-1">
+      <span
+        className={`${
+          isDark ? "text-red-400" : "text-red-500"
+        } flex items-center justify-center gap-1`}
+      >
         <ChevronDown className="h-4 w-4" />
         {Math.abs(rateChange)}
         {handleWeightUnit(weight_unit, rateChange)}
@@ -45,7 +58,11 @@ export default function handleRateChangeColor(
     );
   } else if (goal === "gain" && rateChange > 0) {
     return (
-      <span className="text-green-400 flex items-center justify-center gap-1">
+      <span
+        className={`${
+          isDark ? "text-green-400" : "text-green-500"
+        } flex items-center justify-center gap-1`}
+      >
         <ChevronUp className="h-4 w-4" />
         {Math.abs(rateChange)}
         {handleWeightUnit(weight_unit, rateChange)}
@@ -54,7 +71,11 @@ export default function handleRateChangeColor(
     );
   } else {
     return (
-      <span className="text-gray-400 flex items-center justify-center gap-1">
+      <span
+        className={`${
+          isDark ? "text-gray-400" : "text-gray-500"
+        } flex items-center justify-center gap-1`}
+      >
         {Math.abs(rateChange)}
         {handleWeightUnit(weight_unit, rateChange)}
         {children}

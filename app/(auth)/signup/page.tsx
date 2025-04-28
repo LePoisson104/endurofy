@@ -212,12 +212,12 @@ export default function Signup() {
                 onBlur={handleBlur}
                 className={`${
                   touched.firstName && formErrors.firstName
-                    ? "border-red-500"
+                    ? "border-red-400"
                     : ""
                 } text-sm`}
               />
               {touched.firstName && formErrors.firstName && (
-                <p className="text-sm text-red-500">{formErrors.firstName}</p>
+                <p className="text-sm text-red-400">{formErrors.firstName}</p>
               )}
             </div>
             <div className="space-y-2 w-full">
@@ -232,12 +232,12 @@ export default function Signup() {
                 onBlur={handleBlur}
                 className={`${
                   touched.lastName && formErrors.lastName
-                    ? "border-red-500"
+                    ? "border-red-400"
                     : ""
                 } text-sm`}
               />
               {touched.lastName && formErrors.lastName && (
-                <p className="text-sm text-red-500">{formErrors.lastName}</p>
+                <p className="text-sm text-red-400">{formErrors.lastName}</p>
               )}
             </div>
           </div>
@@ -253,11 +253,11 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               className={`${
-                touched.email && formErrors.email ? "border-red-500" : ""
+                touched.email && formErrors.email ? "border-red-400" : ""
               } text-sm`}
             />
             {touched.email && formErrors.email && (
-              <p className="text-sm text-red-500">{formErrors.email}</p>
+              <p className="text-sm text-red-400">{formErrors.email}</p>
             )}
           </div>
 
@@ -271,12 +271,12 @@ export default function Signup() {
               onChange={handleChange}
               onBlur={handleBlur}
               className={
-                touched.password && formErrors.password ? "border-red-500" : ""
+                touched.password && formErrors.password ? "border-red-400" : ""
               }
               autoComplete="off"
             />
             {touched.password && formErrors.password && (
-              <p className="text-sm text-red-500">{formErrors.password}</p>
+              <p className="text-sm text-red-400">{formErrors.password}</p>
             )}
           </div>
 
@@ -291,13 +291,13 @@ export default function Signup() {
               onBlur={handleBlur}
               className={
                 touched.confirmPassword && formErrors.confirmPassword
-                  ? "border-red-500"
+                  ? "border-red-400"
                   : ""
               }
               autoComplete="off"
             />
             {touched.confirmPassword && formErrors.confirmPassword && (
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-red-400">
                 {formErrors.confirmPassword}
               </p>
             )}

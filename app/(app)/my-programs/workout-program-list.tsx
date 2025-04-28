@@ -18,18 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import type { WorkoutProgram } from "./page";
+import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
 
 interface WorkoutProgramListProps {
@@ -45,20 +35,23 @@ export default function WorkoutProgramList({
 }: WorkoutProgramListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
-
+  console.log(programs);
   // Filter programs based on search query
   const filteredPrograms = programs.filter((program) =>
-    program.name.toLowerCase().includes(searchQuery.toLowerCase())
+    program.programName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Count days with exercises
   const countActiveDays = (program: WorkoutProgram) => {
-    return program.days.filter((day) => day.exercises.length > 0).length;
+    return program.workoutDays.filter((day) => day.exercises.length > 0).length;
   };
 
   // Count total exercises
   const countTotalExercises = (program: WorkoutProgram) => {
-    return program.days.reduce((total, day) => total + day.exercises.length, 0);
+    return program.workoutDays.reduce(
+      (total, day) => total + day.exercises.length,
+      0
+    );
   };
 
   // Format created date
@@ -101,12 +94,12 @@ export default function WorkoutProgramList({
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredPrograms.map((program) => (
-            <Card key={program.id} className="overflow-hidden">
+            <Card key={program.programId} className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex justify-between">
                   <div className="space-y-1">
                     <CardTitle className="line-clamp-1">
-                      {program.name}
+                      {program.programName}
                     </CardTitle>
                     <CardDescription className="line-clamp-2">
                       {program.description || "No description"}
@@ -127,7 +120,7 @@ export default function WorkoutProgramList({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         variant="destructive"
-                        onClick={() => setProgramToDelete(program.id)}
+                        onClick={() => setProgramToDelete(program.programId)}
                       >
                         Delete program
                       </DropdownMenuItem>

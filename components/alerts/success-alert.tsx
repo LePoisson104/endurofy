@@ -1,4 +1,4 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CircleCheck } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -40,12 +40,15 @@ export default function SuccessAlert({
           variant="default"
           ref={alertRef}
           onAnimationEnd={handleAnimationEnd}
-          className="animate-in slide-down border border-grey-500 text-green-600"
+          className="animate-in slide-down flex items-center gap-4 border text-green-500"
         >
-          <CircleCheck className="h-4 w-4" />
-          <AlertDescription className="text-green-600">
-            {success}
-          </AlertDescription>
+          <div className="flex items-center justify-center">
+            <CircleCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <AlertTitle>Success!</AlertTitle>
+            <AlertDescription>{success}</AlertDescription>
+          </div>
         </Alert>
       </div>
     </div>

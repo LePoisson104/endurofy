@@ -15,7 +15,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Exercise } from "./page";
+import type { Exercise } from "../../../interfaces/workout-program-interfaces";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DayScheduleProps {
   exercises: Exercise[];
@@ -37,7 +44,7 @@ export function DaySchedule({
 
   // Start editing an exercise
   const handleStartEditing = (exercise: Exercise) => {
-    setEditingExerciseId(exercise.id);
+    setEditingExerciseId(exercise.exerciseId);
     setEditedExercise({ ...exercise });
   };
 
@@ -70,23 +77,28 @@ export function DaySchedule({
   }
 
   return (
-    <Card>
+    <Card className="p-0">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Exercise</TableHead>
-              <TableHead className="w-[100px] text-center">Sets</TableHead>
-              <TableHead className="w-[150px] text-center">Rep Range</TableHead>
+              <TableHead className="w-[120px] text-center">Sets</TableHead>
+              <TableHead className="w-[120px] text-center">Rep Range</TableHead>
+              <TableHead className="w-[120px] text-center">
+                Laterality
+              </TableHead>
               {isEditing && (
-                <TableHead className="w-[120px] text-right">Actions</TableHead>
+                <TableHead className="w-[120px] text-right pr-4.5">
+                  Actions
+                </TableHead>
               )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {exercises.map((exercise) => (
-              <TableRow key={exercise.id}>
-                {editingExerciseId === exercise.id && editedExercise ? (
+              <TableRow key={exercise.exerciseId}>
+                {editingExerciseId === exercise.exerciseId && editedExercise ? (
                   <>
                     <TableCell>
                       <div className="space-y-2">
@@ -95,18 +107,16 @@ export function DaySchedule({
                         </Label>
                         <Input
                           id="exercise-name"
-                          value={editedExercise.name}
+                          placeholder="Exercise name"
+                          value={editedExercise.exerciseName}
                           onChange={(e) =>
                             setEditedExercise({
                               ...editedExercise,
-                              name: e.target.value,
+                              exerciseName: e.target.value,
                             })
                           }
-                          placeholder="Exercise name"
+                          className="w-full"
                         />
-                        <Label htmlFor="exercise-notes" className="sr-only">
-                          Notes
-                        </Label>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -164,6 +174,28 @@ export function DaySchedule({
                         />
                       </div>
                     </TableCell>
+                    <TableCell className="text-center">
+                      <Label htmlFor="exercise-sets" className="sr-only">
+                        Laterality
+                      </Label>
+                      <Select
+                        value={editedExercise.action}
+                        onValueChange={(value) =>
+                          setEditedExercise({
+                            ...editedExercise,
+                            action: value,
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bilateral">Bilateral</SelectItem>
+                          <SelectItem value="unilateral">Unilateral</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button
@@ -179,7 +211,6 @@ export function DaySchedule({
                           variant="ghost"
                           size="icon"
                           onClick={handleSaveExercise}
-                          className="h-8 w-8 text-green-600"
                         >
                           <Save className="h-4 w-4" />
                           <span className="sr-only">Save</span>
@@ -190,18 +221,16 @@ export function DaySchedule({
                 ) : (
                   <>
                     <TableCell>
-                      <div className="font-medium">{exercise.name}</div>
-                      {exercise.notes && (
-                        <div className="text-sm text-slate-500">
-                          {exercise.notes}
-                        </div>
-                      )}
+                      <div className="font-medium">{exercise.exerciseName}</div>
                     </TableCell>
                     <TableCell className="text-center">
                       {exercise.sets}
                     </TableCell>
                     <TableCell className="text-center">
                       {exercise.minReps} - {exercise.maxReps}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {exercise.action}
                     </TableCell>
                     {isEditing && (
                       <TableCell className="text-right">
@@ -218,10 +247,11 @@ export function DaySchedule({
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => onRemoveExercise(exercise.id)}
-                            className="h-8 w-8 text-red-600"
+                            onClick={() =>
+                              onRemoveExercise(exercise.exerciseId)
+                            }
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 text-destructive" />
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>

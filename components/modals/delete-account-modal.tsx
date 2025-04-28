@@ -74,7 +74,7 @@ export default function DeleteAccountModal() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <DialogFooter className="mt-4">
+          <div className="mt-4 flex justify-end">
             <Button
               variant="destructive"
               type="submit"
@@ -87,7 +87,7 @@ export default function DeleteAccountModal() {
                 "Delete Account"
               )}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

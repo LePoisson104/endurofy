@@ -73,9 +73,9 @@ export default function UpdateEmailModal({
       <ErrorAlert error={error} setError={setError} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="bg-card">
-          <DialogHeader>
+          <DialogHeader className="mb-4">
             <DialogTitle>Update Email</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-left">
               Update your email address associated with your account.
             </DialogDescription>
           </DialogHeader>
@@ -98,7 +98,7 @@ export default function UpdateEmailModal({
               className="text-sm"
             />
 
-            <DialogFooter className="mt-4">
+            <div className="mt-4 flex justify-end">
               <Button
                 variant="default"
                 type="submit"
@@ -117,7 +117,7 @@ export default function UpdateEmailModal({
                   "Update Email"
                 )}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

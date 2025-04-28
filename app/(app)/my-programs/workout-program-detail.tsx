@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Edit, Trash2, Save, X } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
@@ -15,11 +15,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
-import type { WorkoutProgram, DayOfWeek, Exercise } from "./page";
+import type {
+  WorkoutProgram,
+  DayOfWeek,
+  Exercise,
+} from "../../../interfaces/workout-program-interfaces";
+import AddExerciseModal from "@/components/modals/add-exercise-modal";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -34,12 +38,26 @@ export function WorkoutProgramDetail({
   onUpdate,
   onDelete,
 }: WorkoutProgramDetailProps) {
+  const allDays = {
+    1: "monday",
+    2: "tuesday",
+    3: "wednesday",
+    4: "thursday",
+    5: "friday",
+    6: "saturday",
+    7: "sunday",
+  };
   const isMobile = useIsMobile();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [activeDay, setActiveDay] = useState<DayOfWeek | null>(
-    program.days.length > 0 ? program.days[0].day : null
+    program.workoutDays.length > 0
+      ? (allDays[
+          program.workoutDays[0].dayNumber as keyof typeof allDays
+        ] as DayOfWeek)
+      : null
   );
+
   const [editedProgram, setEditedProgram] = useState<WorkoutProgram>({
     ...program,
   });
@@ -60,18 +78,20 @@ export function WorkoutProgramDetail({
 
     const newExercise: Exercise = {
       ...exercise,
-      id: Math.random().toString(36).substring(2, 9),
+      exerciseId: Math.random().toString(36).substring(2, 9),
     };
 
     // Check if the day already exists in the program
-    const dayExists = editedProgram.days.some((day) => day.day === activeDay);
+    const dayExists = editedProgram.workoutDays.some(
+      (day) => day.dayId === activeDay
+    );
 
     if (dayExists) {
       // Add exercise to existing day
       setEditedProgram({
         ...editedProgram,
-        days: editedProgram.days.map((day) =>
-          day.day === activeDay
+        workoutDays: editedProgram.workoutDays.map((day) =>
+          day.dayId === activeDay
             ? {
                 ...day,
                 exercises: [...day.exercises, newExercise],
@@ -83,9 +103,14 @@ export function WorkoutProgramDetail({
       // Create new day with the exercise
       setEditedProgram({
         ...editedProgram,
-        days: [
-          ...editedProgram.days,
-          { day: activeDay, exercises: [newExercise], title: "" },
+        workoutDays: [
+          ...editedProgram.workoutDays,
+          {
+            dayId: activeDay,
+            exercises: [newExercise],
+            dayName: "",
+            dayNumber: 0,
+          },
         ],
       });
     }
@@ -95,12 +120,12 @@ export function WorkoutProgramDetail({
   const handleRemoveExercise = (day: DayOfWeek, exerciseId: string) => {
     setEditedProgram({
       ...editedProgram,
-      days: editedProgram.days.map((workoutDay) =>
-        workoutDay.day === day
+      workoutDays: editedProgram.workoutDays.map((workoutDay) =>
+        workoutDay.dayId === day
           ? {
               ...workoutDay,
               exercises: workoutDay.exercises.filter(
-                (exercise) => exercise.id !== exerciseId
+                (exercise) => exercise.exerciseId !== exerciseId
               ),
             }
           : workoutDay
@@ -112,31 +137,19 @@ export function WorkoutProgramDetail({
   const handleUpdateExercise = (day: DayOfWeek, updatedExercise: Exercise) => {
     setEditedProgram({
       ...editedProgram,
-      days: editedProgram.days.map((workoutDay) =>
-        workoutDay.day === day
+      workoutDays: editedProgram.workoutDays.map((workoutDay) =>
+        workoutDay.dayId === day
           ? {
               ...workoutDay,
               exercises: workoutDay.exercises.map((exercise) =>
-                exercise.id === updatedExercise.id ? updatedExercise : exercise
+                exercise.exerciseId === updatedExercise.exerciseId
+                  ? updatedExercise
+                  : exercise
               ),
             }
           : workoutDay
       ),
     });
-  };
-
-  // Handle saving changes
-  const handleSaveChanges = () => {
-    // Filter out days with no exercises
-    const daysWithExercises = editedProgram.days.filter(
-      (day) => day.exercises.length > 0
-    );
-
-    onUpdate({
-      ...editedProgram,
-      days: daysWithExercises,
-    });
-    setIsEditing(false);
   };
 
   // Handle canceling changes
@@ -147,29 +160,28 @@ export function WorkoutProgramDetail({
 
   // Handle deleting the program
   const handleDeleteProgram = () => {
-    onDelete(program.id);
+    onDelete(program.programId);
     setShowDeleteDialog(false);
   };
 
   // Get exercises for the active day
   const getExercisesForActiveDay = () => {
     if (!activeDay) return [];
-    const activeWorkoutDay = editedProgram.days.find(
-      (day) => day.day === activeDay
-    );
+    const activeWorkoutDay = editedProgram.workoutDays.find((day) => {
+      return allDays[day?.dayNumber as keyof typeof allDays] === activeDay;
+    });
+
     return activeWorkoutDay ? activeWorkoutDay.exercises : [];
   };
 
-  // Get all days of the week
-  const allDays: DayOfWeek[] = [
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-    "sunday",
-  ];
+  const getDayName = (day: DayOfWeek) => {
+    if (!activeDay) return [];
+    const activeWorkoutDay = editedProgram.workoutDays.find((day) => {
+      return allDays[day?.dayNumber as keyof typeof allDays] === activeDay;
+    });
+
+    return activeWorkoutDay ? activeWorkoutDay.dayName : "";
+  };
 
   return (
     <div className="space-y-6">
@@ -188,11 +200,7 @@ export function WorkoutProgramDetail({
                 className="gap-1"
               >
                 <X className="h-4 w-4" />
-                Cancel
-              </Button>
-              <Button size="sm" onClick={handleSaveChanges} className="gap-1">
-                <Save className="h-4 w-4" />
-                Save
+                Close
               </Button>
             </>
           ) : (
@@ -228,17 +236,20 @@ export function WorkoutProgramDetail({
                 <Label htmlFor="program-name">Program Name</Label>
                 <Input
                   id="program-name"
-                  value={editedProgram.name}
+                  value={editedProgram.programName}
                   onChange={(e) =>
-                    setEditedProgram({ ...editedProgram, name: e.target.value })
+                    setEditedProgram({
+                      ...editedProgram,
+                      programName: e.target.value,
+                    })
                   }
                 />
               </div>
             ) : (
-              <CardTitle>{program.name}</CardTitle>
+              <CardTitle>{program.programName}</CardTitle>
             )}
             {isEditing ? (
-              <div className="space-y-2 mt-1">
+              <div className="space-y-2 mt-5">
                 <Label htmlFor="program-description">Description</Label>
                 <Textarea
                   id="program-description"
@@ -257,11 +268,21 @@ export function WorkoutProgramDetail({
             )}
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="text-sm text-slate-500">
-            Created on {formatCreatedDate(program.createdAt)}
+        {!isEditing && (
+          <CardContent>
+            <div className="text-xs text-slate-500">
+              Created on {formatCreatedDate(program.createdAt)}
+            </div>
+            <div className="text-xs text-slate-500">
+              Updated on {formatCreatedDate(program.createdAt)}
+            </div>
+          </CardContent>
+        )}
+        {isEditing && (
+          <div className="flex justify-end pr-5">
+            <Button>Save changes</Button>
           </div>
-        </CardContent>
+        )}
       </Card>
 
       <Card>
@@ -278,13 +299,15 @@ export function WorkoutProgramDetail({
             className="space-y-4"
           >
             <TabsList className="grid w-full grid-cols-7">
-              {allDays.map((day) => {
-                const dayData = editedProgram.days.find((d) => d.day === day);
+              {Object.values(allDays).map((day) => {
+                const dayData = editedProgram.workoutDays.find((d) => {
+                  return allDays[d.dayNumber as keyof typeof allDays] === day;
+                });
                 const exerciseCount = dayData?.exercises.length || 0;
 
                 return (
                   <TabsTrigger key={day} value={day} className="relative">
-                    {formatDayName(day).slice(0, 3)}
+                    {formatDayName(day as DayOfWeek).slice(0, 3)}
                     {exerciseCount > 0 && (
                       <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
                         {exerciseCount}
@@ -295,14 +318,15 @@ export function WorkoutProgramDetail({
               })}
             </TabsList>
 
-            {allDays.map((day) => (
+            {Object.values(allDays).map((day) => (
               <TabsContent key={day} value={day} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">{formatDayName(day)}</h3>
-                </div>
-
                 {activeDay === day && (
                   <>
+                    <div>
+                      <h3 className="text-lg font-medium">
+                        {getDayName(day as DayOfWeek)}
+                      </h3>
+                    </div>
                     <DaySchedule
                       exercises={getExercisesForActiveDay()}
                       onRemoveExercise={(exerciseId) =>
@@ -315,16 +339,9 @@ export function WorkoutProgramDetail({
                     />
 
                     {isEditing && (
-                      <Card className={`${isMobile ? "border-none" : ""}`}>
-                        <CardHeader className={`${isMobile ? "p-0" : ""}`}>
-                          <CardTitle className="text-base border-b w-fit border-slate-200">
-                            Add Exercise
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className={`${isMobile ? "p-0" : ""}`}>
-                          <ExerciseForm onAddExercise={handleAddExercise} />
-                        </CardContent>
-                      </Card>
+                      <div className="flex justify-end">
+                        <AddExerciseModal />
+                      </div>
                     )}
                   </>
                 )}
