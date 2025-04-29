@@ -32,7 +32,7 @@ export function WorkoutProgramCreator({
   onCreateProgram,
 }: WorkoutProgramCreatorProps) {
   const isMobile = useIsMobile();
-  const [name, setName] = useState("");
+  const [programName, setProgramName] = useState("");
   const [description, setDescription] = useState("");
   const [exercises, setExercises] = useState({});
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
@@ -73,8 +73,8 @@ export function WorkoutProgramCreator({
             <Input
               id="program-name"
               placeholder="e.g., Hypertrophy Program"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={programName}
+              onChange={(e) => setProgramName(e.target.value)}
               className="text-sm"
             />
           </div>
@@ -166,7 +166,7 @@ export function WorkoutProgramCreator({
       </Card>
 
       <div className="flex justify-end">
-        <Button size="lg" disabled={!name.trim()}>
+        <Button size="lg" disabled={!programName.trim()}>
           Create Workout Program
         </Button>
       </div>
