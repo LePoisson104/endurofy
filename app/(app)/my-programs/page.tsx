@@ -56,12 +56,13 @@ export default function MyPrograms() {
 
   // Handle creating a new workout program
   const handleCreateProgram = (
-    program: Omit<WorkoutProgram, "programId" | "createdAt">
+    program: Omit<WorkoutProgram, "programId" | "createdAt" | "updatedAt">
   ) => {
     const newProgram: WorkoutProgram = {
       ...program,
       programId: Math.random().toString(36).substring(2, 9),
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     setWorkoutPrograms([...workoutPrograms, newProgram]);

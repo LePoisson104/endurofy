@@ -25,7 +25,7 @@ export function ExerciseForm({
   const isMobile = useIsMobile();
   const [exerciseName, setExerciseName] = useState("");
   const [bodyPart, setBodyPart] = useState<string>("");
-  const [action, setAction] = useState<string>("bilateral");
+  const [laterality, setLaterality] = useState<string>("bilateral");
   const [sets, setSets] = useState<number | null>(null);
   const [minReps, setMinReps] = useState<number | null>(null);
   const [maxReps, setMaxReps] = useState<number | null>(null);
@@ -34,14 +34,41 @@ export function ExerciseForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // onAddExercise({
-    //   name,
-    //   bodyPart: bodyPart,
-    //   action,
-    //   sets: sets || 0,
-    //   minReps: minReps || 0,
-    //   maxReps: maxReps || 0,
-    // });
+
+    // Validate inputs
+    if (
+      !exerciseName ||
+      !bodyPart ||
+      !laterality ||
+      !sets ||
+      !minReps ||
+      !maxReps
+    ) {
+      setError("All fields are required");
+      return;
+    }
+
+    // Create the exercise object
+    const newExercise: Omit<Exercise, "exerciseId"> = {
+      exerciseName,
+      bodyPart,
+      action: laterality,
+      sets,
+      minReps,
+      maxReps,
+    };
+
+    // Call the onAddExercise callback
+    onAddExercise(newExercise as Exercise);
+
+    // Reset form
+    setExerciseName("");
+    setBodyPart("");
+    setLaterality("bilateral");
+    setSets(null);
+    setMinReps(null);
+    setMaxReps(null);
+    setError(null);
   };
 
   return (
@@ -79,12 +106,12 @@ export function ExerciseForm({
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-2">
-        <Label>Action</Label>
+      <div className="space-y-2 mb-5">
+        <Label>Laterality</Label>
         <RadioGroup
           className="flex flex-col sm:flex-row gap-4"
-          value={action}
-          onValueChange={(value) => setAction(value)}
+          value={laterality}
+          onValueChange={(value) => setLaterality(value)}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="bilateral" id="bilateral" />
@@ -144,7 +171,7 @@ export function ExerciseForm({
           disabled={
             !exerciseName ||
             !bodyPart ||
-            !action ||
+            !laterality ||
             !sets ||
             !minReps ||
             !maxReps

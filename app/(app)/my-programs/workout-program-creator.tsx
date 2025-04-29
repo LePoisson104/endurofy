@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Plus } from "lucide-react";
 
 import type {
   WorkoutProgram,
@@ -23,9 +24,18 @@ import type {
   DayOfWeek,
   Exercise,
 } from "../../../interfaces/workout-program-interfaces";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface WorkoutProgramCreatorProps {
-  onCreateProgram: (program: Omit<WorkoutProgram, "id" | "createdAt">) => void;
+  onCreateProgram: (
+    program: Omit<WorkoutProgram, "id" | "createdAt" | "updatedAt">
+  ) => void;
 }
 
 export function WorkoutProgramCreator({
@@ -34,28 +44,205 @@ export function WorkoutProgramCreator({
   const isMobile = useIsMobile();
   const [programName, setProgramName] = useState("");
   const [description, setDescription] = useState("");
-  const [exercises, setExercises] = useState({});
+  const [exercises, setExercises] = useState<
+    Record<string | DayOfWeek, Exercise[]>
+  >({});
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
-  const [dayTitle, setDayTitle] = useState("");
-  const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([
-    { dayId: "monday", exercises: [], dayName: "monday", dayNumber: 1 },
-    { dayId: "tuesday", exercises: [], dayName: "tuesday", dayNumber: 2 },
-    { dayId: "wednesday", exercises: [], dayName: "wednesday", dayNumber: 3 },
-    { dayId: "thursday", exercises: [], dayName: "thursday", dayNumber: 4 },
-    { dayId: "friday", exercises: [], dayName: "friday", dayNumber: 5 },
-    { dayId: "saturday", exercises: [], dayName: "saturday", dayNumber: 6 },
-    { dayId: "sunday", exercises: [], dayName: "sunday", dayNumber: 7 },
-  ]);
+  const [programType, setProgramType] = useState<"day-of-week" | "custom">(
+    "day-of-week"
+  );
+  const [dayNames, setDayNames] = useState<Record<string | DayOfWeek, string>>(
+    {}
+  );
+  const [customDays, setCustomDays] = useState<
+    { id: string; name: string; dayName: string }[]
+  >([{ id: "d1", name: "D1", dayName: "" }]);
+  const [activeCustomDay, setActiveCustomDay] = useState<string>("d1");
+
+  const daysOfWeek = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
 
   // Format day name
   const formatDayName = (day: DayOfWeek) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
 
-  // Get exercises for the active day
-  const getExercisesForActiveDay = () => {
-    const activeWorkoutDay = workoutDays.find((day) => day.dayId === activeDay);
-    return activeWorkoutDay ? activeWorkoutDay.exercises : [];
+  // Add a new custom day
+  const addCustomDay = () => {
+    // Check if we've reached the maximum number of days (10)
+    if (customDays.length >= 10) {
+      return; // Don't add more days if we've reached the limit
+    }
+
+    const newDayNumber = customDays.length + 1;
+    const newDayId = `d${newDayNumber}`;
+    const newDayName = `D${newDayNumber}`;
+
+    setCustomDays([
+      ...customDays,
+      { id: newDayId, name: newDayName, dayName: "" },
+    ]);
+    setActiveCustomDay(newDayId);
+  };
+
+  // Remove a custom day
+  const removeCustomDay = (dayId: string) => {
+    if (customDays.length <= 1) return; // Keep at least one day
+
+    // Filter out the day to be removed
+    const updatedDays = customDays.filter((day) => day.id !== dayId);
+
+    // Renumber the remaining days sequentially
+    const renumberedDays = updatedDays.map((day, index) => {
+      const newDayNumber = index + 1;
+      return {
+        ...day,
+        id: `d${newDayNumber}`,
+        name: `D${newDayNumber}`,
+      };
+    });
+
+    setCustomDays(renumberedDays);
+
+    // If we're removing the active day, set the active day to the first available day
+    if (activeCustomDay === dayId) {
+      setActiveCustomDay(renumberedDays[0].id);
+    } else {
+      // Update the active day ID if it's one of the days that was renumbered
+      const activeDayIndex = updatedDays.findIndex(
+        (day) => day.id === activeCustomDay
+      );
+      if (activeDayIndex !== -1) {
+        setActiveCustomDay(`d${activeDayIndex + 1}`);
+      }
+    }
+  };
+
+  // Update custom day name
+  const updateCustomDayName = (dayId: string, newName: string) => {
+    setCustomDays(
+      customDays.map((day) =>
+        day.id === dayId ? { ...day, dayName: newName } : day
+      )
+    );
+  };
+
+  // Update day name for a specific day
+  const updateDayName = (dayId: string | DayOfWeek, name: string) => {
+    setDayNames((prev) => ({
+      ...prev,
+      [dayId]: name,
+    }));
+  };
+
+  // Add an exercise to the current day
+  const addExercise = (exercise: Exercise) => {
+    const currentDayId =
+      programType === "day-of-week" ? activeDay : activeCustomDay;
+
+    // Create a new exercise with a unique ID
+    const newExercise: Exercise = {
+      ...exercise,
+      exerciseId: `exercise-${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 9)}`,
+    };
+
+    // Update the exercises state
+    setExercises((prevExercises) => {
+      const currentDayExercises = prevExercises[currentDayId] || [];
+      return {
+        ...prevExercises,
+        [currentDayId]: [...currentDayExercises, newExercise],
+      };
+    });
+  };
+
+  // Remove an exercise from the current day
+  const removeExercise = (dayId: string | DayOfWeek, exerciseId: string) => {
+    setExercises((prevExercises) => {
+      const currentDayExercises = prevExercises[dayId] || [];
+      return {
+        ...prevExercises,
+        [dayId]: currentDayExercises.filter(
+          (exercise) => exercise.exerciseId !== exerciseId
+        ),
+      };
+    });
+  };
+
+  // Update an exercise in the current day
+  const updateExercise = (
+    dayId: string | DayOfWeek,
+    updatedExercise: Exercise
+  ) => {
+    setExercises((prevExercises) => {
+      const currentDayExercises = prevExercises[dayId] || [];
+      return {
+        ...prevExercises,
+        [dayId]: currentDayExercises.map((exercise) =>
+          exercise.exerciseId === updatedExercise.exerciseId
+            ? updatedExercise
+            : exercise
+        ),
+      };
+    });
+  };
+
+  // Handle program submission
+  const handleSubmitProgram = () => {
+    if (!programName.trim()) {
+      return; // Don't submit if program name is empty
+    }
+
+    // Prepare the workout days based on program type
+    const workoutDays: WorkoutDay[] = [];
+
+    if (programType === "day-of-week") {
+      // For day-of-week program type
+      daysOfWeek.forEach((day, index) => {
+        const dayExercises = exercises[day] || [];
+        if (dayExercises.length > 0) {
+          workoutDays.push({
+            dayId: day,
+            dayName: dayNames[day] || formatDayName(day as DayOfWeek),
+            dayNumber: index + 1,
+            exercises: dayExercises,
+          });
+        }
+      });
+    } else {
+      // For custom program type
+      customDays.forEach((day, index) => {
+        const dayExercises = exercises[day.id] || [];
+        if (dayExercises.length > 0) {
+          workoutDays.push({
+            dayId: day.id,
+            dayName: day.dayName || day.name,
+            dayNumber: index + 1,
+            exercises: dayExercises,
+          });
+        }
+      });
+    }
+
+    // Create the program object
+    const program: Omit<WorkoutProgram, "id" | "createdAt" | "updatedAt"> = {
+      programId: `program-${Date.now()}`,
+      programName,
+      description,
+      workoutDays,
+    };
+
+    // Call the onCreateProgram callback
+    onCreateProgram(program);
   };
 
   return (
@@ -76,6 +263,7 @@ export function WorkoutProgramCreator({
               value={programName}
               onChange={(e) => setProgramName(e.target.value)}
               className="text-sm"
+              maxLength={30}
             />
           </div>
 
@@ -83,10 +271,11 @@ export function WorkoutProgramCreator({
             <Label htmlFor="program-description">Description (optional)</Label>
             <Textarea
               id="program-description"
-              placeholder="Describe your workout program... (50 characters max)"
+              placeholder="Describe your workout program... (100 characters max)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-[100px] text-sm"
+              maxLength={100}
             />
           </div>
         </CardContent>
@@ -100,73 +289,174 @@ export function WorkoutProgramCreator({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs
-            value={activeDay}
-            onValueChange={(value) => setActiveDay(value as DayOfWeek)}
-          >
-            <TabsList className="mb-4 grid w-full grid-cols-7">
-              {workoutDays.map((day) => (
-                <TabsTrigger
-                  key={day.dayId}
-                  value={day.dayId}
-                  className="relative"
-                >
-                  {formatDayName(day.dayName as DayOfWeek).slice(0, 3)}
-                  {day.exercises.length > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                      {day.exercises.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="mb-4">
+            <Select
+              value={programType}
+              onValueChange={(value) =>
+                setProgramType(value as "day-of-week" | "custom")
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day-of-week">Day of week</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {workoutDays.map((day) => (
-              <TabsContent
-                key={day.dayId}
-                value={day.dayId}
-                className="space-y-4"
-              >
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="day-title">Day Name</Label>
-                  <Input
-                    id="day-title"
-                    type="text"
-                    placeholder="e.g., Push A"
-                    value={dayTitle}
-                    onChange={(e) => setDayTitle(e.target.value)}
-                    className="text-sm w-fit"
+          {programType === "day-of-week" ? (
+            <Tabs
+              value={activeDay}
+              onValueChange={(value) => setActiveDay(value as DayOfWeek)}
+            >
+              <TabsList className="mb-4 grid w-full grid-cols-7">
+                {daysOfWeek.map((day) => (
+                  <TabsTrigger key={day} value={day} className="relative">
+                    {formatDayName(day as DayOfWeek).slice(0, 3)}
+                    {exercises[day] && exercises[day].length > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                        {exercises[day].length}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {daysOfWeek.map((day) => (
+                <TabsContent key={day} value={day} className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="day-title">Day Name</Label>
+                    <Input
+                      id="day-title"
+                      type="text"
+                      placeholder="e.g., Push A"
+                      value={dayNames[day] || ""}
+                      onChange={(e) => updateDayName(day, e.target.value)}
+                      className="text-sm w-fit"
+                    />
+                  </div>
+
+                  <DaySchedule
+                    exercises={exercises[day] || []}
+                    onRemoveExercise={(exerciseId) =>
+                      removeExercise(day, exerciseId)
+                    }
+                    onUpdateExercise={(exercise) =>
+                      updateExercise(day, exercise)
+                    }
                   />
+
+                  <Card className={`${isMobile ? "border-none" : ""}`}>
+                    <CardHeader className={`${isMobile ? "p-0" : ""}`}>
+                      <CardTitle className="text-base">Add Exercise</CardTitle>
+                    </CardHeader>
+                    <CardContent className={`${isMobile ? "p-0" : ""}`}>
+                      <ExerciseForm onAddExercise={addExercise} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
+          ) : (
+            <div className="space-y-4">
+              <Tabs value={activeCustomDay} onValueChange={setActiveCustomDay}>
+                <div className="flex flex-col gap-2 mb-4">
+                  <div className="flex justify-end mb-2 gap-2">
+                    {customDays.length > 1 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeCustomDay(activeCustomDay)}
+                        className="text-destructive"
+                      >
+                        Remove Day
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={addCustomDay}
+                      disabled={customDays.length >= 10}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Day
+                    </Button>
+                  </div>
+                  <TabsList className="grid grid-cols-6 gap-1 w-full mb-8 bg-muted p-1 rounded-md">
+                    {customDays.map((day) => (
+                      <TabsTrigger
+                        key={day.id}
+                        value={day.id}
+                        className="relative data-[state=active]:bg-background"
+                      >
+                        {day.name}
+                        {exercises[day.id] && exercises[day.id].length > 0 && (
+                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                            {exercises[day.id].length}
+                          </span>
+                        )}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
                 </div>
 
-                <DaySchedule
-                  exercises={day.exercises}
-                  onRemoveExercise={(exerciseId) =>
-                    // handleRemoveExercise(day.day, exerciseId)
-                    console.log("remove exercise", exerciseId)
-                  }
-                  onUpdateExercise={(exercise) =>
-                    // handleUpdateExercise(day.day, exercise)
-                    console.log("update exercise", exercise)
-                  }
-                />
+                {customDays.map((day) => (
+                  <TabsContent
+                    key={day.id}
+                    value={day.id}
+                    className="space-y-4"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={`day-title-${day.id}`}>Day Name</Label>
+                      </div>
+                      <Input
+                        id={`day-title-${day.id}`}
+                        type="text"
+                        placeholder="e.g., Push A"
+                        value={day.dayName}
+                        onChange={(e) =>
+                          updateCustomDayName(day.id, e.target.value)
+                        }
+                        className="text-sm w-fit"
+                      />
+                    </div>
 
-                <Card className={`${isMobile ? "border-none" : ""}`}>
-                  <CardHeader className={`${isMobile ? "p-0" : ""}`}>
-                    <CardTitle className="text-base">Add Exercise</CardTitle>
-                  </CardHeader>
-                  <CardContent className={`${isMobile ? "p-0" : ""}`}>
-                    <ExerciseForm onAddExercise={setExercises} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            ))}
-          </Tabs>
+                    <DaySchedule
+                      exercises={exercises[day.id] || []}
+                      onRemoveExercise={(exerciseId) =>
+                        removeExercise(day.id, exerciseId)
+                      }
+                      onUpdateExercise={(exercise) =>
+                        updateExercise(day.id, exercise)
+                      }
+                    />
+
+                    <Card className={`${isMobile ? "border-none" : ""}`}>
+                      <CardHeader className={`${isMobile ? "p-0" : ""}`}>
+                        <CardTitle className="text-base">
+                          Add Exercise
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className={`${isMobile ? "p-0" : ""}`}>
+                        <ExerciseForm onAddExercise={addExercise} />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button size="lg" disabled={!programName.trim()}>
+      <div className="flex justify-end mt-6">
+        <Button
+          onClick={handleSubmitProgram}
+          disabled={!programName.trim() || Object.keys(exercises).length === 0}
+        >
           Create Workout Program
         </Button>
       </div>

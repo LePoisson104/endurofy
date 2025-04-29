@@ -57,6 +57,16 @@ export function DaySchedule({
   // Save edited exercise
   const handleSaveExercise = () => {
     if (editedExercise) {
+      // Validate the exercise before saving
+      if (
+        editedExercise.sets <= 0 ||
+        editedExercise.minReps <= 0 ||
+        editedExercise.maxReps <= 0
+      ) {
+        // You could add error handling here if needed
+        return;
+      }
+
       onUpdateExercise(editedExercise);
       setEditingExerciseId(null);
       setEditedExercise(null);
@@ -127,11 +137,14 @@ export function DaySchedule({
                         id="exercise-sets"
                         type="number"
                         min="1"
-                        value={editedExercise.sets}
+                        value={editedExercise.sets || ""}
                         onChange={(e) =>
                           setEditedExercise({
                             ...editedExercise,
-                            sets: Number.parseInt(e.target.value) || 1,
+                            sets:
+                              e.target.value === ""
+                                ? 0
+                                : Number.parseInt(e.target.value),
                           })
                         }
                         className="w-16 text-center mx-auto flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
@@ -146,11 +159,14 @@ export function DaySchedule({
                           id="exercise-min-reps"
                           type="number"
                           min="1"
-                          value={editedExercise.minReps}
+                          value={editedExercise.minReps || ""}
                           onChange={(e) =>
                             setEditedExercise({
                               ...editedExercise,
-                              minReps: Number.parseInt(e.target.value) || 1,
+                              minReps:
+                                e.target.value === ""
+                                  ? 0
+                                  : Number.parseInt(e.target.value),
                             })
                           }
                           className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
@@ -163,11 +179,14 @@ export function DaySchedule({
                           id="exercise-max-reps"
                           type="number"
                           min="1"
-                          value={editedExercise.maxReps}
+                          value={editedExercise.maxReps || ""}
                           onChange={(e) =>
                             setEditedExercise({
                               ...editedExercise,
-                              maxReps: Number.parseInt(e.target.value) || 1,
+                              maxReps:
+                                e.target.value === ""
+                                  ? 0
+                                  : Number.parseInt(e.target.value),
                             })
                           }
                           className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
