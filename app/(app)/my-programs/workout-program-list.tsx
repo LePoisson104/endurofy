@@ -21,21 +21,24 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
   onSelectProgram: (program: WorkoutProgram) => void;
   onDeleteProgram: (programId: string) => void;
+  isLoading: boolean;
 }
 
 export default function WorkoutProgramList({
   programs,
   onSelectProgram,
   onDeleteProgram,
+  isLoading,
 }: WorkoutProgramListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
-  console.log(programs);
+
   // Filter programs based on search query
   const filteredPrograms = programs.filter((program) =>
     program.programName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -66,6 +69,14 @@ export default function WorkoutProgramList({
       setProgramToDelete(null);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Skeleton className="w-full h-[300px]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

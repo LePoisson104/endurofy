@@ -15,12 +15,17 @@ import type { WorkoutProgram } from "../../../interfaces/workout-program-interfa
 export default function MyPrograms() {
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("tab") || "my-programs";
+  const programIdParam = searchParams.get("programId");
   const user = useSelector(selectCurrentUser);
   const { data: programs, isLoading } = useGetWorkoutProgramQuery({
     userId: user?.user_id,
   });
 
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
+    null
+  );
+  const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
   useEffect(() => {
     if (programs) {
@@ -28,10 +33,26 @@ export default function MyPrograms() {
     }
   }, [programs]);
 
-  const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
-    null
-  );
-  const [activeTab, setActiveTab] = useState<string>(defaultTab);
+  // Restore selected program from URL parameter on initial load
+  useEffect(() => {
+    if (programIdParam && workoutPrograms.length > 0) {
+      const program = workoutPrograms.find(
+        (p) => p.programId === programIdParam
+      );
+      if (program) {
+        setSelectedProgram(program);
+      }
+    }
+  }, [programIdParam, workoutPrograms]);
+
+  // Update URL when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL without refreshing the page
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", value);
+    window.history.pushState({}, "", url.toString());
+  };
 
   // Handle creating a new workout program
   const handleCreateProgram = (
@@ -46,6 +67,11 @@ export default function MyPrograms() {
     setWorkoutPrograms([...workoutPrograms, newProgram]);
     setSelectedProgram(newProgram);
     setActiveTab("my-programs");
+    // Update URL to reflect the new tab and selected program
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", "my-programs");
+    url.searchParams.set("programId", newProgram.programId);
+    window.history.pushState({}, "", url.toString());
   };
 
   // Handle updating a workout program
@@ -67,12 +93,29 @@ export default function MyPrograms() {
     );
     if (selectedProgram?.programId === programId) {
       setSelectedProgram(null);
+      // Remove programId from URL when program is deleted
+      const url = new URL(window.location.href);
+      url.searchParams.delete("programId");
+      window.history.pushState({}, "", url.toString());
     }
   };
 
   // Handle selecting a program
   const handleSelectProgram = (program: WorkoutProgram) => {
     setSelectedProgram(program);
+    // Update URL to include the selected program ID
+    const url = new URL(window.location.href);
+    url.searchParams.set("programId", program.programId);
+    window.history.pushState({}, "", url.toString());
+  };
+
+  // Handle going back to program list
+  const handleBackToProgramList = () => {
+    setSelectedProgram(null);
+    // Remove programId from URL when going back to list
+    const url = new URL(window.location.href);
+    url.searchParams.delete("programId");
+    window.history.pushState({}, "", url.toString());
   };
 
   return (
@@ -88,7 +131,7 @@ export default function MyPrograms() {
         <div className="mx-auto max-w-7xl">
           <Tabs
             value={activeTab}
-            onValueChange={setActiveTab}
+            onValueChange={handleTabChange}
             className="space-y-6"
           >
             <TabsList className="grid w-full grid-cols-2">
@@ -100,7 +143,7 @@ export default function MyPrograms() {
               {selectedProgram ? (
                 <WorkoutProgramDetail
                   program={selectedProgram}
-                  onBack={() => setSelectedProgram(null)}
+                  onBack={handleBackToProgramList}
                   onUpdate={handleUpdateProgram}
                   onDelete={handleDeleteProgram}
                 />
@@ -109,6 +152,7 @@ export default function MyPrograms() {
                   programs={workoutPrograms}
                   onSelectProgram={handleSelectProgram}
                   onDeleteProgram={handleDeleteProgram}
+                  isLoading={isLoading}
                 />
               )}
             </TabsContent>

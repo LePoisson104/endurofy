@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DaySchedule } from "./day-scheldule";
-import { useIsMobile } from "@/hooks/use-mobile";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
 import type {
   WorkoutProgram,
@@ -47,7 +46,7 @@ export function WorkoutProgramDetail({
     6: "saturday",
     7: "sunday",
   };
-  const isMobile = useIsMobile();
+
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [activeDay, setActiveDay] = useState<DayOfWeek | null>(
@@ -175,9 +174,9 @@ export function WorkoutProgramDetail({
   };
 
   const getDayName = (day: DayOfWeek) => {
-    if (!activeDay) return [];
-    const activeWorkoutDay = editedProgram.workoutDays.find((day) => {
-      return allDays[day?.dayNumber as keyof typeof allDays] === activeDay;
+    if (!activeDay) return "";
+    const activeWorkoutDay = editedProgram.workoutDays.find((d) => {
+      return allDays[d?.dayNumber as keyof typeof allDays] === day;
     });
 
     return activeWorkoutDay ? activeWorkoutDay.dayName : "";
@@ -273,9 +272,12 @@ export function WorkoutProgramDetail({
             <div className="text-xs text-slate-500">
               Created on {formatCreatedDate(program.createdAt)}
             </div>
-            <div className="text-xs text-slate-500">
-              Updated on {formatCreatedDate(program.createdAt)}
-            </div>
+            {new Date(program.createdAt).toISOString().split("T")[0] !==
+              new Date(program.updatedAt).toISOString().split("T")[0] && (
+              <div className="text-xs text-slate-500">
+                Updated on {formatCreatedDate(program.updatedAt)}
+              </div>
+            )}
           </CardContent>
         )}
         {isEditing && (
@@ -322,10 +324,40 @@ export function WorkoutProgramDetail({
               <TabsContent key={day} value={day} className="space-y-4">
                 {activeDay === day && (
                   <>
+                    {/* Day name */}
                     <div>
-                      <h3 className="text-lg font-medium">
-                        {getDayName(day as DayOfWeek)}
-                      </h3>
+                      {!isEditing ? (
+                        <h3 className="text-lg font-medium">
+                          {getDayName(day as DayOfWeek)}
+                        </h3>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Input
+                            className="w-fit placeholder:text-slate-500"
+                            placeholder="Day name"
+                            value={getDayName(day as DayOfWeek)}
+                            onChange={(e) => {
+                              const updatedDays = editedProgram.workoutDays.map(
+                                (d) => {
+                                  if (
+                                    allDays[
+                                      d.dayNumber as keyof typeof allDays
+                                    ] === day
+                                  ) {
+                                    return { ...d, dayName: e.target.value };
+                                  }
+                                  return d;
+                                }
+                              );
+                              setEditedProgram({
+                                ...editedProgram,
+                                workoutDays: updatedDays,
+                              });
+                            }}
+                          />
+                          <Button>Save</Button>
+                        </div>
+                      )}
                     </div>
                     <DaySchedule
                       exercises={getExercisesForActiveDay()}
