@@ -47,7 +47,7 @@ import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 export function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { open } = useSidebar();
+  const { open, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
 
   // Sample data - in a real app, this would come from a database
@@ -56,6 +56,12 @@ export function AppSidebar() {
     { id: 2, name: "Weight Loss" },
     { id: 3, name: "Muscle Hypertrophy" },
   ];
+
+  const handleCloseSidebarOnMobile = () => {
+    if (isMobile && openMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <div className="relative">
@@ -91,6 +97,7 @@ export function AppSidebar() {
                     asChild
                     isActive={pathname === "/dashboard"}
                     tooltip="Dashboard"
+                    onClick={handleCloseSidebarOnMobile}
                   >
                     <Link href="/dashboard" className="truncate">
                       <Home />
@@ -104,6 +111,7 @@ export function AppSidebar() {
                     asChild
                     isActive={pathname === "/workout-log"}
                     tooltip="Workout Log"
+                    onClick={handleCloseSidebarOnMobile}
                   >
                     <Link href="/workout-log" className="truncate">
                       <Dumbbell />
@@ -116,6 +124,7 @@ export function AppSidebar() {
                     asChild
                     isActive={pathname === "/weight-log"}
                     tooltip="Weight Log"
+                    onClick={handleCloseSidebarOnMobile}
                   >
                     <Link href="/weight-log" className="truncate">
                       <ScrollText />
@@ -128,6 +137,7 @@ export function AppSidebar() {
                     asChild
                     isActive={pathname === "/statistics"}
                     tooltip="Statistics"
+                    onClick={handleCloseSidebarOnMobile}
                   >
                     <Link href="/statistics" className="truncate">
                       <BarChart3 />
@@ -164,6 +174,7 @@ export function AppSidebar() {
               <Link
                 href="/my-programs"
                 className="text-xs text-primary hover:underline"
+                onClick={handleCloseSidebarOnMobile}
               >
                 View
               </Link>
@@ -207,6 +218,7 @@ export function AppSidebar() {
                     <Link
                       href="/my-programs?tab=create-program"
                       className="truncate"
+                      onClick={handleCloseSidebarOnMobile}
                     >
                       <Plus />
                       <span className="truncate">Create Program</span>

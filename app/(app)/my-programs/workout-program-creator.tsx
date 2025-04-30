@@ -142,6 +142,17 @@ export function WorkoutProgramCreator({
     }));
   };
 
+  // Update exercises for a specific day
+  const updateExercises = (
+    dayId: string | DayOfWeek,
+    newExercises: Exercise[]
+  ) => {
+    setExercises((prev) => ({
+      ...prev,
+      [dayId]: newExercises,
+    }));
+  };
+
   // Add an exercise to the current day
   const addExercise = (exercise: Exercise) => {
     const currentDayId =
@@ -241,6 +252,7 @@ export function WorkoutProgramCreator({
       workoutDays,
     };
 
+    console.log(program);
     // Call the onCreateProgram callback
     onCreateProgram(program);
   };
@@ -346,6 +358,9 @@ export function WorkoutProgramCreator({
                     onUpdateExercise={(exercise) =>
                       updateExercise(day, exercise)
                     }
+                    onReorderExercises={(newExercises) =>
+                      updateExercises(day, newExercises)
+                    }
                   />
 
                   <Card className={`${isMobile ? "border-none" : ""}`}>
@@ -431,6 +446,9 @@ export function WorkoutProgramCreator({
                       }
                       onUpdateExercise={(exercise) =>
                         updateExercise(day.id, exercise)
+                      }
+                      onReorderExercises={(newExercises) =>
+                        updateExercises(day.id, newExercises)
                       }
                     />
 

@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { WorkoutProgram, DayOfWeek } from "../my-programs/page";
 import type { WorkoutLog, ExerciseLog } from "./page";
 
@@ -35,6 +36,7 @@ export function WorkoutLogForm({
   onSaveLog,
   workoutLogs = [],
 }: WorkoutLogFormProps) {
+  const isMobile = useIsMobile();
   const [selectedDay, setSelectedDay] = useState<DayOfWeek | null>(null);
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
   const [notes, setNotes] = useState("");
@@ -277,7 +279,12 @@ export function WorkoutLogForm({
       {selectedDay && (
         <div className="space-y-6">
           {exerciseLogs.map((exercise) => (
-            <div key={exercise.id} className="border rounded-lg p-4 space-y-4">
+            <div
+              key={exercise.id}
+              className={`rounded-lg space-y-4 ${
+                isMobile ? "p-0 border-none" : "p-4 border"
+              }`}
+            >
               <div className="flex flex-col">
                 <h4 className="font-medium">{exercise.name}</h4>
                 <div className="text-sm text-slate-500">

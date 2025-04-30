@@ -149,7 +149,7 @@ export function WorkoutLogHistory({
                 {expandedLog === log.id && (
                   <div className="border-t p-4 ">
                     <div className="space-y-4">
-                      {log.exercises.map((exercise) => (
+                      {log.exercises.map((exercise: any) => (
                         <div
                           key={exercise.id}
                           className="border rounded-lg p-4 space-y-2"
@@ -157,23 +157,25 @@ export function WorkoutLogHistory({
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">{exercise.name}</h4>
                             <div className="text-sm text-slate-500">
-                              {exercise.weights.some((w) => w > 0)
+                              {exercise.weights.some((w: number) => w > 0)
                                 ? `${exercise.weights.join(" / ")} lbs`
                                 : "Bodyweight"}
                             </div>
                           </div>
 
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                            {exercise.completedReps.map((reps, index) => (
-                              <div key={index} className="text-sm">
-                                <span className="text-slate-500">
-                                  Set {index + 1}:
-                                </span>{" "}
-                                <span className="font-medium">
-                                  {exercise.weights[index]} lbs × {reps} reps
-                                </span>
-                              </div>
-                            ))}
+                            {exercise.completedReps.map(
+                              (reps: number, index: number) => (
+                                <div key={index} className="text-sm">
+                                  <span className="text-slate-500">
+                                    Set {index + 1}:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {exercise.weights[index]} lbs × {reps} reps
+                                  </span>
+                                </div>
+                              )
+                            )}
                           </div>
 
                           {exercise.notes && (
