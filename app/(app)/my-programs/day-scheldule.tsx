@@ -209,11 +209,11 @@ function SortableTableRow({
               Laterality
             </Label>
             <Select
-              value={editedExercise?.action}
+              value={editedExercise?.laterality}
               onValueChange={(value) =>
                 setEditedExercise({
                   ...editedExercise!,
-                  action: value,
+                  laterality: value as "bilateral" | "unilateral",
                 })
               }
             >
@@ -262,7 +262,7 @@ function SortableTableRow({
           <TableCell className="text-center">
             {exercise.minReps} - {exercise.maxReps}
           </TableCell>
-          <TableCell className="text-center">{exercise.action}</TableCell>
+          <TableCell className="text-center">{exercise.laterality}</TableCell>
           {isEditing && (
             <TableCell className="text-right">
               <div className="flex justify-end gap-1">
@@ -330,7 +330,13 @@ export function DaySchedule({
       const oldIndex = exercises.findIndex((ex) => ex.exerciseId === active.id);
       const newIndex = exercises.findIndex((ex) => ex.exerciseId === over.id);
 
-      const newExercises = arrayMove(exercises, oldIndex, newIndex);
+      const newExercises = arrayMove(exercises, oldIndex, newIndex).map(
+        (exercise, index) => ({
+          ...exercise,
+          exerciseOrder: index + 1,
+        })
+      );
+
       onReorderExercises?.(newExercises);
     }
   };

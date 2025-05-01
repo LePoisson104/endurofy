@@ -6,7 +6,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Exercise } from "../../../interfaces/workout-program-interfaces";
+import type {
+  CreateExercise,
+  Exercise,
+} from "../../../interfaces/workout-program-interfaces";
 import {
   Select,
   SelectTrigger,
@@ -29,7 +32,7 @@ export function ExerciseForm({
   const [sets, setSets] = useState<number | null>(null);
   const [minReps, setMinReps] = useState<number | null>(null);
   const [maxReps, setMaxReps] = useState<number | null>(null);
-
+  const [exerciseOrder, setExerciseOrder] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,13 +52,14 @@ export function ExerciseForm({
     }
 
     // Create the exercise object
-    const newExercise: Omit<Exercise, "exerciseId"> = {
+    const newExercise: CreateExercise = {
       exerciseName,
       bodyPart,
-      action: laterality,
+      laterality: laterality as "bilateral" | "unilateral",
       sets,
       minReps,
       maxReps,
+      exerciseOrder: exerciseOrder,
     };
 
     // Call the onAddExercise callback
@@ -69,6 +73,7 @@ export function ExerciseForm({
     setMinReps(null);
     setMaxReps(null);
     setError(null);
+    setExerciseOrder(1);
   };
 
   return (

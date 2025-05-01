@@ -19,10 +19,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Plus } from "lucide-react";
 
 import type {
-  WorkoutProgram,
   WorkoutDay,
   DayOfWeek,
   Exercise,
+  CreateWorkoutProgram,
+  CreateWorkoutDay,
+  CreateExercise,
 } from "../../../interfaces/workout-program-interfaces";
 import {
   Select,
@@ -33,9 +35,7 @@ import {
 } from "@/components/ui/select";
 
 interface WorkoutProgramCreatorProps {
-  onCreateProgram: (
-    program: Omit<WorkoutProgram, "id" | "createdAt" | "updatedAt">
-  ) => void;
+  onCreateProgram: (program: CreateWorkoutProgram) => void;
 }
 
 export function WorkoutProgramCreator({
@@ -158,12 +158,17 @@ export function WorkoutProgramCreator({
     const currentDayId =
       programType === "day-of-week" ? activeDay : activeCustomDay;
 
-    // Create a new exercise with a unique ID
+    // Get the current number of exercises for the day
+    const currentExercises = exercises[currentDayId] || [];
+    const nextOrder = currentExercises.length + 1;
+
+    // Create a new exercise with a unique ID and order
     const newExercise: Exercise = {
       ...exercise,
       exerciseId: `exercise-${Date.now()}-${Math.random()
         .toString(36)
         .substring(2, 9)}`,
+      exerciseOrder: nextOrder,
     };
 
     // Update the exercises state
@@ -214,7 +219,7 @@ export function WorkoutProgramCreator({
     }
 
     // Prepare the workout days based on program type
-    const workoutDays: WorkoutDay[] = [];
+    const workoutDays: CreateWorkoutDay[] = [];
 
     if (programType === "day-of-week") {
       // For day-of-week program type
@@ -222,7 +227,6 @@ export function WorkoutProgramCreator({
         const dayExercises = exercises[day] || [];
         if (dayExercises.length > 0) {
           workoutDays.push({
-            dayId: day,
             dayName: dayNames[day] || formatDayName(day as DayOfWeek),
             dayNumber: index + 1,
             exercises: dayExercises,
@@ -235,7 +239,6 @@ export function WorkoutProgramCreator({
         const dayExercises = exercises[day.id] || [];
         if (dayExercises.length > 0) {
           workoutDays.push({
-            dayId: day.id,
             dayName: day.dayName || day.name,
             dayNumber: index + 1,
             exercises: dayExercises,
@@ -245,14 +248,12 @@ export function WorkoutProgramCreator({
     }
 
     // Create the program object
-    const program: Omit<WorkoutProgram, "id" | "createdAt" | "updatedAt"> = {
-      programId: `program-${Date.now()}`,
+    const program: CreateWorkoutProgram = {
       programName,
       description,
       workoutDays,
     };
 
-    console.log(program);
     // Call the onCreateProgram callback
     onCreateProgram(program);
   };

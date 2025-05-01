@@ -12,7 +12,16 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
         { type: "WorkoutProgram", id: "LIST" },
       ],
     }),
+    createWorkoutProgram: builder.mutation({
+      query: ({ userId, workoutProgram }) => ({
+        url: `/api/v1/workout-program/create-workout-program/${userId}`,
+        method: "POST",
+        body: workoutProgram,
+      }),
+      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
+    }),
   }),
 });
 
-export const { useGetWorkoutProgramQuery } = workoutProgramApiSlice;
+export const { useGetWorkoutProgramQuery, useCreateWorkoutProgramMutation } =
+  workoutProgramApiSlice;

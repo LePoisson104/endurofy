@@ -9,8 +9,14 @@ import PageTitle from "@/components/global/page-title";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import { useGetWorkoutProgramQuery } from "@/api/workout-program/workout-program-slice";
-import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
+import {
+  useGetWorkoutProgramQuery,
+  useCreateWorkoutProgramMutation,
+} from "@/api/workout-program/workout-program-slice";
+import type {
+  WorkoutProgram,
+  CreateWorkoutProgram,
+} from "../../../interfaces/workout-program-interfaces";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
@@ -20,6 +26,9 @@ export default function MyPrograms() {
   const { data: programs, isLoading } = useGetWorkoutProgramQuery({
     userId: user?.user_id,
   });
+
+  const [createWorkoutProgram, { isLoading: isCreating }] =
+    useCreateWorkoutProgramMutation();
 
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
@@ -55,24 +64,8 @@ export default function MyPrograms() {
   };
 
   // Handle creating a new workout program
-  const handleCreateProgram = (
-    program: Omit<WorkoutProgram, "programId" | "createdAt" | "updatedAt">
-  ) => {
-    const newProgram: WorkoutProgram = {
-      ...program,
-      programId: Math.random().toString(36).substring(2, 9),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    setWorkoutPrograms([...workoutPrograms, newProgram]);
-    setSelectedProgram(newProgram);
-    setActiveTab("my-programs");
-    // Update URL to reflect the new tab and selected program
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", "my-programs");
-    url.searchParams.set("programId", newProgram.programId);
-    window.history.pushState({}, "", url.toString());
+  const handleCreateProgram = (program: CreateWorkoutProgram) => {
+    console.log(program);
   };
 
   // Handle updating a workout program
