@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { selectWeightStates } from "@/api/user/user-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { format } from "date-fns";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   useCreateWeightLogMutation,
   useUpdateWeightLogMutation,

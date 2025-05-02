@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 import type {
   WorkoutDay,
@@ -36,10 +36,12 @@ import {
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
+  isLoading: boolean;
 }
 
 export function WorkoutProgramCreator({
   onCreateProgram,
+  isLoading,
 }: WorkoutProgramCreatorProps) {
   const isMobile = useIsMobile();
   const [programName, setProgramName] = useState("");
@@ -474,9 +476,18 @@ export function WorkoutProgramCreator({
       <div className="flex justify-end mt-6">
         <Button
           onClick={handleSubmitProgram}
-          disabled={!programName.trim() || Object.keys(exercises).length === 0}
+          disabled={
+            !programName.trim() ||
+            Object.keys(exercises).length === 0 ||
+            isLoading
+          }
+          className="w-[200px]"
         >
-          Create Workout Program
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            "Create Workout Program"
+          )}
         </Button>
       </div>
     </div>

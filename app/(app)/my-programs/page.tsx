@@ -12,11 +12,14 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import {
   useGetWorkoutProgramQuery,
   useCreateWorkoutProgramMutation,
+  useDeleteWorkoutProgramMutation,
 } from "@/api/workout-program/workout-program-slice";
 import type {
   WorkoutProgram,
   CreateWorkoutProgram,
 } from "../../../interfaces/workout-program-interfaces";
+import ErrorAlert from "@/components/alerts/error-alert";
+import SuccessAlert from "@/components/alerts/success-alert";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
@@ -29,6 +32,11 @@ export default function MyPrograms() {
 
   const [createWorkoutProgram, { isLoading: isCreating }] =
     useCreateWorkoutProgramMutation();
+  const [deleteWorkoutProgram, { isLoading: isDeleting }] =
+    useDeleteWorkoutProgramMutation();
+
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
@@ -64,8 +72,22 @@ export default function MyPrograms() {
   };
 
   // Handle creating a new workout program
-  const handleCreateProgram = (program: CreateWorkoutProgram) => {
-    console.log(program);
+  const handleCreateProgram = async (program: CreateWorkoutProgram) => {
+    try {
+      await createWorkoutProgram({
+        userId: user?.user_id,
+        workoutProgram: program,
+      }).unwrap();
+      setSuccess("Program created successfully");
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else if (error.status === 400) {
+        setError(error.data?.message);
+      } else {
+        setError(error.data?.message);
+      }
+    }
   };
 
   // Handle updating a workout program
@@ -81,16 +103,21 @@ export default function MyPrograms() {
   };
 
   // Handle deleting a workout program
-  const handleDeleteProgram = (programId: string) => {
-    setWorkoutPrograms(
-      workoutPrograms.filter((program) => program.programId !== programId)
-    );
-    if (selectedProgram?.programId === programId) {
-      setSelectedProgram(null);
-      // Remove programId from URL when program is deleted
-      const url = new URL(window.location.href);
-      url.searchParams.delete("programId");
-      window.history.pushState({}, "", url.toString());
+  const handleDeleteProgram = async (programId: string) => {
+    try {
+      await deleteWorkoutProgram({
+        userId: user?.user_id,
+        programId,
+      }).unwrap();
+      setSuccess("Program deleted successfully");
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else if (error.status === 400) {
+        setError(error.data?.message);
+      } else {
+        setError(error.data?.message);
+      }
     }
   };
 
@@ -114,6 +141,8 @@ export default function MyPrograms() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
+      <ErrorAlert error={error} setError={setError} />
+      <SuccessAlert success={success} setSuccess={setSuccess} />
       <header className="mb-6">
         <PageTitle
           title="Workout Programs"
@@ -152,7 +181,10 @@ export default function MyPrograms() {
             </TabsContent>
 
             <TabsContent value="create-program">
-              <WorkoutProgramCreator onCreateProgram={handleCreateProgram} />
+              <WorkoutProgramCreator
+                onCreateProgram={handleCreateProgram}
+                isLoading={isCreating}
+              />
             </TabsContent>
           </Tabs>
         </div>
