@@ -6,7 +6,7 @@ import WorkoutProgramList from "./workout-program-list";
 import { WorkoutProgramCreator } from "./workout-program-creator";
 import { WorkoutProgramDetail } from "./workout-program-detail";
 import PageTitle from "@/components/global/page-title";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import {
@@ -23,6 +23,7 @@ import SuccessAlert from "@/components/alerts/success-alert";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const defaultTab = searchParams.get("tab") || "my-programs";
   const programIdParam = searchParams.get("programId");
   const user = useSelector(selectCurrentUser);
@@ -44,6 +45,12 @@ export default function MyPrograms() {
   );
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
+  // Sync tab state with URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab") || "my-programs";
+    setActiveTab(tab);
+  }, [searchParams]);
+
   useEffect(() => {
     if (programs) {
       setWorkoutPrograms(programs.data.programs);
@@ -64,11 +71,12 @@ export default function MyPrograms() {
 
   // Update URL when tab changes
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    // Update URL without refreshing the page
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", value);
-    window.history.pushState({}, "", url.toString());
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", value);
+    if (value === "create-program") {
+      params.delete("programId");
+    }
+    router.replace(`/my-programs?${params.toString()}`);
   };
 
   // Handle creating a new workout program
@@ -79,6 +87,8 @@ export default function MyPrograms() {
         workoutProgram: program,
       }).unwrap();
       setSuccess("Program created successfully");
+      // Switch back to My Programs tab
+      handleTabChange("my-programs");
     } catch (error: any) {
       if (!error.status) {
         setError("No Server Response");
@@ -109,6 +119,7 @@ export default function MyPrograms() {
         userId: user?.user_id,
         programId,
       }).unwrap();
+      setSelectedProgram(null);
       setSuccess("Program deleted successfully");
     } catch (error: any) {
       if (!error.status) {
@@ -124,19 +135,17 @@ export default function MyPrograms() {
   // Handle selecting a program
   const handleSelectProgram = (program: WorkoutProgram) => {
     setSelectedProgram(program);
-    // Update URL to include the selected program ID
-    const url = new URL(window.location.href);
-    url.searchParams.set("programId", program.programId);
-    window.history.pushState({}, "", url.toString());
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("programId", program.programId);
+    router.replace(`/my-programs?${params.toString()}`);
   };
 
   // Handle going back to program list
   const handleBackToProgramList = () => {
     setSelectedProgram(null);
-    // Remove programId from URL when going back to list
-    const url = new URL(window.location.href);
-    url.searchParams.delete("programId");
-    window.history.pushState({}, "", url.toString());
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("programId");
+    router.replace(`/my-programs?${params.toString()}`);
   };
 
   return (
@@ -184,6 +193,11 @@ export default function MyPrograms() {
               <WorkoutProgramCreator
                 onCreateProgram={handleCreateProgram}
                 isLoading={isCreating}
+                onSuccess={() => {
+                  // The form will be reset by the WorkoutProgramCreator component
+                  // We don't need to do anything here as handleCreateProgram
+                  // already handles switching back to the My Programs tab
+                }}
               />
             </TabsContent>
           </Tabs>

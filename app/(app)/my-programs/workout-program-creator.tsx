@@ -37,11 +37,13 @@ import {
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
   isLoading: boolean;
+  onSuccess?: () => void;
 }
 
 export function WorkoutProgramCreator({
   onCreateProgram,
   isLoading,
+  onSuccess,
 }: WorkoutProgramCreatorProps) {
   const isMobile = useIsMobile();
   const [programName, setProgramName] = useState("");
@@ -214,6 +216,18 @@ export function WorkoutProgramCreator({
     });
   };
 
+  // Reset all form data
+  const resetForm = () => {
+    setProgramName("");
+    setDescription("");
+    setExercises({});
+    setActiveDay("monday");
+    setProgramType("day-of-week");
+    setDayNames({});
+    setCustomDays([{ id: "d1", name: "D1", dayName: "" }]);
+    setActiveCustomDay("d1");
+  };
+
   // Handle program submission
   const handleSubmitProgram = () => {
     if (!programName.trim()) {
@@ -228,10 +242,14 @@ export function WorkoutProgramCreator({
       daysOfWeek.forEach((day, index) => {
         const dayExercises = exercises[day] || [];
         if (dayExercises.length > 0) {
+          // Remove exerciseId from each exercise before adding to workoutDays
+          const exercisesWithoutIds = dayExercises.map(
+            ({ exerciseId, ...rest }) => rest
+          );
           workoutDays.push({
             dayName: dayNames[day] || formatDayName(day as DayOfWeek),
             dayNumber: index + 1,
-            exercises: dayExercises,
+            exercises: exercisesWithoutIds,
           });
         }
       });
@@ -240,10 +258,14 @@ export function WorkoutProgramCreator({
       customDays.forEach((day, index) => {
         const dayExercises = exercises[day.id] || [];
         if (dayExercises.length > 0) {
+          // Remove exerciseId from each exercise before adding to workoutDays
+          const exercisesWithoutIds = dayExercises.map(
+            ({ exerciseId, ...rest }) => rest
+          );
           workoutDays.push({
             dayName: day.dayName || day.name,
             dayNumber: index + 1,
-            exercises: dayExercises,
+            exercises: exercisesWithoutIds,
           });
         }
       });
@@ -258,6 +280,10 @@ export function WorkoutProgramCreator({
 
     // Call the onCreateProgram callback
     onCreateProgram(program);
+
+    // Reset form and trigger success callback
+    resetForm();
+    onSuccess?.();
   };
 
   return (

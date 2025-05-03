@@ -37,30 +37,37 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "next-themes";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
+import { useGetWorkoutProgramQuery } from "@/api/workout-program/workout-program-slice";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { open, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
-
-  // Sample data - in a real app, this would come from a database
-  const workoutPrograms = [
-    { id: 1, name: "Strength Building", isActive: true },
-    { id: 2, name: "Weight Loss" },
-    { id: 3, name: "Muscle Hypertrophy" },
-  ];
+  const user = useSelector(selectCurrentUser);
+  const { data: workoutPrograms, isLoading } = useGetWorkoutProgramQuery({
+    userId: user?.user_id,
+  });
 
   const handleCloseSidebarOnMobile = () => {
     if (isMobile && openMobile) {
       setOpenMobile(false);
     }
+  };
+
+  const handleCreateProgramClick = () => {
+    handleCloseSidebarOnMobile();
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", "create-program");
+    params.delete("programId");
+    router.replace(`/my-programs?${params.toString()}`);
   };
 
   return (
@@ -170,7 +177,9 @@ export function AppSidebar() {
 
           <SidebarGroup>
             <SidebarGroupLabel className="flex justify-between items-center">
-              <span>My Programs</span>
+              <span>
+                My Programs ({workoutPrograms?.data?.programs?.length}/3)
+              </span>
               <Link
                 href="/my-programs"
                 className="text-xs text-primary hover:underline"
@@ -181,19 +190,25 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {workoutPrograms.map((program) => (
-                  <SidebarMenuItem key={program.id}>
+                {workoutPrograms?.data?.programs?.map((program: any) => (
+                  <SidebarMenuItem
+                    key={program.programId}
+                    onClick={handleCloseSidebarOnMobile}
+                  >
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === `/program/${program.id}`}
-                      tooltip={program.name}
+                      isActive={
+                        pathname ===
+                        `/my-programs?programId=${program.programId}`
+                      }
+                      tooltip={program.programName}
                     >
                       <Link
-                        href={`/program/${program.id}`}
+                        href={`/my-programs?programId=${program.programId}`}
                         className="truncate"
                       >
                         <ListTodo />
-                        <span className="truncate">{program.name}</span>
+                        <span className="truncate">{program.programName}</span>
                         {program.isActive && (
                           <Badge
                             variant="outline"
@@ -218,7 +233,7 @@ export function AppSidebar() {
                     <Link
                       href="/my-programs?tab=create-program"
                       className="truncate"
-                      onClick={handleCloseSidebarOnMobile}
+                      onClick={handleCreateProgramClick}
                     >
                       <Plus />
                       <span className="truncate">Create Program</span>
