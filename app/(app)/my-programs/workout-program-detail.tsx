@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Edit, Trash2, X } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, X, Save } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
@@ -201,7 +201,11 @@ export function WorkoutProgramDetail({
                 className="gap-1"
               >
                 <X className="h-4 w-4" />
-                Close
+                Cancel
+              </Button>
+              <Button size="sm" className="gap-1">
+                <Save className="h-4 w-4" />
+                Save
               </Button>
             </>
           ) : (
@@ -282,11 +286,6 @@ export function WorkoutProgramDetail({
             )}
           </CardContent>
         )}
-        {isEditing && (
-          <div className="flex justify-end pr-5">
-            <Button>Save changes</Button>
-          </div>
-        )}
       </Card>
 
       <Card>
@@ -333,7 +332,7 @@ export function WorkoutProgramDetail({
                           {getDayName(day as DayOfWeek)}
                         </h3>
                       ) : (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 justify-between items-center">
                           <Input
                             className="w-fit placeholder:text-slate-500"
                             placeholder="Day name"
@@ -357,7 +356,13 @@ export function WorkoutProgramDetail({
                               });
                             }}
                           />
-                          <Button>Save</Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="gap-1"
+                          >
+                            Delete day
+                          </Button>
                         </div>
                       )}
                     </div>
