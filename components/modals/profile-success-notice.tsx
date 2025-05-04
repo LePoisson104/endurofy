@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,16 +12,34 @@ import {
 
 interface ProfileSuccessNoticeProps {
   open: boolean;
+  setOpen?: (open: boolean) => void;
 }
 
 export default function ProfileSuccessNotice({
   open,
+  setOpen,
 }: ProfileSuccessNoticeProps) {
   const [isOpen, setIsOpen] = useState(open);
 
+  useEffect(() => {
+    setIsOpen(open);
+  }, [open]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    if (setOpen) {
+      setOpen(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-[425px] bg-card" closeXButton={true}>
+      <DialogContent
+        className="sm:max-w-[425px] bg-card"
+        closeXButton={true}
+        onEscapeKeyDown={handleClose}
+        onInteractOutside={handleClose}
+      >
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
             Profile Created Successfully!
@@ -46,13 +64,8 @@ export default function ProfileSuccessNotice({
           </div>
 
           <div className="animate-fade-in w-full pt-4">
-            <Button
-              onClick={() => {
-                setIsOpen(false);
-              }}
-              className="w-full"
-            >
-              Dimiss
+            <Button onClick={handleClose} className="w-full">
+              Dismiss
             </Button>
           </div>
         </div>

@@ -32,7 +32,7 @@ import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Loader2 } from "lucide-react";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 interface UsersProfileModalProps {
   isOpen: boolean;
   profileStatus: string;
@@ -66,6 +66,7 @@ export default function UsersProfileModal({
   profileStatus,
   setIsProfileSuccessNoticeOpen,
 }: UsersProfileModalProps) {
+  const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [error, setError] = useState<string | null>(null);
   const [updateUserProfile, { isLoading: isUpdatingProfile }] =
@@ -111,6 +112,8 @@ export default function UsersProfileModal({
           ...formData,
         },
       }).unwrap();
+
+      // Reset form data
       setFormData({
         gender: "",
         birth_date: "",
@@ -126,6 +129,8 @@ export default function UsersProfileModal({
         goal: "",
         profile_status: "",
       });
+
+      // Call the callback to handle state transition
       setIsProfileSuccessNoticeOpen(true);
     } catch (err: any) {
       if (err.status === 400) {
@@ -463,8 +468,18 @@ export default function UsersProfileModal({
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={isUpdatingProfile}
-                className="w-full sm:w-auto"
+                disabled={
+                  isUpdatingProfile ||
+                  formData.weight_goal === 0 ||
+                  formData.starting_weight === 0 ||
+                  formData.current_weight === 0 ||
+                  formData.gender === "" ||
+                  formData.birth_date === "" ||
+                  formData.height === 0 ||
+                  formData.activity_level === "" ||
+                  formData.goal === ""
+                }
+                className={`${isMobile ? "w-full" : "w-[150px]"}`}
               >
                 {isUpdatingProfile ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

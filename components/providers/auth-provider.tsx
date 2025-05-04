@@ -19,24 +19,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const token = useSelector(selectCurrentToken);
   const user = useSelector(selectCurrentUser);
-  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id || "");
   const effectRan = useRef(false);
+
+  const { data: userInfo, refetch } = useGetAllUsersInfoQuery(
+    user?.user_id || ""
+  );
+  const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =
+    useRefreshMutation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
   const [trueSuccess, setTrueSuccess] = useState(false);
-  const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =
-    useRefreshMutation();
+  const [manualProfileClose, setManualProfileClose] = useState(false);
 
   useEffect(() => {
-    if (userInfo?.data?.profile_status === "incomplete") {
+    if (
+      userInfo?.data?.profile_status === "incomplete" &&
+      !manualProfileClose
+    ) {
       setIsOpen(true);
     } else if (userInfo?.data?.profile_status === "complete") {
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 1000);
+      setIsOpen(false);
     }
-  }, [userInfo]);
+  }, [userInfo, manualProfileClose]);
 
   useEffect(() => {
     if (userInfo?.data) {
@@ -74,6 +80,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isError, router]);
 
+  // This function will be passed to the UsersProfileModal to handle the proper state transitions
+  const handleProfileSuccess = () => {
+    setManualProfileClose(true); // Prevent auto-opening based on userInfo
+    setIsOpen(false);
+    setIsProfileSuccessNoticeOpen(true);
+    // Refetch user info to get the updated profile status
+    refetch();
+  };
+
   let content;
   if (!persist) {
     content = children;
@@ -91,14 +106,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           <UsersProfileModal
             isOpen={isOpen}
             profileStatus={userInfo?.data?.profile_status}
-            setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
+            setIsProfileSuccessNoticeOpen={handleProfileSuccess}
           />
         </>
       );
     } else {
       content = (
         <>
-          <ProfileSuccessNotice open={isProfileSuccessNoticeOpen} />
+          <ProfileSuccessNotice
+            open={isProfileSuccessNoticeOpen}
+            setOpen={setIsProfileSuccessNoticeOpen}
+          />
           {children}
         </>
       );
@@ -111,14 +129,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           <UsersProfileModal
             isOpen={isOpen}
             profileStatus={userInfo?.data?.profile_status}
-            setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
+            setIsProfileSuccessNoticeOpen={handleProfileSuccess}
           />
         </>
       );
     } else {
       content = (
         <>
-          <ProfileSuccessNotice open={isProfileSuccessNoticeOpen} />
+          <ProfileSuccessNotice
+            open={isProfileSuccessNoticeOpen}
+            setOpen={setIsProfileSuccessNoticeOpen}
+          />
           {children}
         </>
       );
