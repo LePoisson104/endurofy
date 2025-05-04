@@ -28,6 +28,7 @@ interface WorkoutProgramListProps {
   onSelectProgram: (program: WorkoutProgram) => void;
   onDeleteProgram: (programId: string) => void;
   isLoading: boolean;
+  isDeleting: boolean;
 }
 
 export default function WorkoutProgramList({
@@ -35,6 +36,7 @@ export default function WorkoutProgramList({
   onSelectProgram,
   onDeleteProgram,
   isLoading,
+  isDeleting,
 }: WorkoutProgramListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
@@ -168,6 +170,7 @@ export default function WorkoutProgramList({
         showDeleteDialog={!!programToDelete}
         setShowDeleteDialog={(open) => !open && setProgramToDelete(null)}
         handleDeleteProgram={handleDeleteConfirm}
+        isDeleting={isDeleting}
       />
     </div>
   );

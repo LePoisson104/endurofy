@@ -17,8 +17,10 @@ import ErrorAlert from "../alerts/error-alert";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Loader2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function DeleteAccountModal() {
+  const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -79,7 +81,7 @@ export default function DeleteAccountModal() {
               variant="destructive"
               type="submit"
               disabled={password === "" || isLoading}
-              className="w-[150px]"
+              className={`${isMobile ? "w-full" : "w-[150px]"}`}
             >
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

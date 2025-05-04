@@ -16,7 +16,7 @@ import { useUpdateUsersEmailMutation } from "@/api/user/user-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import VerifyOTPModal from "./verify-otp-modal";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 export default function UpdateEmailModal({
   isOpen,
   setIsOpen,
@@ -24,6 +24,7 @@ export default function UpdateEmailModal({
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
+  const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [password, setPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -109,7 +110,7 @@ export default function UpdateEmailModal({
                   newEmail !== confirmNewEmail ||
                   isUpdatingEmail
                 }
-                className="w-[150px]"
+                className={`${isMobile ? "w-full" : "w-[150px]"}`}
               >
                 {isUpdatingEmail ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

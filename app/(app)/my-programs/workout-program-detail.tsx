@@ -29,6 +29,7 @@ interface WorkoutProgramDetailProps {
   onBack: () => void;
   onUpdate: (program: WorkoutProgram) => void;
   onDelete: (programId: string) => void;
+  isDeleting: boolean;
 }
 
 export function WorkoutProgramDetail({
@@ -36,6 +37,7 @@ export function WorkoutProgramDetail({
   onBack,
   onUpdate,
   onDelete,
+  isDeleting,
 }: WorkoutProgramDetailProps) {
   const allDays = {
     1: "monday",
@@ -386,6 +388,7 @@ export function WorkoutProgramDetail({
         showDeleteDialog={showDeleteDialog}
         setShowDeleteDialog={setShowDeleteDialog}
         handleDeleteProgram={handleDeleteProgram}
+        isDeleting={isDeleting}
       />
     </div>
   );

@@ -178,6 +178,7 @@ export default function MyPrograms() {
                   onBack={handleBackToProgramList}
                   onUpdate={handleUpdateProgram}
                   onDelete={handleDeleteProgram}
+                  isDeleting={isDeleting}
                 />
               ) : (
                 <WorkoutProgramList
@@ -185,6 +186,7 @@ export default function MyPrograms() {
                   onSelectProgram={handleSelectProgram}
                   onDeleteProgram={handleDeleteProgram}
                   isLoading={isLoading}
+                  isDeleting={isDeleting}
                 />
               )}
             </TabsContent>

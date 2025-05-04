@@ -70,7 +70,7 @@ function SortableTableRow({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : undefined,
-    cursor: "grab",
+    cursor: isEditing ? "grab" : "auto",
     touchAction: "none",
   };
 
@@ -109,7 +109,7 @@ function SortableTableRow({
     <TableRow
       ref={setNodeRef}
       style={style}
-      {...attributes}
+      {...(isEditing ? attributes : {})}
       className={isDragging ? "bg-muted/50" : undefined}
     >
       {editingExerciseId === exercise.exerciseId ? (
@@ -246,15 +246,17 @@ function SortableTableRow({
         </>
       ) : (
         <>
-          <TableCell className="w-8">
-            <button
-              {...listeners}
-              className="touch-none cursor-grab active:cursor-grabbing"
-              aria-label="Drag handle"
-            >
-              <GripVertical className="h-4 w-4 text-slate-400" />
-            </button>
-          </TableCell>
+          {isEditing && (
+            <TableCell className="w-8">
+              <button
+                {...listeners}
+                className="touch-none cursor-grab active:cursor-grabbing"
+                aria-label="Drag handle"
+              >
+                <GripVertical className="h-4 w-4 text-slate-400" />
+              </button>
+            </TableCell>
+          )}
           <TableCell>
             <div className="font-medium">{exercise.exerciseName}</div>
           </TableCell>
@@ -301,6 +303,11 @@ export function DaySchedule({
 }: DayScheduleProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Sort exercises by exerciseOrder
+  const sortedExercises = [...exercises].sort(
+    (a, b) => a.exerciseOrder - b.exerciseOrder
+  );
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -327,10 +334,14 @@ export function DaySchedule({
     setActiveId(null);
 
     if (over && active.id !== over.id) {
-      const oldIndex = exercises.findIndex((ex) => ex.exerciseId === active.id);
-      const newIndex = exercises.findIndex((ex) => ex.exerciseId === over.id);
+      const oldIndex = sortedExercises.findIndex(
+        (ex) => ex.exerciseId === active.id
+      );
+      const newIndex = sortedExercises.findIndex(
+        (ex) => ex.exerciseId === over.id
+      );
 
-      const newExercises = arrayMove(exercises, oldIndex, newIndex).map(
+      const newExercises = arrayMove(sortedExercises, oldIndex, newIndex).map(
         (exercise, index) => ({
           ...exercise,
           exerciseOrder: index + 1,
@@ -341,7 +352,7 @@ export function DaySchedule({
     }
   };
 
-  if (exercises.length === 0) {
+  if (sortedExercises.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
         <h3 className="text-lg font-medium">No exercises for this day</h3>
@@ -351,6 +362,46 @@ export function DaySchedule({
             : "There are no exercises scheduled for this day."}
         </p>
       </div>
+    );
+  }
+
+  // Render different tables based on edit mode
+  if (!isEditing) {
+    return (
+      <Card className="p-0">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Exercise</TableHead>
+                <TableHead className="w-[120px] text-center">Sets</TableHead>
+                <TableHead className="w-[120px] text-center">
+                  Rep Range
+                </TableHead>
+                <TableHead className="w-[120px] text-center">
+                  Laterality
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedExercises.map((exercise) => (
+                <TableRow key={exercise.exerciseId}>
+                  <TableCell>
+                    <div className="font-medium">{exercise.exerciseName}</div>
+                  </TableCell>
+                  <TableCell className="text-center">{exercise.sets}</TableCell>
+                  <TableCell className="text-center">
+                    {exercise.minReps} - {exercise.maxReps}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {exercise.laterality}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -375,19 +426,17 @@ export function DaySchedule({
                 <TableHead className="w-[120px] text-center">
                   Laterality
                 </TableHead>
-                {isEditing && (
-                  <TableHead className="w-[120px] text-right pr-4.5">
-                    Actions
-                  </TableHead>
-                )}
+                <TableHead className="w-[120px] text-right pr-4.5">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <SortableContext
-                items={exercises.map((ex) => ex.exerciseId)}
+                items={sortedExercises.map((ex) => ex.exerciseId)}
                 strategy={verticalListSortingStrategy}
               >
-                {exercises.map((exercise) => (
+                {sortedExercises.map((exercise) => (
                   <SortableTableRow
                     key={exercise.exerciseId}
                     exercise={exercise}

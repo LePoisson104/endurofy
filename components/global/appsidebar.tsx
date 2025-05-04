@@ -273,7 +273,23 @@ function UserProfileMenu() {
   const { setTheme, theme } = useTheme();
   const isMobile = useIsMobile();
   const [logout] = useLogoutMutation();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { open, openMobile, setOpenMobile } = useSidebar();
 
+  const handleCloseSidebarOnMobile = () => {
+    if (isMobile && openMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  const handleCreateProgramClick = () => {
+    handleCloseSidebarOnMobile();
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", "create-program");
+    params.delete("programId");
+    router.replace(`/my-programs?${params.toString()}`);
+  };
   // Handle click outside to close the menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -357,7 +373,10 @@ function UserProfileMenu() {
               className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
                 pathname === "/profile" ? "bg-accent" : ""
               }`}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                handleCloseSidebarOnMobile();
+              }}
             >
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
@@ -367,7 +386,10 @@ function UserProfileMenu() {
               className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
                 pathname === "/settings" ? "bg-accent" : ""
               }`}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                handleCloseSidebarOnMobile();
+              }}
             >
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
