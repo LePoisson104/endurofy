@@ -103,7 +103,7 @@ export function ExerciseForm({
             value={bodyPart}
             onValueChange={(value) => setBodyPart(value)}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full text-sm">
               <SelectValue placeholder="Select body part" />
             </SelectTrigger>
             <SelectContent>

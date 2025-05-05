@@ -138,7 +138,7 @@ function SortableTableRow({
                     exerciseName: e.target.value,
                   })
                 }
-                className="w-full"
+                className="w-full text-sm"
               />
             </div>
           </TableCell>

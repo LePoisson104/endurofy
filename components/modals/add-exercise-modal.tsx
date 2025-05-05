@@ -3,18 +3,18 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ExerciseForm } from "@/app/(app)/my-programs/exercise-form";
-import { Button } from "../ui/button";
 
-export default function AddExerciseModal() {
+export default function AddExerciseModal({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="mt-4 w-fit">Add Exercise</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-card">
         <DialogHeader className="mb-4">
           <DialogTitle>Add Exercise</DialogTitle>

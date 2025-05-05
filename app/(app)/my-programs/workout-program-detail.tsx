@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Edit, Trash2, X, Save } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  X,
+  EllipsisVertical,
+  Plus,
+} from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
@@ -23,7 +30,14 @@ import type {
   Exercise,
 } from "../../../interfaces/workout-program-interfaces";
 import AddExerciseModal from "@/components/modals/add-exercise-modal";
-
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+import AddExerciseWarning from "@/components/dialog/add-exercise-warning";
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
   onBack: () => void;
@@ -39,6 +53,7 @@ export function WorkoutProgramDetail({
   onDelete,
   isDeleting,
 }: WorkoutProgramDetailProps) {
+  const isMobile = useIsMobile();
   const allDays = {
     1: "monday",
     2: "tuesday",
@@ -51,6 +66,9 @@ export function WorkoutProgramDetail({
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [showAddExerciseWarning, setShowAddExerciseWarning] = useState(false);
+  const [context, setContext] = useState("");
   const [activeDay, setActiveDay] = useState<DayOfWeek | null>(
     program.workoutDays.length > 0
       ? (allDays[
@@ -201,11 +219,7 @@ export function WorkoutProgramDetail({
                 className="gap-1"
               >
                 <X className="h-4 w-4" />
-                Cancel
-              </Button>
-              <Button size="sm" className="gap-1">
-                <Save className="h-4 w-4" />
-                Save
+                Close
               </Button>
             </>
           ) : (
@@ -222,7 +236,10 @@ export function WorkoutProgramDetail({
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => setShowDeleteDialog(true)}
+                onClick={() => {
+                  setContext("Program");
+                  setShowDeleteDialog(true);
+                }}
                 className="gap-1"
               >
                 <Trash2 className="h-4 w-4" />
@@ -248,6 +265,7 @@ export function WorkoutProgramDetail({
                       programName: e.target.value,
                     })
                   }
+                  className="text-sm"
                 />
               </div>
             ) : (
@@ -265,13 +283,18 @@ export function WorkoutProgramDetail({
                       description: e.target.value || undefined,
                     })
                   }
-                  className="min-h-[100px]"
+                  className="min-h-[100px] text-sm"
                 />
               </div>
             ) : (
               <CardDescription>{program.description || ""}</CardDescription>
             )}
           </div>
+          {isEditing && (
+            <div className="flex justify-end mt-3">
+              <Button size="sm">Save Changes</Button>
+            </div>
+          )}
         </CardHeader>
         {!isEditing && (
           <CardContent>
@@ -333,36 +356,101 @@ export function WorkoutProgramDetail({
                         </h3>
                       ) : (
                         <div className="flex gap-2 justify-between items-center">
-                          <Input
-                            className="w-fit placeholder:text-slate-500"
-                            placeholder="Day name"
-                            value={getDayName(day as DayOfWeek)}
-                            onChange={(e) => {
-                              const updatedDays = editedProgram.workoutDays.map(
-                                (d) => {
-                                  if (
-                                    allDays[
-                                      d.dayNumber as keyof typeof allDays
-                                    ] === day
-                                  ) {
-                                    return { ...d, dayName: e.target.value };
-                                  }
-                                  return d;
-                                }
-                              );
-                              setEditedProgram({
-                                ...editedProgram,
-                                workoutDays: updatedDays,
-                              });
-                            }}
-                          />
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="gap-1"
-                          >
-                            Delete day
-                          </Button>
+                          <div className="flex gap-2 items-center w-3/4">
+                            <Input
+                              className="w-fit placeholder:text-slate-500 text-sm"
+                              placeholder="Day name"
+                              value={getDayName(day as DayOfWeek)}
+                              onChange={(e) => {
+                                const updatedDays =
+                                  editedProgram.workoutDays.map((d) => {
+                                    if (
+                                      allDays[
+                                        d.dayNumber as keyof typeof allDays
+                                      ] === day
+                                    ) {
+                                      return { ...d, dayName: e.target.value };
+                                    }
+                                    return d;
+                                  });
+                                setEditedProgram({
+                                  ...editedProgram,
+                                  workoutDays: updatedDays,
+                                });
+                              }}
+                            />
+                            <Button size="sm" className="gap-1">
+                              Save
+                            </Button>
+                          </div>
+
+                          <div>
+                            {!isMobile ? (
+                              <>
+                                {getDayName(day as DayOfWeek) !== "" && (
+                                  <Button
+                                    variant={"destructive"}
+                                    className="mr-2"
+                                    onClick={() => {
+                                      setContext("Program Day");
+                                      setShowDeleteDialog(true);
+                                    }}
+                                  >
+                                    Delete Day
+                                  </Button>
+                                )}
+                                <Button
+                                  onClick={() => {
+                                    if (getDayName(day as DayOfWeek) === "") {
+                                      setShowAddExerciseWarning(true);
+                                    } else {
+                                      setIsOpen(true);
+                                    }
+                                  }}
+                                >
+                                  Add Exercise
+                                </Button>
+                              </>
+                            ) : (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <EllipsisVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="center"
+                                  side="right"
+                                >
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      if (getDayName(day as DayOfWeek) === "") {
+                                        setShowAddExerciseWarning(true);
+                                      } else {
+                                        setIsOpen(true);
+                                      }
+                                    }}
+                                  >
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    Add Exercise
+                                  </DropdownMenuItem>
+                                  {getDayName(day as DayOfWeek) !== "" && (
+                                    <DropdownMenuItem
+                                      variant={"destructive"}
+                                      className="text-red-500"
+                                      onClick={() => {
+                                        setContext("Program Day");
+                                        setShowDeleteDialog(true);
+                                      }}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-1" />
+                                      Delete Day
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -376,12 +464,6 @@ export function WorkoutProgramDetail({
                       }
                       isEditing={isEditing}
                     />
-
-                    {isEditing && (
-                      <div className="flex justify-end">
-                        <AddExerciseModal />
-                      </div>
-                    )}
                   </>
                 )}
               </TabsContent>
@@ -392,8 +474,14 @@ export function WorkoutProgramDetail({
       <DeleteProgramDialog
         showDeleteDialog={showDeleteDialog}
         setShowDeleteDialog={setShowDeleteDialog}
-        handleDeleteProgram={handleDeleteProgram}
+        handleDelete={handleDeleteProgram}
         isDeleting={isDeleting}
+        context={context}
+      />
+      <AddExerciseModal isOpen={isOpen} setIsOpen={setIsOpen} />
+      <AddExerciseWarning
+        showAddExerciseWarning={showAddExerciseWarning}
+        setShowAddExerciseWarning={setShowAddExerciseWarning}
       />
     </div>
   );

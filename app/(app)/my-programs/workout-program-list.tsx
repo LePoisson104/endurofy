@@ -82,19 +82,6 @@ export default function WorkoutProgramList({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
-          <Input
-            type="search"
-            placeholder="Search programs..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
-
       {filteredPrograms.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
           <h3 className="text-lg font-medium">No workout programs found</h3>
@@ -169,8 +156,9 @@ export default function WorkoutProgramList({
       <DeleteProgramDialog
         showDeleteDialog={!!programToDelete}
         setShowDeleteDialog={(open) => !open && setProgramToDelete(null)}
-        handleDeleteProgram={handleDeleteConfirm}
+        handleDelete={handleDeleteConfirm}
         isDeleting={isDeleting}
+        context="program"
       />
     </div>
   );

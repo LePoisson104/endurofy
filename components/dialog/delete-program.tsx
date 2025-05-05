@@ -14,13 +14,15 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export default function DeleteProgramDialog({
   showDeleteDialog,
   setShowDeleteDialog,
-  handleDeleteProgram,
+  handleDelete,
   isDeleting,
+  context,
 }: {
   showDeleteDialog: boolean;
   setShowDeleteDialog: (show: boolean) => void;
-  handleDeleteProgram: () => void;
+  handleDelete: () => void;
   isDeleting: boolean;
+  context: string;
 }) {
   const isMobile = useIsMobile();
 
@@ -28,19 +30,19 @@ export default function DeleteProgramDialog({
     <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
       <AlertDialogContent className="bg-card">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Workout Program</AlertDialogTitle>
+          <AlertDialogTitle>Delete Workout {context}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this workout program? This action
+            Are you sure you want to delete this workout {context}? This action
             cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogFooter className="flex flex-row justify-between gap-2">
+          <AlertDialogCancel className="w-1/2">Cancel</AlertDialogCancel>
           <Button
-            onClick={handleDeleteProgram}
+            onClick={handleDelete}
             variant="destructive"
             disabled={isDeleting}
-            className={`${isMobile ? "w-full" : "w-[100px]"}`}
+            className={`${isMobile ? "w-full" : "w-[100px]"} w-1/2`}
           >
             {isDeleting ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
