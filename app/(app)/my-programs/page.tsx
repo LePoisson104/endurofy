@@ -66,6 +66,8 @@ export default function MyPrograms() {
       if (program) {
         setSelectedProgram(program);
       }
+    } else {
+      setSelectedProgram(null);
     }
   }, [programIdParam, workoutPrograms]);
 

@@ -9,8 +9,10 @@ import { setCredentials } from "./auth/auth-slice";
 import { User } from "@/interfaces/user-interfaces";
 
 interface RefreshResponse {
-  user: User;
-  accessToken: string;
+  data: {
+    user: User;
+    accessToken: string;
+  };
 }
 
 const baseQuery = fetchBaseQuery({
@@ -31,14 +33,18 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   if (result?.error?.status === 403) {
     console.log("sending refresh token");
 
-    const refreshResult = await baseQuery("/auth/refresh", api, extraOptions);
+    const refreshResult = await baseQuery(
+      "/api/v1/auth/refresh",
+      api,
+      extraOptions
+    );
 
     if (refreshResult?.data) {
       const refreshData = refreshResult.data as RefreshResponse;
       api.dispatch(
         setCredentials({
-          user: refreshData.user,
-          accessToken: refreshData.accessToken,
+          user: refreshData.data.user,
+          accessToken: refreshData.data.accessToken,
         })
       );
 

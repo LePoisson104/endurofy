@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Calendar, MoreHorizontal } from "lucide-react";
+import { Calendar, MoreHorizontal } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

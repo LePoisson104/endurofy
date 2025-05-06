@@ -38,6 +38,10 @@ import {
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AddExerciseWarning from "@/components/dialog/add-exercise-warning";
+import { useDeleteWorkoutProgramDayMutation } from "@/api/workout-program/workout-program-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
+import SuccessAlert from "@/components/alerts/success-alert";
+
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
   onBack: () => void;
@@ -63,7 +67,8 @@ export function WorkoutProgramDetail({
     6: "saturday",
     7: "sunday",
   };
-
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -80,6 +85,9 @@ export function WorkoutProgramDetail({
   const [editedProgram, setEditedProgram] = useState<WorkoutProgram>({
     ...program,
   });
+
+  const [deleteWorkoutProgramDay, { isLoading: isDeletingDay }] =
+    useDeleteWorkoutProgramDayMutation();
 
   // Format created date
   const formatCreatedDate = (dateString: string) => {
@@ -183,6 +191,32 @@ export function WorkoutProgramDetail({
     setShowDeleteDialog(false);
   };
 
+  // Handle deleting a program day
+  const handleDeleteProgramDay = async () => {
+    try {
+      await deleteWorkoutProgramDay({
+        programId: program.programId,
+        dayId: getDayId(activeDay as DayOfWeek),
+      });
+      setSuccess("Day deleted successfully");
+    } catch (error: any) {
+      if (error.data.message) {
+        setError(error.data.message);
+      }
+    } finally {
+      setShowDeleteDialog(false);
+    }
+  };
+
+  // Handle delete action based on context
+  const handleDelete = () => {
+    if (context === "Program") {
+      handleDeleteProgram();
+    } else if (context === "Program Day") {
+      handleDeleteProgramDay();
+    }
+  };
+
   // Get exercises for the active day
   const getExercisesForActiveDay = () => {
     if (!activeDay) return [];
@@ -202,8 +236,18 @@ export function WorkoutProgramDetail({
     return activeWorkoutDay ? activeWorkoutDay.dayName : "";
   };
 
+  const getDayId = (day: DayOfWeek) => {
+    if (!activeDay) return "";
+    const activeWorkoutDay = editedProgram.workoutDays.find((d) => {
+      return allDays[d?.dayNumber as keyof typeof allDays] === day;
+    });
+    return activeWorkoutDay ? activeWorkoutDay.dayId : "";
+  };
+
   return (
     <div className="space-y-6">
+      <ErrorAlert error={error} setError={setError} />
+      <SuccessAlert success={success} setSuccess={setSuccess} />
       <div className="flex justify-between">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
           <ArrowLeft className="h-4 w-4" />
@@ -474,11 +518,15 @@ export function WorkoutProgramDetail({
       <DeleteProgramDialog
         showDeleteDialog={showDeleteDialog}
         setShowDeleteDialog={setShowDeleteDialog}
-        handleDelete={handleDeleteProgram}
-        isDeleting={isDeleting}
+        handleDelete={handleDelete}
+        isDeleting={isDeleting || isDeletingDay}
         context={context}
       />
-      <AddExerciseModal isOpen={isOpen} setIsOpen={setIsOpen} />
+      <AddExerciseModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        onAddExercise={handleAddExercise}
+      />
       <AddExerciseWarning
         showAddExerciseWarning={showAddExerciseWarning}
         setShowAddExerciseWarning={setShowAddExerciseWarning}
