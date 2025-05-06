@@ -1,53 +1,41 @@
-import { apiSlice } from "../api-slice";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
+import { RootState } from "@/lib/store";
 
-export const workoutProgramApiSlice = apiSlice.injectEndpoints({
-  endpoints: (builder) => ({
-    getWorkoutProgram: builder.query({
-      query: ({ userId }) => ({
-        url: `/api/v1/workout-program/get-workout-program/${userId}`,
-        method: "GET",
-      }),
-      providesTags: (result, error, { userId }) => [
-        { type: "WorkoutProgram", id: `${userId}` },
-        { type: "WorkoutProgram", id: "LIST" },
-      ],
-    }),
-    createWorkoutProgram: builder.mutation({
-      query: ({ userId, workoutProgram }) => ({
-        url: `/api/v1/workout-program/create-workout-program/${userId}`,
-        method: "POST",
-        body: workoutProgram,
-      }),
-      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
-    }),
-    deleteWorkoutProgram: builder.mutation({
-      query: ({ userId, programId }) => ({
-        url: `/api/v1/workout-program/delete-workout-program/${userId}/${programId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
-    }),
-    deleteWorkoutProgramDay: builder.mutation({
-      query: ({ programId, dayId }) => ({
-        url: `/api/v1/workout-program/delete-workout-program-day/${programId}/${dayId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
-    }),
-    deleteWorkoutProgramExercise: builder.mutation({
-      query: ({ dayId, exerciseId }) => ({
-        url: `/api/v1/workout-program/delete-workout-program-exercise/${dayId}/${exerciseId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
-    }),
-  }),
+interface WorkoutProgramState {
+  workoutProgram: WorkoutProgram[] | null;
+  isLoading: boolean;
+}
+
+const initialState: WorkoutProgramState = {
+  workoutProgram: null,
+  isLoading: true,
+};
+
+const workoutProgramSlice = createSlice({
+  name: "workoutProgram",
+  initialState,
+  reducers: {
+    setWorkoutProgram: (
+      state,
+      action: PayloadAction<WorkoutProgram[] | null>
+    ) => {
+      state.workoutProgram = action.payload;
+    },
+    setIsLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
+    resetWorkoutProgram: (state) => {
+      state.workoutProgram = initialState.workoutProgram;
+      state.isLoading = initialState.isLoading;
+    },
+  },
 });
 
-export const {
-  useGetWorkoutProgramQuery,
-  useCreateWorkoutProgramMutation,
-  useDeleteWorkoutProgramMutation,
-  useDeleteWorkoutProgramDayMutation,
-  useDeleteWorkoutProgramExerciseMutation,
-} = workoutProgramApiSlice;
+export const { setWorkoutProgram, setIsLoading, resetWorkoutProgram } =
+  workoutProgramSlice.actions;
+export const selectWorkoutProgram = (state: RootState) =>
+  state.workoutProgram.workoutProgram;
+export const selectIsLoading = (state: RootState) =>
+  state.workoutProgram.isLoading;
+export default workoutProgramSlice.reducer;

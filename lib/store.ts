@@ -3,12 +3,13 @@ import { apiSlice } from "../api/api-slice";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import authReducer from "../api/auth/auth-slice";
 import userReducer from "../api/user/user-slice";
-
+import workoutProgramReducer from "../api/workout-program/workout-program-slice";
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: authReducer,
     user: userReducer,
+    workoutProgram: workoutProgramReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

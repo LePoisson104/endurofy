@@ -39,11 +39,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "next-themes";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
-import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
-import { useGetWorkoutProgramQuery } from "@/api/workout-program/workout-program-slice";
+import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
+import { selectUserInfo } from "@/api/user/user-slice";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -51,11 +50,8 @@ export function AppSidebar() {
   const router = useRouter();
   const { open, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
-  const user = useSelector(selectCurrentUser);
-  const { data: workoutPrograms, isLoading } = useGetWorkoutProgramQuery({
-    userId: user?.user_id,
-  });
-
+  const workoutPrograms = useSelector(selectWorkoutProgram);
+  console.log(workoutPrograms);
   const handleCloseSidebarOnMobile = () => {
     if (isMobile && openMobile) {
       setOpenMobile(false);
@@ -177,9 +173,11 @@ export function AppSidebar() {
 
           <SidebarGroup>
             <SidebarGroupLabel className="flex justify-between items-center">
-              <span>
-                My Programs ({workoutPrograms?.data?.programs?.length}/3)
-              </span>
+              {workoutPrograms ? (
+                <span>My Programs ({workoutPrograms.length}/3)</span>
+              ) : (
+                <Skeleton className="h-4 w-30" />
+              )}
               <Link
                 href="/my-programs"
                 className="text-xs text-primary hover:underline"
@@ -190,37 +188,43 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {workoutPrograms?.data?.programs?.map((program: any) => (
-                  <SidebarMenuItem
-                    key={program.programId}
-                    onClick={handleCloseSidebarOnMobile}
-                  >
-                    <SidebarMenuButton
-                      asChild
-                      isActive={
-                        pathname ===
-                        `/my-programs?programId=${program.programId}`
-                      }
-                      tooltip={program.programName}
+                {workoutPrograms ? (
+                  workoutPrograms.map((program: any) => (
+                    <SidebarMenuItem
+                      key={program.programId}
+                      onClick={handleCloseSidebarOnMobile}
                     >
-                      <Link
-                        href={`/my-programs?programId=${program.programId}`}
-                        className="truncate"
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          pathname ===
+                          `/my-programs?programId=${program.programId}`
+                        }
+                        tooltip={program.programName}
                       >
-                        <ListTodo />
-                        <span className="truncate">{program.programName}</span>
-                        {program.isActive && (
-                          <Badge
-                            variant="outline"
-                            className="ml-auto text-[10px] h-5 shrink-0"
-                          >
-                            Active
-                          </Badge>
-                        )}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                        <Link
+                          href={`/my-programs?programId=${program.programId}`}
+                          className="truncate"
+                        >
+                          <ListTodo />
+                          <span className="truncate">
+                            {program.programName}
+                          </span>
+                          {program.isActive && (
+                            <Badge
+                              variant="outline"
+                              className="ml-auto text-[10px] h-5 shrink-0"
+                            >
+                              Active
+                            </Badge>
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                ) : (
+                  <Skeleton className="h-15 w-full" />
+                )}
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
@@ -263,8 +267,7 @@ export function AppSidebar() {
 
 function UserProfileMenu() {
   const pathname = usePathname();
-  const user = useSelector(selectCurrentUser);
-  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id || "");
+  const userInfo = useSelector(selectUserInfo);
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isOpen, setIsOpen] = useState(false);
@@ -275,7 +278,7 @@ function UserProfileMenu() {
   const [logout] = useLogoutMutation();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { open, openMobile, setOpenMobile } = useSidebar();
+  const { openMobile, setOpenMobile } = useSidebar();
 
   const handleCloseSidebarOnMobile = () => {
     if (isMobile && openMobile) {
@@ -315,7 +318,7 @@ function UserProfileMenu() {
   return (
     <>
       <div ref={buttonRef} className="relative">
-        {userInfo ? (
+        {userInfo.email !== "" ? (
           <SidebarMenuButton
             size="lg"
             tooltip="Account"
@@ -330,16 +333,16 @@ function UserProfileMenu() {
               >
                 <AvatarImage src="#" alt="User" />
                 <AvatarFallback className="bg-[#FE9496] text-white">
-                  {userInfo?.data?.first_name?.charAt(0)}
-                  {userInfo?.data?.last_name?.charAt(0)}
+                  {userInfo?.first_name?.charAt(0)}
+                  {userInfo?.last_name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col min-w-0">
                 <span className="font-medium truncate">
-                  {userInfo?.data?.first_name} {userInfo?.data?.last_name}
+                  {userInfo?.first_name} {userInfo?.last_name}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
-                  {userInfo?.data?.email}
+                  {userInfo?.email}
                 </span>
               </div>
             </div>

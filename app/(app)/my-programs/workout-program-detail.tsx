@@ -38,7 +38,7 @@ import {
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AddExerciseWarning from "@/components/dialog/add-exercise-warning";
-import { useDeleteWorkoutProgramDayMutation } from "@/api/workout-program/workout-program-slice";
+import { useDeleteWorkoutProgramDayMutation } from "@/api/workout-program/workout-program-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 

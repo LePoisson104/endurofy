@@ -13,13 +13,17 @@ import {
   useGetWorkoutProgramQuery,
   useCreateWorkoutProgramMutation,
   useDeleteWorkoutProgramMutation,
-} from "@/api/workout-program/workout-program-slice";
+} from "@/api/workout-program/workout-program-api-slice";
 import type {
   WorkoutProgram,
   CreateWorkoutProgram,
 } from "../../../interfaces/workout-program-interfaces";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
+import {
+  selectWorkoutProgram,
+  selectIsLoading,
+} from "@/api/workout-program/workout-program-slice";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
@@ -27,9 +31,12 @@ export default function MyPrograms() {
   const defaultTab = searchParams.get("tab") || "my-programs";
   const programIdParam = searchParams.get("programId");
   const user = useSelector(selectCurrentUser);
-  const { data: programs, isLoading } = useGetWorkoutProgramQuery({
-    userId: user?.user_id,
-  });
+
+  const programs = useSelector(selectWorkoutProgram);
+  const isWorkoutProgramLoading = useSelector(selectIsLoading);
+
+  // Track if this is an initial load to prevent flickering
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const [createWorkoutProgram, { isLoading: isCreating }] =
     useCreateWorkoutProgramMutation();
@@ -53,7 +60,7 @@ export default function MyPrograms() {
 
   useEffect(() => {
     if (programs) {
-      setWorkoutPrograms(programs.data.programs);
+      setWorkoutPrograms(programs);
     }
   }, [programs]);
 
@@ -70,6 +77,16 @@ export default function MyPrograms() {
       setSelectedProgram(null);
     }
   }, [programIdParam, workoutPrograms]);
+
+  // Set initial load to false once data is available
+  useEffect(() => {
+    if (
+      (programs && programs.length > 0) ||
+      (!isWorkoutProgramLoading && !initialLoad)
+    ) {
+      setInitialLoad(false);
+    }
+  }, [programs, isWorkoutProgramLoading, initialLoad]);
 
   // Update URL when tab changes
   const handleTabChange = (value: string) => {
@@ -187,7 +204,7 @@ export default function MyPrograms() {
                   programs={workoutPrograms}
                   onSelectProgram={handleSelectProgram}
                   onDeleteProgram={handleDeleteProgram}
-                  isLoading={isLoading}
+                  isLoading={isWorkoutProgramLoading || initialLoad}
                   isDeleting={isDeleting}
                 />
               )}

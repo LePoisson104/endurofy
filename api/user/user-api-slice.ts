@@ -22,12 +22,12 @@ interface verifyUpdateEmailRequest {
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllUsersInfo: builder.query({
-      query: (userId) => ({
+      query: ({ userId }) => ({
         url: `/api/v1/users/${userId}`,
         method: "GET",
       }),
-      providesTags: (result, error, userId) =>
-        result ? [{ type: "User", id: userId }] : [],
+      providesTags: (result, error, arg) =>
+        result ? [{ type: "User", id: arg.userId }] : [],
     }),
     updateUsersName: builder.mutation({
       query: ({ userId, payload }) => ({

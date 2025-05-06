@@ -21,7 +21,6 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import UpdateEmailModal from "@/components/modals/update-email-modal";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertDateFormat } from "@/helper/convert-date-format";
@@ -34,16 +33,17 @@ import { Loader2 } from "lucide-react";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import VerifyOTPModal from "@/components/modals/verify-otp-modal";
+import { selectUserInfo } from "@/api/user/user-slice";
 
 export function AccountSettings() {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
+  const userInfo = useSelector(selectUserInfo);
 
-  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id);
   const [updateFirstName, setUpdateFirstName] = useState("");
   const [updateLastName, setUpdateLastName] = useState("");
-  const lastUpdated = convertDateFormat(userInfo?.data?.user_updated_at);
+  const lastUpdated = convertDateFormat(userInfo?.user_updated_at || "");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -57,8 +57,8 @@ export function AccountSettings() {
     useUpdateUsersPasswordMutation();
 
   useEffect(() => {
-    setUpdateFirstName(userInfo?.data?.first_name || "");
-    setUpdateLastName(userInfo?.data?.last_name || "");
+    setUpdateFirstName(userInfo?.first_name || "");
+    setUpdateLastName(userInfo?.last_name || "");
   }, [userInfo]);
 
   const handleUpdateName = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -95,7 +95,7 @@ export function AccountSettings() {
       await updateUsersPassword({
         userId: user?.user_id,
         payload: {
-          email: userInfo?.data?.email,
+          email: userInfo?.email,
           password: password,
           newPassword: newPassword,
         },
@@ -119,7 +119,7 @@ export function AccountSettings() {
     <div className=" flex flex-col gap-[1rem]">
       <ErrorAlert error={errMsg} setError={setErrMsg} />
       <SuccessAlert success={successMsg} setSuccess={setSuccessMsg} />
-      {userInfo ? (
+      {userInfo.email !== "" ? (
         <>
           <div className="mb-4">
             <PageTitle
@@ -163,8 +163,8 @@ export function AccountSettings() {
                     isUpdatingName ||
                     !updateFirstName ||
                     !updateLastName ||
-                    (updateFirstName === userInfo?.data?.first_name &&
-                      updateLastName === userInfo?.data?.last_name)
+                    (updateFirstName === userInfo?.first_name &&
+                      updateLastName === userInfo?.last_name)
                   }
                   className="w-[120px]"
                 >
@@ -180,7 +180,7 @@ export function AccountSettings() {
           {/* change email card */}
           <Card>
             <VerifyOTPModal
-              pendingEmail={userInfo?.data?.pending_email}
+              pendingEmail={userInfo?.pending_email || ""}
               userId={user?.user_id || ""}
               isOpen={showVerifyModal}
               setIsOpen={setShowVerifyModal}
@@ -199,7 +199,7 @@ export function AccountSettings() {
             <CardContent>
               <div className="space-y-4">
                 <Input
-                  placeholder={userInfo?.data?.email}
+                  placeholder={userInfo?.email}
                   disabled
                   className={
                     isDark
@@ -207,7 +207,7 @@ export function AccountSettings() {
                       : "placeholder:text-black"
                   }
                 />
-                {userInfo?.data?.pending_email ? (
+                {userInfo?.pending_email ? (
                   <Button
                     variant="default"
                     onClick={() => setShowVerifyModal(true)}

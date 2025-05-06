@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { useSelector } from "react-redux";
-import { selectWeightStates } from "@/api/user/user-slice";
+import { selectUserInfo } from "@/api/user/user-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
@@ -46,7 +46,7 @@ export default function WeightForm({
 }) {
   const isDark = useGetCurrentTheme();
   const breakpoint = useBreakpoint();
-  const weightStates = useSelector(selectWeightStates);
+  const userInfo = useSelector(selectUserInfo);
   const user = useSelector(selectCurrentUser);
 
   const [calendarDate, setCalendarDate] = useState<Date>();
@@ -122,7 +122,7 @@ export default function WeightForm({
           weightLogPayload: {
             ...submitData,
             logDate: format(submitData.logDate, "yyyy-MM-dd"),
-            weightUnit: weightStates.current_weight_unit,
+            weightUnit: userInfo?.current_weight_unit,
           },
         }).unwrap();
         setSuccess("Weight log created successfully");
@@ -182,7 +182,7 @@ export default function WeightForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="weight" className="text-sm">
-          Weight ({weightStates.current_weight_unit === "lb" ? "lbs" : "kg"})
+          Weight ({userInfo?.current_weight_unit === "lb" ? "lbs" : "kg"})
         </Label>
         <Input
           id="weight"

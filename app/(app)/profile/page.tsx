@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import BMIIndicator from "@/components/global/bmi-indicator";
-import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { getActivityMultiplier } from "@/helper/constants/activity-level-contants";
@@ -42,17 +41,16 @@ import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
-import { selectWeightStates } from "@/api/user/user-slice";
+import { selectUserInfo } from "@/api/user/user-slice";
 import UpdateWeightUnitNotice from "@/components/modals/update-weight-unit-notice";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
-  const weightStates = useSelector(selectWeightStates);
+  const userInfo = useSelector(selectUserInfo);
 
-  const { data: userInfo } = useGetAllUsersInfoQuery(user?.user_id);
   const age =
     new Date().getFullYear() -
-    new Date(userInfo?.data?.birth_date).getFullYear();
+    new Date(userInfo?.birth_date || "").getFullYear();
   const [updateUserProfile, { isLoading: isUpdatingProfile }] =
     useUpdateUsersProfileMutation();
 
@@ -67,15 +65,15 @@ export default function ProfilePage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [userHeight, setUserHeight] = useState("");
   const lastUpdated = convertDateFormat(
-    userInfo?.data?.user_profile_updated_at
+    userInfo?.user_profile_updated_at || ""
   );
   // Run calculations when `profile` or `weightHistoryData` changes
   useEffect(() => {
     if (!userInfo) return;
 
     const heightInFeetAndMeters = getHeightInFeetAndMeters(
-      userInfo?.data?.height,
-      userInfo?.data?.height_unit
+      userInfo?.height || 0,
+      userInfo?.height_unit || ""
     );
     setUserHeight(heightInFeetAndMeters || "");
   }, [userInfo]);
@@ -83,19 +81,19 @@ export default function ProfilePage() {
   useEffect(() => {
     if (userInfo) {
       setEditedProfile({
-        current_weight: userInfo.data.current_weight,
-        current_weight_unit: userInfo.data.current_weight_unit,
-        gender: userInfo.data.gender,
-        birth_date: userInfo.data.birth_date?.split("T")[0],
-        height: userInfo.data.height,
-        height_unit: userInfo.data.height_unit,
-        starting_weight: userInfo.data.starting_weight,
-        starting_weight_unit: userInfo.data.starting_weight_unit,
-        activity_level: userInfo.data.activity_level,
-        weight_goal: userInfo.data.weight_goal,
-        weight_goal_unit: userInfo.data.weight_goal_unit,
-        goal: userInfo.data.goal,
-        profile_status: userInfo.data.profile_status,
+        current_weight: userInfo?.current_weight || 0,
+        current_weight_unit: userInfo?.current_weight_unit || "",
+        gender: userInfo?.gender || "",
+        birth_date: userInfo?.birth_date?.split("T")[0] || "",
+        height: userInfo?.height || 0,
+        height_unit: userInfo?.height_unit || "",
+        starting_weight: userInfo?.starting_weight || 0,
+        starting_weight_unit: userInfo?.starting_weight_unit || "",
+        activity_level: userInfo?.activity_level || "",
+        weight_goal: userInfo?.weight_goal || 0,
+        weight_goal_unit: userInfo?.weight_goal_unit || "",
+        goal: userInfo?.goal || "",
+        profile_status: userInfo?.profile_status || "",
       });
     }
   }, [userInfo, isEditing]);
@@ -104,10 +102,10 @@ export default function ProfilePage() {
   const calculateTDEE = useCallback(
     (bmr: number) => {
       return Math.round(
-        bmr * getActivityMultiplier(userInfo?.data?.activity_level || "")
+        bmr * getActivityMultiplier(userInfo?.activity_level || "")
       );
     },
-    [userInfo?.data?.activity_level]
+    [userInfo?.activity_level]
   );
 
   const calculateBMR = useCallback(
@@ -166,9 +164,7 @@ export default function ProfilePage() {
       return;
     }
 
-    if (
-      editedProfile?.current_weight_unit !== userInfo?.data?.current_weight_unit
-    ) {
+    if (editedProfile?.current_weight_unit !== userInfo?.current_weight_unit) {
       setIsUpdateWeightUnitNoticeOpen(true);
       return;
     }
@@ -206,7 +202,7 @@ export default function ProfilePage() {
       />
       <ErrorAlert error={errMsg} setError={setErrMsg} />
       <SuccessAlert success={successMsg} setSuccess={setSuccessMsg} />
-      {userInfo && userInfo?.data?.profile_status === "complete" ? (
+      {userInfo && userInfo?.profile_status === "complete" ? (
         <div className="flex flex-col gap-6">
           {/* Profile Header */}
           <Card>
@@ -214,11 +210,11 @@ export default function ProfilePage() {
               <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <Avatar className="h-24 w-24 md:h-32 md:w-32 border-2 border-muted">
                   <AvatarFallback className="text-2xl font-bold bg-red-300 text-white">
-                    {userInfo?.data?.first_name
+                    {userInfo?.first_name
                       .split(" ")
                       .map((n: string) => n[0])
                       .join("")}
-                    {userInfo?.data?.last_name
+                    {userInfo?.last_name
                       .split(" ")
                       .map((n: string) => n[0])
                       .join("")}
@@ -227,17 +223,15 @@ export default function ProfilePage() {
 
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-2xl font-bold">
-                    {userInfo?.data?.first_name} {userInfo?.data?.last_name}
+                    {userInfo?.first_name} {userInfo?.last_name}
                   </h1>
-                  <p className="text-muted-foreground">
-                    {userInfo?.data?.email}
-                  </p>
+                  <p className="text-muted-foreground">{userInfo?.email}</p>
 
                   <div className="mt-4 flex flex-wrap gap-3 justify-center md:justify-start">
                     <div className="flex items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
                       <User className="h-3.5 w-3.5" />
                       <span>
-                        {userInfo?.data?.gender === "male" ? "Male" : "Female"}
+                        {userInfo?.gender === "male" ? "Male" : "Female"}
                       </span>
                     </div>
                     <div className="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
@@ -248,11 +242,11 @@ export default function ProfilePage() {
                       {getHeightInFeetAndMeters(
                         Math.round(
                           convertHeight(
-                            userInfo?.data?.height,
-                            userInfo?.data?.height_unit
+                            userInfo?.height || 0,
+                            userInfo?.height_unit || ""
                           )
                         ),
-                        userInfo?.data?.height_unit === "cm" ? "ft" : "cm"
+                        userInfo?.height_unit === "cm" ? "ft" : "cm"
                       )}
                       )
                     </div>
@@ -383,7 +377,7 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="goal">Goal</Label>
                   <Select
-                    defaultValue={userInfo?.data?.goal || ""}
+                    defaultValue={userInfo?.goal || ""}
                     onValueChange={(value) => {
                       handleInputChange("goal", value);
                       if (value === "maintain") {
@@ -511,7 +505,7 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="activity_level">Activity Level</Label>
                   <Select
-                    defaultValue={userInfo?.data?.activity_level || ""}
+                    defaultValue={userInfo?.activity_level || ""}
                     onValueChange={(value) =>
                       handleInputChange("activity_level", value)
                     }
@@ -576,7 +570,7 @@ export default function ProfilePage() {
                           Gender
                         </h3>
                         <p className="text-lg font-medium capitalize">
-                          {userInfo?.data?.gender}
+                          {userInfo?.gender}
                         </p>
                       </div>
                       <div>
@@ -594,8 +588,8 @@ export default function ProfilePage() {
                         Birthday
                       </h3>
                       <p className="text-lg font-medium">
-                        {userInfo?.data?.birth_date
-                          ? format(new Date(userInfo?.data?.birth_date), "PPP")
+                        {userInfo?.birth_date
+                          ? format(new Date(userInfo?.birth_date), "PPP")
                           : ""}
                       </p>
                     </div>
@@ -611,11 +605,11 @@ export default function ProfilePage() {
                         {getHeightInFeetAndMeters(
                           Math.round(
                             convertHeight(
-                              userInfo?.data?.height,
-                              userInfo?.data?.height_unit
+                              userInfo?.height || 0,
+                              userInfo?.height_unit || ""
                             )
                           ),
-                          userInfo?.data?.height_unit === "cm" ? "ft" : "cm"
+                          userInfo?.height_unit === "cm" ? "ft" : "cm"
                         )}
                         )
                       </p>
@@ -635,13 +629,13 @@ export default function ProfilePage() {
                           Current Weight
                         </h3>
                         <p className="text-lg font-medium">
-                          {Number(userInfo?.data?.current_weight)}{" "}
-                          {userInfo?.data?.current_weight_unit} (
+                          {Number(userInfo?.current_weight)}{" "}
+                          {userInfo?.current_weight_unit} (
                           {convertWeight(
-                            Number(userInfo?.data?.current_weight),
-                            userInfo?.data?.current_weight_unit
+                            Number(userInfo?.current_weight || 0),
+                            userInfo?.current_weight_unit || ""
                           )}{" "}
-                          {userInfo?.data?.current_weight_unit === "lb"
+                          {userInfo?.current_weight_unit === "lb"
                             ? "kg"
                             : "lbs"}
                           )
@@ -652,16 +646,13 @@ export default function ProfilePage() {
                           Goal Weight
                         </h3>
                         <p className="text-lg font-medium">
-                          {Number(userInfo?.data?.weight_goal)}{" "}
-                          {userInfo?.data?.weight_goal_unit} (
+                          {Number(userInfo?.weight_goal)}{" "}
+                          {userInfo?.weight_goal_unit} (
                           {convertWeight(
-                            Number(userInfo?.data?.weight_goal),
-                            userInfo?.data?.weight_goal_unit
+                            Number(userInfo?.weight_goal || 0),
+                            userInfo?.weight_goal_unit || ""
                           )}{" "}
-                          {userInfo?.data?.weight_goal_unit === "lb"
-                            ? "kg"
-                            : "lbs"}
-                          )
+                          {userInfo?.weight_goal_unit === "lb" ? "kg" : "lbs"})
                         </p>
                       </div>
                     </div>
@@ -674,20 +665,22 @@ export default function ProfilePage() {
                           BMI (Body Mass Index)
                         </h3>
                         <span
-                          className={`text-sm font-medium ${weightStates.bmi_category_color}`}
+                          className={`text-sm font-medium ${
+                            userInfo?.bmi_category_color || ""
+                          }`}
                         >
-                          {weightStates.bmi_category}
+                          {userInfo?.bmi_category || ""}
                         </span>
                       </div>
                       <p className="text-3xl font-bold mt-1">
-                        {weightStates.bmi}
+                        {userInfo?.bmi || 0}
                       </p>
 
                       {/* BMI Scale Visualization */}
                       <div className="mt-4">
                         <BMIIndicator
-                          bmi={weightStates.bmi}
-                          bmiCategory={weightStates.bmi_category}
+                          bmi={userInfo?.bmi || 0}
+                          bmiCategory={userInfo?.bmi_category || ""}
                           showLabels={true}
                         />
                       </div>
@@ -713,12 +706,12 @@ export default function ProfilePage() {
                           </h3>
                           <p className="text-3xl font-bold mt-1">
                             {calculateBMR(
-                              userInfo?.data?.birth_date,
-                              userInfo?.data?.gender,
-                              Number(userInfo?.data?.current_weight),
-                              userInfo?.data?.current_weight_unit,
-                              Number(userInfo?.data?.height),
-                              userInfo?.data?.height_unit
+                              userInfo?.birth_date || "",
+                              userInfo?.gender || "",
+                              Number(userInfo?.current_weight || 0),
+                              userInfo?.current_weight_unit || "",
+                              Number(userInfo?.height || 0),
+                              userInfo?.height_unit || ""
                             )}{" "}
                             calories/day
                           </p>
@@ -735,26 +728,20 @@ export default function ProfilePage() {
                             Activity Level
                           </h3>
                           <p className="text-lg font-medium capitalize mt-1">
-                            {userInfo?.data?.activity_level?.includes("_")
-                              ? userInfo?.data?.activity_level?.replace(
-                                  "_",
-                                  " "
-                                )
-                              : userInfo?.data?.activity_level}
+                            {userInfo?.activity_level?.includes("_")
+                              ? userInfo?.activity_level?.replace("_", " ")
+                              : userInfo?.activity_level}
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {userInfo?.data?.activity_level === "sedentary" &&
+                            {userInfo?.activity_level === "sedentary" &&
                               "Little or no exercise"}
-                            {userInfo?.data?.activity_level ===
-                              "lightly_active" &&
+                            {userInfo?.activity_level === "lightly_active" &&
                               "Light exercise 1-3 days/week"}
-                            {userInfo?.data?.activity_level ===
-                              "moderately_active" &&
+                            {userInfo?.activity_level === "moderately_active" &&
                               "Moderate exercise 4-5 days/week"}
-                            {userInfo?.data?.activity_level === "very_active" &&
+                            {userInfo?.activity_level === "very_active" &&
                               "Intense exercise 6-7 days/week"}
-                            {userInfo?.data?.activity_level ===
-                              "extra_active" &&
+                            {userInfo?.activity_level === "extra_active" &&
                               "Very intensive exercise, physical job or twice daily training"}
                           </p>
                         </div>
@@ -768,12 +755,12 @@ export default function ProfilePage() {
                           <p className="text-3xl font-bold mt-1">
                             {calculateTDEE(
                               calculateBMR(
-                                userInfo?.data?.birth_date,
-                                userInfo?.data?.gender,
-                                Number(userInfo?.data?.current_weight),
-                                userInfo?.data?.current_weight_unit,
-                                Number(userInfo?.data?.height),
-                                userInfo?.data?.height_unit
+                                userInfo?.birth_date || "",
+                                userInfo?.gender || "",
+                                Number(userInfo?.current_weight || 0),
+                                userInfo?.current_weight_unit || "",
+                                Number(userInfo?.height || 0),
+                                userInfo?.height_unit || ""
                               )
                             )}{" "}
                             calories/day
@@ -794,19 +781,19 @@ export default function ProfilePage() {
                             <div className="bg-primary/10 rounded-lg p-3">
                               <p className="text-sm font-medium">
                                 To Lose Weight ~{" "}
-                                {userInfo?.data?.starting_weight_unit === "lb"
+                                {userInfo?.starting_weight_unit === "lb"
                                   ? "1lb/week"
                                   : "0.5kg/week"}
                               </p>
                               <p className="text-lg font-bold">
                                 {calculateTDEE(
                                   calculateBMR(
-                                    userInfo?.data?.birth_date,
-                                    userInfo?.data?.gender,
-                                    Number(userInfo?.data?.current_weight),
-                                    userInfo?.data?.current_weight_unit,
-                                    Number(userInfo?.data?.height),
-                                    userInfo?.data?.height_unit
+                                    userInfo?.birth_date || "",
+                                    userInfo?.gender || "",
+                                    Number(userInfo?.current_weight || 0),
+                                    userInfo?.current_weight_unit || "",
+                                    Number(userInfo?.height || 0),
+                                    userInfo?.height_unit || ""
                                   )
                                 ) - 500}{" "}
                                 cal/day
@@ -818,19 +805,19 @@ export default function ProfilePage() {
                             <div className="bg-primary/10 rounded-lg p-3">
                               <p className="text-sm font-medium">
                                 To Gain Weight ~{" "}
-                                {userInfo?.data?.starting_weight_unit === "lb"
+                                {userInfo?.starting_weight_unit === "lb"
                                   ? "1lb/week"
                                   : "0.5kg/week"}
                               </p>
                               <p className="text-lg font-bold">
                                 {calculateTDEE(
                                   calculateBMR(
-                                    userInfo?.data?.birth_date,
-                                    userInfo?.data?.gender,
-                                    Number(userInfo?.data?.current_weight),
-                                    userInfo?.data?.current_weight_unit,
-                                    Number(userInfo?.data?.height),
-                                    userInfo?.data?.height_unit
+                                    userInfo?.birth_date || "",
+                                    userInfo?.gender || "",
+                                    Number(userInfo?.current_weight || 0),
+                                    userInfo?.current_weight_unit || "",
+                                    Number(userInfo?.height || 0),
+                                    userInfo?.height_unit || ""
                                   )
                                 ) + 500}{" "}
                                 cal/day

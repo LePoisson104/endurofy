@@ -52,7 +52,7 @@ export function TopBar({ className }: TopBarProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex h-16 w-full items-center border-b bg-background px-4",
+        "sticky top-0 z-50 flex h-[65px] w-full items-center border-b bg-background px-4",
         className
       )}
     >

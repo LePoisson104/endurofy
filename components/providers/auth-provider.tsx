@@ -10,8 +10,13 @@ import UsersProfileModal from "@/components/modals/users-profile-modal";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import ProfileSuccessNotice from "@/components/modals/profile-success-notice";
 import { useDispatch } from "react-redux";
-import { setWeightStates } from "@/api/user/user-slice";
+import { setUserInfo } from "@/api/user/user-slice";
 import { calculateBMI } from "@/helper/calculate-bmi";
+import { useGetWorkoutProgramQuery } from "@/api/workout-program/workout-program-api-slice";
+import {
+  setWorkoutProgram,
+  setIsLoading,
+} from "@/api/workout-program/workout-program-slice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
@@ -21,17 +26,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const user = useSelector(selectCurrentUser);
   const effectRan = useRef(false);
 
-  const { data: userInfo, refetch } = useGetAllUsersInfoQuery(
-    user?.user_id || ""
-  );
+  const [isOpen, setIsOpen] = useState(false);
+  const [trueSuccess, setTrueSuccess] = useState(false);
+  const [manualProfileClose, setManualProfileClose] = useState(false);
+  const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
+    useState(false);
+
   const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =
     useRefreshMutation();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
-    useState(false);
-  const [trueSuccess, setTrueSuccess] = useState(false);
-  const [manualProfileClose, setManualProfileClose] = useState(false);
+  const { data: userInfo, refetch } = useGetAllUsersInfoQuery({
+    userId: user?.user_id || "",
+  });
+
+  const { data: workoutProgram, isLoading: isWorkoutProgramLoading } =
+    useGetWorkoutProgramQuery({
+      userId: user?.user_id,
+    });
+
+  // Set isLoading to true on initial mount to ensure skeleton shows first
+  useEffect(() => {
+    // Set loading to true by default on component mount
+    dispatch(setIsLoading(true));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isWorkoutProgramLoading) {
+      dispatch(setIsLoading(true));
+    } else if (workoutProgram) {
+      // Only set loading to false when we have data
+      dispatch(setIsLoading(false));
+      dispatch(setWorkoutProgram(workoutProgram.data.programs));
+    }
+  }, [isWorkoutProgramLoading, workoutProgram, dispatch]);
 
   useEffect(() => {
     if (
@@ -47,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (userInfo?.data) {
       const bmiResults = calculateBMI(userInfo);
-      dispatch(setWeightStates({ ...userInfo.data, ...bmiResults }));
+      dispatch(setUserInfo({ ...userInfo.data, ...bmiResults }));
     }
   }, [userInfo, dispatch]);
 

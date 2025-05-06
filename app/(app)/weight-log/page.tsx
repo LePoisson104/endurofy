@@ -35,7 +35,7 @@ import WeightLogHistory from "@/components/tables/weight-log-history";
 import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import { selectWeightStates } from "@/api/user/user-slice";
+import { selectUserInfo } from "@/api/user/user-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import WeightForm from "@/components/form/weight-form";
 import ErrorAlert from "@/components/alerts/error-alert";
@@ -56,7 +56,7 @@ export default function WeightLogPage() {
   const [currentTime, setCurrentTime] = useState("");
 
   const user = useSelector(selectCurrentUser);
-  const weightStates = useSelector(selectWeightStates);
+  const userInfo = useSelector(selectUserInfo);
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -72,9 +72,9 @@ export default function WeightLogPage() {
     notes: "",
   });
 
-  const currentWeight = Number(weightStates.current_weight);
-  const startWeight = Number(weightStates.starting_weight);
-  const goalWeight = Number(weightStates.weight_goal);
+  const currentWeight = Number(userInfo?.current_weight || 0);
+  const startWeight = Number(userInfo?.starting_weight || 0);
+  const goalWeight = Number(userInfo?.weight_goal || 0);
 
   const weightProgress = useMemo(() => {
     return Math.max(
@@ -288,7 +288,7 @@ export default function WeightLogPage() {
               )}
 
               {/* Current Weight & Goal */}
-              {weightStates?.current_weight ? (
+              {userInfo?.current_weight ? (
                 <Card className="shadow-sm">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-base font-medium">
@@ -308,15 +308,13 @@ export default function WeightLogPage() {
                         }`}
                       >
                         Goal: {goalWeight}{" "}
-                        {weightStates.starting_weight_unit === "lb"
-                          ? "lbs"
-                          : "kg"}
+                        {userInfo?.starting_weight_unit === "lb" ? "lbs" : "kg"}
                       </p>
                       <p className="text-xs flex items-center gap-1 mb-2">
                         {handleRateChangeColor(
                           weeklyWeightDifference?.data?.weeklyDifference,
-                          weightStates.goal,
-                          weightStates.starting_weight_unit,
+                          userInfo?.goal || "",
+                          userInfo?.starting_weight_unit || "",
                           " since last week",
                           isDark
                         )}
@@ -344,7 +342,7 @@ export default function WeightLogPage() {
               )}
 
               {/* BMI Chart */}
-              {weightStates?.bmi ? (
+              {userInfo?.bmi ? (
                 <Card className="shadow-sm">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="flex flex-row items-center gap-2">
@@ -361,17 +359,13 @@ export default function WeightLogPage() {
                         <p className="text-sm text-muted-foreground">
                           Your BMI
                         </p>
-                        <p className="text-3xl font-bold">
-                          {weightStates?.bmi}
-                        </p>
-                        <p className="text-sm mt-1">
-                          {weightStates?.bmi_category}
-                        </p>
+                        <p className="text-3xl font-bold">{userInfo?.bmi}</p>
+                        <p className="text-sm mt-1">{userInfo?.bmi_category}</p>
                       </div>
                       <div className="md:col-span-2">
                         <BMIIndicator
-                          bmi={weightStates?.bmi}
-                          bmiCategory={weightStates?.bmi_category}
+                          bmi={userInfo?.bmi}
+                          bmiCategory={userInfo?.bmi_category}
                         />
                       </div>
                     </div>
@@ -384,7 +378,7 @@ export default function WeightLogPage() {
               {/* Weight History */}
               <WeightLogHistory
                 weightHistory={weightLogWithRates}
-                goal={weightStates.goal}
+                goal={userInfo?.goal || ""}
                 startDate={format(startDate || "", "yyyy-MM-dd")}
                 endDate={format(endDate || "", "yyyy-MM-dd")}
                 userId={user?.user_id || ""}
@@ -397,7 +391,7 @@ export default function WeightLogPage() {
 
             {/* Right Column - 1/4 width on large screens, hidden on small screens */}
             <div className="lg:col-span-1 hidden lg:block">
-              {weightStates.current_weight_unit ? (
+              {userInfo.current_weight_unit ? (
                 <Card className="shadow-sm sticky top-20">
                   <CardHeader>
                     <CardTitle>Add Weight Entry</CardTitle>
