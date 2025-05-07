@@ -51,7 +51,7 @@ export function AppSidebar() {
   const { open, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
-  console.log(workoutPrograms);
+
   const handleCloseSidebarOnMobile = () => {
     if (isMobile && openMobile) {
       setOpenMobile(false);

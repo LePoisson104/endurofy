@@ -37,17 +37,12 @@ export default function WorkoutProgramList({
   isLoading,
   isDeleting,
 }: WorkoutProgramListProps) {
-  const [searchQuery, setSearchQuery] = useState("");
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
-
-  // Filter programs based on search query
-  const filteredPrograms = programs.filter((program) =>
-    program.programName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   // Count days with exercises
   const countActiveDays = (program: WorkoutProgram) => {
-    return program.workoutDays.filter((day) => day.exercises.length > 0).length;
+    return program.workoutDays.filter((day) => day.exercises.length >= 0)
+      .length;
   };
 
   // Count total exercises
@@ -81,26 +76,24 @@ export default function WorkoutProgramList({
 
   return (
     <div className="space-y-6">
-      {filteredPrograms.length === 0 ? (
+      {programs.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
           <h3 className="text-lg font-medium">No workout programs found</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            {searchQuery
-              ? "Try a different search term or create a new program."
-              : "Create your first workout program to get started."}
-          </p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredPrograms.map((program) => (
-            <Card key={program.programId} className="overflow-hidden">
+          {programs.map((program) => (
+            <Card
+              key={program.programId}
+              className="overflow-hidden flex flex-col h-[280px]"
+            >
               <CardHeader className="pb-3">
                 <div className="flex justify-between">
-                  <div className="space-y-1">
+                  <div className="space-y-1 flex-1">
                     <CardTitle className="line-clamp-1">
                       {program.programName}
                     </CardTitle>
-                    <CardDescription className="line-clamp-2">
+                    <CardDescription className="line-clamp-2 h-10">
                       {program.description || "No description"}
                     </CardDescription>
                   </div>
@@ -127,7 +120,7 @@ export default function WorkoutProgramList({
                   </DropdownMenu>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1 flex flex-col">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-slate-500" />
@@ -139,7 +132,7 @@ export default function WorkoutProgramList({
                   <Badge>{countTotalExercises(program)} exercises</Badge>
                 </div>
                 <Button
-                  className="mt-4 w-full"
+                  className="mt-auto w-full"
                   variant="outline"
                   onClick={() => onSelectProgram(program)}
                 >

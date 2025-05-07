@@ -10,7 +10,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import {
-  useGetWorkoutProgramQuery,
   useCreateWorkoutProgramMutation,
   useDeleteWorkoutProgramMutation,
 } from "@/api/workout-program/workout-program-api-slice";
@@ -63,6 +62,17 @@ export default function MyPrograms() {
       setWorkoutPrograms(programs);
     }
   }, [programs]);
+
+  useEffect(() => {
+    if (programs && selectedProgram) {
+      const program = programs.find(
+        (p) => p.programId === selectedProgram.programId
+      );
+      if (program) {
+        setSelectedProgram(program);
+      }
+    }
+  }, [selectedProgram, programs]);
 
   // Restore selected program from URL parameter on initial load
   useEffect(() => {
@@ -117,18 +127,6 @@ export default function MyPrograms() {
         setError(error.data?.message);
       }
     }
-  };
-
-  // Handle updating a workout program
-  const handleUpdateProgram = (updatedProgram: WorkoutProgram) => {
-    setWorkoutPrograms(
-      workoutPrograms.map((program) =>
-        program.programId === updatedProgram.programId
-          ? updatedProgram
-          : program
-      )
-    );
-    setSelectedProgram(updatedProgram);
   };
 
   // Handle deleting a workout program
@@ -195,7 +193,6 @@ export default function MyPrograms() {
                 <WorkoutProgramDetail
                   program={selectedProgram}
                   onBack={handleBackToProgramList}
-                  onUpdate={handleUpdateProgram}
                   onDelete={handleDeleteProgram}
                   isDeleting={isDeleting}
                 />

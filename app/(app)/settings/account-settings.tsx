@@ -51,6 +51,7 @@ export function AccountSettings() {
   const [successMsg, setSuccessMsg] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
+
   const [updateUsersName, { isLoading: isUpdatingName }] =
     useUpdateUsersNameMutation();
   const [updateUsersPassword, { isLoading: isUpdatingPassword }] =

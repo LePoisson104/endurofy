@@ -20,6 +20,22 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
     }),
+    updateWorkoutProgramDescription: builder.mutation({
+      query: ({ userId, programId, payload }) => ({
+        url: `/api/v1/workout-program/update-workout-program-description/${userId}/${programId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
+    }),
+    updateWorkoutProgramDay: builder.mutation({
+      query: ({ programId, dayId, payload }) => ({
+        url: `/api/v1/workout-program/update-workout-program-day/${programId}/${dayId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
+    }),
     deleteWorkoutProgram: builder.mutation({
       query: ({ userId, programId }) => ({
         url: `/api/v1/workout-program/delete-workout-program/${userId}/${programId}`,
@@ -50,4 +66,6 @@ export const {
   useDeleteWorkoutProgramMutation,
   useDeleteWorkoutProgramDayMutation,
   useDeleteWorkoutProgramExerciseMutation,
+  useUpdateWorkoutProgramDescriptionMutation,
+  useUpdateWorkoutProgramDayMutation,
 } = workoutProgramApiSlice;

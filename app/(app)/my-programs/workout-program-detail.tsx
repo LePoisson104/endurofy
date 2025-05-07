@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Edit,
@@ -8,6 +8,7 @@ import {
   X,
   EllipsisVertical,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
@@ -38,14 +39,20 @@ import {
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AddExerciseWarning from "@/components/dialog/add-exercise-warning";
-import { useDeleteWorkoutProgramDayMutation } from "@/api/workout-program/workout-program-api-slice";
+import {
+  useDeleteWorkoutProgramDayMutation,
+  useDeleteWorkoutProgramExerciseMutation,
+  useUpdateWorkoutProgramDescriptionMutation,
+  useUpdateWorkoutProgramDayMutation,
+} from "@/api/workout-program/workout-program-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
   onBack: () => void;
-  onUpdate: (program: WorkoutProgram) => void;
   onDelete: (programId: string) => void;
   isDeleting: boolean;
 }
@@ -53,11 +60,11 @@ interface WorkoutProgramDetailProps {
 export function WorkoutProgramDetail({
   program,
   onBack,
-  onUpdate,
   onDelete,
   isDeleting,
 }: WorkoutProgramDetailProps) {
   const isMobile = useIsMobile();
+  const user = useSelector(selectCurrentUser);
   const allDays = {
     1: "monday",
     2: "tuesday",
@@ -81,13 +88,20 @@ export function WorkoutProgramDetail({
         ] as DayOfWeek)
       : null
   );
-
   const [editedProgram, setEditedProgram] = useState<WorkoutProgram>({
     ...program,
   });
 
   const [deleteWorkoutProgramDay, { isLoading: isDeletingDay }] =
     useDeleteWorkoutProgramDayMutation();
+  const [deleteWorkoutProgramExercise] =
+    useDeleteWorkoutProgramExerciseMutation();
+  const [
+    updateWorkoutProgramDescription,
+    { isLoading: isUpdatingDescription },
+  ] = useUpdateWorkoutProgramDescriptionMutation();
+  const [updateWorkoutProgramDay, { isLoading: isUpdatingDay }] =
+    useUpdateWorkoutProgramDayMutation();
 
   // Format created date
   const formatCreatedDate = (dateString: string) => {
@@ -98,6 +112,10 @@ export function WorkoutProgramDetail({
   const formatDayName = (day: DayOfWeek) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
+
+  useEffect(() => {
+    setEditedProgram(program);
+  }, [program]);
 
   // Handle adding a new exercise to a day
   const handleAddExercise = (exercise: Omit<Exercise, "id">) => {
@@ -143,23 +161,6 @@ export function WorkoutProgramDetail({
     }
   };
 
-  // Handle removing an exercise from a day
-  const handleRemoveExercise = (day: DayOfWeek, exerciseId: string) => {
-    setEditedProgram({
-      ...editedProgram,
-      workoutDays: editedProgram.workoutDays.map((workoutDay) =>
-        workoutDay.dayId === day
-          ? {
-              ...workoutDay,
-              exercises: workoutDay.exercises.filter(
-                (exercise) => exercise.exerciseId !== exerciseId
-              ),
-            }
-          : workoutDay
-      ),
-    });
-  };
-
   // Handle updating an exercise
   const handleUpdateExercise = (day: DayOfWeek, updatedExercise: Exercise) => {
     setEditedProgram({
@@ -191,20 +192,77 @@ export function WorkoutProgramDetail({
     setShowDeleteDialog(false);
   };
 
+  const handleSaveProgramDescription = async () => {
+    const payload = {
+      programName: editedProgram.programName,
+      description: editedProgram.description,
+    };
+    try {
+      await updateWorkoutProgramDescription({
+        userId: user?.user_id,
+        programId: program.programId,
+        payload: payload,
+      }).unwrap();
+      setSuccess("Program description updated successfully");
+    } catch (error: any) {
+      if (error.data.message) {
+        setError("Internal server error. Failed to update program description");
+      }
+    }
+  };
+
+  const handleUpdateProgramDayName = async (day: DayOfWeek) => {
+    const dayId = getDayId(day);
+    const payload = {
+      dayName: getDayName(day),
+    };
+
+    try {
+      await updateWorkoutProgramDay({
+        programId: program.programId,
+        dayId: dayId,
+        payload: payload,
+      }).unwrap();
+      setSuccess("Day name updated successfully");
+    } catch (error: any) {
+      if (error.data.message) {
+        setError("Internal server error. Failed to update program day name");
+      }
+    }
+  };
+
   // Handle deleting a program day
   const handleDeleteProgramDay = async () => {
     try {
       await deleteWorkoutProgramDay({
         programId: program.programId,
         dayId: getDayId(activeDay as DayOfWeek),
-      });
+      }).unwrap();
       setSuccess("Day deleted successfully");
     } catch (error: any) {
       if (error.data.message) {
-        setError(error.data.message);
+        setError("Internal server error. Failed to delete program day");
       }
     } finally {
       setShowDeleteDialog(false);
+    }
+  };
+
+  const handleDeleteExercise = async (exerciseId: string) => {
+    const dayId = editedProgram.workoutDays.find((day) =>
+      day.exercises.some((exercise) => exercise.exerciseId === exerciseId)
+    )?.dayId;
+
+    try {
+      await deleteWorkoutProgramExercise({
+        dayId: dayId,
+        exerciseId: exerciseId,
+      }).unwrap();
+      setSuccess("Exercise deleted successfully");
+    } catch (error: any) {
+      if (error.data.message) {
+        setError("Internal server error. Failed to delete exercise");
+      }
     }
   };
 
@@ -335,8 +393,21 @@ export function WorkoutProgramDetail({
             )}
           </div>
           {isEditing && (
-            <div className="flex justify-end mt-3">
-              <Button size="sm">Save Changes</Button>
+            <div
+              className="flex justify-end mt-3"
+              onClick={handleSaveProgramDescription}
+            >
+              <Button
+                size="sm"
+                disabled={isUpdatingDescription}
+                className="w-[130px]"
+              >
+                {isUpdatingDescription ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
             </div>
           )}
         </CardHeader>
@@ -423,8 +494,21 @@ export function WorkoutProgramDetail({
                                 });
                               }}
                             />
-                            <Button size="sm" className="gap-1">
-                              Save
+                            <Button
+                              size="sm"
+                              className="gap-1 w-[80px]"
+                              onClick={() => {
+                                handleUpdateProgramDayName(
+                                  activeDay as DayOfWeek
+                                );
+                              }}
+                              disabled={isUpdatingDay}
+                            >
+                              {isUpdatingDay ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                "Save"
+                              )}
                             </Button>
                           </div>
 
@@ -501,7 +585,7 @@ export function WorkoutProgramDetail({
                     <DaySchedule
                       exercises={getExercisesForActiveDay()}
                       onRemoveExercise={(exerciseId) =>
-                        handleRemoveExercise(day, exerciseId)
+                        handleDeleteExercise(exerciseId)
                       }
                       onUpdateExercise={(exercise) =>
                         handleUpdateExercise(day, exercise)
