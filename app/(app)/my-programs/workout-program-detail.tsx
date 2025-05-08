@@ -44,6 +44,7 @@ import {
   useDeleteWorkoutProgramExerciseMutation,
   useUpdateWorkoutProgramDescriptionMutation,
   useUpdateWorkoutProgramDayMutation,
+  useUpdateWorkoutProgramExerciseMutation,
 } from "@/api/workout-program/workout-program-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
@@ -102,6 +103,8 @@ export function WorkoutProgramDetail({
   ] = useUpdateWorkoutProgramDescriptionMutation();
   const [updateWorkoutProgramDay, { isLoading: isUpdatingDay }] =
     useUpdateWorkoutProgramDayMutation();
+  const [updateWorkoutProgramExercise] =
+    useUpdateWorkoutProgramExerciseMutation();
 
   // Format created date
   const formatCreatedDate = (dateString: string) => {
@@ -161,25 +164,6 @@ export function WorkoutProgramDetail({
     }
   };
 
-  // Handle updating an exercise
-  const handleUpdateExercise = (day: DayOfWeek, updatedExercise: Exercise) => {
-    setEditedProgram({
-      ...editedProgram,
-      workoutDays: editedProgram.workoutDays.map((workoutDay) =>
-        workoutDay.dayId === day
-          ? {
-              ...workoutDay,
-              exercises: workoutDay.exercises.map((exercise) =>
-                exercise.exerciseId === updatedExercise.exerciseId
-                  ? updatedExercise
-                  : exercise
-              ),
-            }
-          : workoutDay
-      ),
-    });
-  };
-
   // Handle canceling changes
   const handleCancelChanges = () => {
     setEditedProgram({ ...program });
@@ -190,6 +174,28 @@ export function WorkoutProgramDetail({
   const handleDeleteProgram = () => {
     onDelete(program.programId);
     setShowDeleteDialog(false);
+  };
+
+  // Handle updating an exercise
+  const handleUpdateExercise = async (updatedExercise: Exercise) => {
+    const dayId = editedProgram.workoutDays.find((day) =>
+      day.exercises.some(
+        (exercise) => exercise.exerciseId === updatedExercise.exerciseId
+      )
+    )?.dayId;
+
+    try {
+      await updateWorkoutProgramExercise({
+        dayId: dayId,
+        exerciseId: updatedExercise.exerciseId,
+        payload: updatedExercise,
+      }).unwrap();
+      setSuccess("Exercise updated successfully");
+    } catch (error: any) {
+      if (error.data.message) {
+        setError("Internal server error. Failed to update exercise");
+      }
+    }
   };
 
   const handleSaveProgramDescription = async () => {
@@ -588,7 +594,7 @@ export function WorkoutProgramDetail({
                         handleDeleteExercise(exerciseId)
                       }
                       onUpdateExercise={(exercise) =>
-                        handleUpdateExercise(day, exercise)
+                        handleUpdateExercise(exercise)
                       }
                       isEditing={isEditing}
                     />
