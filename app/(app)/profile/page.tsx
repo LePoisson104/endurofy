@@ -41,13 +41,14 @@ import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
-import { selectUserInfo } from "@/api/user/user-slice";
+import { calculateAndSetBMR, selectUserInfo } from "@/api/user/user-slice";
 import UpdateWeightUnitNotice from "@/components/modals/update-weight-unit-notice";
+import { useDispatch } from "react-redux";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
-
+  const dispatch = useDispatch();
   const age =
     new Date().getFullYear() -
     new Date(userInfo?.birth_date || "").getFullYear();
@@ -98,6 +99,12 @@ export default function ProfilePage() {
     }
   }, [userInfo, isEditing]);
 
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(calculateAndSetBMR());
+    }
+  }, [userInfo, dispatch]);
+
   // Calculate TDEE (Total Daily Energy Expenditure)
   const calculateTDEE = useCallback(
     (bmr: number) => {
@@ -106,36 +113,6 @@ export default function ProfilePage() {
       );
     },
     [userInfo?.activity_level]
-  );
-
-  const calculateBMR = useCallback(
-    (
-      birthDate: string,
-      gender: string,
-      weight: number,
-      weightUnit: string,
-      height: number,
-      heightUnit: string
-    ) => {
-      const today = new Date();
-      const birthDateObj = new Date(birthDate);
-      const age = today.getFullYear() - birthDateObj.getFullYear();
-
-      // Convert weight to kg if in lbs
-      const weightKg = weightUnit === "lb" ? weight * 0.453592 : weight;
-
-      // Convert height to cm if in inches
-      const heightCm = heightUnit === "ft" ? height * 2.54 : height;
-
-      // BMR Calculation
-      const genderFactor = gender === "male" ? 5 : -161;
-      const BMR = Math.round(
-        10 * weightKg + 6.25 * heightCm - 5 * age + genderFactor
-      );
-
-      return BMR;
-    },
-    [userInfo]
   );
 
   // Handle form input changes
@@ -705,15 +682,7 @@ export default function ProfilePage() {
                             Basal Metabolic Rate (BMR)
                           </h3>
                           <p className="text-3xl font-bold mt-1">
-                            {calculateBMR(
-                              userInfo?.birth_date || "",
-                              userInfo?.gender || "",
-                              Number(userInfo?.current_weight || 0),
-                              userInfo?.current_weight_unit || "",
-                              Number(userInfo?.height || 0),
-                              userInfo?.height_unit || ""
-                            )}{" "}
-                            calories/day
+                            {userInfo?.bmr} calories/day calories/day
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             The number of calories your body needs to maintain
@@ -753,17 +722,7 @@ export default function ProfilePage() {
                             Total Daily Energy Expenditure (TDEE)
                           </h3>
                           <p className="text-3xl font-bold mt-1">
-                            {calculateTDEE(
-                              calculateBMR(
-                                userInfo?.birth_date || "",
-                                userInfo?.gender || "",
-                                Number(userInfo?.current_weight || 0),
-                                userInfo?.current_weight_unit || "",
-                                Number(userInfo?.height || 0),
-                                userInfo?.height_unit || ""
-                              )
-                            )}{" "}
-                            calories/day
+                            {calculateTDEE(userInfo?.bmr || 0)} calories/day
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
                             The total calories you burn each day based on your
@@ -786,16 +745,7 @@ export default function ProfilePage() {
                                   : "0.5kg/week"}
                               </p>
                               <p className="text-lg font-bold">
-                                {calculateTDEE(
-                                  calculateBMR(
-                                    userInfo?.birth_date || "",
-                                    userInfo?.gender || "",
-                                    Number(userInfo?.current_weight || 0),
-                                    userInfo?.current_weight_unit || "",
-                                    Number(userInfo?.height || 0),
-                                    userInfo?.height_unit || ""
-                                  )
-                                ) - 500}{" "}
+                                {calculateTDEE(userInfo?.bmr || 0) - 500}{" "}
                                 cal/day
                               </p>
                               <p className="text-xs text-muted-foreground">
@@ -810,16 +760,7 @@ export default function ProfilePage() {
                                   : "0.5kg/week"}
                               </p>
                               <p className="text-lg font-bold">
-                                {calculateTDEE(
-                                  calculateBMR(
-                                    userInfo?.birth_date || "",
-                                    userInfo?.gender || "",
-                                    Number(userInfo?.current_weight || 0),
-                                    userInfo?.current_weight_unit || "",
-                                    Number(userInfo?.height || 0),
-                                    userInfo?.height_unit || ""
-                                  )
-                                ) + 500}{" "}
+                                {calculateTDEE(userInfo?.bmr || 0) + 500}{" "}
                                 cal/day
                               </p>
                               <p className="text-xs text-muted-foreground">

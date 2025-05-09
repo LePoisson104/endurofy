@@ -30,6 +30,7 @@ export interface UserInfo {
   bmi_category?: string;
   bmi_category_color?: string;
   pending_email?: string;
+  bmr?: number;
 }
 
 export interface UpdateUserInfo {

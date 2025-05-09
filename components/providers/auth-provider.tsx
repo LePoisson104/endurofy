@@ -17,6 +17,8 @@ import {
   setWorkoutProgram,
   setIsLoading,
 } from "@/api/workout-program/workout-program-slice";
+import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
+import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { persist } = usePersist();
@@ -44,11 +46,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userId: user?.user_id,
     });
 
+  const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
+    userId: user?.user_id,
+  });
+
   // Set isLoading to true on initial mount to ensure skeleton shows first
   useEffect(() => {
     // Set loading to true by default on component mount
     dispatch(setIsLoading(true));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (weeklyWeightDifference) {
+      dispatch(setWeeklyRate(weeklyWeightDifference.data.weeklyDifference));
+    }
+  }, [weeklyWeightDifference, dispatch]);
 
   useEffect(() => {
     if (isWorkoutProgramLoading) {

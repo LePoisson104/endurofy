@@ -48,7 +48,7 @@ import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-
+import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
 export default function WeightLogPage() {
   const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
@@ -57,6 +57,7 @@ export default function WeightLogPage() {
 
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
+  const weeklyRate = useSelector(selectWeeklyRate);
 
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -75,18 +76,15 @@ export default function WeightLogPage() {
   const currentWeight = Number(userInfo?.current_weight || 0);
   const startWeight = Number(userInfo?.starting_weight || 0);
   const goalWeight = Number(userInfo?.weight_goal || 0);
-
-  const weightProgress = useMemo(() => {
-    return Math.max(
-      0,
-      Math.min(
-        100,
-        Math.round(
-          ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
-        )
+  const progress = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
       )
-    );
-  }, [startWeight, currentWeight, goalWeight]);
+    )
+  );
 
   const now = new Date();
   const [startDate, setStartDate] = useState<Date | null>(
@@ -165,9 +163,6 @@ export default function WeightLogPage() {
     useGetWeightLogByDateQuery(historyQueryParams);
   const { data: weightLog, isLoading: isLoadingWeightLog } =
     useGetWeightLogByDateQuery(lineChartQueryParams);
-  const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
-    userId: user?.user_id || "",
-  });
 
   // Memoize the date range effect to prevent unnecessary updates
   useEffect(() => {
@@ -312,7 +307,7 @@ export default function WeightLogPage() {
                       </p>
                       <p className="text-xs flex items-center gap-1 mb-2">
                         {handleRateChangeColor(
-                          weeklyWeightDifference?.data?.weeklyDifference,
+                          weeklyRate,
                           userInfo?.goal || "",
                           userInfo?.starting_weight_unit || "",
                           " since last week",
@@ -320,7 +315,7 @@ export default function WeightLogPage() {
                         )}
                       </p>
                     </div>
-                    <Progress value={weightProgress} />
+                    <Progress value={progress} />
                     <div className="flex justify-between mt-2">
                       <p className="text-xs text-muted-foreground">
                         {startWeight}
@@ -333,7 +328,7 @@ export default function WeightLogPage() {
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Progress: {weightProgress}%
+                      Progress: {progress}%
                     </p>
                   </CardContent>
                 </Card>

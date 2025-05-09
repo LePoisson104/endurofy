@@ -25,6 +25,7 @@ const initialState: UserInfo = {
   bmi_category: "",
   bmi_category_color: "",
   pending_email: "",
+  bmr: 0,
 };
 
 const userSlice = createSlice({
@@ -32,57 +33,46 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUserInfo: (state, action: PayloadAction<UserInfo>) => {
-      state.email = action.payload.email;
-      state.first_name = action.payload.first_name;
-      state.last_name = action.payload.last_name;
-      state.profile_status = action.payload.profile_status;
-      state.birth_date = action.payload.birth_date;
-      state.current_weight = action.payload.current_weight;
-      state.current_weight_unit = action.payload.current_weight_unit;
-      state.starting_weight = action.payload.starting_weight;
-      state.starting_weight_unit = action.payload.starting_weight_unit;
-      state.weight_goal = action.payload.weight_goal;
-      state.weight_goal_unit = action.payload.weight_goal_unit;
-      state.height = action.payload.height;
-      state.height_unit = action.payload.height_unit;
-      state.gender = action.payload.gender;
-      state.goal = action.payload.goal;
-      state.activity_level = action.payload.activity_level;
-      state.user_updated_at = action.payload.user_updated_at;
-      state.user_profile_updated_at = action.payload.user_profile_updated_at;
-      state.bmi = action.payload.bmi;
-      state.bmi_category = action.payload.bmi_category;
-      state.bmi_category_color = action.payload.bmi_category_color;
-      state.pending_email = action.payload.pending_email;
+      Object.assign(state, action.payload);
     },
     resetUserInfo: (state) => {
-      state.email = "";
-      state.first_name = "";
-      state.last_name = "";
-      state.profile_status = "";
-      state.birth_date = "";
-      state.current_weight = 0;
-      state.current_weight_unit = "";
-      state.starting_weight = 0;
-      state.starting_weight_unit = "";
-      state.weight_goal = 0;
-      state.weight_goal_unit = "";
-      state.height = 0;
-      state.height_unit = "";
-      state.gender = "";
-      state.goal = "";
-      state.activity_level = "";
-      state.user_updated_at = "";
-      state.user_profile_updated_at = "";
-      state.bmi = 0;
-      state.bmi_category = "";
-      state.bmi_category_color = "";
-      state.pending_email = "";
+      Object.assign(state, initialState);
+    },
+    calculateAndSetBMR: (state) => {
+      if (
+        !state.birth_date ||
+        !state.gender ||
+        !state.current_weight ||
+        !state.height
+      )
+        return;
+
+      const today = new Date();
+      const birthDateObj = new Date(state.birth_date);
+      const age = today.getFullYear() - birthDateObj.getFullYear();
+
+      // Convert weight to kg if in lbs
+      const weightKg =
+        state.current_weight_unit === "lb"
+          ? state.current_weight * 0.453592
+          : state.current_weight;
+
+      // Convert height to cm if in ft
+      const heightCm =
+        state.height_unit === "ft" ? state.height * 2.54 : state.height;
+
+      const genderFactor = state.gender === "male" ? 5 : -161;
+      const BMR = Math.round(
+        10 * weightKg + 6.25 * heightCm - 5 * age + genderFactor
+      );
+
+      state.bmr = BMR;
     },
   },
 });
 
-export const { setUserInfo, resetUserInfo } = userSlice.actions;
+export const { setUserInfo, resetUserInfo, calculateAndSetBMR } =
+  userSlice.actions;
 export const selectUserInfo = (state: RootState) => state.user;
 
 export default userSlice.reducer;
