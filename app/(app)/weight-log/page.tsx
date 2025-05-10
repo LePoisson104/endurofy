@@ -43,12 +43,12 @@ import { startOfWeek, endOfWeek } from "date-fns";
 import BMIDialog from "@/components/dialog/bmi-dialog";
 import { getDayRange } from "@/helper/get-day-range";
 import { WeightForm as WeightFormType } from "@/components/form/weight-form";
-import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
+
 export default function WeightLogPage() {
   const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();

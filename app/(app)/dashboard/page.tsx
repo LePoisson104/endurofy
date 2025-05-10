@@ -63,8 +63,9 @@ export default function DashboardPage() {
       Math.round(
         ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
       )
-    )
+    ) || 0
   );
+
   const TDEE = Number(
     userInfo?.bmr
       ? userInfo?.bmr * getActivityMultiplier(userInfo?.activity_level || "")

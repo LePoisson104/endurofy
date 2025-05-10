@@ -74,7 +74,7 @@ export default function WeightLogHistory({
     count: weightHistory?.data?.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 50,
-    overscan: 20,
+    overscan: 50,
   });
 
   return (
