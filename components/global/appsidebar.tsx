@@ -138,13 +138,13 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === "/statistics"}
-                    tooltip="Statistics"
+                    isActive={pathname === "/analytics"}
+                    tooltip="Analytics"
                     onClick={handleCloseSidebarOnMobile}
                   >
-                    <Link href="/statistics" className="truncate">
+                    <Link href="/analytics" className="truncate">
                       <BarChart3 />
-                      <span className="truncate">Statistics</span>
+                      <span className="truncate">Analytics</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

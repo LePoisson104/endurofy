@@ -50,6 +50,7 @@ import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -65,6 +66,7 @@ export function WorkoutProgramDetail({
   isDeleting,
 }: WorkoutProgramDetailProps) {
   const isMobile = useIsMobile();
+  const isDarkMode = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
   const allDays = {
     1: "monday",
@@ -419,12 +421,20 @@ export function WorkoutProgramDetail({
         </CardHeader>
         {!isEditing && (
           <CardContent>
-            <div className="text-xs text-slate-500">
+            <div
+              className={`text-xs ${
+                isDarkMode ? "text-slate-400" : "text-slate-500"
+              }`}
+            >
               Created on {formatCreatedDate(program.createdAt)}
             </div>
             {new Date(program.createdAt).toISOString().split("T")[0] !==
               new Date(program.updatedAt).toISOString().split("T")[0] && (
-              <div className="text-xs text-slate-500">
+              <div
+                className={`text-xs ${
+                  isDarkMode ? "text-slate-300" : "text-slate-600"
+                }`}
+              >
                 Updated on {formatCreatedDate(program.updatedAt)}
               </div>
             )}
