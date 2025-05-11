@@ -48,6 +48,7 @@ interface DayScheduleProps {
   onUpdateExercise: (exercise: Exercise) => void;
   onReorderExercises?: (exercises: Exercise[]) => void;
   isEditing?: boolean;
+  setError: (error: string) => void;
 }
 
 function SortableTableRow({
@@ -56,12 +57,14 @@ function SortableTableRow({
   onRemoveExercise,
   onUpdateExercise,
   isDragging,
+  setError,
 }: {
   exercise: Exercise;
   isEditing: boolean;
   onRemoveExercise: (exerciseId: string) => void;
   onUpdateExercise: (exercise: Exercise) => void;
   isDragging: boolean;
+  setError: (error: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: exercise.exerciseId });
@@ -96,6 +99,7 @@ function SortableTableRow({
         editedExercise.minReps <= 0 ||
         editedExercise.maxReps <= 0
       ) {
+        setError("Sets and reps must be greater than 0");
         return;
       }
 
@@ -237,7 +241,18 @@ function SortableTableRow({
                 <X className="h-4 w-4" />
                 <span className="sr-only">Cancel</span>
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleSaveExercise}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSaveExercise}
+                disabled={
+                  editedExercise?.exerciseName === exercise.exerciseName &&
+                  editedExercise?.sets === exercise.sets &&
+                  editedExercise?.minReps === exercise.minReps &&
+                  editedExercise?.maxReps === exercise.maxReps &&
+                  editedExercise?.laterality === exercise.laterality
+                }
+              >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">Save</span>
               </Button>
@@ -300,6 +315,7 @@ export function DaySchedule({
   onUpdateExercise,
   onReorderExercises,
   isEditing = true,
+  setError,
 }: DayScheduleProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -444,6 +460,7 @@ export function DaySchedule({
                     onRemoveExercise={onRemoveExercise}
                     onUpdateExercise={onUpdateExercise}
                     isDragging={activeId === exercise.exerciseId}
+                    setError={setError}
                   />
                 ))}
               </SortableContext>

@@ -124,46 +124,7 @@ export function WorkoutProgramDetail({
 
   // Handle adding a new exercise to a day
   const handleAddExercise = (exercise: Omit<Exercise, "id">) => {
-    if (!activeDay) return;
-
-    const newExercise: Exercise = {
-      ...exercise,
-      exerciseId: Math.random().toString(36).substring(2, 9),
-    };
-
-    // Check if the day already exists in the program
-    const dayExists = editedProgram.workoutDays.some(
-      (day) => day.dayId === activeDay
-    );
-
-    if (dayExists) {
-      // Add exercise to existing day
-      setEditedProgram({
-        ...editedProgram,
-        workoutDays: editedProgram.workoutDays.map((day) =>
-          day.dayId === activeDay
-            ? {
-                ...day,
-                exercises: [...day.exercises, newExercise],
-              }
-            : day
-        ),
-      });
-    } else {
-      // Create new day with the exercise
-      setEditedProgram({
-        ...editedProgram,
-        workoutDays: [
-          ...editedProgram.workoutDays,
-          {
-            dayId: activeDay,
-            exercises: [newExercise],
-            dayName: "",
-            dayNumber: 0,
-          },
-        ],
-      });
-    }
+    console.log(exercise);
   };
 
   // Handle canceling changes
@@ -180,6 +141,7 @@ export function WorkoutProgramDetail({
 
   // Handle updating an exercise
   const handleUpdateExercise = async (updatedExercise: Exercise) => {
+    console.log(updatedExercise);
     const dayId = editedProgram.workoutDays.find((day) =>
       day.exercises.some(
         (exercise) => exercise.exerciseId === updatedExercise.exerciseId
@@ -195,7 +157,9 @@ export function WorkoutProgramDetail({
       }).unwrap();
       setSuccess("Exercise updated successfully");
     } catch (error: any) {
-      if (error.data.message) {
+      if (error.status !== 500) {
+        setError(error.data.message);
+      } else {
         setError("Internal server error. Failed to update exercise");
       }
     }
@@ -214,7 +178,9 @@ export function WorkoutProgramDetail({
       }).unwrap();
       setSuccess("Program description updated successfully");
     } catch (error: any) {
-      if (error.data.message) {
+      if (error.status !== 500) {
+        setError(error.data.message);
+      } else {
         setError("Internal server error. Failed to update program description");
       }
     }
@@ -273,7 +239,9 @@ export function WorkoutProgramDetail({
       }).unwrap();
       setSuccess("Exercise deleted successfully");
     } catch (error: any) {
-      if (error.data.message) {
+      if (error.status !== 500) {
+        setError(error.data.message);
+      } else {
         setError("Internal server error. Failed to delete exercise");
       }
     }
@@ -621,6 +589,7 @@ export function WorkoutProgramDetail({
                         handleUpdateExercise(exercise)
                       }
                       isEditing={isEditing}
+                      setError={setError}
                     />
                   </>
                 )}

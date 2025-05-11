@@ -19,12 +19,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2, Plus } from "lucide-react";
 
 import type {
-  WorkoutDay,
   DayOfWeek,
   Exercise,
   CreateWorkoutProgram,
   CreateWorkoutDay,
-  CreateExercise,
 } from "../../../interfaces/workout-program-interfaces";
 import {
   Select,
@@ -33,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ErrorAlert from "@/components/alerts/error-alert";
+import SuccessAlert from "@/components/alerts/success-alert";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
@@ -62,7 +62,7 @@ export function WorkoutProgramCreator({
     { id: string; name: string; dayName: string }[]
   >([{ id: "d1", name: "D1", dayName: "" }]);
   const [activeCustomDay, setActiveCustomDay] = useState<string>("d1");
-
+  const [error, setError] = useState<string>("");
   const daysOfWeek = [
     "monday",
     "tuesday",
@@ -288,6 +288,7 @@ export function WorkoutProgramCreator({
 
   return (
     <div className="space-y-6">
+      <ErrorAlert error={error} setError={setError} />
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Create Workout Program</CardTitle>
@@ -390,6 +391,7 @@ export function WorkoutProgramCreator({
                     onReorderExercises={(newExercises) =>
                       updateExercises(day, newExercises)
                     }
+                    setError={setError}
                   />
 
                   <Card className={`${isMobile ? "border-none" : ""}`}>
@@ -479,6 +481,7 @@ export function WorkoutProgramCreator({
                       onReorderExercises={(newExercises) =>
                         updateExercises(day.id, newExercises)
                       }
+                      setError={setError}
                     />
 
                     <Card className={`${isMobile ? "border-none" : ""}`}>
