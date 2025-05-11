@@ -185,11 +185,12 @@ export function WorkoutProgramDetail({
         (exercise) => exercise.exerciseId === updatedExercise.exerciseId
       )
     )?.dayId;
-
+    const programId = program.programId;
     try {
       await updateWorkoutProgramExercise({
         dayId: dayId,
         exerciseId: updatedExercise.exerciseId,
+        programId: programId,
         payload: updatedExercise,
       }).unwrap();
       setSuccess("Exercise updated successfully");
@@ -233,7 +234,9 @@ export function WorkoutProgramDetail({
       }).unwrap();
       setSuccess("Day name updated successfully");
     } catch (error: any) {
-      if (error.data.message) {
+      if (error.status !== 500) {
+        setError(error.data.message);
+      } else {
         setError("Internal server error. Failed to update program day name");
       }
     }
@@ -260,9 +263,11 @@ export function WorkoutProgramDetail({
     const dayId = editedProgram.workoutDays.find((day) =>
       day.exercises.some((exercise) => exercise.exerciseId === exerciseId)
     )?.dayId;
+    const programId = program.programId;
 
     try {
       await deleteWorkoutProgramExercise({
+        programId: programId,
         dayId: dayId,
         exerciseId: exerciseId,
       }).unwrap();
@@ -401,14 +406,16 @@ export function WorkoutProgramDetail({
             )}
           </div>
           {isEditing && (
-            <div
-              className="flex justify-end mt-3"
-              onClick={handleSaveProgramDescription}
-            >
+            <div className="flex justify-end mt-3">
               <Button
                 size="sm"
-                disabled={isUpdatingDescription}
+                disabled={
+                  isUpdatingDescription ||
+                  (editedProgram.programName === program.programName &&
+                    editedProgram.description === program.description)
+                }
                 className="w-[130px]"
+                onClick={handleSaveProgramDescription}
               >
                 {isUpdatingDescription ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -432,7 +439,7 @@ export function WorkoutProgramDetail({
               new Date(program.updatedAt).toISOString().split("T")[0] && (
               <div
                 className={`text-xs ${
-                  isDarkMode ? "text-slate-300" : "text-slate-600"
+                  isDarkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
                 Updated on {formatCreatedDate(program.updatedAt)}
@@ -518,7 +525,14 @@ export function WorkoutProgramDetail({
                                   activeDay as DayOfWeek
                                 );
                               }}
-                              disabled={isUpdatingDay}
+                              disabled={
+                                isUpdatingDay ||
+                                getDayName(day as DayOfWeek) ===
+                                  program.workoutDays.find(
+                                    (d) =>
+                                      d.dayId === getDayId(day as DayOfWeek)
+                                  )?.dayName
+                              }
                             >
                               {isUpdatingDay ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />

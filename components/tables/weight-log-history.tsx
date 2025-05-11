@@ -1,4 +1,4 @@
-import { EllipsisVertical, Pencil, Trash2 } from "lucide-react";
+import { EllipsisVertical, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   Table,
   TableHead,
@@ -60,6 +60,8 @@ export default function WeightLogHistory({
   const parsedEnd = parse(endDate, "yyyy-MM-dd", new Date());
   const isMobile = useIsMobile();
   const [deleteWeightLog] = useDeleteWeightLogMutation();
+  const [showNotes, setShowNotes] = useState(true);
+
   const areAllNotesEmpty = useCallback((): boolean => {
     if (!weightHistory?.data) return true;
     return weightHistory?.data.every(
@@ -93,41 +95,61 @@ export default function WeightLogHistory({
                 {format(parsedEnd, "MMM d, yyyy")}
               </span>
             </div>
-            <Select value={options} onValueChange={setOptions}>
-              <SelectTrigger
-                className="w-fit rounded-lg sm:ml-auto"
-                aria-label="Select a value"
-              >
-                <SelectValue placeholder="Last 3 months" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="current-week" className="rounded-lg">
-                  Current Week
-                </SelectItem>
-                <SelectItem value="7d" className="rounded-lg">
-                  Last 7 days
-                </SelectItem>
-                <SelectItem value="14d" className="rounded-lg">
-                  Last 14 days
-                </SelectItem>
-                <SelectItem value="30d" className="rounded-lg">
-                  Last 30 days
-                </SelectItem>
-                <SelectItem value="all" className="rounded-lg">
-                  All
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 items-center">
+              {!isNotesEmpty && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNotes(!showNotes)}
+                  className="h-9"
+                >
+                  {showNotes ? (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Hide Notes
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Show Notes
+                    </>
+                  )}
+                </Button>
+              )}
+              <Select value={options} onValueChange={setOptions}>
+                <SelectTrigger
+                  className="w-fit rounded-lg sm:ml-auto"
+                  aria-label="Select a value"
+                >
+                  <SelectValue placeholder="Last 3 months" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="current-week" className="rounded-lg">
+                    Current Week
+                  </SelectItem>
+                  <SelectItem value="7d" className="rounded-lg">
+                    Last 7 days
+                  </SelectItem>
+                  <SelectItem value="14d" className="rounded-lg">
+                    Last 14 days
+                  </SelectItem>
+                  <SelectItem value="30d" className="rounded-lg">
+                    Last 30 days
+                  </SelectItem>
+                  <SelectItem value="all" className="rounded-lg">
+                    All
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent className="">
             {weightHistory?.data?.length > 0 ? (
-              <div
-                ref={scrollRef}
-                className="max-h-[440px] relative overflow-y-auto w-full"
-              >
+              <div ref={scrollRef} className="max-h-[440px] overflow-auto">
                 <div
                   style={{
                     height: `${rowVirtualizer.getTotalSize() + 75}px`,
+                    width: "100%",
                     position: "relative",
                   }}
                 >
@@ -154,7 +176,7 @@ export default function WeightLogHistory({
                         <TableHead className="py-4 text-center">
                           Calories (Kcal)
                         </TableHead>
-                        {!isNotesEmpty && (
+                        {!isNotesEmpty && showNotes && (
                           <TableHead className="py-4 text-center">
                             Notes
                           </TableHead>
@@ -177,6 +199,9 @@ export default function WeightLogHistory({
                                 transform: `translateY(${
                                   start - index * size
                                 }px)`,
+                                width: "100%",
+                                top: 0,
+                                left: 0,
                               }}
                             >
                               <TableCell className="py-2 text-center ">
@@ -260,7 +285,7 @@ export default function WeightLogHistory({
                                   Kcal
                                 </span>
                               </TableCell>
-                              {!isNotesEmpty && (
+                              {!isNotesEmpty && showNotes && (
                                 <TableCell className="py-4 pl-8">
                                   {entry.notes}
                                 </TableCell>
