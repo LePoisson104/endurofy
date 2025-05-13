@@ -312,3 +312,125 @@
     opacity: 1;
   }
 }
+
+.nav-link {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  color: inherit; /* Keeps the text color consistent */
+  padding-bottom: 2px; /* Optional: Adds a bit of padding */
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  background-color: currentColor; /* Uses the text color */
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+@keyframes opacity-animation {
+  0% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-animation-1 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-animation-2 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-animation-3 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+.pulse {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: bold;
+  font-size: 1.25rem;
+  overflow: visible;
+}
+
+.pulse-1:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1);
+  animation: pulse-animation-1 2s ease-out infinite;
+  animation-delay: 0s, 3.4s;
+}
+
+.pulse-2:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1);
+  animation: pulse-animation-2 2s ease-out infinite;
+  animation-delay: 0.7s, 3.4s;
+}
+
+.pulse-3:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1);
+  animation: pulse-animation-3 2s ease-out infinite;
+  animation-delay: 1.4s, 3.4s;
+}

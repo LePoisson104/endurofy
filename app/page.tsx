@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   Menu,
   Route,
   Users,
+  Sparkle,
 } from "lucide-react";
 import {
   Accordion,
@@ -19,16 +21,84 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ThemeToggle } from "@/components/buttons/theme-toggle";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { motion } from "framer-motion";
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 },
+  },
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const featureCardVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5 },
+  },
+};
+
+const imageVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.7, ease: "easeOut" },
+  },
+};
+
+const accordionVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3 },
+  },
+};
+
+const pricingCardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
+};
 
 export default function Home() {
+  const isDark = useGetCurrentTheme();
+
   return (
     <div className="flex min-h-[100dvh] flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
         <div className="container flex h-16 items-center justify-between mx-auto">
           <Link href="/">
             <div className="flex items-center gap-1">
               <Image
-                src="/images/endurofy_logo.png"
+                src={
+                  isDark
+                    ? "/images/endurofy_logo.png"
+                    : "/images/endurofy_logo_dark.png"
+                }
                 alt="Endurofy Logo"
                 width={30}
                 height={30}
@@ -39,37 +109,38 @@ export default function Home() {
           <nav className="hidden md:flex gap-6 items-center justify-center">
             <Link
               href="#features"
-              className="text-sm font-medium hover:text-primary"
+              className="text-sm font-medium hover:text-primary nav-link"
             >
               Features
             </Link>
             <Link
-              href="#testimonials"
-              className="text-sm font-medium hover:text-primary"
+              href="#how-it-works"
+              className="text-sm font-medium hover:text-primary nav-link"
             >
-              Testimonials
+              How it works
             </Link>
             <Link
               href="#pricing"
-              className="text-sm font-medium hover:text-primary"
+              className="text-sm font-medium hover:text-primary nav-link"
             >
               Pricing
             </Link>
             <Link
               href="#faq"
-              className="text-sm font-medium hover:text-primary"
+              className="text-sm font-medium hover:text-primary nav-link"
             >
               FAQ
             </Link>
           </nav>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link href="/login" className="hidden md:block">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" className="px-5 py-4">
                 Log in
               </Button>
             </Link>
             <Link href="/signup">
-              <Button size="sm">
+              <Button className="px-5 py-4 hover:">
                 Try it now <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -82,7 +153,13 @@ export default function Home() {
       </header>
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32 xl:py-48"
+        >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px] items-center justify-center">
               <div className="flex flex-col justify-center space-y-4">
@@ -98,7 +175,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start">
-                  <Link href="#download">
+                  <Link href="/signup">
                     <Button size="lg" className="gap-1">
                       <ChevronRight className="h-4 w-4" />
                       Try it now
@@ -123,14 +200,25 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Features Section */}
-        <section id="features" className="w-full py-12 md:py-24 lg:py-32">
+        <motion.section
+          id="features"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="w-full py-12 md:py-24 lg:py-32 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:24px_24px]"
+        >
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col items-center justify-center space-y-4 text-center"
+            >
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
+                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                  <Sparkle className="h-3 w-3" />
                   Features
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
@@ -141,142 +229,194 @@ export default function Home() {
                   features to help you achieve your fitness goals.
                 </p>
               </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3">
+            </motion.div>
+            <motion.div
+              variants={staggerContainer}
+              className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3"
+            >
               <FeatureCard
-                icon={<Activity className="h-10 w-10 text-primary" />}
+                icon={<Activity className="h-6 w-6 text-primary" />}
                 title="Advanced Tracking"
                 description="Track runs, rides, hikes and more with GPS, heart rate, and detailed metrics."
               />
               <FeatureCard
-                icon={<BarChart3 className="h-10 w-10 text-primary" />}
+                icon={<BarChart3 className="h-6 w-6 text-primary" />}
                 title="Performance Analytics"
                 description="Get insights into your training with detailed charts and progress tracking."
               />
               <FeatureCard
-                icon={<Users className="h-10 w-10 text-primary" />}
+                icon={<Users className="h-6 w-6 text-primary" />}
                 title="Community Challenges"
                 description="Join challenges, compete with friends, and stay motivated with community support."
               />
               <FeatureCard
-                icon={<Route className="h-10 w-10 text-primary" />}
+                icon={<Route className="h-6 w-6 text-primary" />}
                 title="Route Planning"
                 description="Discover and create routes for your next adventure with elevation profiles."
               />
               <FeatureCard
-                icon={<Heart className="h-10 w-10 text-primary" />}
+                icon={<Heart className="h-6 w-6 text-primary" />}
                 title="Health Integration"
                 description="Connect with Apple Health, Google Fit, and other platforms for a complete picture."
               />
               <FeatureCard
-                icon={<Calendar className="h-10 w-10 text-primary" />}
+                icon={<Calendar className="h-6 w-6 text-primary" />}
                 title="Training Plans"
                 description="Follow personalized training plans designed to help you reach your goals."
               />
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        {/* App Screenshots */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        {/* How it works */}
+        <motion.section
+          id="how-it-works"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                  <Sparkle className="h-3 w-3" />
+                  How it works
+                </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Designed for endurance athletes
+                  Simple, intuitive, and effective
+                </h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Get started with Endurofy in three simple steps
+                </p>
+              </div>
+            </div>
+            <div className="mx-auto grid max-w-5xl gap-8 py-12 md:grid-cols-3">
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center space-y-4"
+              >
+                <div className="pulse pulse-1">1</div>
+                <h3 className="text-xl font-bold">Sign Up</h3>
+                <p className="text-muted-foreground">
+                  Create your account and set up your profile with your fitness
+                  goals and preferences
+                </p>
+              </motion.div>
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center space-y-4"
+              >
+                <div className="pulse pulse-2">2</div>
+                <h3 className="text-xl font-bold">Connect Your Devices</h3>
+                <p className="text-muted-foreground">
+                  Link your smartwatch or fitness tracker to start tracking your
+                  activities
+                </p>
+              </motion.div>
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center space-y-4"
+              >
+                <div className="pulse pulse-3">3</div>
+                <h3 className="text-xl font-bold">Start Training</h3>
+                <p className="text-muted-foreground">
+                  Follow personalized training plans and track your progress
+                  with detailed analytics
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* App Screenshots */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
+          <div className="container px-4 md:px-6 mx-auto">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col items-center justify-center space-y-4 text-center"
+            >
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                  <Sparkle className="h-3 w-3" />
+                  Intuitive interface
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                  Designed for desktop and mobile devices
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Beautiful, intuitive interface that helps you focus on what
                   matters most - your performance.
                 </p>
               </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3">
-              <div className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted">
+            </motion.div>
+            <motion.div
+              variants={staggerContainer}
+              className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3"
+            >
+              <motion.div
+                variants={imageVariants}
+                className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted"
+              >
                 <Image
                   src="/placeholder.svg?height=800&width=450"
                   alt="Activity tracking screen"
                   fill
                   className="object-cover"
                 />
-              </div>
-              <div className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted md:translate-y-8">
+              </motion.div>
+              <motion.div
+                variants={imageVariants}
+                className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted md:translate-y-8"
+              >
                 <Image
                   src="/placeholder.svg?height=800&width=450"
                   alt="Performance analytics screen"
                   fill
                   className="object-cover"
                 />
-              </div>
-              <div className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted">
+              </motion.div>
+              <motion.div
+                variants={imageVariants}
+                className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted"
+              >
                 <Image
                   src="/placeholder.svg?height=800&width=450"
                   alt="Community challenges screen"
                   fill
                   className="object-cover"
                 />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
-        </section>
-
-        {/* Testimonials */}
-        <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
-                  Testimonials
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Loved by athletes worldwide
-                </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Don't take our word for it. Here's what our users have to say
-                  about Endurofy.
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
-              <TestimonialCard
-                quote="Endurofy has completely transformed my training. The analytics are incredible and I've improved my marathon time by 15 minutes!"
-                author="Sarah K."
-                role="Marathon Runner"
-              />
-              <TestimonialCard
-                quote="As a cycling coach, I recommend Endurofy to all my athletes. The detailed metrics and training plans are game-changers."
-                author="Michael T."
-                role="Cycling Coach"
-              />
-              <TestimonialCard
-                quote="The community challenges keep me motivated. I've made new friends and pushed myself further than I thought possible."
-                author="James L."
-                role="Trail Runner"
-              />
-              <TestimonialCard
-                quote="I love how Endurofy integrates with all my devices. It's become the central hub for all my fitness data."
-                author="Emma R."
-                role="Triathlete"
-              />
-              <TestimonialCard
-                quote="The route planning feature has helped me discover amazing new trails in my area that I never knew existed."
-                author="David M."
-                role="Mountain Biker"
-              />
-              <TestimonialCard
-                quote="As someone new to endurance sports, the training plans have been invaluable. I completed my first half marathon thanks to Endurofy!"
-                author="Lisa P."
-                role="Beginner Runner"
-              />
-            </div>
-          </div>
-        </section>
+        </motion.section>
 
         {/* Pricing */}
-        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32">
+        <motion.section
+          id="pricing"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col items-center justify-center space-y-4 text-center"
+            >
               <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                  <Sparkle className="h-3 w-3" />
+                  Pricing
+                </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Simple, transparent pricing
                 </h2>
@@ -284,25 +424,33 @@ export default function Home() {
                   Choose the plan that's right for your fitness journey.
                 </p>
               </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3 lg:grid-cols-3 justify-center">
-              <div className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold">Free</h3>
-                  <p className="text-muted-foreground">
-                    Essential features for casual athletes
-                  </p>
+            </motion.div>
+            <motion.div
+              variants={staggerContainer}
+              className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3 lg:grid-cols-3 justify-center"
+            >
+              <motion.div
+                variants={pricingCardVariants}
+                className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full h-full justify-between"
+              >
+                <div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold">Free</h3>
+                    <p className="text-muted-foreground">
+                      Essential features for casual athletes
+                    </p>
+                  </div>
+                  <div className="mt-4 flex items-baseline justify-center">
+                    <span className="text-3xl font-bold">$0</span>
+                    <span className="ml-1 text-muted-foreground">/month</span>
+                  </div>
+                  <ul className="mt-6 space-y-2 text-sm">
+                    <PricingFeature>Basic activity tracking</PricingFeature>
+                    <PricingFeature>Route planning</PricingFeature>
+                    <PricingFeature>Community access</PricingFeature>
+                    <PricingFeature>5 activities per month</PricingFeature>
+                  </ul>
                 </div>
-                <div className="mt-4 flex items-baseline justify-center">
-                  <span className="text-3xl font-bold">$0</span>
-                  <span className="ml-1 text-muted-foreground">/month</span>
-                </div>
-                <ul className="mt-6 space-y-2 text-sm">
-                  <PricingFeature>Basic activity tracking</PricingFeature>
-                  <PricingFeature>Route planning</PricingFeature>
-                  <PricingFeature>Community access</PricingFeature>
-                  <PricingFeature>5 activities per month</PricingFeature>
-                </ul>
                 <div className="mt-6">
                   <Link href="#download">
                     <Button className="w-full" variant="outline">
@@ -310,54 +458,65 @@ export default function Home() {
                     </Button>
                   </Link>
                 </div>
-              </div>
-              <div className="flex flex-col rounded-xl border bg-card p-6 shadow-lg ring-2 ring-primary text-center mx-auto max-w-xs w-full">
-                <div className="space-y-2">
-                  <div className="inline-block rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground">
-                    Popular
+              </motion.div>
+              <motion.div
+                variants={pricingCardVariants}
+                className="flex flex-col rounded-xl border bg-card p-6 shadow-lg ring-2 ring-primary text-center mx-auto max-w-xs w-full h-full justify-between"
+              >
+                <div>
+                  <div className="space-y-2">
+                    <div className="inline-block rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground">
+                      Popular
+                    </div>
+                    <h3 className="text-xl font-bold">Pro</h3>
+                    <p className="text-muted-foreground">
+                      Advanced features for dedicated athletes
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold">Pro</h3>
-                  <p className="text-muted-foreground">
-                    Advanced features for dedicated athletes
-                  </p>
+                  <div className="mt-4 flex items-baseline justify-center">
+                    <span className="text-3xl font-bold">$9.99</span>
+                    <span className="ml-1 text-muted-foreground">/month</span>
+                  </div>
+                  <ul className="mt-6 space-y-2 text-sm">
+                    <PricingFeature>Unlimited activity tracking</PricingFeature>
+                    <PricingFeature>Advanced analytics</PricingFeature>
+                    <PricingFeature>Training plans</PricingFeature>
+                    <PricingFeature>Heart rate zone analysis</PricingFeature>
+                    <PricingFeature>Export data (GPX, FIT)</PricingFeature>
+                    <PricingFeature>Priority support</PricingFeature>
+                  </ul>
                 </div>
-                <div className="mt-4 flex items-baseline justify-center">
-                  <span className="text-3xl font-bold">$9.99</span>
-                  <span className="ml-1 text-muted-foreground">/month</span>
-                </div>
-                <ul className="mt-6 space-y-2 text-sm">
-                  <PricingFeature>Unlimited activity tracking</PricingFeature>
-                  <PricingFeature>Advanced analytics</PricingFeature>
-                  <PricingFeature>Training plans</PricingFeature>
-                  <PricingFeature>Heart rate zone analysis</PricingFeature>
-                  <PricingFeature>Export data (GPX, FIT)</PricingFeature>
-                  <PricingFeature>Priority support</PricingFeature>
-                </ul>
                 <div className="mt-6">
                   <Link href="#download">
                     <Button className="w-full">Get Started</Button>
                   </Link>
                 </div>
-              </div>
-              <div className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold">Elite</h3>
-                  <p className="text-muted-foreground">
-                    Premium features for competitive athletes
-                  </p>
+              </motion.div>
+              <motion.div
+                variants={pricingCardVariants}
+                className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full h-full justify-between"
+              >
+                <div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold">Annual</h3>
+                    <p className="text-muted-foreground">billed annually</p>
+                  </div>
+                  <div className="mt-4 flex items-baseline justify-center">
+                    <span className="text-3xl font-bold">$8.33</span>
+                    <span className="ml-1 text-muted-foreground">/month*</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    *$100 annually billed
+                  </span>
+                  <ul className="mt-6 space-y-2 text-sm">
+                    <PricingFeature>Everything in Pro</PricingFeature>
+                    <PricingFeature>Personalized coaching</PricingFeature>
+                    <PricingFeature>Advanced power metrics</PricingFeature>
+                    <PricingFeature>Race prediction</PricingFeature>
+                    <PricingFeature>Video analysis</PricingFeature>
+                    <PricingFeature>Premium support</PricingFeature>
+                  </ul>
                 </div>
-                <div className="mt-4 flex items-baseline justify-center">
-                  <span className="text-3xl font-bold">$19.99</span>
-                  <span className="ml-1 text-muted-foreground">/month</span>
-                </div>
-                <ul className="mt-6 space-y-2 text-sm">
-                  <PricingFeature>Everything in Pro</PricingFeature>
-                  <PricingFeature>Personalized coaching</PricingFeature>
-                  <PricingFeature>Advanced power metrics</PricingFeature>
-                  <PricingFeature>Race prediction</PricingFeature>
-                  <PricingFeature>Video analysis</PricingFeature>
-                  <PricingFeature>Premium support</PricingFeature>
-                </ul>
                 <div className="mt-6">
                   <Link href="#download">
                     <Button className="w-full" variant="outline">
@@ -365,16 +524,27 @@ export default function Home() {
                     </Button>
                   </Link>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         {/* FAQ */}
-        <section id="faq" className="w-full py-12 md:py-24 lg:py-32">
+        <motion.section
+          id="faq"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                  <Sparkle className="h-3 w-3" />
+                  FAQ
+                </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Frequently asked questions
                 </h2>
@@ -385,67 +555,90 @@ export default function Home() {
             </div>
             <div className="mx-auto max-w-3xl py-12">
               <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger className="text-base font-medium">
-                    Which activities does Endurofy support?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    Endurofy supports running, cycling, swimming, hiking, trail
-                    running, walking, and many more endurance activities.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger className="text-base font-medium">
-                    Does Endurofy work with my smartwatch?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    Yes, Endurofy integrates with most popular devices including
-                    Garmin, Apple Watch, Fitbit, Polar, Suunto, and more.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger className="text-base font-medium">
-                    Can I export my data from Endurofy?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    Pro and Elite users can export their data in various formats
-                    including GPX, FIT, and CSV.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-4">
-                  <AccordionTrigger className="text-base font-medium">
-                    Is there a free trial for the paid plans?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    Yes, we offer a 30-day free trial for both our Pro and Elite
-                    plans so you can experience all the features.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-5">
-                  <AccordionTrigger className="text-base font-medium">
-                    How does Endurofy protect my privacy?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    We take privacy seriously. Your data is encrypted, never
-                    sold, and you have complete control over what you share.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-6">
-                  <AccordionTrigger className="text-base font-medium">
-                    Can I switch between plans?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    Yes, you can upgrade or downgrade your plan at any time.
-                    Changes take effect at your next billing cycle.
-                  </AccordionContent>
-                </AccordionItem>
+                <motion.div variants={staggerContainer}>
+                  <motion.div variants={accordionVariants}>
+                    <AccordionItem value="item-1">
+                      <AccordionTrigger className="text-base font-medium">
+                        Which activities does Endurofy support?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        Endurofy supports running, cycling, swimming, hiking,
+                        trail running, walking, and many more endurance
+                        activities.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </motion.div>
+                  <motion.div variants={accordionVariants}>
+                    <AccordionItem value="item-2">
+                      <AccordionTrigger className="text-base font-medium">
+                        Does Endurofy work with my smartwatch?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        Yes, Endurofy integrates with most popular devices
+                        including Garmin, Apple Watch, Fitbit, Polar, Suunto,
+                        and more.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </motion.div>
+                  <motion.div variants={accordionVariants}>
+                    <AccordionItem value="item-3">
+                      <AccordionTrigger className="text-base font-medium">
+                        Can I export my data from Endurofy?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        Pro users can export their data in various formats
+                        including GPX, FIT, and CSV.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </motion.div>
+                  <motion.div variants={accordionVariants}>
+                    <AccordionItem value="item-4">
+                      <AccordionTrigger className="text-base font-medium">
+                        Is there a free trial for the paid plans?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        Yes, we offer a 30-day free trial for both our Pro and
+                        Elite plans so you can experience all the features.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </motion.div>
+                  <motion.div variants={accordionVariants}>
+                    <AccordionItem value="item-5">
+                      <AccordionTrigger className="text-base font-medium">
+                        How does Endurofy protect my privacy?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        We take privacy seriously. Your data is encrypted, never
+                        sold, and you have complete control over what you share.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </motion.div>
+                  <motion.div variants={accordionVariants}>
+                    <AccordionItem value="item-6">
+                      <AccordionTrigger className="text-base font-medium">
+                        Can I switch between plans?
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        Yes, you can upgrade or downgrade your plan at any time.
+                        Changes take effect at your next billing cycle.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </motion.div>
+                </motion.div>
               </Accordion>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Download CTA */}
-        <section id="download" className="w-full py-12 md:py-24 lg:py-32">
+        <motion.section
+          id="download"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px] items-center justify-center">
               <div className="flex flex-col justify-center space-y-4">
@@ -498,10 +691,16 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Newsletter */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+        >
           <div className="container grid items-center gap-6 px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -528,7 +727,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
       </main>
       <footer className="w-full border-t bg-background">
         <div className="container flex flex-col gap-6 py-8 md:py-12 lg:py-16 px-4 md:px-6 mx-auto">
@@ -536,11 +735,14 @@ export default function Home() {
             <div className="flex flex-col gap-3 lg:max-w-sm">
               <div className="flex items-center gap-1">
                 <Image
-                  src="/images/endurofy_logo.png"
+                  src={
+                    isDark
+                      ? "/images/endurofy_logo.png"
+                      : "/images/endurofy_logo_dark.png"
+                  }
                   alt="Endurofy Logo"
                   width={24}
                   height={24}
-                  className="h-6 w-6"
                 />
                 <span className="text-xl font-bold">endurofy</span>
               </div>
@@ -824,36 +1026,20 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="mb-4 rounded-full bg-primary/10 p-4">{icon}</div>
-      <h3 className="text-xl font-bold">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-    </div>
-  );
-}
-
-function TestimonialCard({
-  quote,
-  author,
-  role,
-}: {
-  quote: string;
-  author: string;
-  role: string;
-}) {
-  return (
-    <div className="flex flex-col rounded-xl border bg-card p-6">
-      <div className="flex-1">
-        <p className="text-sm text-muted-foreground">"{quote}"</p>
+    <motion.div
+      variants={featureCardVariants}
+      className="flex flex-col p-6 rounded-xl border bg-background hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] transition-all cursor-pointer h-[200px] w-full group"
+    >
+      <div className="rounded-full bg-primary/10 p-2 w-fit group-hover:bg-primary/20 transition-colors">
+        {icon}
       </div>
-      <div className="mt-4 flex items-center">
-        <div className="h-10 w-10 rounded-full bg-muted"></div>
-        <div className="ml-3">
-          <p className="text-sm font-medium">{author}</p>
-          <p className="text-xs text-muted-foreground">{role}</p>
-        </div>
+      <div className="mt-4">
+        <h3 className="text-xl font-bold text-left">{title}</h3>
+        <p className="mt-2 text-sm text-muted-foreground text-left">
+          {description}
+        </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
