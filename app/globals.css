@@ -434,3 +434,38 @@
   animation: pulse-animation-3 2s ease-out infinite;
   animation-delay: 1.4s, 3.4s;
 }
+
+:root {
+  --buttonColor: #635bff;
+  --buttonHoverColor: #0a2540;
+  --knockoutColor: #fff;
+}
+
+.arrow-button {
+  transition: background 150ms;
+
+  &:hover,
+  &:focus {
+    .arrow-icon__tip {
+      transform: translateX(0px);
+    }
+
+    .arrow-icon__line {
+      opacity: 1;
+    }
+  }
+
+  &:focus {
+    outline-offset: 4px;
+  }
+}
+
+.arrow-icon__tip {
+  transform: translateX(-4px);
+  transition: transform 150ms;
+}
+
+.arrow-icon__line {
+  opacity: 0;
+  transition: opacity 150ms;
+}

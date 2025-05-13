@@ -7,13 +7,12 @@ import {
   Activity,
   BarChart3,
   Calendar,
-  ChevronRight,
   Download,
   Heart,
   Menu,
-  Route,
-  Users,
+  Dumbbell,
   Sparkle,
+  CalendarSync,
 } from "lucide-react";
 import {
   Accordion,
@@ -24,6 +23,8 @@ import {
 import { ThemeToggle } from "@/components/buttons/theme-toggle";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState, useEffect, useRef } from "react";
 
 // Animation variants
 const fadeInUp = {
@@ -84,81 +85,352 @@ const pricingCardVariants = {
   },
 };
 
+const menuVariants = {
+  hidden: {
+    opacity: 0,
+    height: 0,
+    overflow: "hidden",
+  },
+  visible: {
+    opacity: 1,
+    height: "auto",
+    transition: {
+      height: {
+        duration: 0.3,
+      },
+      opacity: {
+        duration: 0.2,
+        delay: 0.1,
+      },
+    },
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    overflow: "hidden",
+    transition: {
+      height: {
+        duration: 0.3,
+      },
+      opacity: {
+        duration: 0.2,
+      },
+    },
+  },
+};
+
+const navLinkVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  }),
+};
+
+const buttonVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: {
+      delay: 0.4 + i * 0.1,
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  }),
+};
+
 export default function Home() {
   const isDark = useGetCurrentTheme();
+  const isMobile = useIsMobile();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    // Set loading to false after a small delay to ensure isMobile is set
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef, buttonRef]);
+
+  const scrollToSection = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    sectionId: string
+  ) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    setIsMenuOpen(false);
+  };
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
       <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-        <div className="container flex h-16 items-center justify-between mx-auto">
-          <Link href="/">
+        <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
+          <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
             <div className="flex items-center gap-1">
-              <Image
-                src={
-                  isDark
-                    ? "/images/endurofy_logo.png"
-                    : "/images/endurofy_logo_dark.png"
-                }
-                alt="Endurofy Logo"
-                width={30}
-                height={30}
-              />
-              <span className="text-xl font-bold">endurofy</span>
+              <span className="text-xl font-bold hover:text-primary">
+                Endurofy
+              </span>
             </div>
           </Link>
-          <nav className="hidden md:flex gap-6 items-center justify-center">
-            <Link
-              href="#features"
-              className="text-sm font-medium hover:text-primary nav-link"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="text-sm font-medium hover:text-primary nav-link"
-            >
-              How it works
-            </Link>
-            <Link
-              href="#pricing"
-              className="text-sm font-medium hover:text-primary nav-link"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#faq"
-              className="text-sm font-medium hover:text-primary nav-link"
-            >
-              FAQ
-            </Link>
-          </nav>
+          {!isLoading && !isMobile && (
+            <nav className="hidden md:flex gap-6 items-center justify-center">
+              <motion.div
+                custom={0}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#features"
+                  onClick={(e) => scrollToSection(e, "features")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  Features
+                </Link>
+              </motion.div>
+              <motion.div
+                custom={1}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#how-it-works"
+                  onClick={(e) => scrollToSection(e, "how-it-works")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  How it works
+                </Link>
+              </motion.div>
+              <motion.div
+                custom={2}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#pricing"
+                  onClick={(e) => scrollToSection(e, "pricing")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  Pricing
+                </Link>
+              </motion.div>
+              <motion.div
+                custom={3}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#faq"
+                  onClick={(e) => scrollToSection(e, "faq")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  FAQ
+                </Link>
+              </motion.div>
+            </nav>
+          )}
           <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/login" className="hidden md:block">
-              <Button variant="outline" className="px-5 py-4">
-                Log in
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="px-5 py-4 hover:">
-                Try it now <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
+            {!isLoading && (
+              <motion.div
+                custom={0}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <ThemeToggle />
+              </motion.div>
+            )}
+            {!isLoading && !isMobile && (
+              <motion.div
+                custom={1}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link href="/login" className="hidden md:block">
+                  <Button variant="outline" className="px-5 py-4">
+                    Log in
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+            {!isLoading && !isMobile && (
+              <motion.div
+                custom={2}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link href="/signup">
+                  <Button className="px-5 py-4 arrow-button ">
+                    Try it now{" "}
+                    <svg
+                      className="arrow-icon"
+                      viewBox="0 -3.5 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        className="arrow-icon__tip"
+                        d="M8 15L14 8.5L8 2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        className="arrow-icon__line"
+                        x1="13"
+                        y1="8.5"
+                        y2="8.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+            {isMobile && (
+              <motion.div
+                custom={1}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleMenu}
+                  ref={buttonRef}
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </motion.div>
+            )}
           </div>
         </div>
+        {isMobile && (
+          <motion.div
+            className="bg-background py-3 px-4 shadow-md absolute top-16 left-0 right-0 z-50"
+            initial="hidden"
+            animate={isMenuOpen ? "visible" : "hidden"}
+            variants={menuVariants}
+            ref={menuRef}
+          >
+            <nav className="flex flex-col gap-2">
+              <Link
+                href="#features"
+                onClick={(e) => scrollToSection(e, "features")}
+                className="text-sm font-medium hover:text-primary py-1.5"
+              >
+                Features
+              </Link>
+              <Link
+                href="#how-it-works"
+                onClick={(e) => scrollToSection(e, "how-it-works")}
+                className="text-sm font-medium hover:text-primary py-1.5"
+              >
+                How it works
+              </Link>
+              <Link
+                href="#pricing"
+                onClick={(e) => scrollToSection(e, "pricing")}
+                className="text-sm font-medium hover:text-primary py-1.5"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="#faq"
+                onClick={(e) => scrollToSection(e, "faq")}
+                className="text-sm font-medium hover:text-primary py-1.5"
+              >
+                FAQ
+              </Link>
+              <div className="flex gap-2 pt-1 pb-1">
+                <Link href="/login" className="flex-1">
+                  <Button variant="outline" className="w-full h-9">
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/signup" className="flex-1">
+                  <Button className="w-full h-9 arrow-button">
+                    Try it now
+                    <svg
+                      className="arrow-icon"
+                      viewBox="0 -3.5 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="7"
+                      height="7"
+                    >
+                      <path
+                        className="arrow-icon__tip"
+                        d="M8 15L14 8.5L8 2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        className="arrow-icon__line"
+                        x1="13"
+                        y1="8.5"
+                        y2="8.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </Button>
+                </Link>
+              </div>
+            </nav>
+          </motion.div>
+        )}
       </header>
       <main className="flex-1">
         {/* Hero Section */}
         <motion.section
+          id="hero"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 xl:py-48"
+          className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-4 md:px-6"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px] items-center justify-center">
@@ -174,18 +446,45 @@ export default function Home() {
                     your performance, and reach your fitness goals faster.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start">
-                  <Link href="/signup">
-                    <Button size="lg" className="gap-1">
-                      <ChevronRight className="h-4 w-4" />
-                      Try it now
-                    </Button>
-                  </Link>
-                  <Link href="#features">
-                    <Button size="lg" variant="outline">
-                      Learn More
-                    </Button>
-                  </Link>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start sm:w-full">
+                  <div className="relative flex-1 max-w-md">
+                    <Input
+                      placeholder="Enter your email"
+                      className="pr-28 rounded-full py-5 bg-muted/50"
+                    />
+                    <Link
+                      href="/signup"
+                      className="absolute right-1 top-1/2 -translate-y-1/2"
+                    >
+                      <Button
+                        size="sm"
+                        className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground"
+                      >
+                        Start now
+                        <svg
+                          className="arrow-icon"
+                          viewBox="0 -3.5 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            className="arrow-icon__tip"
+                            d="M8 15L14 8.5L8 2"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                          <line
+                            className="arrow-icon__line"
+                            x1="13"
+                            y1="8.5"
+                            y2="8.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-center">
@@ -225,8 +524,8 @@ export default function Home() {
                   Everything you need to reach your peak
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Endurofy combines powerful tracking, analytics, and social
-                  features to help you achieve your fitness goals.
+                  Endurofy combines powerful tracking and analytics features to
+                  help you achieve your fitness goals.
                 </p>
               </div>
             </motion.div>
@@ -235,9 +534,19 @@ export default function Home() {
               className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3"
             >
               <FeatureCard
+                icon={<Calendar className="h-6 w-6 text-primary" />}
+                title="Training Programs"
+                description="Follow personalized training programs designed to help you reach your goals."
+              />
+              <FeatureCard
+                icon={<CalendarSync className="h-6 w-6 text-primary" />}
+                title="Auto-filled Workouts"
+                description="Endurofy pre-fills each day in your workout log with the exercises from your program."
+              />
+              <FeatureCard
                 icon={<Activity className="h-6 w-6 text-primary" />}
                 title="Advanced Tracking"
-                description="Track runs, rides, hikes and more with GPS, heart rate, and detailed metrics."
+                description="Track workouts, and daily weights with detailed metrics."
               />
               <FeatureCard
                 icon={<BarChart3 className="h-6 w-6 text-primary" />}
@@ -245,24 +554,15 @@ export default function Home() {
                 description="Get insights into your training with detailed charts and progress tracking."
               />
               <FeatureCard
-                icon={<Users className="h-6 w-6 text-primary" />}
-                title="Community Challenges"
-                description="Join challenges, compete with friends, and stay motivated with community support."
+                icon={<Dumbbell className="h-6 w-6 text-primary" />}
+                title="Workout Explorer"
+                description="Explore workouts from our library and add them to your own training plans."
               />
-              <FeatureCard
-                icon={<Route className="h-6 w-6 text-primary" />}
-                title="Route Planning"
-                description="Discover and create routes for your next adventure with elevation profiles."
-              />
+
               <FeatureCard
                 icon={<Heart className="h-6 w-6 text-primary" />}
                 title="Health Integration"
                 description="Connect with Apple Health, Google Fit, and other platforms for a complete picture."
-              />
-              <FeatureCard
-                icon={<Calendar className="h-6 w-6 text-primary" />}
-                title="Training Plans"
-                description="Follow personalized training plans designed to help you reach your goals."
               />
             </motion.div>
           </div>
@@ -288,7 +588,8 @@ export default function Home() {
                   Simple, intuitive, and effective
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Get started with Endurofy in three simple steps
+                  Customize your training plans, track your progress, and reach
+                  your goals.
                 </p>
               </div>
             </div>
@@ -298,10 +599,13 @@ export default function Home() {
                 className="flex flex-col items-center text-center space-y-4"
               >
                 <div className="pulse pulse-1">1</div>
-                <h3 className="text-xl font-bold">Sign Up</h3>
+                <h3 className="text-xl font-bold">
+                  Create Your Workout program
+                </h3>
                 <p className="text-muted-foreground">
-                  Create your account and set up your profile with your fitness
-                  goals and preferences
+                  Design your custom training plan with the flexibility to match
+                  your goals, whether it&apos;s strength, endurance, or overall
+                  fitness.
                 </p>
               </motion.div>
               <motion.div
@@ -309,10 +613,11 @@ export default function Home() {
                 className="flex flex-col items-center text-center space-y-4"
               >
                 <div className="pulse pulse-2">2</div>
-                <h3 className="text-xl font-bold">Connect Your Devices</h3>
+                <h3 className="text-xl font-bold">Auto-filled Workouts</h3>
                 <p className="text-muted-foreground">
-                  Link your smartwatch or fitness tracker to start tracking your
-                  activities
+                  Stay focused &amp; Endurofy pre-fills each day in your workout
+                  log with the exercises from your program, so all you need to
+                  do is log your reps and weights.
                 </p>
               </motion.div>
               <motion.div
@@ -320,10 +625,10 @@ export default function Home() {
                 className="flex flex-col items-center text-center space-y-4"
               >
                 <div className="pulse pulse-3">3</div>
-                <h3 className="text-xl font-bold">Start Training</h3>
+                <h3 className="text-xl font-bold">Track and Progress</h3>
                 <p className="text-muted-foreground">
-                  Follow personalized training plans and track your progress
-                  with detailed analytics
+                  Follow your plan, track your progress, and see your growth
+                  over time with powerful insights and analytics.
                 </p>
               </motion.div>
             </div>
@@ -349,7 +654,7 @@ export default function Home() {
                   Intuitive interface
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Designed for desktop and mobile devices
+                  Effortless Interactions, Powerful Experiences
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Beautiful, intuitive interface that helps you focus on what
@@ -436,7 +741,7 @@ export default function Home() {
                 <div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Free</h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Essential features for casual athletes
                     </p>
                   </div>
@@ -445,10 +750,16 @@ export default function Home() {
                     <span className="ml-1 text-muted-foreground">/month</span>
                   </div>
                   <ul className="mt-6 space-y-2 text-sm">
-                    <PricingFeature>Basic activity tracking</PricingFeature>
-                    <PricingFeature>Route planning</PricingFeature>
-                    <PricingFeature>Community access</PricingFeature>
-                    <PricingFeature>5 activities per month</PricingFeature>
+                    <PricingFeature>Workout and weight tracking</PricingFeature>
+                    <PricingFeature>
+                      Create up to 2 workout programs
+                    </PricingFeature>
+                    <PricingFeature>
+                      Limit access to workout programs library
+                    </PricingFeature>
+                    <PricingFeature>
+                      Basic analytics and insights
+                    </PricingFeature>
                   </ul>
                 </div>
                 <div className="mt-6">
@@ -469,7 +780,7 @@ export default function Home() {
                       Popular
                     </div>
                     <h3 className="text-xl font-bold">Pro</h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Advanced features for dedicated athletes
                     </p>
                   </div>
@@ -478,12 +789,19 @@ export default function Home() {
                     <span className="ml-1 text-muted-foreground">/month</span>
                   </div>
                   <ul className="mt-6 space-y-2 text-sm">
-                    <PricingFeature>Unlimited activity tracking</PricingFeature>
-                    <PricingFeature>Advanced analytics</PricingFeature>
-                    <PricingFeature>Training plans</PricingFeature>
-                    <PricingFeature>Heart rate zone analysis</PricingFeature>
-                    <PricingFeature>Export data (GPX, FIT)</PricingFeature>
-                    <PricingFeature>Priority support</PricingFeature>
+                    <PricingFeature>Everything in Free</PricingFeature>
+                    <PricingFeature>
+                      Create up to 10 workout programs
+                    </PricingFeature>
+                    <PricingFeature>
+                      Have full access to the workout programs library
+                    </PricingFeature>
+                    <PricingFeature>
+                      Advanced analytics and insights
+                    </PricingFeature>
+                    <PricingFeature>
+                      Import and export wokrout programs with other pro members
+                    </PricingFeature>
                   </ul>
                 </div>
                 <div className="mt-6">
@@ -499,7 +817,9 @@ export default function Home() {
                 <div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Annual</h3>
-                    <p className="text-muted-foreground">billed annually</p>
+                    <p className="text-muted-foreground text-sm">
+                      billed annually
+                    </p>
                   </div>
                   <div className="mt-4 flex items-baseline justify-center">
                     <span className="text-3xl font-bold">$8.33</span>
@@ -509,12 +829,19 @@ export default function Home() {
                     *$100 annually billed
                   </span>
                   <ul className="mt-6 space-y-2 text-sm">
-                    <PricingFeature>Everything in Pro</PricingFeature>
-                    <PricingFeature>Personalized coaching</PricingFeature>
-                    <PricingFeature>Advanced power metrics</PricingFeature>
-                    <PricingFeature>Race prediction</PricingFeature>
-                    <PricingFeature>Video analysis</PricingFeature>
-                    <PricingFeature>Premium support</PricingFeature>
+                    <PricingFeature>Everything in Free</PricingFeature>
+                    <PricingFeature>
+                      Create up to 10 workout programs
+                    </PricingFeature>
+                    <PricingFeature>
+                      Have full access to the workout programs library
+                    </PricingFeature>
+                    <PricingFeature>
+                      Advanced analytics and insights
+                    </PricingFeature>
+                    <PricingFeature>
+                      Import and export wokrout programs with other pro members
+                    </PricingFeature>
                   </ul>
                 </div>
                 <div className="mt-6">
@@ -536,7 +863,7 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32"
+          className="w-full py-12 md:py-24 lg:py-32 px-1"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -699,7 +1026,7 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+          className="w-full py-12 md:py-24 lg:py-32 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:24px_24px]"
         >
           <div className="container grid items-center gap-6 px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -717,9 +1044,32 @@ export default function Home() {
                   <Input
                     type="email"
                     placeholder="Enter your email"
-                    className="max-w-lg flex-1"
+                    className="max-w-lg flex-1 border-primary"
                   />
-                  <Button type="submit">Subscribe</Button>
+                  <Button size="sm" className="arrow-button py-5">
+                    Subscribe
+                    <svg
+                      className="arrow-icon"
+                      viewBox="0 -3.5 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        className="arrow-icon__tip"
+                        d="M8 15L14 8.5L8 2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        className="arrow-icon__line"
+                        x1="13"
+                        y1="8.5"
+                        y2="8.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </Button>
                 </form>
                 <p className="text-xs text-muted-foreground">
                   We respect your privacy. Unsubscribe at any time.
@@ -733,19 +1083,23 @@ export default function Home() {
         <div className="container flex flex-col gap-6 py-8 md:py-12 lg:py-16 px-4 md:px-6 mx-auto">
           <div className="flex flex-col gap-6 lg:flex-row lg:gap-12">
             <div className="flex flex-col gap-3 lg:max-w-sm">
-              <div className="flex items-center gap-1">
-                <Image
-                  src={
-                    isDark
-                      ? "/images/endurofy_logo.png"
-                      : "/images/endurofy_logo_dark.png"
-                  }
-                  alt="Endurofy Logo"
-                  width={24}
-                  height={24}
-                />
-                <span className="text-xl font-bold">endurofy</span>
-              </div>
+              <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={
+                      isDark
+                        ? "/images/endurofy_logo.png"
+                        : "/images/endurofy_logo_dark.png"
+                    }
+                    alt="Endurofy Logo"
+                    width={24}
+                    height={24}
+                  />
+                  <span className="text-xl font-bold hover:text-primary">
+                    Endurofy
+                  </span>
+                </div>
+              </Link>
               <p className="text-sm text-muted-foreground">
                 Endurofy helps endurance athletes track, analyze, and improve
                 their performance with powerful tools and a supportive
@@ -1045,7 +1399,7 @@ function FeatureCard({
 
 function PricingFeature({ children }: { children: React.ReactNode }) {
   return (
-    <li className="flex items-center">
+    <li className="flex items-start gap-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -1056,11 +1410,11 @@ function PricingFeature({ children }: { children: React.ReactNode }) {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="mr-2 h-4 w-4 text-primary"
+        className="shrink-0 h-4 w-4 text-primary mt-1"
       >
         <polyline points="20 6 9 17 4 12" />
       </svg>
-      {children}
+      <span className="flex-1 text-left">{children}</span>
     </li>
   );
 }
