@@ -13,6 +13,7 @@ import {
   Dumbbell,
   Sparkle,
   CalendarSync,
+  X,
 } from "lucide-react";
 import {
   Accordion,
@@ -20,7 +21,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ThemeToggle } from "@/components/buttons/theme-toggle";
+import { LandingPageThemeToggle } from "@/components/buttons/landing-page-theme-toggle";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -87,35 +88,14 @@ const pricingCardVariants = {
 
 const menuVariants = {
   hidden: {
+    x: "100%",
     opacity: 0,
-    height: 0,
-    overflow: "hidden",
+    transition: { type: "tween", duration: 0.25, ease: "easeInOut" },
   },
   visible: {
+    x: 0,
     opacity: 1,
-    height: "auto",
-    transition: {
-      height: {
-        duration: 0.3,
-      },
-      opacity: {
-        duration: 0.2,
-        delay: 0.1,
-      },
-    },
-  },
-  exit: {
-    opacity: 0,
-    height: 0,
-    overflow: "hidden",
-    transition: {
-      height: {
-        duration: 0.3,
-      },
-      opacity: {
-        duration: 0.2,
-      },
-    },
+    transition: { type: "tween", duration: 0.25, ease: "easeInOut" },
   },
 };
 
@@ -150,8 +130,10 @@ export default function Home() {
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [headerBlur, setHeaderBlur] = useState(5); // Initial blur amount
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     // Set loading to false after a small delay to ensure isMobile is set
@@ -159,6 +141,28 @@ export default function Home() {
       setIsLoading(false);
     }, 100);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Effect for handling scroll and adjusting header blur
+  useEffect(() => {
+    const handleScroll = () => {
+      // Calculate blur based on scroll position (max 20px blur)
+      const scrollPosition = window.scrollY;
+      const maxBlur = 20;
+      const initialBlur = 5;
+      const blurIncreaseFactor = 0.05; // How quickly blur increases
+
+      // Calculate new blur value based on scroll (minimum 5px, maximum 20px)
+      const newBlur = Math.min(
+        maxBlur,
+        initialBlur + scrollPosition * blurIncreaseFactor
+      );
+
+      setHeaderBlur(newBlur);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const toggleMenu = () => {
@@ -188,251 +192,220 @@ export default function Home() {
     sectionId: string
   ) => {
     e.preventDefault();
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
     setIsMenuOpen(false);
+
+    // Add a small delay to ensure menu animation completes before scrolling
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        // Get the header height to offset the scroll position
+        const header = document.querySelector("header");
+        const headerHeight = header ? header.offsetHeight : 0;
+
+        // Check if viewport is mobile or desktop
+        if (window.innerWidth >= 768) {
+          // 768px is typically md breakpoint in Tailwind
+          // For larger screens - center the section in the viewport
+          const elementRect = element.getBoundingClientRect();
+          const absoluteElementTop = elementRect.top + window.pageYOffset;
+          const middle =
+            absoluteElementTop -
+            window.innerHeight / 2 +
+            elementRect.height / 2;
+
+          window.scrollTo({
+            top: middle,
+            behavior: "smooth",
+          });
+        } else {
+          // For mobile - position below header
+          const elementPosition =
+            element.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerHeight;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }
+    }, 300); // 300ms matches the menu animation duration
   };
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
-      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-        <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
-          <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
-            <div className="flex items-center gap-1">
-              <span className="text-xl font-bold hover:text-primary">
-                Endurofy
-              </span>
-            </div>
-          </Link>
-          {!isLoading && !isMobile && (
-            <nav className="hidden md:flex gap-6 items-center justify-center">
-              <motion.div
-                custom={0}
-                variants={navLinkVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link
-                  href="#features"
-                  onClick={(e) => scrollToSection(e, "features")}
-                  className="text-sm font-medium hover:text-primary nav-link"
-                >
-                  Features
-                </Link>
-              </motion.div>
-              <motion.div
-                custom={1}
-                variants={navLinkVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link
-                  href="#how-it-works"
-                  onClick={(e) => scrollToSection(e, "how-it-works")}
-                  className="text-sm font-medium hover:text-primary nav-link"
-                >
-                  How it works
-                </Link>
-              </motion.div>
-              <motion.div
-                custom={2}
-                variants={navLinkVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link
-                  href="#pricing"
-                  onClick={(e) => scrollToSection(e, "pricing")}
-                  className="text-sm font-medium hover:text-primary nav-link"
-                >
-                  Pricing
-                </Link>
-              </motion.div>
-              <motion.div
-                custom={3}
-                variants={navLinkVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link
-                  href="#faq"
-                  onClick={(e) => scrollToSection(e, "faq")}
-                  className="text-sm font-medium hover:text-primary nav-link"
-                >
-                  FAQ
-                </Link>
-              </motion.div>
-            </nav>
-          )}
-          <div className="flex items-center gap-4">
-            {!isLoading && (
-              <motion.div
-                custom={0}
-                variants={buttonVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <ThemeToggle />
-              </motion.div>
-            )}
-            {!isLoading && !isMobile && (
-              <motion.div
-                custom={1}
-                variants={buttonVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link href="/login" className="hidden md:block">
-                  <Button variant="outline" className="px-5 py-4">
-                    Log in
-                  </Button>
-                </Link>
-              </motion.div>
-            )}
-            {!isLoading && !isMobile && (
-              <motion.div
-                custom={2}
-                variants={buttonVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link href="/signup">
-                  <Button className="px-5 py-4 arrow-button ">
-                    Try it now{" "}
-                    <svg
-                      className="arrow-icon"
-                      viewBox="0 -3.5 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        className="arrow-icon__tip"
-                        d="M8 15L14 8.5L8 2"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <line
-                        className="arrow-icon__line"
-                        x1="13"
-                        y1="8.5"
-                        y2="8.5"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  </Button>
-                </Link>
-              </motion.div>
-            )}
-            {isMobile && (
-              <motion.div
-                custom={1}
-                variants={buttonVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleMenu}
-                  ref={buttonRef}
-                >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </motion.div>
-            )}
-          </div>
-        </div>
-        {isMobile && (
-          <motion.div
-            className="bg-background py-3 px-4 shadow-md absolute top-16 left-0 right-0 z-50"
-            initial="hidden"
-            animate={isMenuOpen ? "visible" : "hidden"}
-            variants={menuVariants}
-            ref={menuRef}
-          >
-            <nav className="flex flex-col gap-2">
-              <Link
-                href="#features"
-                onClick={(e) => scrollToSection(e, "features")}
-                className="text-sm font-medium hover:text-primary py-1.5"
-              >
-                Features
-              </Link>
-              <Link
-                href="#how-it-works"
-                onClick={(e) => scrollToSection(e, "how-it-works")}
-                className="text-sm font-medium hover:text-primary py-1.5"
-              >
-                How it works
-              </Link>
-              <Link
-                href="#pricing"
-                onClick={(e) => scrollToSection(e, "pricing")}
-                className="text-sm font-medium hover:text-primary py-1.5"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="#faq"
-                onClick={(e) => scrollToSection(e, "faq")}
-                className="text-sm font-medium hover:text-primary py-1.5"
-              >
-                FAQ
-              </Link>
-              <div className="flex gap-2 pt-1 pb-1">
-                <Link href="/login" className="flex-1">
-                  <Button variant="outline" className="w-full h-9">
-                    Log in
-                  </Button>
-                </Link>
-                <Link href="/signup" className="flex-1">
-                  <Button className="w-full h-9 arrow-button">
-                    Try it now
-                    <svg
-                      className="arrow-icon"
-                      viewBox="0 -3.5 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="7"
-                      height="7"
-                    >
-                      <path
-                        className="arrow-icon__tip"
-                        d="M8 15L14 8.5L8 2"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <line
-                        className="arrow-icon__line"
-                        x1="13"
-                        y1="8.5"
-                        y2="8.5"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  </Button>
-                </Link>
-              </div>
-            </nav>
-          </motion.div>
-        )}
-      </header>
+      {/* <div className="animated-mesh-gradient"></div> */}
+      {/* Header moved into hero section */}
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Hero Section with Header */}
+        {/* Header inside hero section */}
+        <header
+          ref={headerRef}
+          className="fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent"
+          style={{ backdropFilter: `blur(${headerBlur}px)` }}
+        >
+          <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
+            <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
+              <div className="flex items-center gap-1">
+                <span className="text-xl font-bold hover:text-primary">
+                  Endurofy
+                </span>
+              </div>
+            </Link>
+            {!isLoading && !isMobile && (
+              <nav className="hidden md:flex gap-6 items-center justify-center">
+                <motion.div
+                  custom={0}
+                  variants={navLinkVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Link
+                    href="#features"
+                    onClick={(e) => scrollToSection(e, "features")}
+                    className="text-sm font-medium hover:text-primary nav-link"
+                  >
+                    Features
+                  </Link>
+                </motion.div>
+                <motion.div
+                  custom={1}
+                  variants={navLinkVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Link
+                    href="#how-it-works"
+                    onClick={(e) => scrollToSection(e, "how-it-works")}
+                    className="text-sm font-medium hover:text-primary nav-link"
+                  >
+                    How it works
+                  </Link>
+                </motion.div>
+                <motion.div
+                  custom={2}
+                  variants={navLinkVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Link
+                    href="#pricing"
+                    onClick={(e) => scrollToSection(e, "pricing")}
+                    className="text-sm font-medium hover:text-primary nav-link"
+                  >
+                    Pricing
+                  </Link>
+                </motion.div>
+                <motion.div
+                  custom={3}
+                  variants={navLinkVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Link
+                    href="#faq"
+                    onClick={(e) => scrollToSection(e, "faq")}
+                    className="text-sm font-medium hover:text-primary nav-link"
+                  >
+                    FAQ
+                  </Link>
+                </motion.div>
+              </nav>
+            )}
+            <div className="flex items-center gap-4">
+              {!isLoading && (
+                <motion.div
+                  custom={0}
+                  variants={buttonVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <LandingPageThemeToggle />
+                </motion.div>
+              )}
+              {!isLoading && !isMobile && (
+                <motion.div
+                  custom={1}
+                  variants={buttonVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Link href="/login" className="hidden md:block">
+                    <Button variant="outline" className="px-5 py-4">
+                      Log in
+                    </Button>
+                  </Link>
+                </motion.div>
+              )}
+              {!isLoading && !isMobile && (
+                <motion.div
+                  custom={2}
+                  variants={buttonVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Link href="/signup">
+                    <Button className="px-5 py-4 arrow-button ">
+                      Try it now{" "}
+                      <svg
+                        className="arrow-icon"
+                        viewBox="0 -3.5 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          className="arrow-icon__tip"
+                          d="M8 15L14 8.5L8 2"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <line
+                          className="arrow-icon__line"
+                          x1="13"
+                          y1="8.5"
+                          y2="8.5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    </Button>
+                  </Link>
+                </motion.div>
+              )}
+              {isMobile && (
+                <motion.div
+                  custom={1}
+                  variants={buttonVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleMenu}
+                    ref={buttonRef}
+                  >
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </header>
         <motion.section
           id="hero"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-4 md:px-6"
+          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-48 px-4 md:px-6 hero-section-container"
         >
-          <div className="container px-4 md:px-6 mx-auto">
+          <div className="animated-mesh-gradient" />
+
+          <div className="container px-4 md:px-6 mx-auto mt-16">
+            {" "}
+            {/* Changed pt-16 to mt-16 */}
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px] items-center justify-center">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2 text-center lg:text-left">
@@ -446,7 +419,7 @@ export default function Home() {
                     your performance, and reach your fitness goals faster.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start sm:w-full">
+                <div className="flex flex-col gap-2 min-[200px]:flex-row justify-center lg:justify-start sm:w-full">
                   <div className="relative flex-1 max-w-md">
                     <Input
                       placeholder="Enter your email"
@@ -671,8 +644,8 @@ export default function Home() {
                 className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted"
               >
                 <Image
-                  src="/placeholder.svg?height=800&width=450"
-                  alt="Activity tracking screen"
+                  src="/images/dashboard.png"
+                  alt="dashboard"
                   fill
                   className="object-cover"
                 />
@@ -682,8 +655,8 @@ export default function Home() {
                 className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted md:translate-y-8"
               >
                 <Image
-                  src="/placeholder.svg?height=800&width=450"
-                  alt="Performance analytics screen"
+                  src="/images/workoutlog.png"
+                  alt="workoout-log"
                   fill
                   className="object-cover"
                 />
@@ -693,8 +666,8 @@ export default function Home() {
                 className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted"
               >
                 <Image
-                  src="/placeholder.svg?height=800&width=450"
-                  alt="Community challenges screen"
+                  src="/images/weightlog.png"
+                  alt="weightlog"
                   fill
                   className="object-cover"
                 />
@@ -736,7 +709,7 @@ export default function Home() {
             >
               <motion.div
                 variants={pricingCardVariants}
-                className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full h-full justify-between"
+                className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full h-[500px] justify-between"
               >
                 <div>
                   <div className="space-y-2">
@@ -772,7 +745,7 @@ export default function Home() {
               </motion.div>
               <motion.div
                 variants={pricingCardVariants}
-                className="flex flex-col rounded-xl border bg-card p-6 shadow-lg ring-2 ring-primary text-center mx-auto max-w-xs w-full h-full justify-between"
+                className="flex flex-col rounded-xl border bg-card p-6 shadow-lg ring-2 ring-primary text-center mx-auto max-w-xs w-full h-[500px] justify-between"
               >
                 <div>
                   <div className="space-y-2">
@@ -812,7 +785,7 @@ export default function Home() {
               </motion.div>
               <motion.div
                 variants={pricingCardVariants}
-                className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full h-full justify-between"
+                className="flex flex-col rounded-xl border bg-card p-6 text-center mx-auto max-w-xs w-full h-[500px] justify-between"
               >
                 <div>
                   <div className="space-y-2">
@@ -1032,22 +1005,23 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Stay updated with Endurofy
+                  Get started with Endurofy
                 </h2>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mx-auto">
-                  Subscribe to our newsletter for training tips, app updates,
-                  and exclusive offers.
+                <p className="max-w-[600px] text-muted-foreground text-sm mx-auto">
+                  Get started with Endurofy today and join thousands of athletes
+                  who are tracking, improving, and conquering their fitness
+                  goals.
                 </p>
               </div>
               <div className="w-full max-w-sm space-y-2">
-                <form className="flex flex-col sm:flex-row gap-2">
+                <form className="flex flex-col sm:flex-row gap-2 items-center">
                   <Input
                     type="email"
                     placeholder="Enter your email"
-                    className="max-w-lg flex-1 border-primary"
+                    className="max-w-lg flex-1 border-primary py-3"
                   />
                   <Button size="sm" className="arrow-button py-5">
-                    Subscribe
+                    Sign up
                     <svg
                       className="arrow-icon"
                       viewBox="0 -3.5 24 24"
@@ -1071,9 +1045,6 @@ export default function Home() {
                     </svg>
                   </Button>
                 </form>
-                <p className="text-xs text-muted-foreground">
-                  We respect your privacy. Unsubscribe at any time.
-                </p>
               </div>
             </div>
           </div>
@@ -1346,6 +1317,96 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile menu panel MOVED HERE, as a sibling to header, main, and footer */}
+      {isMobile && (
+        <motion.div
+          className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-xs bg-background p-4 shadow-xl flex flex-col backdrop-filter backdrop-blur-lg bg-opacity-90 dark:bg-opacity-90 overflow-y-auto"
+          initial="hidden"
+          animate={isMenuOpen ? "visible" : "hidden"}
+          variants={menuVariants}
+          ref={menuRef}
+        >
+          {/* Close button inside the panel */}
+          <div className="flex justify-end w-full mb-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMenu}
+              aria-label="Close menu"
+              className="h-7 w-7"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          {/* Original navigation content */}
+          <nav className="flex flex-col gap-2">
+            <Link
+              href="#features"
+              onClick={(e) => scrollToSection(e, "features")}
+              className="text-sm font-medium hover:text-primary py-1.5"
+            >
+              Features
+            </Link>
+            <Link
+              href="#how-it-works"
+              onClick={(e) => scrollToSection(e, "how-it-works")}
+              className="text-sm font-medium hover:text-primary py-1.5"
+            >
+              How it works
+            </Link>
+            <Link
+              href="#pricing"
+              onClick={(e) => scrollToSection(e, "pricing")}
+              className="text-sm font-medium hover:text-primary py-1.5"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="#faq"
+              onClick={(e) => scrollToSection(e, "faq")}
+              className="text-sm font-medium hover:text-primary py-1.5"
+            >
+              FAQ
+            </Link>
+            <div className="flex gap-2 pt-1 pb-1">
+              <Link href="/login" className="flex-1">
+                <Button variant="outline" className="w-full h-9">
+                  Log in
+                </Button>
+              </Link>
+              <Link href="/signup" className="flex-1">
+                <Button className="w-full h-9 arrow-button">
+                  Try it now
+                  <svg
+                    className="arrow-icon"
+                    viewBox="0 -3.5 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="7"
+                    height="7"
+                  >
+                    <path
+                      className="arrow-icon__tip"
+                      d="M8 15L14 8.5L8 2"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <line
+                      className="arrow-icon__line"
+                      x1="13"
+                      y1="8.5"
+                      y2="8.5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </Button>
+              </Link>
+            </div>
+          </nav>
+        </motion.div>
+      )}
     </div>
   );
 }
