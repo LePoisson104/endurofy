@@ -414,7 +414,7 @@ export default function Home() {
                     <br />
                     Enhance Your Life
                   </h1>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto lg:mx-0">
+                  <p className="max-w-[600px] text-muted-background md:text-xl mx-auto lg:mx-0">
                     Endurofy helps you track your endurance activities, analyze
                     your performance, and reach your fitness goals faster.
                   </p>
@@ -423,7 +423,7 @@ export default function Home() {
                   <div className="relative flex-1 max-w-md">
                     <Input
                       placeholder="Enter your email"
-                      className="pr-28 rounded-full py-5 bg-muted/50"
+                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
                     />
                     <Link
                       href="/signup"
@@ -641,10 +641,14 @@ export default function Home() {
             >
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl  dark:drop-shadow-[0_15px_40px_rgba(30,30,30,1)]"
               >
                 <Image
-                  src="/images/dashboard.png"
+                  src={`${
+                    isDark
+                      ? "/images/dark/dashboard.png"
+                      : "/images/light/dashboard-light.png"
+                  }`}
                   alt="dashboard"
                   fill
                   className="object-cover"
@@ -652,21 +656,30 @@ export default function Home() {
               </motion.div>
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted md:translate-y-8"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted md:translate-y-10 drop-shadow-xl dark:drop-shadow-[0_15px_40px_rgba(30,30,30,1)]"
               >
                 <Image
-                  src="/images/workoutlog.png"
-                  alt="workoout-log"
+                  src={
+                    isDark
+                      ? "/images/dark/workoutlog.png"
+                      : "/images/light/workoutlog-light.png"
+                  }
+                  alt="workout-log"
                   fill
                   className="object-cover"
                 />
               </motion.div>
+
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/16] overflow-hidden rounded-xl bg-muted"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl dark:drop-shadow-[0_15px_40px_rgba(30,30,30,1)]"
               >
                 <Image
-                  src="/images/weightlog.png"
+                  src={`${
+                    isDark
+                      ? "/images/dark/weightlog.png"
+                      : "/images/light/weightlog-light.png"
+                  }`}
                   alt="weightlog"
                   fill
                   className="object-cover"
