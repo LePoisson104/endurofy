@@ -20,11 +20,14 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ErrorAlert from "@/components/alerts/error-alert";
+import { Loader2 } from "lucide-react";
 
 export function ExerciseForm({
   onAddExercise,
+  isAddingExercise,
 }: {
   onAddExercise: (exercise: Exercise) => void;
+  isAddingExercise?: boolean;
 }) {
   const isMobile = useIsMobile();
   const [exerciseName, setExerciseName] = useState("");
@@ -182,17 +185,22 @@ export function ExerciseForm({
         <div className="flex justify-end">
           <Button
             type="submit"
-            className="mt-4 w-fit"
+            className="mt-4 w-[120px]"
             disabled={
               !exerciseName ||
               !bodyPart ||
               !laterality ||
               !sets ||
               !minReps ||
-              !maxReps
+              !maxReps ||
+              isAddingExercise
             }
           >
-            Add Exercise
+            {isAddingExercise ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Add Exercise"
+            )}
           </Button>
         </div>
       </form>

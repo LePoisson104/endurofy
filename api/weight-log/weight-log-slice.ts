@@ -14,7 +14,6 @@ const weightLogSlice = createSlice({
   initialState,
   reducers: {
     setWeeklyRate: (state, action: PayloadAction<number>) => {
-      console.log(action.payload);
       state.weeklyRate = action.payload;
     },
     resetWeeklyRate: (state) => {

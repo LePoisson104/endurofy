@@ -45,6 +45,9 @@ import {
   useUpdateWorkoutProgramDescriptionMutation,
   useUpdateWorkoutProgramDayMutation,
   useUpdateWorkoutProgramExerciseMutation,
+  useAddProgramDayMutation,
+  useAddExerciseMutation,
+  useReorderWorkoutProgramExerciseMutation,
 } from "@/api/workout-program/workout-program-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import SuccessAlert from "@/components/alerts/success-alert";
@@ -107,6 +110,12 @@ export function WorkoutProgramDetail({
     useUpdateWorkoutProgramDayMutation();
   const [updateWorkoutProgramExercise] =
     useUpdateWorkoutProgramExerciseMutation();
+  const [addProgramDay, { isLoading: isAddingDay }] =
+    useAddProgramDayMutation();
+  const [addExercise, { isLoading: isAddingExercise }] =
+    useAddExerciseMutation();
+  const [reorderWorkoutProgramExercise, { isLoading: isReorderingExercise }] =
+    useReorderWorkoutProgramExerciseMutation();
 
   // Format created date
   const formatCreatedDate = (dateString: string) => {
@@ -122,11 +131,6 @@ export function WorkoutProgramDetail({
     setEditedProgram(program);
   }, [program]);
 
-  // Handle adding a new exercise to a day
-  const handleAddExercise = (exercise: Omit<Exercise, "id">) => {
-    console.log(exercise);
-  };
-
   // Handle canceling changes
   const handleCancelChanges = () => {
     setEditedProgram({ ...program });
@@ -139,9 +143,40 @@ export function WorkoutProgramDetail({
     setShowDeleteDialog(false);
   };
 
+  // Handle adding a new exercise to a day
+  const handleAddExercise = async (exercise: Omit<Exercise, "id">) => {
+    const dayId = getDayId(activeDay as DayOfWeek);
+
+    if (dayId === "" || dayId.includes("temp-")) return;
+
+    const exerciseList = editedProgram.workoutDays.find(
+      (day) => day.dayId == dayId
+    );
+
+    //if exercise list is not empty and length is greater than or equal to 1, then increment by 1
+    //else use the default value of 1 that we get from the form
+    if (exerciseList && exerciseList.exercises.length >= 1) {
+      exercise.exerciseOrder = exerciseList.exercises.length + 1;
+    }
+
+    try {
+      await addExercise({
+        programId: program.programId,
+        dayId: dayId,
+        payload: exercise,
+      }).unwrap();
+      setSuccess("Exercise added successfully");
+    } catch (error: any) {
+      if (error.status !== 500) {
+        setError(error.data.message);
+      } else {
+        setError("Internal server error. Failed to add exercise");
+      }
+    }
+  };
+
   // Handle updating an exercise
   const handleUpdateExercise = async (updatedExercise: Exercise) => {
-    console.log(updatedExercise);
     const dayId = editedProgram.workoutDays.find((day) =>
       day.exercises.some(
         (exercise) => exercise.exerciseId === updatedExercise.exerciseId
@@ -161,6 +196,28 @@ export function WorkoutProgramDetail({
         setError(error.data.message);
       } else {
         setError("Internal server error. Failed to update exercise");
+      }
+    }
+  };
+
+  const handleReorderExercises = async (exercises: Exercise[]) => {
+    const dayId = editedProgram.workoutDays.find((day) =>
+      day.exercises.some(
+        (exercise) => exercise.exerciseId === exercises[0].exerciseId
+      )
+    )?.dayId;
+
+    try {
+      await reorderWorkoutProgramExercise({
+        programId: program.programId,
+        dayId: dayId,
+        payload: exercises,
+      }).unwrap();
+    } catch (error: any) {
+      if (error.status !== 500) {
+        setError(error.data.message);
+      } else {
+        setError("Internal server error. Failed to reorder exercises");
       }
     }
   };
@@ -190,7 +247,26 @@ export function WorkoutProgramDetail({
     const dayId = getDayId(day);
     const payload = {
       dayName: getDayName(day),
+      dayNumber: editedProgram.workoutDays.find((d) => d.dayId === dayId)
+        ?.dayNumber,
     };
+
+    if (dayId.includes("temp-")) {
+      try {
+        await addProgramDay({
+          programId: program.programId,
+          payload: payload,
+        }).unwrap();
+        setSuccess("Day added successfully");
+      } catch (error: any) {
+        if (error.status !== 500) {
+          setError(error.data.message);
+        } else {
+          setError("Internal server error. Failed to update program day name");
+        }
+      }
+      return;
+    }
 
     try {
       await updateWorkoutProgramDay({
@@ -280,6 +356,7 @@ export function WorkoutProgramDetail({
     const activeWorkoutDay = editedProgram.workoutDays.find((d) => {
       return allDays[d?.dayNumber as keyof typeof allDays] === day;
     });
+
     return activeWorkoutDay ? activeWorkoutDay.dayId : "";
   };
 
@@ -440,11 +517,13 @@ export function WorkoutProgramDetail({
                 return (
                   <TabsTrigger key={day} value={day} className="relative">
                     {formatDayName(day as DayOfWeek).slice(0, 3)}
-                    {exerciseCount > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                        {exerciseCount}
-                      </span>
-                    )}
+                    {exerciseCount >= 0 &&
+                      getDayId(day as DayOfWeek) !== "" &&
+                      !getDayId(day as DayOfWeek).includes("temp-") && (
+                        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                          {exerciseCount}
+                        </span>
+                      )}
                   </TabsTrigger>
                 );
               })}
@@ -468,21 +547,55 @@ export function WorkoutProgramDetail({
                               placeholder="Day name"
                               value={getDayName(day as DayOfWeek)}
                               onChange={(e) => {
-                                const updatedDays =
-                                  editedProgram.workoutDays.map((d) => {
-                                    if (
+                                const dayNumber = Object.entries(allDays).find(
+                                  ([_, value]) => value === day
+                                )?.[0];
+
+                                if (!dayNumber) return;
+
+                                const existingDayIndex =
+                                  editedProgram.workoutDays.findIndex(
+                                    (d) =>
                                       allDays[
                                         d.dayNumber as keyof typeof allDays
                                       ] === day
-                                    ) {
-                                      return { ...d, dayName: e.target.value };
-                                    }
-                                    return d;
+                                  );
+
+                                if (existingDayIndex === -1) {
+                                  // Day doesn't exist yet, create a new one
+                                  setEditedProgram((prev) => ({
+                                    ...prev,
+                                    workoutDays: [
+                                      ...prev.workoutDays,
+                                      {
+                                        dayId: `temp-${Date.now()}`,
+                                        dayName: e.target.value,
+                                        dayNumber: parseInt(dayNumber),
+                                        exercises: [],
+                                      },
+                                    ],
+                                  }));
+                                } else {
+                                  // Update existing day
+                                  const updatedDays =
+                                    editedProgram.workoutDays.map((d) => {
+                                      if (
+                                        allDays[
+                                          d.dayNumber as keyof typeof allDays
+                                        ] === day
+                                      ) {
+                                        return {
+                                          ...d,
+                                          dayName: e.target.value,
+                                        };
+                                      }
+                                      return d;
+                                    });
+                                  setEditedProgram({
+                                    ...editedProgram,
+                                    workoutDays: updatedDays,
                                   });
-                                setEditedProgram({
-                                  ...editedProgram,
-                                  workoutDays: updatedDays,
-                                });
+                                }
                               }}
                             />
                             <Button
@@ -495,6 +608,7 @@ export function WorkoutProgramDetail({
                               }}
                               disabled={
                                 isUpdatingDay ||
+                                isAddingDay ||
                                 getDayName(day as DayOfWeek) ===
                                   program.workoutDays.find(
                                     (d) =>
@@ -503,7 +617,7 @@ export function WorkoutProgramDetail({
                                 getDayName(day as DayOfWeek) === ""
                               }
                             >
-                              {isUpdatingDay ? (
+                              {isUpdatingDay || isAddingDay ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
                                 "Save"
@@ -514,21 +628,29 @@ export function WorkoutProgramDetail({
                           <div>
                             {!isMobile ? (
                               <>
-                                {getDayName(day as DayOfWeek) !== "" && (
-                                  <Button
-                                    variant={"destructive"}
-                                    className="mr-2"
-                                    onClick={() => {
-                                      setContext("Program Day");
-                                      setShowDeleteDialog(true);
-                                    }}
-                                  >
-                                    Delete Day
-                                  </Button>
-                                )}
+                                {getDayId(day as DayOfWeek) !== "" &&
+                                  !getDayId(day as DayOfWeek).includes(
+                                    "temp-"
+                                  ) && (
+                                    <Button
+                                      variant={"destructive"}
+                                      className="mr-2"
+                                      onClick={() => {
+                                        setContext("Program Day");
+                                        setShowDeleteDialog(true);
+                                      }}
+                                    >
+                                      Delete Day
+                                    </Button>
+                                  )}
                                 <Button
                                   onClick={() => {
-                                    if (getDayName(day as DayOfWeek) === "") {
+                                    if (
+                                      getDayId(day as DayOfWeek) === "" ||
+                                      getDayId(day as DayOfWeek).includes(
+                                        "temp-"
+                                      )
+                                    ) {
                                       setShowAddExerciseWarning(true);
                                     } else {
                                       setIsOpen(true);
@@ -551,7 +673,12 @@ export function WorkoutProgramDetail({
                                 >
                                   <DropdownMenuItem
                                     onClick={() => {
-                                      if (getDayName(day as DayOfWeek) === "") {
+                                      if (
+                                        getDayId(day as DayOfWeek) === "" ||
+                                        getDayId(day as DayOfWeek).includes(
+                                          "temp-"
+                                        )
+                                      ) {
                                         setShowAddExerciseWarning(true);
                                       } else {
                                         setIsOpen(true);
@@ -561,19 +688,22 @@ export function WorkoutProgramDetail({
                                     <Plus className="h-4 w-4 mr-1" />
                                     Add Exercise
                                   </DropdownMenuItem>
-                                  {getDayName(day as DayOfWeek) !== "" && (
-                                    <DropdownMenuItem
-                                      variant={"destructive"}
-                                      className="text-red-500"
-                                      onClick={() => {
-                                        setContext("Program Day");
-                                        setShowDeleteDialog(true);
-                                      }}
-                                    >
-                                      <Trash2 className="h-4 w-4 mr-1" />
-                                      Delete Day
-                                    </DropdownMenuItem>
-                                  )}
+                                  {getDayId(day as DayOfWeek) !== "" &&
+                                    !getDayId(day as DayOfWeek).includes(
+                                      "temp-"
+                                    ) && (
+                                      <DropdownMenuItem
+                                        variant={"destructive"}
+                                        className="text-red-500"
+                                        onClick={() => {
+                                          setContext("Program Day");
+                                          setShowDeleteDialog(true);
+                                        }}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Delete Day
+                                      </DropdownMenuItem>
+                                    )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
@@ -588,6 +718,9 @@ export function WorkoutProgramDetail({
                       }
                       onUpdateExercise={(exercise) =>
                         handleUpdateExercise(exercise)
+                      }
+                      onReorderExercises={(exercises) =>
+                        handleReorderExercises(exercises)
                       }
                       isEditing={isEditing}
                       setError={setError}
@@ -610,6 +743,7 @@ export function WorkoutProgramDetail({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         onAddExercise={handleAddExercise}
+        isAddingExercise={isAddingExercise}
       />
       <AddExerciseWarning
         showAddExerciseWarning={showAddExerciseWarning}

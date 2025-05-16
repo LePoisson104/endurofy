@@ -21,10 +21,18 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
     }),
     addExercise: builder.mutation({
-      query: ({ programId, dayId, exercise }) => ({
+      query: ({ programId, dayId, payload }) => ({
         url: `/api/v1/workout-program/add-exercise/${programId}/${dayId}`,
         method: "POST",
-        body: exercise,
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
+    }),
+    addProgramDay: builder.mutation({
+      query: ({ programId, payload }) => ({
+        url: `/api/v1/workout-program/add-program-day/${programId}`,
+        method: "POST",
+        body: payload,
       }),
       invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
     }),
@@ -47,6 +55,14 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
     updateWorkoutProgramExercise: builder.mutation({
       query: ({ dayId, exerciseId, programId, payload }) => ({
         url: `/api/v1/workout-program/update-workout-program-exercise/${programId}/${dayId}/${exerciseId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
+    }),
+    reorderWorkoutProgramExercise: builder.mutation({
+      query: ({ programId, dayId, payload }) => ({
+        url: `/api/v1/workout-program/reorder-exercise-order/${programId}/${dayId}`,
         method: "PATCH",
         body: payload,
       }),
@@ -86,4 +102,6 @@ export const {
   useUpdateWorkoutProgramDayMutation,
   useUpdateWorkoutProgramExerciseMutation,
   useAddExerciseMutation,
+  useAddProgramDayMutation,
+  useReorderWorkoutProgramExerciseMutation,
 } = workoutProgramApiSlice;

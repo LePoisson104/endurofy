@@ -46,7 +46,7 @@ interface DayScheduleProps {
   exercises: Exercise[];
   onRemoveExercise: (exerciseId: string) => void;
   onUpdateExercise: (exercise: Exercise) => void;
-  onReorderExercises?: (exercises: Exercise[]) => void;
+  onReorderExercises: (exercises: Exercise[]) => void;
   isEditing?: boolean;
   setError: (error: string) => void;
 }
@@ -277,7 +277,9 @@ function SortableTableRow({
           </TableCell>
           <TableCell className="text-center">{exercise.sets}</TableCell>
           <TableCell className="text-center">
-            {exercise.minReps} - {exercise.maxReps}
+            {exercise.minReps === exercise.maxReps
+              ? exercise.minReps
+              : `${exercise.minReps} - ${exercise.maxReps}`}
           </TableCell>
           <TableCell className="text-center">{exercise.laterality}</TableCell>
           {isEditing && (
