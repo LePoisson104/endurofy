@@ -499,7 +499,8 @@ export function WorkoutProgramDetail({
                                   program.workoutDays.find(
                                     (d) =>
                                       d.dayId === getDayId(day as DayOfWeek)
-                                  )?.dayName
+                                  )?.dayName ||
+                                getDayName(day as DayOfWeek) === ""
                               }
                             >
                               {isUpdatingDay ? (
