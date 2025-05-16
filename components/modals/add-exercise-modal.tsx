@@ -20,7 +20,7 @@ export default function AddExerciseModal({
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="bg-card">
+      <DialogContent className="bg-card border-none">
         <DialogHeader className="mb-4">
           <DialogTitle>Add Exercise</DialogTitle>
         </DialogHeader>

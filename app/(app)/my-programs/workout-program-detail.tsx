@@ -365,8 +365,33 @@ export function WorkoutProgramDetail({
       <ErrorAlert error={error} setError={setError} />
       <SuccessAlert success={success} setSuccess={setSuccess} />
       <div className="flex justify-between">
-        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
-          <ArrowLeft className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="gap-1 arrow-button"
+        >
+          <svg
+            className="arrow-icon transform rotate-180 mr-2"
+            viewBox="0 -3.5 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              className="arrow-icon__tip"
+              d="M8 15L14 8.5L8 2"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <line
+              className="arrow-icon__line"
+              x1="13"
+              y1="8.5"
+              y2="8.5"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+          </svg>
           My Programs
         </Button>
         <div className="flex gap-2">

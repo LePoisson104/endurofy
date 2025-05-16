@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import { Loader2 } from "lucide-react";
-import { MessageCircleWarning } from "lucide-react";
 
 export default function UpdateWeightUnitNotice({
   isOpen,
@@ -69,10 +68,9 @@ export default function UpdateWeightUnitNotice({
 
   return (
     <AlertDialog open={isOpen}>
-      <AlertDialogContent className="bg-card">
+      <AlertDialogContent className="bg-card border-none">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-1 ">
-            <MessageCircleWarning className="w-5 h-5 text-yellow-500" />
             Notice
           </AlertDialogTitle>
           <AlertDialogDescription>

@@ -35,7 +35,7 @@ export default function ProfileSuccessNotice({
   return (
     <Dialog open={isOpen}>
       <DialogContent
-        className="sm:max-w-[425px] bg-card"
+        className="sm:max-w-[425px] bg-card border-none"
         closeXButton={true}
         onEscapeKeyDown={handleClose}
         onInteractOutside={handleClose}

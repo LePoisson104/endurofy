@@ -14,7 +14,7 @@ export default function LogoutNotice({ isOpen }: { isOpen: boolean }) {
 
   return (
     <AlertDialog open={isOpen}>
-      <AlertDialogContent className="bg-card">
+      <AlertDialogContent className="bg-card border-none">
         <AlertDialogHeader>
           <AlertDialogTitle>Notice</AlertDialogTitle>
           <AlertDialogDescription>
