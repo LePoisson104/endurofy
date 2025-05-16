@@ -156,7 +156,7 @@ export default function Component({
   }, [caloriesRange]);
 
   return (
-    <Card className="h-full w-full p-0 border-none">
+    <Card className="h-full w-full p-0 border-none shadow-none">
       <CardContent className="h-full w-full px-0">
         <ChartContainer config={chartConfig} className="h-full w-full">
           <AreaChart

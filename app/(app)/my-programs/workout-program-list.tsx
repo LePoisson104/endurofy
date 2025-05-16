@@ -85,7 +85,7 @@ export default function WorkoutProgramList({
           {programs.map((program) => (
             <Card
               key={program.programId}
-              className="overflow-hidden flex flex-col h-[280px]"
+              className="overflow-hidden flex flex-col h-[280px] shadow-sm"
             >
               <CardHeader className="pb-3">
                 <div className="flex justify-between">

@@ -210,7 +210,7 @@ export default function WeightLogPage() {
             <div className="lg:col-span-3 space-y-6">
               {/* Weight Chart */}
               {!isLoadingWeightLog ? (
-                <Card className="md:pb-24 sm:pb-0 h-[500px] ">
+                <Card className="md:pb-24 sm:pb-0 h-[500px] shadow-sm">
                   <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
                     <div className="flex flex-col w-full gap-2">
                       <CardTitle className="flex flex-row items-center gap-2">

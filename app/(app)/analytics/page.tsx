@@ -56,7 +56,7 @@ export default function StatisticsPage() {
     <div className="p-[1rem] w-full">
       {/* page header */}
       <div className="flex flex-col mb-6">
-        <div className="text-2xl font-bold">Statistics</div>
+        <div className="text-2xl font-bold">Analytics</div>
         <p className="text-sm text-muted-foreground">
           View your progress and statistics
         </p>
@@ -207,7 +207,7 @@ export default function StatisticsPage() {
 
       {/* summaries */}
       <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Summary</CardTitle>
           </CardHeader>

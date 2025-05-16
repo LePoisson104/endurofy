@@ -52,7 +52,7 @@ export function WorkoutProgramCreator({
     Record<string | DayOfWeek, Exercise[]>
   >({});
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
-  const [programType, setProgramType] = useState<"day-of-week" | "custom">(
+  const [programType, setProgramType] = useState<"day-of-week" | "rotation">(
     "day-of-week"
   );
   const [dayNames, setDayNames] = useState<Record<string | DayOfWeek, string>>(
@@ -335,7 +335,7 @@ export function WorkoutProgramCreator({
             <Select
               value={programType}
               onValueChange={(value) =>
-                setProgramType(value as "day-of-week" | "custom")
+                setProgramType(value as "day-of-week" | "rotation")
               }
             >
               <SelectTrigger>
@@ -343,7 +343,7 @@ export function WorkoutProgramCreator({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="day-of-week">Day of week</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
+                <SelectItem value="rotation">Rotation</SelectItem>
               </SelectContent>
             </Select>
           </div>

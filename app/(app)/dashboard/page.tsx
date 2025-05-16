@@ -116,7 +116,7 @@ export default function DashboardPage() {
           {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xs:grid-cols-4">
             <div className="grid gap-4 md:grid-cols-2 sm:grid-cols-1">
-              <Card className="shadow-sm">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Completed Workouts
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className="shadow-sm">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Calories Burned
@@ -157,7 +157,7 @@ export default function DashboardPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className="shadow-sm">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Weight Progression
@@ -197,7 +197,7 @@ export default function DashboardPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className="shadow-sm">
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Upcoming Events
@@ -233,7 +233,7 @@ export default function DashboardPage() {
               </Card>
             </div>
             {/* workout sessions */}
-            <Card className=" shadow-sm">
+            <Card>
               <CardHeader>
                 <CardTitle>Workout Sessions</CardTitle>
                 <div className="text-sm text-muted-foreground mt-1">
@@ -276,7 +276,7 @@ export default function DashboardPage() {
 
           {/* Charts and Recent Sales */}
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-            <Card className="shadow-sm ">
+            <Card>
               <CardHeader>
                 <CardTitle>Weekly Sets</CardTitle>
                 <CardDescription>January - June 2024</CardDescription>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                 <BarChart />
               </CardContent>
             </Card>
-            <Card className="shadow-sm ">
+            <Card>
               <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
                 <div className="flex flex-col w-full gap-2">
                   <CardTitle>Weight log overview</CardTitle>
