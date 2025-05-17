@@ -5,7 +5,7 @@ export default function usePersist() {
 
   useEffect(() => {
     // Check if user has previously chosen to persist
-    const persisted = localStorage.getItem("persist");
+    const persisted = localStorage.getItem("Endurofy-persist");
     if (persisted) {
       setPersist(JSON.parse(persisted));
     }
@@ -13,7 +13,7 @@ export default function usePersist() {
 
   const updatePersist = (value: boolean) => {
     setPersist(value);
-    localStorage.setItem("persist", JSON.stringify(value));
+    localStorage.setItem("Endurofy-persist", JSON.stringify(value));
   };
 
   return { persist, setPersist: updatePersist };

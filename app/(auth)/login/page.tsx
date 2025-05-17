@@ -14,10 +14,12 @@ import { setCredentials } from "@/api/auth/auth-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { Loader2 } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
+import usePersist from "@/hooks/use-persist";
 
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { setPersist } = usePersist();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,6 +36,7 @@ export default function Login() {
       dispatch(setCredentials(response?.data));
       setEmail("");
       setPassword("");
+      setPersist(true);
       router.push("/dashboard");
     } catch (error: any) {
       if (!error.status) {
