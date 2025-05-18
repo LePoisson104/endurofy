@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  Edit,
-  Trash2,
-  X,
-  EllipsisVertical,
-  Plus,
-  Loader2,
-} from "lucide-react";
+import { Edit, Trash2, X, EllipsisVertical, Plus, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
