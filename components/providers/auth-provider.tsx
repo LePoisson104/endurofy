@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRefreshMutation } from "@/api/auth/auth-api-slice";
 import { useSelector } from "react-redux";
-import usePersist from "@/hooks/use-persist";
-import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 import DotPulse from "@/components/global/dot-pulse";
 import UsersProfileModal from "@/components/modals/users-profile-modal";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
@@ -21,21 +20,18 @@ import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-a
 import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { persist } = usePersist();
   const dispatch = useDispatch();
   const router = useRouter();
-  const token = useSelector(selectCurrentToken);
   const user = useSelector(selectCurrentUser);
-  const effectRan = useRef(false);
 
+  // open profile modal when user is not complete
   const [isOpen, setIsOpen] = useState(false);
   const [trueSuccess, setTrueSuccess] = useState(false);
   const [manualProfileClose, setManualProfileClose] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
 
-  const [refresh, { isUninitialized, isLoading, isSuccess, isError }] =
-    useRefreshMutation();
+  const [refresh, { isLoading, isSuccess, isError }] = useRefreshMutation();
 
   const { data: userInfo, refetch } = useGetAllUsersInfoQuery({
     userId: user?.user_id || "",
@@ -49,6 +45,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
     userId: user?.user_id,
   });
+
+  const verifyRefreshToken = async () => {
+    try {
+      console.log("Verifying refresh token...");
+      await refresh().unwrap(); // Get the new token
+      setTrueSuccess(true); // Mark successful refresh
+    } catch (err) {
+      console.log("Error refreshing token");
+    }
+  };
+
+  // refreshs access token when refresh the page
+  useEffect(() => {
+    verifyRefreshToken();
+  }, []);
 
   // Set isLoading to true on initial mount to ensure skeleton shows first
   useEffect(() => {
@@ -91,29 +102,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [userInfo, dispatch]);
 
   useEffect(() => {
-    const verifyRefreshToken = async () => {
-      try {
-        console.log("Verifying refresh token...");
-        await refresh().unwrap(); // Get the new token
-        setTrueSuccess(true); // Mark successful refresh
-      } catch (err) {
-        console.log("Error refreshing token:", err);
-      }
-    };
-
-    if (effectRan.current === true) {
-      if (!token && persist) {
-        verifyRefreshToken();
-      }
-    }
-
-    return () => {
-      effectRan.current = true; // Prevent re-runs in React Strict Mode
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, persist, refresh]);
-
-  useEffect(() => {
     if (isError) {
       router.push("/login");
     }
@@ -129,38 +117,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   let content;
-  if (!persist) {
-    content = children;
-  } else if (isLoading) {
+  if (isLoading) {
     content = (
       <div className="w-full h-screen flex justify-center items-center bg-background">
         <DotPulse />
       </div>
     );
   } else if (isSuccess && trueSuccess) {
-    if (isOpen) {
-      content = (
-        <>
-          {children}
-          <UsersProfileModal
-            isOpen={isOpen}
-            profileStatus={userInfo?.data?.profile_status}
-            setIsProfileSuccessNoticeOpen={handleProfileSuccess}
-          />
-        </>
-      );
-    } else {
-      content = (
-        <>
-          <ProfileSuccessNotice
-            open={isProfileSuccessNoticeOpen}
-            setOpen={setIsProfileSuccessNoticeOpen}
-          />
-          {children}
-        </>
-      );
-    }
-  } else if (token && isUninitialized) {
     if (isOpen) {
       content = (
         <>

@@ -28,7 +28,6 @@ interface TopBarProps {
 }
 
 export function TopBar({ className }: TopBarProps) {
-  const { theme, setTheme } = useTheme();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const isMobile = useIsMobile();
   const router = useRouter();
