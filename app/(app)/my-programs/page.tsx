@@ -23,6 +23,7 @@ import {
   selectWorkoutProgram,
   selectIsLoading,
 } from "@/api/workout-program/workout-program-slice";
+import { Input } from "@/components/ui/input";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
@@ -46,6 +47,7 @@ export default function MyPrograms() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
     null
   );
@@ -59,9 +61,19 @@ export default function MyPrograms() {
 
   useEffect(() => {
     if (programs) {
-      setWorkoutPrograms(programs);
+      if (searchQuery) {
+        setWorkoutPrograms(
+          programs.filter((program) =>
+            program.programName
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())
+          )
+        );
+      } else {
+        setWorkoutPrograms(programs);
+      }
     }
-  }, [programs]);
+  }, [programs, searchQuery]);
 
   useEffect(() => {
     if (programs && selectedProgram) {
@@ -165,6 +177,10 @@ export default function MyPrograms() {
     router.replace(`/my-programs?${params.toString()}`);
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
       <ErrorAlert error={error} setError={setError} />
@@ -197,13 +213,19 @@ export default function MyPrograms() {
                   isDeleting={isDeleting}
                 />
               ) : (
-                <WorkoutProgramList
-                  programs={workoutPrograms}
-                  onSelectProgram={handleSelectProgram}
-                  onDeleteProgram={handleDeleteProgram}
-                  isLoading={isWorkoutProgramLoading || initialLoad}
-                  isDeleting={isDeleting}
-                />
+                <>
+                  <Input
+                    placeholder="Search programs"
+                    onChange={handleSearch}
+                  />
+                  <WorkoutProgramList
+                    programs={workoutPrograms}
+                    onSelectProgram={handleSelectProgram}
+                    onDeleteProgram={handleDeleteProgram}
+                    isLoading={isWorkoutProgramLoading || initialLoad}
+                    isDeleting={isDeleting}
+                  />
+                </>
               )}
             </TabsContent>
 

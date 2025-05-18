@@ -19,7 +19,7 @@ import { DaySchedule } from "./day-scheldule";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
 import type {
   WorkoutProgram,
-  DayOfWeek,
+  AllDays,
   Exercise,
 } from "../../../interfaces/workout-program-interfaces";
 import AddExerciseModal from "@/components/modals/add-exercise-modal";
@@ -63,29 +63,8 @@ export function WorkoutProgramDetail({
   const isMobile = useIsMobile();
   const isDarkMode = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
-  const allDays =
-    program.programType === "dayOfWeek"
-      ? {
-          1: "monday",
-          2: "tuesday",
-          3: "wednesday",
-          4: "thursday",
-          5: "friday",
-          6: "saturday",
-          7: "sunday",
-        }
-      : {
-          1: "D1",
-          2: "D2",
-          3: "D3",
-          4: "D4",
-          5: "D5",
-          6: "D6",
-          7: "D7",
-          8: "D8",
-          9: "D9",
-          10: "D10",
-        };
+
+  const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -93,13 +72,7 @@ export function WorkoutProgramDetail({
   const [isOpen, setIsOpen] = useState(false);
   const [showAddExerciseWarning, setShowAddExerciseWarning] = useState(false);
   const [context, setContext] = useState("");
-  const [activeDay, setActiveDay] = useState<DayOfWeek | null>(
-    program.workoutDays.length > 0
-      ? (allDays[
-          program.workoutDays[0].dayNumber as keyof typeof allDays
-        ] as DayOfWeek)
-      : null
-  );
+  const [activeDay, setActiveDay] = useState<AllDays | null>(null);
   const [editedProgram, setEditedProgram] = useState<WorkoutProgram>({
     ...program,
   });
@@ -120,7 +93,7 @@ export function WorkoutProgramDetail({
     useAddProgramDayMutation();
   const [addExercise, { isLoading: isAddingExercise }] =
     useAddExerciseMutation();
-  const [reorderWorkoutProgramExercise, { isLoading: isReorderingExercise }] =
+  const [reorderWorkoutProgramExercise] =
     useReorderWorkoutProgramExerciseMutation();
 
   // Format created date
@@ -129,7 +102,7 @@ export function WorkoutProgramDetail({
   };
 
   // Format day name
-  const formatDayName = (day: DayOfWeek) => {
+  const formatDayName = (day: AllDays) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
 
@@ -140,7 +113,41 @@ export function WorkoutProgramDetail({
 
   useEffect(() => {
     setEditedProgram(program);
+    setAllDays(
+      program.programType === "dayOfWeek"
+        ? {
+            1: "monday",
+            2: "tuesday",
+            3: "wednesday",
+            4: "thursday",
+            5: "friday",
+            6: "saturday",
+            7: "sunday",
+          }
+        : {
+            1: "D1",
+            2: "D2",
+            3: "D3",
+            4: "D4",
+            5: "D5",
+            6: "D6",
+            7: "D7",
+            8: "D8",
+            9: "D9",
+            10: "D10",
+          }
+    );
   }, [program]);
+
+  useEffect(() => {
+    setActiveDay(
+      program.workoutDays.length > 0
+        ? (allDays[
+            program.workoutDays[0].dayNumber as keyof typeof allDays
+          ] as AllDays)
+        : null
+    );
+  }, [program, allDays]);
 
   // Handle canceling changes
   const handleCancelChanges = () => {
@@ -156,7 +163,7 @@ export function WorkoutProgramDetail({
 
   // Handle adding a new exercise to a day
   const handleAddExercise = async (exercise: Omit<Exercise, "id">) => {
-    const dayId = getDayId(activeDay as DayOfWeek);
+    const dayId = getDayId(activeDay as AllDays);
 
     if (dayId === "" || dayId.includes("temp-")) return;
 
@@ -254,7 +261,7 @@ export function WorkoutProgramDetail({
     }
   };
 
-  const handleUpdateProgramDayName = async (day: DayOfWeek) => {
+  const handleUpdateProgramDayName = async (day: AllDays) => {
     const dayId = getDayId(day);
     const payload = {
       dayName: getDayName(day),
@@ -300,7 +307,7 @@ export function WorkoutProgramDetail({
     try {
       await deleteWorkoutProgramDay({
         programId: program.programId,
-        dayId: getDayId(activeDay as DayOfWeek),
+        dayId: getDayId(activeDay as AllDays),
       }).unwrap();
       setSuccess("Day deleted successfully");
     } catch (error: any) {
@@ -353,7 +360,7 @@ export function WorkoutProgramDetail({
     return activeWorkoutDay ? activeWorkoutDay.exercises : [];
   };
 
-  const getDayName = (day: DayOfWeek) => {
+  const getDayName = (day: AllDays) => {
     if (!activeDay) return "";
     const activeWorkoutDay = editedProgram.workoutDays.find((d) => {
       return allDays[d?.dayNumber as keyof typeof allDays] === day;
@@ -362,7 +369,7 @@ export function WorkoutProgramDetail({
     return activeWorkoutDay ? activeWorkoutDay.dayName : "";
   };
 
-  const getDayId = (day: DayOfWeek) => {
+  const getDayId = (day: AllDays) => {
     if (!activeDay) return "";
     const activeWorkoutDay = editedProgram.workoutDays.find((d) => {
       return allDays[d?.dayNumber as keyof typeof allDays] === day;
@@ -538,7 +545,7 @@ export function WorkoutProgramDetail({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isEditing && !isMobile && (
+          {isEditing && !isMobile && program.programType === "custom" && (
             <div className="flex justify-end mb-4">
               <Button variant="outline" size="sm">
                 <Plus className="h-4 w-4 mr-1" />
@@ -548,7 +555,7 @@ export function WorkoutProgramDetail({
           )}
           <Tabs
             value={activeDay || undefined}
-            onValueChange={(value) => setActiveDay(value as DayOfWeek)}
+            onValueChange={(value) => setActiveDay(value as AllDays)}
             className="space-y-4"
           >
             <TabsList
@@ -569,10 +576,10 @@ export function WorkoutProgramDetail({
 
                   return (
                     <TabsTrigger key={day} value={day} className="relative">
-                      {formatDayName(day as DayOfWeek).slice(0, 3)}
+                      {formatDayName(day as AllDays).slice(0, 3)}
                       {exerciseCount >= 0 &&
-                        getDayId(day as DayOfWeek) !== "" &&
-                        !getDayId(day as DayOfWeek).includes("temp-") && (
+                        getDayId(day as AllDays) !== "" &&
+                        !getDayId(day as AllDays).includes("temp-") && (
                           <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
                             {exerciseCount}
                           </span>
@@ -590,7 +597,7 @@ export function WorkoutProgramDetail({
                     <div>
                       {!isEditing ? (
                         <h3 className="text-lg font-medium">
-                          {getDayName(day as DayOfWeek)}
+                          {getDayName(day as AllDays)}
                         </h3>
                       ) : (
                         <div className="flex gap-2 justify-between items-center">
@@ -598,7 +605,7 @@ export function WorkoutProgramDetail({
                             <Input
                               className="w-fit placeholder:text-slate-500 text-sm"
                               placeholder="Day name"
-                              value={getDayName(day as DayOfWeek)}
+                              value={getDayName(day as AllDays)}
                               onChange={(e) => {
                                 const dayNumber = Object.entries(allDays).find(
                                   ([_, value]) => value === day
@@ -656,18 +663,17 @@ export function WorkoutProgramDetail({
                               className="gap-1 w-[80px]"
                               onClick={() => {
                                 handleUpdateProgramDayName(
-                                  activeDay as DayOfWeek
+                                  activeDay as AllDays
                                 );
                               }}
                               disabled={
                                 isUpdatingDay ||
                                 isAddingDay ||
-                                getDayName(day as DayOfWeek) ===
+                                getDayName(day as AllDays) ===
                                   program.workoutDays.find(
-                                    (d) =>
-                                      d.dayId === getDayId(day as DayOfWeek)
+                                    (d) => d.dayId === getDayId(day as AllDays)
                                   )?.dayName ||
-                                getDayName(day as DayOfWeek) === ""
+                                getDayName(day as AllDays) === ""
                               }
                             >
                               {isUpdatingDay || isAddingDay ? (
@@ -681,8 +687,8 @@ export function WorkoutProgramDetail({
                           <div>
                             {!isMobile ? (
                               <div className="flex">
-                                {getDayId(day as DayOfWeek) !== "" &&
-                                  !getDayId(day as DayOfWeek).includes(
+                                {getDayId(day as AllDays) !== "" &&
+                                  !getDayId(day as AllDays).includes(
                                     "temp-"
                                   ) && (
                                     <Button
@@ -699,10 +705,8 @@ export function WorkoutProgramDetail({
                                 <Button
                                   onClick={() => {
                                     if (
-                                      getDayId(day as DayOfWeek) === "" ||
-                                      getDayId(day as DayOfWeek).includes(
-                                        "temp-"
-                                      )
+                                      getDayId(day as AllDays) === "" ||
+                                      getDayId(day as AllDays).includes("temp-")
                                     ) {
                                       setShowAddExerciseWarning(true);
                                     } else {
@@ -733,8 +737,8 @@ export function WorkoutProgramDetail({
                                   <DropdownMenuItem
                                     onClick={() => {
                                       if (
-                                        getDayId(day as DayOfWeek) === "" ||
-                                        getDayId(day as DayOfWeek).includes(
+                                        getDayId(day as AllDays) === "" ||
+                                        getDayId(day as AllDays).includes(
                                           "temp-"
                                         )
                                       ) {
@@ -747,8 +751,8 @@ export function WorkoutProgramDetail({
                                     <Plus className="h-4 w-4 mr-1" />
                                     Add Exercise
                                   </DropdownMenuItem>
-                                  {getDayId(day as DayOfWeek) !== "" &&
-                                    !getDayId(day as DayOfWeek).includes(
+                                  {getDayId(day as AllDays) !== "" &&
+                                    !getDayId(day as AllDays).includes(
                                       "temp-"
                                     ) && (
                                       <DropdownMenuItem

@@ -1,13 +1,11 @@
-export type DayOfWeek =
+export type AllDays =
   | "monday"
   | "tuesday"
   | "wednesday"
   | "thursday"
   | "friday"
   | "saturday"
-  | "sunday";
-
-export type CustomDay =
+  | "sunday"
   | "D1"
   | "D2"
   | "D3"

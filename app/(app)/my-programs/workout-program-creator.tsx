@@ -19,7 +19,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2, Plus } from "lucide-react";
 
 import type {
-  DayOfWeek,
+  AllDays,
   Exercise,
   CreateWorkoutProgram,
   CreateWorkoutDay,
@@ -48,13 +48,13 @@ export function WorkoutProgramCreator({
   const [programName, setProgramName] = useState("");
   const [description, setDescription] = useState("");
   const [exercises, setExercises] = useState<
-    Record<string | DayOfWeek, Exercise[]>
+    Record<string | AllDays, Exercise[]>
   >({});
-  const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
+  const [activeDay, setActiveDay] = useState<AllDays>("monday");
   const [programType, setProgramType] = useState<"dayOfWeek" | "custom">(
     "dayOfWeek"
   );
-  const [dayNames, setDayNames] = useState<Record<string | DayOfWeek, string>>(
+  const [dayNames, setDayNames] = useState<Record<string | AllDays, string>>(
     {}
   );
   const [customDays, setCustomDays] = useState<
@@ -73,7 +73,7 @@ export function WorkoutProgramCreator({
   ];
 
   // Format day name
-  const formatDayName = (day: DayOfWeek) => {
+  const formatDayName = (day: AllDays) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
 
@@ -138,7 +138,7 @@ export function WorkoutProgramCreator({
   };
 
   // Update day name for a specific day
-  const updateDayName = (dayId: string | DayOfWeek, name: string) => {
+  const updateDayName = (dayId: string | AllDays, name: string) => {
     setDayNames((prev) => ({
       ...prev,
       [dayId]: name,
@@ -147,7 +147,7 @@ export function WorkoutProgramCreator({
 
   // Update exercises for a specific day
   const updateExercises = (
-    dayId: string | DayOfWeek,
+    dayId: string | AllDays,
     newExercises: Exercise[]
   ) => {
     setExercises((prev) => ({
@@ -185,7 +185,7 @@ export function WorkoutProgramCreator({
   };
 
   // Remove an exercise from the current day
-  const removeExercise = (dayId: string | DayOfWeek, exerciseId: string) => {
+  const removeExercise = (dayId: string | AllDays, exerciseId: string) => {
     setExercises((prevExercises) => {
       const currentDayExercises = prevExercises[dayId] || [];
       return {
@@ -199,7 +199,7 @@ export function WorkoutProgramCreator({
 
   // Update an exercise in the current day
   const updateExercise = (
-    dayId: string | DayOfWeek,
+    dayId: string | AllDays,
     updatedExercise: Exercise
   ) => {
     setExercises((prevExercises) => {
@@ -246,7 +246,7 @@ export function WorkoutProgramCreator({
             ({ exerciseId, ...rest }) => rest
           );
           workoutDays.push({
-            dayName: dayNames[day] || formatDayName(day as DayOfWeek),
+            dayName: dayNames[day] || formatDayName(day as AllDays),
             dayNumber: index + 1,
             exercises: exercisesWithoutIds,
           });
@@ -351,12 +351,12 @@ export function WorkoutProgramCreator({
           {programType === "dayOfWeek" ? (
             <Tabs
               value={activeDay}
-              onValueChange={(value) => setActiveDay(value as DayOfWeek)}
+              onValueChange={(value) => setActiveDay(value as AllDays)}
             >
               <TabsList className="mb-4 grid w-full grid-cols-7">
                 {daysOfWeek.map((day) => (
                   <TabsTrigger key={day} value={day} className="relative">
-                    {formatDayName(day as DayOfWeek).slice(0, 3)}
+                    {formatDayName(day as AllDays).slice(0, 3)}
                     {exercises[day] && exercises[day].length > 0 && (
                       <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
                         {exercises[day].length}
