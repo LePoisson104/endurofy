@@ -373,11 +373,12 @@ export function DaySchedule({
   if (sortedExercises.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
-        <h3 className="text-lg font-medium">No exercises for this day</h3>
+        <h2 className="text-lg font-bold">Rest Day</h2>
+        <h3 className="text-md font-medium">No exercises for this day</h3>
         <p className="mt-1 text-sm text-slate-500">
           {isEditing
             ? "Add exercises using the form below."
-            : "There are no exercises scheduled for this day."}
+            : "Click edit to add exercises to this day."}
         </p>
       </div>
     );

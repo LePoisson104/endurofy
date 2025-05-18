@@ -32,7 +32,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
@@ -52,8 +51,8 @@ export function WorkoutProgramCreator({
     Record<string | DayOfWeek, Exercise[]>
   >({});
   const [activeDay, setActiveDay] = useState<DayOfWeek>("monday");
-  const [programType, setProgramType] = useState<"day-of-week" | "rotation">(
-    "day-of-week"
+  const [programType, setProgramType] = useState<"dayOfWeek" | "custom">(
+    "dayOfWeek"
   );
   const [dayNames, setDayNames] = useState<Record<string | DayOfWeek, string>>(
     {}
@@ -160,7 +159,7 @@ export function WorkoutProgramCreator({
   // Add an exercise to the current day
   const addExercise = (exercise: Exercise) => {
     const currentDayId =
-      programType === "day-of-week" ? activeDay : activeCustomDay;
+      programType === "dayOfWeek" ? activeDay : activeCustomDay;
 
     // Get the current number of exercises for the day
     const currentExercises = exercises[currentDayId] || [];
@@ -222,7 +221,7 @@ export function WorkoutProgramCreator({
     setDescription("");
     setExercises({});
     setActiveDay("monday");
-    setProgramType("day-of-week");
+    setProgramType("dayOfWeek");
     setDayNames({});
     setCustomDays([{ id: "d1", name: "D1", dayName: "" }]);
     setActiveCustomDay("d1");
@@ -237,8 +236,8 @@ export function WorkoutProgramCreator({
     // Prepare the workout days based on program type
     const workoutDays: CreateWorkoutDay[] = [];
 
-    if (programType === "day-of-week") {
-      // For day-of-week program type
+    if (programType === "dayOfWeek") {
+      // For dayOfWeek program type
       daysOfWeek.forEach((day, index) => {
         const dayExercises = exercises[day] || [];
         if (dayExercises.length > 0) {
@@ -275,6 +274,7 @@ export function WorkoutProgramCreator({
     const program: CreateWorkoutProgram = {
       programName,
       description,
+      programType,
       workoutDays,
     };
 
@@ -335,20 +335,20 @@ export function WorkoutProgramCreator({
             <Select
               value={programType}
               onValueChange={(value) =>
-                setProgramType(value as "day-of-week" | "rotation")
+                setProgramType(value as "dayOfWeek" | "custom")
               }
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="day-of-week">Day of week</SelectItem>
-                <SelectItem value="rotation">Rotation</SelectItem>
+                <SelectItem value="dayOfWeek">Day of week</SelectItem>
+                <SelectItem value="custom">custom</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {programType === "day-of-week" ? (
+          {programType === "dayOfWeek" ? (
             <Tabs
               value={activeDay}
               onValueChange={(value) => setActiveDay(value as DayOfWeek)}
@@ -394,7 +394,7 @@ export function WorkoutProgramCreator({
                     setError={setError}
                   />
 
-                  <Card className={`${isMobile ? "border-none" : ""}`}>
+                  <Card className={`${isMobile ? "border-none" : "border"}`}>
                     <CardHeader className={`${isMobile ? "p-0" : ""}`}>
                       <CardTitle className="text-base">Add Exercise</CardTitle>
                     </CardHeader>

@@ -63,15 +63,29 @@ export function WorkoutProgramDetail({
   const isMobile = useIsMobile();
   const isDarkMode = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
-  const allDays = {
-    1: "monday",
-    2: "tuesday",
-    3: "wednesday",
-    4: "thursday",
-    5: "friday",
-    6: "saturday",
-    7: "sunday",
-  };
+  const allDays =
+    program.programType === "dayOfWeek"
+      ? {
+          1: "monday",
+          2: "tuesday",
+          3: "wednesday",
+          4: "thursday",
+          5: "friday",
+          6: "saturday",
+          7: "sunday",
+        }
+      : {
+          1: "D1",
+          2: "D2",
+          3: "D3",
+          4: "D4",
+          5: "D5",
+          6: "D6",
+          7: "D7",
+          8: "D8",
+          9: "D9",
+          10: "D10",
+        };
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -118,6 +132,11 @@ export function WorkoutProgramDetail({
   const formatDayName = (day: DayOfWeek) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
+
+  const numberOfDays =
+    program.programType === "custom"
+      ? Math.max(...program.workoutDays.map((d) => d.dayNumber))
+      : 7;
 
   useEffect(() => {
     setEditedProgram(program);
@@ -519,31 +538,48 @@ export function WorkoutProgramDetail({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {isEditing && !isMobile && (
+            <div className="flex justify-end mb-4">
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Day
+              </Button>
+            </div>
+          )}
           <Tabs
             value={activeDay || undefined}
             onValueChange={(value) => setActiveDay(value as DayOfWeek)}
             className="space-y-4"
           >
-            <TabsList className="grid w-full grid-cols-7">
-              {Object.values(allDays).map((day) => {
-                const dayData = editedProgram.workoutDays.find((d) => {
-                  return allDays[d.dayNumber as keyof typeof allDays] === day;
-                });
-                const exerciseCount = dayData?.exercises.length || 0;
+            <TabsList
+              className={`grid w-full grid-cols-7 ${
+                program.programType === "custom" &&
+                program.workoutDays.length > 7
+                  ? "mb-10"
+                  : ""
+              }`}
+            >
+              {Object.values(allDays)
+                .slice(0, numberOfDays)
+                .map((day) => {
+                  const dayData = editedProgram.workoutDays.find((d) => {
+                    return allDays[d.dayNumber as keyof typeof allDays] === day;
+                  });
+                  const exerciseCount = dayData?.exercises.length || 0;
 
-                return (
-                  <TabsTrigger key={day} value={day} className="relative">
-                    {formatDayName(day as DayOfWeek).slice(0, 3)}
-                    {exerciseCount >= 0 &&
-                      getDayId(day as DayOfWeek) !== "" &&
-                      !getDayId(day as DayOfWeek).includes("temp-") && (
-                        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                          {exerciseCount}
-                        </span>
-                      )}
-                  </TabsTrigger>
-                );
-              })}
+                  return (
+                    <TabsTrigger key={day} value={day} className="relative">
+                      {formatDayName(day as DayOfWeek).slice(0, 3)}
+                      {exerciseCount >= 0 &&
+                        getDayId(day as DayOfWeek) !== "" &&
+                        !getDayId(day as DayOfWeek).includes("temp-") && (
+                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                            {exerciseCount}
+                          </span>
+                        )}
+                    </TabsTrigger>
+                  );
+                })}
             </TabsList>
 
             {Object.values(allDays).map((day) => (
@@ -644,7 +680,7 @@ export function WorkoutProgramDetail({
 
                           <div>
                             {!isMobile ? (
-                              <>
+                              <div className="flex">
                                 {getDayId(day as DayOfWeek) !== "" &&
                                   !getDayId(day as DayOfWeek).includes(
                                     "temp-"
@@ -676,7 +712,7 @@ export function WorkoutProgramDetail({
                                 >
                                   Add Exercise
                                 </Button>
-                              </>
+                              </div>
                             ) : (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -688,6 +724,12 @@ export function WorkoutProgramDetail({
                                   align="center"
                                   side="right"
                                 >
+                                  {program.programType === "custom" && (
+                                    <DropdownMenuItem>
+                                      <Plus className="h-4 w-4 mr-1" />
+                                      Add Day
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem
                                     onClick={() => {
                                       if (

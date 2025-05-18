@@ -7,6 +7,18 @@ export type DayOfWeek =
   | "saturday"
   | "sunday";
 
+export type CustomDay =
+  | "D1"
+  | "D2"
+  | "D3"
+  | "D4"
+  | "D5"
+  | "D6"
+  | "D7"
+  | "D8"
+  | "D9"
+  | "D10";
+
 export interface Exercise {
   exerciseId: string;
   exerciseName: string;
@@ -29,6 +41,7 @@ export interface WorkoutProgram {
   programId: string;
   programName: string;
   description?: string;
+  programType: "dayOfWeek" | "custom";
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   workoutDays: WorkoutDay[];
@@ -37,6 +50,7 @@ export interface WorkoutProgram {
 export interface CreateWorkoutProgram {
   programName: string;
   description?: string;
+  programType: "dayOfWeek" | "custom";
   workoutDays: CreateWorkoutDay[];
 }
 
