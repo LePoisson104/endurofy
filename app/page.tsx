@@ -14,6 +14,7 @@ import {
   Sparkle,
   CalendarSync,
   X,
+  Check,
 } from "lucide-react";
 import {
   Accordion,
@@ -236,173 +237,171 @@ export default function Home() {
     <div className="flex min-h-[100dvh] flex-col">
       {/* <div className="animated-mesh-gradient"></div> */}
       {/* Header moved into hero section */}
+      <header
+        ref={headerRef}
+        className="fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent"
+        style={{ backdropFilter: `blur(${headerBlur}px)` }}
+      >
+        <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
+          <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
+            <div className="flex items-center gap-1">
+              <span className="text-xl font-bold hover:text-primary">
+                Endurofy
+              </span>
+            </div>
+          </Link>
+          {!isLoading && !isMobile && (
+            <nav className="hidden md:flex gap-6 items-center justify-center">
+              <motion.div
+                custom={0}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#features"
+                  onClick={(e) => scrollToSection(e, "features")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  Features
+                </Link>
+              </motion.div>
+              <motion.div
+                custom={1}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#how-it-works"
+                  onClick={(e) => scrollToSection(e, "how-it-works")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  How it works
+                </Link>
+              </motion.div>
+              <motion.div
+                custom={2}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#pricing"
+                  onClick={(e) => scrollToSection(e, "pricing")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  Pricing
+                </Link>
+              </motion.div>
+              <motion.div
+                custom={3}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#faq"
+                  onClick={(e) => scrollToSection(e, "faq")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  FAQ
+                </Link>
+              </motion.div>
+            </nav>
+          )}
+          <div className="flex items-center gap-4">
+            {!isLoading && (
+              <motion.div
+                custom={0}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <LandingPageThemeToggle />
+              </motion.div>
+            )}
+            {!isLoading && !isMobile && (
+              <motion.div
+                custom={1}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link href="/login" className="hidden md:block">
+                  <Button variant="outline" className="px-5 py-4">
+                    Log in
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+            {!isLoading && !isMobile && (
+              <motion.div
+                custom={2}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link href="/signup">
+                  <Button className="px-5 py-4 arrow-button ">
+                    Try it now{" "}
+                    <svg
+                      className="arrow-icon"
+                      viewBox="0 -3.5 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        className="arrow-icon__tip"
+                        d="M8 15L14 8.5L8 2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <line
+                        className="arrow-icon__line"
+                        x1="13"
+                        y1="8.5"
+                        y2="8.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+            {isMobile && (
+              <motion.div
+                custom={1}
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleMenu}
+                  ref={buttonRef}
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </header>
       <main className="flex-1">
         {/* Hero Section with Header */}
         {/* Header inside hero section */}
-        <header
-          ref={headerRef}
-          className="fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent"
-          style={{ backdropFilter: `blur(${headerBlur}px)` }}
-        >
-          <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
-            <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
-              <div className="flex items-center gap-1">
-                <span className="text-xl font-bold hover:text-primary">
-                  Endurofy
-                </span>
-              </div>
-            </Link>
-            {!isLoading && !isMobile && (
-              <nav className="hidden md:flex gap-6 items-center justify-center">
-                <motion.div
-                  custom={0}
-                  variants={navLinkVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link
-                    href="#features"
-                    onClick={(e) => scrollToSection(e, "features")}
-                    className="text-sm font-medium hover:text-primary nav-link"
-                  >
-                    Features
-                  </Link>
-                </motion.div>
-                <motion.div
-                  custom={1}
-                  variants={navLinkVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link
-                    href="#how-it-works"
-                    onClick={(e) => scrollToSection(e, "how-it-works")}
-                    className="text-sm font-medium hover:text-primary nav-link"
-                  >
-                    How it works
-                  </Link>
-                </motion.div>
-                <motion.div
-                  custom={2}
-                  variants={navLinkVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link
-                    href="#pricing"
-                    onClick={(e) => scrollToSection(e, "pricing")}
-                    className="text-sm font-medium hover:text-primary nav-link"
-                  >
-                    Pricing
-                  </Link>
-                </motion.div>
-                <motion.div
-                  custom={3}
-                  variants={navLinkVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link
-                    href="#faq"
-                    onClick={(e) => scrollToSection(e, "faq")}
-                    className="text-sm font-medium hover:text-primary nav-link"
-                  >
-                    FAQ
-                  </Link>
-                </motion.div>
-              </nav>
-            )}
-            <div className="flex items-center gap-4">
-              {!isLoading && (
-                <motion.div
-                  custom={0}
-                  variants={buttonVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <LandingPageThemeToggle />
-                </motion.div>
-              )}
-              {!isLoading && !isMobile && (
-                <motion.div
-                  custom={1}
-                  variants={buttonVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link href="/login" className="hidden md:block">
-                    <Button variant="outline" className="px-5 py-4">
-                      Log in
-                    </Button>
-                  </Link>
-                </motion.div>
-              )}
-              {!isLoading && !isMobile && (
-                <motion.div
-                  custom={2}
-                  variants={buttonVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link href="/signup">
-                    <Button className="px-5 py-4 arrow-button ">
-                      Try it now{" "}
-                      <svg
-                        className="arrow-icon"
-                        viewBox="0 -3.5 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          className="arrow-icon__tip"
-                          d="M8 15L14 8.5L8 2"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <line
-                          className="arrow-icon__line"
-                          x1="13"
-                          y1="8.5"
-                          y2="8.5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                    </Button>
-                  </Link>
-                </motion.div>
-              )}
-              {isMobile && (
-                <motion.div
-                  custom={1}
-                  variants={buttonVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleMenu}
-                    ref={buttonRef}
-                  >
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </motion.div>
-              )}
-            </div>
-          </div>
-        </header>
         <motion.section
           id="hero"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-48 px-4 md:px-6 hero-section-container"
+          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-48 px-4 md:px-6"
         >
-          <div className="animated-mesh-gradient" />
-
           <div className="container px-4 md:px-6 mx-auto mt-16">
             {" "}
             {/* Changed pt-16 to mt-16 */}
@@ -419,7 +418,7 @@ export default function Home() {
                     your performance, and reach your fitness goals faster.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[200px]:flex-row justify-center lg:justify-start sm:w-full">
+                <div className="flex flex-col gap-2 min-[200px]:flex-col justify-center lg:justify-start sm:w-full">
                   <div className="relative flex-1 max-w-md">
                     <Input
                       placeholder="Enter your email"
@@ -457,6 +456,16 @@ export default function Home() {
                         </svg>
                       </Button>
                     </Link>
+                  </div>
+                  <div className="flex flex gap-2 mt-1">
+                    <div className="flex items-center gap-1">
+                      <Check className="h-4 w-4" />
+                      <p className="text-xs">Free 30 days trial</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Check className="h-4 w-4" />
+                      <p className="text-xs">No credit card required</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -792,7 +801,7 @@ export default function Home() {
                 </div>
                 <div className="mt-6">
                   <Link href="#download">
-                    <Button className="w-full">Get Started</Button>
+                    <Button className="w-full">Start Free Trial</Button>
                   </Link>
                 </div>
               </motion.div>
@@ -833,7 +842,7 @@ export default function Home() {
                 <div className="mt-6">
                   <Link href="#download">
                     <Button className="w-full" variant="outline">
-                      Get Started
+                      Start Free Trial
                     </Button>
                   </Link>
                 </div>
