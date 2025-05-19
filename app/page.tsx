@@ -1035,15 +1035,23 @@ export default function Home() {
                   goals.
                 </p>
               </div>
-              <div className="w-full max-w-sm space-y-2">
-                <form className="flex flex-col sm:flex-row gap-2 items-center">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="max-w-lg flex-1 border-primary py-3"
-                  />
-                  <Button size="sm" className="arrow-button py-5">
-                    Sign up
+
+              <div
+                className={`relative flex-1 ${isMobile ? "w-full" : "w-md"}`}
+              >
+                <Input
+                  placeholder="Enter your email"
+                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
+                />
+                <Link
+                  href="/signup"
+                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                >
+                  <Button
+                    size="sm"
+                    className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground"
+                  >
+                    Start now
                     <svg
                       className="arrow-icon"
                       viewBox="0 -3.5 24 24"
@@ -1066,7 +1074,7 @@ export default function Home() {
                       />
                     </svg>
                   </Button>
-                </form>
+                </Link>
               </div>
             </div>
           </div>

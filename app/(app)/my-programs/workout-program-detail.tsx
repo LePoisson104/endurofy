@@ -110,7 +110,7 @@ export function WorkoutProgramDetail({
 
   const numberOfDays =
     program.programType === "custom"
-      ? Math.max(...program.workoutDays.map((d) => d.dayNumber))
+      ? Math.max(...program.workoutDays.map((d) => d.dayNumber)) + 1
       : 7;
 
   useEffect(() => {
