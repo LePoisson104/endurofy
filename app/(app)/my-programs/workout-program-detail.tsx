@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Edit, Trash2, X, EllipsisVertical, Plus, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
@@ -63,6 +63,8 @@ export function WorkoutProgramDetail({
   const isMobile = useIsMobile();
   const isDarkMode = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
+  const currentDayRef = useRef<HTMLButtonElement>(null);
+  const previousActiveDayRef = useRef<AllDays | null>(null);
 
   const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
   const [error, setError] = useState<string | null>(null);
@@ -140,13 +142,33 @@ export function WorkoutProgramDetail({
   }, [program]);
 
   useEffect(() => {
-    setActiveDay(
-      program.workoutDays.length > 0
-        ? (allDays[
-            program.workoutDays[0].dayNumber as keyof typeof allDays
-          ] as AllDays)
-        : null
-    );
+    // Store the current active day before any updates
+    if (activeDay) {
+      previousActiveDayRef.current = activeDay;
+    }
+
+    // If we have a previous active day and it exists in the new program data, restore it
+    if (previousActiveDayRef.current) {
+      const dayExists = program.workoutDays.some(
+        (day) =>
+          allDays[day.dayNumber as keyof typeof allDays] ===
+          previousActiveDayRef.current
+      );
+
+      if (dayExists) {
+        setActiveDay(previousActiveDayRef.current);
+        return;
+      }
+    }
+
+    // If no previous active day or it doesn't exist anymore, set to first day
+    if (program.workoutDays.length > 0) {
+      setActiveDay(
+        allDays[
+          program.workoutDays[0].dayNumber as keyof typeof allDays
+        ] as AllDays
+      );
+    }
   }, [program, allDays]);
 
   // Handle canceling changes
@@ -575,7 +597,12 @@ export function WorkoutProgramDetail({
                   const exerciseCount = dayData?.exercises.length || 0;
 
                   return (
-                    <TabsTrigger key={day} value={day} className="relative">
+                    <TabsTrigger
+                      key={day}
+                      value={day}
+                      className="relative"
+                      ref={day === activeDay ? currentDayRef : null}
+                    >
                       {formatDayName(day as AllDays).slice(0, 3)}
                       {exerciseCount >= 0 &&
                         getDayId(day as AllDays) !== "" &&
