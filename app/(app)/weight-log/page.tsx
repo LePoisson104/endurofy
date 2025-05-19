@@ -82,7 +82,7 @@ export default function WeightLogPage() {
       100,
       Math.round(
         ((startWeight - currentWeight) / (startWeight - goalWeight)) * 100
-      )
+      ) || 0
     )
   );
 

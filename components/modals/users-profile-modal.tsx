@@ -240,7 +240,7 @@ export default function UsersProfileModal({
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <Card>
+            <Card className="border">
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
                 <CardDescription>
@@ -285,7 +285,7 @@ export default function UsersProfileModal({
             </Card>
 
             {/* Physical Information */}
-            <Card>
+            <Card className="border">
               <CardHeader>
                 <CardTitle>Physical Information</CardTitle>
                 <CardDescription>

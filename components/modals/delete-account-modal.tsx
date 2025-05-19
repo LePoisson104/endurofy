@@ -3,7 +3,6 @@ import { Button } from "../ui/button";
 import {
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -18,8 +17,10 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRouter } from "next/navigation";
 
 export default function DeleteAccountModal() {
+  const router = useRouter();
   const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [password, setPassword] = useState("");
@@ -41,6 +42,7 @@ export default function DeleteAccountModal() {
         password,
       }).unwrap();
       await logout();
+      router.push("/login");
     } catch (error: any) {
       if (!error.status) {
         setError("No Server Response");
