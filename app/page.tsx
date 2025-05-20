@@ -460,7 +460,7 @@ export default function Home() {
                   <div className="flex flex gap-2 mt-1">
                     <div className="flex items-center gap-1">
                       <Check className="h-4 w-4" />
-                      <p className="text-xs">Free 30 days trial</p>
+                      <p className="text-xs">Free 7-day trial</p>
                     </div>
                     <div className="flex items-center gap-1">
                       <Check className="h-4 w-4" />
@@ -801,7 +801,7 @@ export default function Home() {
                 </div>
                 <div className="mt-6">
                   <Link href="#download">
-                    <Button className="w-full">Start Free Trial</Button>
+                    <Button className="w-full">7-Day Free Trial</Button>
                   </Link>
                 </div>
               </motion.div>
@@ -842,7 +842,7 @@ export default function Home() {
                 <div className="mt-6">
                   <Link href="#download">
                     <Button className="w-full" variant="outline">
-                      Start Free Trial
+                      7-Day Free Trial
                     </Button>
                   </Link>
                 </div>

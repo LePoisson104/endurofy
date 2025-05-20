@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Edit, Trash2, X, EllipsisVertical, Plus, Loader2 } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  X,
+  EllipsisVertical,
+  Plus,
+  Loader2,
+  Minus,
+} from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
@@ -78,6 +86,7 @@ export function WorkoutProgramDetail({
   const [editedProgram, setEditedProgram] = useState<WorkoutProgram>({
     ...program,
   });
+  const [numberOfDays, setNumberOfDays] = useState(0);
 
   const [deleteWorkoutProgramDay, { isLoading: isDeletingDay }] =
     useDeleteWorkoutProgramDayMutation();
@@ -108,11 +117,6 @@ export function WorkoutProgramDetail({
     return day.charAt(0).toUpperCase() + day.slice(1);
   };
 
-  const numberOfDays =
-    program.programType === "custom"
-      ? Math.max(...program.workoutDays.map((d) => d.dayNumber)) + 1
-      : 7;
-
   useEffect(() => {
     setEditedProgram(program);
     setAllDays(
@@ -140,6 +144,22 @@ export function WorkoutProgramDetail({
           }
     );
   }, [program]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setNumberOfDays(
+        program.programType === "custom"
+          ? Math.max(...program.workoutDays.map((d) => d.dayNumber)) + 1
+          : 7
+      );
+    } else if (isEditing) {
+      setNumberOfDays(
+        program.programType === "custom"
+          ? Math.max(...program.workoutDays.map((d) => d.dayNumber))
+          : 7
+      );
+    }
+  }, [program, isEditing]);
 
   useEffect(() => {
     // Store the current active day before any updates
@@ -181,6 +201,19 @@ export function WorkoutProgramDetail({
   const handleDeleteProgram = () => {
     onDelete(program.programId);
     setShowDeleteDialog(false);
+  };
+
+  const addCustomDay = () => {
+    setNumberOfDays(numberOfDays + 1);
+  };
+
+  const removeCustomDay = () => {
+    if (
+      getDayId(activeDay as AllDays) !== "" ||
+      !getDayId(activeDay as AllDays).includes("temp-")
+    ) {
+      setNumberOfDays(numberOfDays - 1);
+    }
   };
 
   // Handle adding a new exercise to a day
@@ -568,8 +601,20 @@ export function WorkoutProgramDetail({
         </CardHeader>
         <CardContent>
           {isEditing && !isMobile && program.programType === "custom" && (
-            <div className="flex justify-end mb-4">
-              <Button variant="outline" size="sm">
+            <div className="flex justify-end mb-4 gap-2">
+              {getDayId(activeDay as AllDays) !== "" ||
+                (!getDayId(activeDay as AllDays).includes("temp-") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeCustomDay()}
+                  >
+                    <Minus className="h-4 w-4 mr-1" />
+                    Remove Day
+                  </Button>
+                ))}
+
+              <Button variant="outline" size="sm" onClick={addCustomDay}>
                 <Plus className="h-4 w-4 mr-1" />
                 Add Day
               </Button>
@@ -583,7 +628,7 @@ export function WorkoutProgramDetail({
             <TabsList
               className={`grid w-full grid-cols-7 ${
                 program.programType === "custom" &&
-                program.workoutDays.length > 7
+                (program.workoutDays.length > 7 || numberOfDays > 7)
                   ? "mb-10"
                   : ""
               }`}
@@ -756,10 +801,16 @@ export function WorkoutProgramDetail({
                                   side="right"
                                 >
                                   {program.programType === "custom" && (
-                                    <DropdownMenuItem>
-                                      <Plus className="h-4 w-4 mr-1" />
-                                      Add Day
-                                    </DropdownMenuItem>
+                                    <>
+                                      <DropdownMenuItem>
+                                        <Minus className="h-4 w-4 mr-1" />
+                                        Remove Day
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem>
+                                        <Plus className="h-4 w-4 mr-1" />
+                                        Add Day
+                                      </DropdownMenuItem>
+                                    </>
                                   )}
                                   <DropdownMenuItem
                                     onClick={() => {
