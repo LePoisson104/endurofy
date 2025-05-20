@@ -108,8 +108,10 @@ export function WorkoutProgramDetail({
     useReorderWorkoutProgramExerciseMutation();
 
   // Format created date
-  const formatCreatedDate = (dateString: string) => {
-    return format(parseISO(dateString), "MMMM d, yyyy");
+  const formatDate = (dateString: string) => {
+    const dateFormat = format(parseISO(dateString), "MMMM d, yyyy");
+    const timeFormat = format(parseISO(dateString), "h:mm a");
+    return `${dateFormat} at ${timeFormat}`;
   };
 
   // Format day name
@@ -576,7 +578,7 @@ export function WorkoutProgramDetail({
                 isDarkMode ? "text-slate-400" : "text-slate-500"
               }`}
             >
-              Created on {formatCreatedDate(program.createdAt)}
+              Created on {formatDate(program.createdAt)}
             </div>
             {new Date(program.createdAt).toISOString().split("T")[0] !==
               new Date(program.updatedAt).toISOString().split("T")[0] && (
@@ -585,7 +587,7 @@ export function WorkoutProgramDetail({
                   isDarkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
-                Updated on {formatCreatedDate(program.updatedAt)}
+                Updated on {formatDate(program.updatedAt)}
               </div>
             )}
           </CardContent>

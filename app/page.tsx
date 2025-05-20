@@ -7,7 +7,6 @@ import {
   Activity,
   BarChart3,
   Calendar,
-  Download,
   Heart,
   Menu,
   Dumbbell,
@@ -27,6 +26,11 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect, useRef } from "react";
+import {
+  FeatureCard,
+  PricingFeature,
+} from "@/components/cards/landingpage-cards";
+import { useRouter } from "next/navigation";
 
 // Animation variants
 const fadeInUp = {
@@ -45,14 +49,6 @@ const staggerContainer = {
     transition: {
       staggerChildren: 0.2,
     },
-  },
-};
-
-const featureCardVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.5 },
   },
 };
 
@@ -128,10 +124,13 @@ const buttonVariants = {
 
 export default function Home() {
   const isDark = useGetCurrentTheme();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [headerBlur, setHeaderBlur] = useState(5); // Initial blur amount
+  const [email, setEmail] = useState("");
+
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -231,6 +230,16 @@ export default function Home() {
         }
       }
     }, 300); // 300ms matches the menu animation duration
+  };
+
+  const handleStartNow = () => {
+    const seesionEmail = sessionStorage.getItem("getStartedEmail");
+    if (email !== "") {
+      sessionStorage.setItem("getStartedEmail", email);
+    } else if (seesionEmail && email === "") {
+      sessionStorage.removeItem("getStartedEmail");
+    }
+    router.push("/signup");
   };
 
   return (
@@ -422,40 +431,39 @@ export default function Home() {
                   <div className="relative flex-1 max-w-md">
                     <Input
                       placeholder="Enter your email"
-                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground text-sm"
                     />
-                    <Link
-                      href="/signup"
-                      className="absolute right-1 top-1/2 -translate-y-1/2"
+
+                    <Button
+                      size="sm"
+                      className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={handleStartNow}
                     >
-                      <Button
-                        size="sm"
-                        className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground"
+                      Start now
+                      <svg
+                        className="arrow-icon"
+                        viewBox="0 -3.5 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        Start now
-                        <svg
-                          className="arrow-icon"
-                          viewBox="0 -3.5 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            className="arrow-icon__tip"
-                            d="M8 15L14 8.5L8 2"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          />
-                          <line
-                            className="arrow-icon__line"
-                            x1="13"
-                            y1="8.5"
-                            y2="8.5"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          />
-                        </svg>
-                      </Button>
-                    </Link>
+                        <path
+                          className="arrow-icon__tip"
+                          d="M8 15L14 8.5L8 2"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <line
+                          className="arrow-icon__line"
+                          x1="13"
+                          y1="8.5"
+                          y2="8.5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    </Button>
                   </div>
                   <div className="flex flex gap-2 mt-1">
                     <div className="flex items-center gap-1">
@@ -490,9 +498,10 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
-          className="w-full py-12 md:py-24 lg:py-32 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:24px_24px]"
+          className="w-full py-12 md:py-24 lg:py-32 relative"
         >
-          <div className="container px-4 md:px-6 mx-auto">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:30px_30px]" />
+          <div className="container px-4 md:px-6 mx-auto relative">
             <motion.div
               variants={fadeInUp}
               className="flex flex-col items-center justify-center space-y-4 text-center"
@@ -516,33 +525,33 @@ export default function Home() {
               className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3"
             >
               <FeatureCard
-                icon={<Calendar className="h-6 w-6 text-primary" />}
+                icon={<Calendar className="h-6 w-6" />}
                 title="Training Programs"
                 description="Follow personalized training programs designed to help you reach your goals."
               />
               <FeatureCard
-                icon={<CalendarSync className="h-6 w-6 text-primary" />}
+                icon={<CalendarSync className="h-6 w-6" />}
                 title="Auto-filled Workouts"
                 description="Endurofy pre-fills each day in your workout log with the exercises from your program."
               />
               <FeatureCard
-                icon={<Activity className="h-6 w-6 text-primary" />}
+                icon={<Activity className="h-6 w-6" />}
                 title="Advanced Tracking"
                 description="Track workouts, and daily weights with detailed metrics."
               />
               <FeatureCard
-                icon={<BarChart3 className="h-6 w-6 text-primary" />}
+                icon={<BarChart3 className="h-6 w-6" />}
                 title="Performance Analytics"
                 description="Get insights into your training with detailed charts and progress tracking."
               />
               <FeatureCard
-                icon={<Dumbbell className="h-6 w-6 text-primary" />}
+                icon={<Dumbbell className="h-6 w-6" />}
                 title="Workout Explorer"
                 description="Explore workouts from our library and add them to your own training plans."
               />
 
               <FeatureCard
-                icon={<Heart className="h-6 w-6 text-primary" />}
+                icon={<Heart className="h-6 w-6" />}
                 title="Health Integration"
                 description="Connect with Apple Health, Google Fit, and other platforms for a complete picture."
               />
@@ -952,69 +961,6 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Download CTA */}
-        <motion.section
-          id="download"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32"
-        >
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px] items-center justify-center">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2 text-center lg:text-left">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                    Ready to elevate your endurance?
-                  </h2>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto lg:mx-0">
-                    Download Endurofy today and join thousands of athletes who
-                    are tracking, improving, and conquering their fitness goals.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start">
-                  <Link href="#">
-                    <Button size="lg" className="gap-1">
-                      <Download className="h-4 w-4" />
-                      App Store
-                    </Button>
-                  </Link>
-                  <Link href="#">
-                    <Button size="lg" variant="outline" className="gap-1">
-                      <Download className="h-4 w-4" />
-                      Google Play
-                    </Button>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-4 text-sm justify-center lg:justify-start">
-                  <div className="flex items-center gap-1">
-                    <Star />
-                    <Star />
-                    <Star />
-                    <Star />
-                    <Star />
-                  </div>
-                  <p className="text-muted-foreground">
-                    <span className="font-medium">4.8/5</span> from over 2,000
-                    reviews
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <div className="relative aspect-square w-full max-w-[500px] overflow-hidden rounded-2xl bg-muted">
-                  <Image
-                    src="/placeholder.svg?height=1000&width=500"
-                    alt="Endurofy App Screenshot"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
         {/* Newsletter */}
         <motion.section
           initial="hidden"
@@ -1036,45 +982,42 @@ export default function Home() {
                 </p>
               </div>
 
-              <div
-                className={`relative flex-1 ${isMobile ? "w-full" : "w-md"}`}
-              >
+              <div className={`relative flex-1 ${isMobile ? "w-3/4" : "w-md"}`}>
                 <Input
                   placeholder="Enter your email"
-                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground text-sm"
                 />
-                <Link
-                  href="/signup"
-                  className="absolute right-1 top-1/2 -translate-y-1/2"
+
+                <Button
+                  size="sm"
+                  className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={handleStartNow}
                 >
-                  <Button
-                    size="sm"
-                    className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground"
+                  Start now
+                  <svg
+                    className="arrow-icon"
+                    viewBox="0 -3.5 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    Start now
-                    <svg
-                      className="arrow-icon"
-                      viewBox="0 -3.5 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        className="arrow-icon__tip"
-                        d="M8 15L14 8.5L8 2"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <line
-                        className="arrow-icon__line"
-                        x1="13"
-                        y1="8.5"
-                        y2="8.5"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  </Button>
-                </Link>
+                    <path
+                      className="arrow-icon__tip"
+                      d="M8 15L14 8.5L8 2"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <line
+                      className="arrow-icon__line"
+                      x1="13"
+                      y1="8.5"
+                      y2="8.5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </Button>
               </div>
             </div>
           </div>
@@ -1438,74 +1381,5 @@ export default function Home() {
         </motion.div>
       )}
     </div>
-  );
-}
-
-// Helper Components
-function Star() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 text-primary"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
-
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <motion.div
-      variants={featureCardVariants}
-      className="flex flex-col p-6 rounded-xl border bg-background hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] transition-all cursor-pointer h-[200px] w-full group"
-    >
-      <div className="rounded-full bg-primary/10 p-2 w-fit group-hover:bg-primary/20 transition-colors">
-        {icon}
-      </div>
-      <div className="mt-4">
-        <h3 className="text-xl font-bold text-left">{title}</h3>
-        <p className="mt-2 text-sm text-muted-foreground text-left">
-          {description}
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-function PricingFeature({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-2">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="shrink-0 h-4 w-4 text-primary mt-1"
-      >
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      <span className="flex-1 text-left">{children}</span>
-    </li>
   );
 }

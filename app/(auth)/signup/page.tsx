@@ -8,7 +8,7 @@ import Link from "next/link";
 import ContinuteWithGoogleBtn from "@/components/buttons/continue-with-google-btn";
 import AppLogo from "@/components/global/app-logo";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useRouter } from "next/navigation";
 import { useSignupMutation } from "@/api/auth/auth-api-slice";
@@ -74,6 +74,13 @@ export default function Signup() {
         return "";
     }
   };
+
+  useEffect(() => {
+    const sessionEmail = sessionStorage.getItem("getStartedEmail");
+    if (sessionEmail) {
+      setEmail(sessionEmail);
+    }
+  }, []);
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
