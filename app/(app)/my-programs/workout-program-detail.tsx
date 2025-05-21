@@ -206,15 +206,74 @@ export function WorkoutProgramDetail({
   };
 
   const addCustomDay = () => {
-    setNumberOfDays(numberOfDays + 1);
+    const newDayNumber = numberOfDays + 1;
+    const tempDayId = `temp-${Date.now()}`;
+
+    // Add new day to the edited program state
+    setEditedProgram((prev) => ({
+      ...prev,
+      workoutDays: [
+        ...prev.workoutDays,
+        {
+          dayId: tempDayId,
+          dayName: "",
+          dayNumber: newDayNumber,
+          exercises: [],
+        },
+      ],
+    }));
+
+    setNumberOfDays(newDayNumber);
+    // Set the new day as active
+    setActiveDay(`D${newDayNumber}` as AllDays);
   };
 
   const removeCustomDay = () => {
-    if (
-      getDayId(activeDay as AllDays) !== "" ||
-      !getDayId(activeDay as AllDays).includes("temp-")
-    ) {
-      setNumberOfDays(numberOfDays - 1);
+    const dayId = getDayId(activeDay as AllDays);
+    if (!dayId) return;
+
+    // Get the day number of the day being removed
+    const removedDayNumber = editedProgram.workoutDays.find(
+      (day) => day.dayId === dayId
+    )?.dayNumber;
+    if (!removedDayNumber) return;
+
+    // Update the edited program state
+    setEditedProgram((prev) => {
+      // Remove the day
+      const updatedDays = prev.workoutDays.filter((day) => day.dayId !== dayId);
+
+      // Renumber the remaining days
+      const renumberedDays = updatedDays.map((day) => {
+        if (day.dayNumber > removedDayNumber) {
+          return {
+            ...day,
+            dayNumber: day.dayNumber - 1,
+          };
+        }
+        return day;
+      });
+
+      return {
+        ...prev,
+        workoutDays: renumberedDays,
+      };
+    });
+
+    setNumberOfDays(numberOfDays - 1);
+
+    // Set active day to the first available day
+    const remainingDays = editedProgram.workoutDays.filter(
+      (day) => day.dayId !== dayId
+    );
+    if (remainingDays.length > 0) {
+      const firstRemainingDay = remainingDays[0];
+      const dayKey = Object.entries(allDays).find(
+        ([_, value]) => value === firstRemainingDay.dayNumber.toString()
+      )?.[1];
+      if (dayKey) {
+        setActiveDay(dayKey as AllDays);
+      }
     }
   };
 
@@ -604,17 +663,16 @@ export function WorkoutProgramDetail({
         <CardContent>
           {isEditing && !isMobile && program.programType === "custom" && (
             <div className="flex justify-end mb-4 gap-2">
-              {getDayId(activeDay as AllDays) !== "" ||
-                (!getDayId(activeDay as AllDays).includes("temp-") && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeCustomDay()}
-                  >
-                    <Minus className="h-4 w-4 mr-1" />
-                    Remove Day
-                  </Button>
-                ))}
+              {getDayId(activeDay as AllDays).includes("temp-") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive"
+                  onClick={removeCustomDay}
+                >
+                  Remove Day
+                </Button>
+              )}
 
               <Button variant="outline" size="sm" onClick={addCustomDay}>
                 <Plus className="h-4 w-4 mr-1" />
@@ -804,7 +862,10 @@ export function WorkoutProgramDetail({
                                 >
                                   {program.programType === "custom" && (
                                     <>
-                                      <DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        variant={"destructive"}
+                                        onClick={removeCustomDay}
+                                      >
                                         <Minus className="h-4 w-4 mr-1" />
                                         Remove Day
                                       </DropdownMenuItem>

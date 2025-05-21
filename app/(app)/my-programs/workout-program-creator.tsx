@@ -102,7 +102,15 @@ export function WorkoutProgramCreator({
     // Filter out the day to be removed
     const updatedDays = customDays.filter((day) => day.id !== dayId);
 
-    // Renumber the remaining days sequentially
+    // Create a mapping of old IDs to new IDs for renumbering
+    const idMapping: Record<string, string> = {};
+    updatedDays.forEach((day, index) => {
+      const newDayNumber = index + 1;
+      const newId = `d${newDayNumber}`;
+      idMapping[day.id] = newId;
+    });
+
+    // Renumber the days
     const renumberedDays = updatedDays.map((day, index) => {
       const newDayNumber = index + 1;
       return {
@@ -112,18 +120,30 @@ export function WorkoutProgramCreator({
       };
     });
 
-    setCustomDays(renumberedDays);
+    // Create new exercises object with renumbered IDs
+    const updatedExercises: Record<string, Exercise[]> = {};
+    Object.entries(exercises).forEach(([oldId, exercisesList]) => {
+      if (oldId !== dayId) {
+        // Skip the removed day
+        const newId = idMapping[oldId];
+        if (newId) {
+          updatedExercises[newId] = exercisesList;
+        }
+      }
+    });
 
-    // If we're removing the active day, set the active day to the first available day
+    // Update both states
+    setCustomDays(renumberedDays);
+    setExercises(updatedExercises);
+
+    // Update active day
     if (activeCustomDay === dayId) {
       setActiveCustomDay(renumberedDays[0].id);
     } else {
-      // Update the active day ID if it's one of the days that was renumbered
-      const activeDayIndex = updatedDays.findIndex(
-        (day) => day.id === activeCustomDay
-      );
-      if (activeDayIndex !== -1) {
-        setActiveCustomDay(`d${activeDayIndex + 1}`);
+      // Update active day to its new ID
+      const newActiveId = idMapping[activeCustomDay];
+      if (newActiveId) {
+        setActiveCustomDay(newActiveId);
       }
     }
   };
