@@ -90,9 +90,15 @@ export default function WorkoutProgramList({
               <CardHeader className="pb-3">
                 <div className="flex justify-between">
                   <div className="space-y-1 flex-1">
-                    <CardTitle className="line-clamp-1">
-                      {program.programName}
-                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle>{program.programName}</CardTitle>
+                      {program.isActive === 1 && (
+                        <Badge className="bg-blue-500 text-white border-none">
+                          Active
+                        </Badge>
+                      )}
+                    </div>
+
                     <CardDescription className="line-clamp-2 h-10">
                       {program.description || "No description"}
                     </CardDescription>
@@ -105,6 +111,7 @@ export default function WorkoutProgramList({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem>Set as active</DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onSelectProgram(program)}
                       >

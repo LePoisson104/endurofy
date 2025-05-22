@@ -210,7 +210,7 @@ export function AppSidebar() {
                           <span className="truncate">
                             {program.programName}
                           </span>
-                          {program.isActive && (
+                          {program.isActive === 1 && (
                             <Badge
                               variant="outline"
                               className="ml-auto text-[10px] h-5 shrink-0"
@@ -286,13 +286,6 @@ function UserProfileMenu() {
     }
   };
 
-  const handleCreateProgramClick = () => {
-    handleCloseSidebarOnMobile();
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", "create-program");
-    params.delete("programId");
-    router.replace(`/my-programs?${params.toString()}`);
-  };
   // Handle click outside to close the menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

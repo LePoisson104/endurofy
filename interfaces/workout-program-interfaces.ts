@@ -42,6 +42,7 @@ export interface WorkoutProgram {
   programType: "dayOfWeek" | "custom";
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  isActive: number;
   workoutDays: WorkoutDay[];
 }
 

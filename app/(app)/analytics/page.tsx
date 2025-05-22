@@ -1,23 +1,19 @@
 "use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageTitle from "@/components/global/page-title";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import LineChart from "@/components/charts/line-chart";
-import BarChart from "@/components/charts/bar-chart";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  EllipsisVertical,
-  FileImage,
-  FileVideo,
-  FileText,
-  FileSpreadsheet,
-  ChevronDown,
+  Activity,
+  Dumbbell,
+  TrendingUp,
+  Calendar,
+  Target,
+  Award,
+  Filter,
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -30,212 +26,265 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
+import { DateRange } from "react-day-picker";
 
-export default function StatisticsPage() {
-  const [timeRange, setTimeRange] = useState("90d");
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+export default function AnalyticsPage() {
   const isMobile = useIsMobile();
-  const [selectedTab, setSelectedTab] = useState("line");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  });
+  const [programType, setProgramType] = useState<string>("all");
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setProgramType("all");
+  };
+
   return (
-    <div className="p-[1rem] w-full">
-      {/* page header */}
-      <div className="flex flex-col mb-6">
-        <div className="text-2xl font-bold">Analytics</div>
-        <p className="text-sm text-muted-foreground">
-          View your progress and statistics
-        </p>
-      </div>
+    <div className="flex min-h-screen flex-col p-[1rem] space-y-6">
+      <div className="flex flex-col gap-4">
+        <PageTitle
+          title="Analytics"
+          subTitle="View your progress and statistics"
+        />
 
-      {/* Filter section */}
-      <Card>
-        <CardHeader className="flex justify-between items-center">
-          <CardTitle>Filters</CardTitle>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <EllipsisVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Download</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <FileImage className="mr-2 h-4 w-4" />
-                <span>Download PNG</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileVideo className="mr-2 h-4 w-4" />
-                <span>Download JPG</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileText className="mr-2 h-4 w-4" />
-                <span>Download PDF</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span>Download CSV</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardHeader>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !dateRange?.from && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
 
-        <CardContent>
-          {/* date filter */}
-          <div
-            className={`flex gap-2 mb-2 ${isMobile ? "flex-col" : "flex row"}`}
-          >
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger
-                className="w-fit rounded-lg"
-                aria-label="Select a value"
-              >
-                <SelectValue placeholder="Last 3 months" />
+            <Select value={programType} onValueChange={setProgramType}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Program Type" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="90d" className="rounded-lg">
-                  Last 3 months
-                </SelectItem>
-                <SelectItem value="30d" className="rounded-lg">
-                  Last 30 days
-                </SelectItem>
-                <SelectItem value="7d" className="rounded-lg">
-                  Last 7 days
-                </SelectItem>
+              <SelectContent>
+                <SelectItem value="all">All Programs</SelectItem>
+                <SelectItem value="dayOfWeek">Day of Week</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
               </SelectContent>
             </Select>
-
-            <div className="flex gap-2">
-              <div className="space-y-2 w-fit">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "PP") : "Start Date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={startDate || undefined}
-                      onSelect={(date) => date && setStartDate(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2 w-fit">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "PP") : "End Date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={endDate || undefined}
-                      onSelect={(date) => date && setEndDate(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <Button variant={"outline"} className="w-fit">
-              Reset
-            </Button>
           </div>
 
-          {/* tabs */}
-          <Tabs
-            defaultValue="weight"
-            onValueChange={setSelectedTab}
-            value={selectedTab}
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-fit"
+            onClick={handleResetFilters}
           >
-            <TabsList className="w-full">
-              <TabsTrigger value="line">Line Charts</TabsTrigger>
-              <TabsTrigger value="bar">Bar Charts</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* charts */}
-      <Card className="grid grid-cols-1 gap-4 mt-6 mb-4">
-        <CardHeader>
-          <CardTitle>
-            {selectedTab === "line" ? "Weight log overview" : "Weekly sets"}
-          </CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
-        </CardHeader>
-        <div className={`w-full ${isMobile ? "h-fit" : "h-[500px]"}`}>
-          {selectedTab === "line" ? (
-            <LineChart weightLogData={[]} view={"both"} />
-          ) : (
-            <BarChart className={`${isMobile ? "h-fit" : "h-[500px]"}`} />
-          )}
+            <Filter className="h-4 w-4 mr-2" />
+            Reset Filters
+          </Button>
         </div>
-      </Card>
+      </div>
 
-      {/* summaries */}
-      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Summary</CardTitle>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Workouts
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between">
-              <p className="text-2xl font-bold mb-2">Goal: 173 lbs</p>
-              <p className="text-xs text-green-500 flex mt-2">
-                <ChevronDown className="h-4 w-4 text-green-500" /> 2 lbs since
-                last week
-              </p>
-            </div>
-            <Progress value={33} />
-            <div className="flex justify-between mt-2">
-              <p className="text-xs text-muted-foreground">185 </p>
-              <p className="text-xs text-muted-foreground">Current: 183</p>
-              <p className="text-xs text-muted-foreground">173</p>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Progress: 33% of your goal
-            </p>
+            <div className="text-2xl font-bold">24</div>
+            <p className="text-xs text-muted-foreground">+2 from last month</p>
           </CardContent>
         </Card>
+
         <Card>
-          <CardHeader>
-            <CardTitle>Activities</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Exercises
+            </CardTitle>
+            <Dumbbell className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">156</div>
+            <p className="text-xs text-muted-foreground">+12 from last month</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Workout Streak
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">5 days</div>
+            <p className="text-xs text-muted-foreground">Current streak</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Completion Rate
+            </CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">85%</div>
+            <p className="text-xs text-muted-foreground">+5% from last month</p>
+          </CardContent>
         </Card>
       </div>
+
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className={`${isMobile ? "w-full" : "w-fit"}`}>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="progress">Progress</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <Card className="col-span-4">
+              <CardHeader>
+                <CardTitle>Workout Frequency</CardTitle>
+              </CardHeader>
+              <CardContent className="pl-2">
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  Workout frequency chart will be displayed here
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-3">
+              <CardHeader>
+                <CardTitle>Most Common Exercises</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    "Bench Press",
+                    "Squats",
+                    "Deadlifts",
+                    "Pull-ups",
+                    "Shoulder Press",
+                  ].map((exercise, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                        <span className="text-sm">{exercise}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {Math.floor(Math.random() * 20) + 10} times
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Exercise Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  Exercise progress chart will be displayed here
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Volume Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  Volume progress chart will be displayed here
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="achievements" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                title: "Workout Warrior",
+                description: "Complete 20 workouts",
+                icon: Award,
+              },
+              {
+                title: "Consistency King",
+                description: "Maintain a 7-day streak",
+                icon: Calendar,
+              },
+              {
+                title: "Strength Master",
+                description: "Increase weight in 5 exercises",
+                icon: TrendingUp,
+              },
+            ].map((achievement, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <achievement.icon className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-base">
+                      {achievement.title}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {achievement.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
