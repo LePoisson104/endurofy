@@ -862,14 +862,19 @@ export function WorkoutProgramDetail({
                                 >
                                   {program.programType === "custom" && (
                                     <>
-                                      <DropdownMenuItem
-                                        variant={"destructive"}
-                                        onClick={removeCustomDay}
-                                      >
-                                        <Minus className="h-4 w-4 mr-1" />
-                                        Remove Day
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem>
+                                      {getDayId(activeDay as AllDays).includes(
+                                        "temp-"
+                                      ) && (
+                                        <DropdownMenuItem
+                                          variant={"destructive"}
+                                          onClick={removeCustomDay}
+                                        >
+                                          <Minus className="h-4 w-4 mr-1" />
+                                          Remove Day
+                                        </DropdownMenuItem>
+                                      )}
+
+                                      <DropdownMenuItem onClick={addCustomDay}>
                                         <Plus className="h-4 w-4 mr-1" />
                                         Add Day
                                       </DropdownMenuItem>
