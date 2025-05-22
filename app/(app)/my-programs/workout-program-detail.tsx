@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -588,7 +589,14 @@ export function WorkoutProgramDetail({
                 />
               </div>
             ) : (
-              <CardTitle>{program.programName}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>{program.programName}</CardTitle>
+                {program.isActive === 1 && (
+                  <Badge className="bg-blue-500 text-white border-none">
+                    Active
+                  </Badge>
+                )}
+              </div>
             )}
             {isEditing ? (
               <div className="space-y-2 mt-5">

@@ -21,6 +21,13 @@ import { Badge } from "@/components/ui/badge";
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useSetProgramAsInactiveMutation,
+  useSetProgramAsActiveMutation,
+} from "@/api/workout-program/workout-program-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
@@ -37,7 +44,12 @@ export default function WorkoutProgramList({
   isLoading,
   isDeleting,
 }: WorkoutProgramListProps) {
+  const user = useSelector(selectCurrentUser);
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
+  const [setProgramAsActive] = useSetProgramAsActiveMutation();
 
   // Count days with exercises
   const countActiveDays = (program: WorkoutProgram) => {
@@ -66,6 +78,38 @@ export default function WorkoutProgramList({
     }
   };
 
+  const handleSetProgramAsInactive = async (programId: string) => {
+    try {
+      await setProgramAsInactive({
+        programId: programId,
+        userId: user?.user_id,
+      }).unwrap();
+    } catch (error: any) {
+      if (error.data.message) {
+        setError(error.data.message);
+      } else {
+        setError("Internal server error. Failed to set program as inactive");
+      }
+    }
+  };
+
+  const handleSetProgramAsActive = async (programId: string) => {
+    try {
+      await setProgramAsActive({
+        programId: programId,
+        userId: user?.user_id,
+      }).unwrap();
+    } catch (error: any) {
+      if (error.data.message) {
+        setError(error.data.message);
+      } else {
+        setError("Internal server error. Failed to set program as inactive");
+      }
+    }
+  };
+
+  console.log(isLoading);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
@@ -76,6 +120,7 @@ export default function WorkoutProgramList({
 
   return (
     <div className="space-y-6">
+      <ErrorAlert error={error} setError={setError} />
       {programs.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
           <h3 className="text-lg font-medium">No workout programs found</h3>
@@ -111,7 +156,23 @@ export default function WorkoutProgramList({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Set as active</DropdownMenuItem>
+                      {program.isActive === 1 ? (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleSetProgramAsInactive(program.programId)
+                          }
+                        >
+                          Set as inactive
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleSetProgramAsActive(program.programId)
+                          }
+                        >
+                          Set as active
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem
                         onClick={() => onSelectProgram(program)}
                       >

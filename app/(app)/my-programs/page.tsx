@@ -222,7 +222,7 @@ export default function MyPrograms() {
                     programs={workoutPrograms}
                     onSelectProgram={handleSelectProgram}
                     onDeleteProgram={handleDeleteProgram}
-                    isLoading={isWorkoutProgramLoading || initialLoad}
+                    isLoading={isWorkoutProgramLoading}
                     isDeleting={isDeleting}
                   />
                 </>

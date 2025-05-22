@@ -51,6 +51,14 @@ export function AppSidebar() {
   const { open, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
+  const [activeProgramDayLength, setActiveProgramDayLength] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const active = workoutPrograms?.filter((program) => program.isActive === 1);
+
+    setActiveProgramDayLength(active?.[0]?.workoutDays.length || 0);
+  }, [workoutPrograms]);
 
   const handleCloseSidebarOnMobile = () => {
     if (isMobile && openMobile) {
@@ -156,17 +164,21 @@ export function AppSidebar() {
 
           <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel>Weekly Progress</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="px-3 py-2">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs text-muted-foreground">
-                    3/5 workouts
-                  </span>
-                  <span className="text-xs font-medium">60%</span>
+            {workoutPrograms ? (
+              <SidebarGroupContent>
+                <div className="px-3 py-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-muted-foreground">
+                      0/{activeProgramDayLength} workouts
+                    </span>
+                    <span className="text-xs font-medium">{progress}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
                 </div>
-                <Progress value={60} className="h-2" />
-              </div>
-            </SidebarGroupContent>
+              </SidebarGroupContent>
+            ) : (
+              <Skeleton className="h-11 w-full" />
+            )}
           </SidebarGroup>
 
           <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
