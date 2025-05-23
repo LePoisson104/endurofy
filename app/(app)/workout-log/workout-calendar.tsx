@@ -11,6 +11,8 @@ import {
   addMonths,
   subMonths,
   parseISO,
+  startOfWeek,
+  endOfWeek,
 } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -27,20 +29,22 @@ export function WorkoutCalendar({
   selectedDate,
   onSelectDate,
 }: WorkoutCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(
-    () => new Date(selectedDate)
-  );
-
-  // We'll handle month changes manually instead of with useEffect
-  // This prevents infinite loops
-  if (!isSameMonth(selectedDate, currentMonth)) {
-    setCurrentMonth(new Date(selectedDate));
-  }
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Get days in current month
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
-  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  // Get the start of the week containing the first day of the month
+  const calendarStart = startOfWeek(monthStart);
+  // Get the end of the week containing the last day of the month
+  const calendarEnd = endOfWeek(monthEnd);
+
+  // Get all days for the calendar view
+  const calendarDays = eachDayOfInterval({
+    start: calendarStart,
+    end: calendarEnd,
+  });
 
   // Check if a day has a workout log
   const hasWorkout = (day: Date) => {
@@ -48,32 +52,28 @@ export function WorkoutCalendar({
   };
 
   // Handle month navigation
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  const handlePrevMonth = () => {
+    const newMonth = subMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+  };
+
+  const handleNextMonth = () => {
+    const newMonth = addMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+  };
 
   // Group days by weeks
   const weeks: Date[][] = [];
   let currentWeek: Date[] = [];
 
-  // Add empty days for the first week
-  const firstDayOfMonth = monthDays[0].getDay();
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    currentWeek.push(new Date(0)); // placeholder for empty day
-  }
-
-  // Add all days of the month
-  monthDays.forEach((day) => {
+  // Add all days of the calendar view
+  calendarDays.forEach((day) => {
     if (currentWeek.length === 7) {
       weeks.push(currentWeek);
       currentWeek = [];
     }
     currentWeek.push(day);
   });
-
-  // Add empty days for the last week
-  while (currentWeek.length < 7) {
-    currentWeek.push(new Date(0));
-  }
 
   // Add the last week if it's not empty
   if (currentWeek.length > 0) {
@@ -88,7 +88,7 @@ export function WorkoutCalendar({
           <Button
             variant="outline"
             size="icon"
-            onClick={prevMonth}
+            onClick={handlePrevMonth}
             className="h-7 w-7"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -96,7 +96,7 @@ export function WorkoutCalendar({
           <Button
             variant="outline"
             size="icon"
-            onClick={nextMonth}
+            onClick={handleNextMonth}
             className="h-7 w-7"
           >
             <ChevronRight className="h-4 w-4" />
@@ -105,7 +105,7 @@ export function WorkoutCalendar({
       </div>
 
       {/* Day names */}
-      <div className="grid grid-cols-7 text-center text-xs text-slate-500">
+      <div className="grid grid-cols-7 text-center text-xs text-primary">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day} className="py-1">
             {day}
@@ -118,10 +118,10 @@ export function WorkoutCalendar({
         {weeks.map((week, weekIndex) => (
           <div key={weekIndex} className="grid grid-cols-7 gap-1">
             {week.map((day, dayIndex) => {
-              const isEmptyDay = day.getTime() === 0;
               const isToday = isSameDay(day, new Date());
               const isSelected = isSameDay(day, selectedDate);
-              const dayHasWorkout = !isEmptyDay && hasWorkout(day);
+              const dayHasWorkout = hasWorkout(day);
+              const isCurrentMonth = isSameMonth(day, currentMonth);
 
               return (
                 <Button
@@ -130,13 +130,11 @@ export function WorkoutCalendar({
                   size="sm"
                   className={cn(
                     "h-10 w-full p-0 font-normal relative",
-                    isEmptyDay && "invisible",
                     isSelected && "bg-blue-100 text-blue-600",
                     isToday && !isSelected && "border border-blue-500",
-                    !isSameMonth(day, currentMonth) && "text-slate-300",
+                    !isCurrentMonth && "text-slate-500",
                     dayHasWorkout && !isSelected && "bg-green-50"
                   )}
-                  disabled={isEmptyDay}
                   onClick={() => onSelectDate(day)}
                 >
                   <div className="flex flex-col items-center justify-center">

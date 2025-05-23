@@ -102,31 +102,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <h2 className="text-xl font-bold">Log Workout</h2>
-
-        {/* Day Selection Tabs */}
-        <Tabs
-          defaultValue={selectedDay?.dayId}
-          onValueChange={(value) => {
-            const day = program.workoutDays?.find((d) => d.dayId === value);
-            if (day) setSelectedDay(day);
-          }}
-          className="flex"
-        >
-          <TabsList
-            className={`grid w-full grid-cols-7 ${
-              program.programType === "custom" && maxDays > 7 ? "mb-10" : ""
-            }`}
-          >
-            {Array.from({ length: maxDays }).map((_, index) => (
-              <TabsTrigger key={index} value={allDays[index + 1]}>
-                {program.programType === "dayOfWeek"
-                  ? allDays[index + 1]?.slice(0, 3)
-                  : allDays[index + 1]}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
       </div>
 
       {selectedDay && (
@@ -149,45 +125,53 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Set #</TableHead>
-                    <TableHead className="w-[120px]">Weight (lbs)</TableHead>
-                    <TableHead className="w-[120px]">Reps</TableHead>
-                    <TableHead className="w-[120px]">Prev Weight</TableHead>
-                    <TableHead className="w-[120px]">Prev Reps</TableHead>
+                    <TableHead className="w-[80px] text-center">
+                      Set #
+                    </TableHead>
+                    <TableHead className="w-[120px] text-center">
+                      Weight (lbs)
+                    </TableHead>
+                    <TableHead className="w-[120px] text-center">
+                      Reps
+                    </TableHead>
+                    <TableHead className="w-[120px] text-center">
+                      Prev Weight
+                    </TableHead>
+                    <TableHead className="w-[120px] text-center">
+                      Prev Reps
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {Array.from({ length: exercise.sets }).map((_, setIndex) => {
                     return (
                       <TableRow key={setIndex}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-center">
                           {setIndex + 1}
                         </TableCell>
-                        <TableCell>
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              min="0"
-                              step="2.5"
-                              className="w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                          ) : (
-                            <div className="flex items-center gap-1"></div>
-                          )}
+                        <TableCell className="text-center">
+                          <Input
+                            placeholder="-"
+                            type="number"
+                            min="0"
+                            step="2.5"
+                            className="w-20 mx-auto text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
                         </TableCell>
-                        <TableCell>
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              min="0"
-                              className="w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                          ) : (
-                            <div className="flex items-center gap-1"></div>
-                          )}
+                        <TableCell className="text-center">
+                          <Input
+                            placeholder="-"
+                            type="number"
+                            min="0"
+                            className="w-20 mx-auto text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
                         </TableCell>
-                        <TableCell className="text-slate-500"></TableCell>
-                        <TableCell className="text-slate-500"></TableCell>
+                        <TableCell className="text-slate-500 text-center">
+                          -
+                        </TableCell>
+                        <TableCell className="text-slate-500 text-center">
+                          -
+                        </TableCell>
                       </TableRow>
                     );
                   })}

@@ -13,6 +13,10 @@ import { CalendarIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
+import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-program-api-slice";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
+
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 
 export interface WorkoutLog {
@@ -27,6 +31,7 @@ export interface WorkoutLog {
 
 export default function WorkoutLogManager() {
   const programs = useSelector(selectWorkoutProgram);
+  const user = useSelector(selectCurrentUser);
 
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
     null
@@ -35,6 +40,9 @@ export default function WorkoutLogManager() {
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedTab, setSelectedTab] = useState("log");
+  const [error, setError] = useState<string | null>(null);
+
+  const [setProgramAsActive] = useSetProgramAsActiveMutation();
 
   useEffect(() => {
     if (programs) {
@@ -43,8 +51,25 @@ export default function WorkoutLogManager() {
     }
   }, [programs]);
 
-  const handleProgramSelect = (programId: string) => {};
-  // Handle date selection
+  const handleSetProgramAsActive = async (programId: string) => {
+    if (programId === "without-program") {
+      setSelectedProgram(null);
+      return;
+    }
+    try {
+      await setProgramAsActive({
+        programId: programId,
+        userId: user?.user_id,
+      }).unwrap();
+    } catch (error: any) {
+      if (error.data.message) {
+        setError(error.data.message);
+      } else {
+        setError("Internal server error. Failed to set program as inactive");
+      }
+    }
+  };
+
   const handleDateSelect = (date: Date) => {};
 
   const toggleCalendar = () => {};
@@ -55,6 +80,7 @@ export default function WorkoutLogManager() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
+      <ErrorAlert error={error} setError={setError} />
       <header>
         <PageTitle
           title="Workout Log"
@@ -76,7 +102,7 @@ export default function WorkoutLogManager() {
         <ProgramSelector
           programs={programs as WorkoutProgram[]}
           selectedProgramId={selectedProgram?.programId}
-          onSelectProgram={handleProgramSelect}
+          onSelectProgram={handleSetProgramAsActive}
         />
         <div>
           {/* Mobile Calendar Toggle Button */}
