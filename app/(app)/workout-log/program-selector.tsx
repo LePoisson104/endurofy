@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { WorkoutProgram } from "../my-programs/page";
+import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 
 interface ProgramSelectorProps {
   programs: WorkoutProgram[];
@@ -26,13 +26,19 @@ export function ProgramSelector({
         <SelectTrigger id="program-select">
           <SelectValue placeholder="Choose a workout program" />
         </SelectTrigger>
-        <SelectContent>
-          {programs.map((program) => (
-            <SelectItem key={program.id} value={program.id}>
-              {program.name}
+
+        {programs && (
+          <SelectContent>
+            <SelectItem key="none" value="without-program">
+              Without Program
             </SelectItem>
-          ))}
-        </SelectContent>
+            {programs.map((program) => (
+              <SelectItem key={program?.programId} value={program?.programId}>
+                {program?.programName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        )}
       </Select>
     </div>
   );

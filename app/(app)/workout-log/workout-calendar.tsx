@@ -15,10 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { WorkoutLog } from "./page";
 
 interface WorkoutCalendarProps {
-  workoutLogs: WorkoutLog[];
+  workoutLogs: any[];
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
 }

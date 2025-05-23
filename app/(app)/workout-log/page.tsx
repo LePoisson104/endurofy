@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { format, parseISO, isToday, isSameDay } from "date-fns";
+import { format, parseISO, isSameDay } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutLogForm } from "./workout-log-form";
 import { WorkoutLogHistory } from "./workout-log-history";
@@ -11,16 +11,9 @@ import PageTitle from "@/components/global/page-title";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { WorkoutProgram, Exercise } from "../my-programs/page";
-
-// Import sample workout programs
-import { sampleWorkoutPrograms } from "./sample-data";
-
-export interface ExerciseLog extends Exercise {
-  weights: number[];
-  completedReps: number[];
-  notes?: string;
-}
+import { useSelector } from "react-redux";
+import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
+import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 
 export interface WorkoutLog {
   id: string;
@@ -28,99 +21,37 @@ export interface WorkoutLog {
   programName: string;
   date: string; // ISO date string
   day: string;
-  exercises: ExerciseLog[];
+  exercises: any[];
   notes?: string;
 }
 
 export default function WorkoutLogManager() {
-  const [workoutPrograms] = useState(sampleWorkoutPrograms);
+  const programs = useSelector(selectWorkoutProgram);
+
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
     null
   );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
-  const [activeLog, setActiveLog] = useState<WorkoutLog | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedTab, setSelectedTab] = useState("log");
 
-  // Use ref to track initialization
-  const initializedRef = useRef(false);
-
-  // Initialize with the first program only once
   useEffect(() => {
-    if (
-      !initializedRef.current &&
-      workoutPrograms.length > 0 &&
-      !selectedProgram
-    ) {
-      setSelectedProgram(workoutPrograms[0] as WorkoutProgram);
-      initializedRef.current = true;
+    if (programs) {
+      const program = programs.filter((program) => program.isActive === 1);
+      setSelectedProgram(program[0]);
     }
-  }, [workoutPrograms, selectedProgram]);
+  }, [programs]);
 
-  // Find workout log for the selected date if it exists
-  useEffect(() => {
-    const existingLog = workoutLogs.find((log) =>
-      isSameDay(parseISO(log.date), selectedDate)
-    );
-
-    setActiveLog(existingLog || null);
-  }, [selectedDate, workoutLogs]);
-
-  // Handle program selection
-  const handleProgramSelect = (programId: string) => {
-    const program = workoutPrograms.find((p) => p.id === programId);
-    if (program) {
-      setSelectedProgram(program as WorkoutProgram);
-    }
-  };
-
+  const handleProgramSelect = (programId: string) => {};
   // Handle date selection
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    // Auto-hide calendar on mobile after date selection
-    setShowCalendar(false);
-  };
+  const handleDateSelect = (date: Date) => {};
 
-  // Handle saving a workout log
-  const handleSaveWorkoutLog = (log: Omit<WorkoutLog, "id">) => {
-    // Check if we're updating an existing log
-    const existingLogIndex = workoutLogs.findIndex((l) =>
-      isSameDay(parseISO(l.date), parseISO(log.date))
-    );
+  const toggleCalendar = () => {};
 
-    if (existingLogIndex >= 0) {
-      // Update existing log
-      const updatedLogs = [...workoutLogs];
-      updatedLogs[existingLogIndex] = {
-        ...log,
-        id: workoutLogs[existingLogIndex].id,
-      };
-      setWorkoutLogs(updatedLogs);
-      setActiveLog(updatedLogs[existingLogIndex]);
-    } else {
-      // Create new log
-      const newLog: WorkoutLog = {
-        ...log,
-        id: Math.random().toString(36).substring(2, 9),
-      };
-      setWorkoutLogs([...workoutLogs, newLog]);
-      setActiveLog(newLog);
-    }
-  };
+  const handleSaveWorkoutLog = () => {};
 
-  // Handle deleting a workout log
-  const handleDeleteWorkoutLog = (logId: string) => {
-    setWorkoutLogs(workoutLogs.filter((log) => log.id !== logId));
-    if (activeLog?.id === logId) {
-      setActiveLog(null);
-    }
-  };
-
-  // Toggle calendar visibility
-  const toggleCalendar = () => {
-    setShowCalendar(!showCalendar);
-  };
+  const handleDeleteWorkoutLog = () => {};
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
@@ -143,8 +74,8 @@ export default function WorkoutLogManager() {
           </TabsList>
         </Tabs>
         <ProgramSelector
-          programs={workoutPrograms as WorkoutProgram[]}
-          selectedProgramId={selectedProgram?.id}
+          programs={programs as WorkoutProgram[]}
+          selectedProgramId={selectedProgram?.programId}
           onSelectProgram={handleProgramSelect}
         />
         <div>
@@ -186,7 +117,6 @@ export default function WorkoutLogManager() {
                       <WorkoutLogForm
                         program={selectedProgram}
                         selectedDate={selectedDate}
-                        existingLog={activeLog}
                         onSaveLog={handleSaveWorkoutLog}
                       />
                     )}
