@@ -70,9 +70,14 @@ export default function WorkoutLogManager() {
     }
   };
 
-  const handleDateSelect = (date: Date) => {};
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setShowCalendar(false); // Hide calendar on mobile after selection
+  };
 
-  const toggleCalendar = () => {};
+  const toggleCalendar = () => {
+    setShowCalendar(!showCalendar);
+  };
 
   const handleSaveWorkoutLog = () => {};
 
@@ -165,6 +170,7 @@ export default function WorkoutLogManager() {
                     workoutLogs={workoutLogs}
                     selectedDate={selectedDate}
                     onSelectDate={handleDateSelect}
+                    program={selectedProgram as WorkoutProgram | undefined}
                   />
                 </CardContent>
               </Card>

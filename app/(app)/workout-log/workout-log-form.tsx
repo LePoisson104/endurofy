@@ -8,7 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Save, ArrowUp, ArrowDown, Minus } from "lucide-react";
+import {
+  AlertCircle,
+  Save,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  History,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -32,19 +39,33 @@ interface WorkoutLogFormProps {
   workoutLogs?: any[];
 }
 
-export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
+export function WorkoutLogForm({
+  program,
+  selectedDate,
+  onSaveLog,
+}: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
   const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
+  const [showPrevious, setShowPrevious] = useState(false);
   const maxDays =
     program.programType === "dayOfWeek" ? 7 : program.workoutDays?.length;
 
-  // Set initial selected day when program changes
+  // Set initial selected day when program or selectedDate changes
   useEffect(() => {
     if (program.workoutDays && program.workoutDays.length > 0) {
-      setSelectedDay(program.workoutDays[0]);
+      // Get the day of week (1-7, where 1 is Monday)
+      const dayOfWeek = selectedDate.getDay() || 7; // Convert Sunday (0) to 7
+
+      // Find the workout day that matches the selected date's day of week
+      const matchingDay = program.workoutDays.find(
+        (day) => day.dayNumber === dayOfWeek
+      );
+
+      setSelectedDay(matchingDay || null);
     }
+
     setAllDays(
       program.programType === "dayOfWeek"
         ? {
@@ -69,7 +90,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
             10: "D10",
           }
     );
-  }, [program]);
+  }, [program, selectedDate]);
 
   // Render comparison indicators
   const renderComparisonIndicator = (
@@ -87,13 +108,12 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     }
   };
 
-  if (program.workoutDays?.length === 0) {
+  if (!selectedDay) {
     return (
       <Alert className="mt-4">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          This program doesn't have any exercises. Please add exercises to your
-          program first.
+          No workout scheduled for this day. This is a rest day.
         </AlertDescription>
       </Alert>
     );
@@ -102,7 +122,23 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
+          <div className="text-sm text-slate-500">
+            {format(selectedDate, "MMMM d, yyyy")}
+          </div>
+          {isMobile && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPrevious(!showPrevious)}
+              className="border"
+            >
+              <History className="h-4 w-4 mr-2" />
+              {showPrevious ? "Hide Previous" : "Show Previous"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {selectedDay && (
@@ -134,12 +170,16 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                     <TableHead className="w-[120px] text-center">
                       Reps
                     </TableHead>
-                    <TableHead className="w-[120px] text-center">
-                      Prev Weight
-                    </TableHead>
-                    <TableHead className="w-[120px] text-center">
-                      Prev Reps
-                    </TableHead>
+                    {(!isMobile || showPrevious) && (
+                      <>
+                        <TableHead className="w-[120px] text-center">
+                          Prev Weight
+                        </TableHead>
+                        <TableHead className="w-[120px] text-center">
+                          Prev Reps
+                        </TableHead>
+                      </>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -155,7 +195,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                             type="number"
                             min="0"
                             step="2.5"
-                            className="w-20 mx-auto text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </TableCell>
                         <TableCell className="text-center">
@@ -163,15 +203,19 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                             placeholder="-"
                             type="number"
                             min="0"
-                            className="w-20 mx-auto text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </TableCell>
-                        <TableCell className="text-slate-500 text-center">
-                          -
-                        </TableCell>
-                        <TableCell className="text-slate-500 text-center">
-                          -
-                        </TableCell>
+                        {(!isMobile || showPrevious) && (
+                          <>
+                            <TableCell className="text-slate-500 text-center">
+                              -
+                            </TableCell>
+                            <TableCell className="text-slate-500 text-center">
+                              -
+                            </TableCell>
+                          </>
+                        )}
                       </TableRow>
                     );
                   })}
