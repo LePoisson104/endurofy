@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { WorkoutLog } from "./page";
 
 interface WorkoutLogHistoryProps {
@@ -33,7 +34,7 @@ export function WorkoutLogHistory({
   const [searchQuery, setSearchQuery] = useState("");
   const [logToDelete, setLogToDelete] = useState<string | null>(null);
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
-
+  const isMobile = useIsMobile();
   // Sort logs by date (newest first)
   const sortedLogs = [...logs].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -69,7 +70,9 @@ export function WorkoutLogHistory({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex ${isMobile ? "flex-col" : "justify-between"} gap-5`}
+        >
           <CardTitle>Workout History</CardTitle>
           <div className="relative w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />

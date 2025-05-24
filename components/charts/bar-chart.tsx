@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 
+const chartConfig = {
+  desktop: {
+    label: "Volume (thousands)",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
+
 const chartData = [
   { month: "Chest", desktop: 10 },
   { month: "Shoulder", desktop: 5 },
@@ -26,19 +33,17 @@ const chartData = [
   { month: "Arms", desktop: 6 },
 ];
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
-
 interface BarChartProps {
   height?: number | string;
   className?: string;
+  data?: Array<{ month: string; desktop: number }>;
 }
 
-export default function Component({ height, className }: BarChartProps = {}) {
+export default function Component({
+  height,
+  className,
+  data = [],
+}: BarChartProps = {}) {
   const containerStyle = height
     ? { height: typeof height === "number" ? `${height}px` : height }
     : {};

@@ -3,7 +3,6 @@ import { AppSidebar } from "@/components/global/appsidebar";
 import { TopBar } from "@/components/global/topbar";
 import { cookies } from "next/headers";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 
 export default async function Layout({
   children,
@@ -15,12 +14,6 @@ export default async function Layout({
 
   return (
     <AuthProvider>
-      {/* <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      > */}
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
         <main className="w-full h-full">
@@ -28,7 +21,6 @@ export default async function Layout({
           {children}
         </main>
       </SidebarProvider>
-      {/* </ThemeProvider> */}
     </AuthProvider>
   );
 }

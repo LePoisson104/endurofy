@@ -49,6 +49,8 @@ export function WorkoutLogForm({
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
   const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
   const [showPrevious, setShowPrevious] = useState(false);
+  const [workoutNotes, setWorkoutNotes] = useState("");
+
   const maxDays =
     program.programType === "dayOfWeek" ? 7 : program.workoutDays?.length;
 
@@ -143,86 +145,90 @@ export function WorkoutLogForm({
 
       {selectedDay && (
         <div className="space-y-6">
-          {selectedDay.exercises.map((exercise: Exercise) => (
-            <div
-              key={exercise.exerciseId}
-              className={`rounded-lg space-y-4 ${
-                isMobile ? "p-0 border-none" : "p-4 border"
-              }`}
-            >
-              <div className="flex flex-col">
-                <h4 className="font-medium">{exercise.exerciseName}</h4>
-                <div className="text-sm text-slate-500">
-                  Target: {exercise.sets} sets × {exercise.minReps}-
-                  {exercise.maxReps} reps
+          {[...selectedDay.exercises]
+            .sort((a, b) => a.exerciseOrder - b.exerciseOrder)
+            .map((exercise: Exercise) => (
+              <div
+                key={exercise.exerciseId}
+                className={`rounded-lg space-y-4 ${
+                  isMobile ? "p-0 border-none" : "p-4 border"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <h4 className="font-medium">{exercise.exerciseName}</h4>
+                  <div className="text-sm text-slate-500">
+                    Target: {exercise.sets} sets × {exercise.minReps}-
+                    {exercise.maxReps} reps
+                  </div>
                 </div>
-              </div>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[80px] text-center">
-                      Set #
-                    </TableHead>
-                    <TableHead className="w-[120px] text-center">
-                      Weight (lbs)
-                    </TableHead>
-                    <TableHead className="w-[120px] text-center">
-                      Reps
-                    </TableHead>
-                    {(!isMobile || showPrevious) && (
-                      <>
-                        <TableHead className="w-[120px] text-center">
-                          Prev Weight
-                        </TableHead>
-                        <TableHead className="w-[120px] text-center">
-                          Prev Reps
-                        </TableHead>
-                      </>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px] text-center">
+                        Set #
+                      </TableHead>
+                      <TableHead className="w-[120px] text-center">
+                        Weight (lbs)
+                      </TableHead>
+                      <TableHead className="w-[120px] text-center">
+                        Reps
+                      </TableHead>
+                      {(!isMobile || showPrevious) && (
+                        <>
+                          <TableHead className="w-[120px] text-center">
+                            Prev Weight
+                          </TableHead>
+                          <TableHead className="w-[120px] text-center">
+                            Prev Reps
+                          </TableHead>
+                        </>
+                      )}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Array.from({ length: exercise.sets }).map(
+                      (_, setIndex) => {
+                        return (
+                          <TableRow key={setIndex}>
+                            <TableCell className="font-medium text-center">
+                              {setIndex + 1}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Input
+                                placeholder="-"
+                                type="number"
+                                min="0"
+                                step="2.5"
+                                className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Input
+                                placeholder="-"
+                                type="number"
+                                min="0"
+                                className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                            </TableCell>
+                            {(!isMobile || showPrevious) && (
+                              <>
+                                <TableCell className="text-slate-500 text-center">
+                                  -
+                                </TableCell>
+                                <TableCell className="text-slate-500 text-center">
+                                  -
+                                </TableCell>
+                              </>
+                            )}
+                          </TableRow>
+                        );
+                      }
                     )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.from({ length: exercise.sets }).map((_, setIndex) => {
-                    return (
-                      <TableRow key={setIndex}>
-                        <TableCell className="font-medium text-center">
-                          {setIndex + 1}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Input
-                            placeholder="-"
-                            type="number"
-                            min="0"
-                            step="2.5"
-                            className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Input
-                            placeholder="-"
-                            type="number"
-                            min="0"
-                            className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
-                        </TableCell>
-                        {(!isMobile || showPrevious) && (
-                          <>
-                            <TableCell className="text-slate-500 text-center">
-                              -
-                            </TableCell>
-                            <TableCell className="text-slate-500 text-center">
-                              -
-                            </TableCell>
-                          </>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ))}
 
           <div className="space-y-2">
             <Label htmlFor="workout-notes">Workout Notes:</Label>
@@ -230,8 +236,12 @@ export function WorkoutLogForm({
               id="workout-notes"
               placeholder="Add notes about this workout..."
               className="min-h-[100px]"
-              disabled={!isEditing}
+              onChange={(e) => setWorkoutNotes(e.target.value)}
             />
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <Button className="w-[170px]">Complete Workout</Button>
           </div>
         </div>
       )}

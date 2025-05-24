@@ -7,6 +7,7 @@ import { WorkoutLogForm } from "./workout-log-form";
 import { WorkoutLogHistory } from "./workout-log-history";
 import { WorkoutCalendar } from "./workout-calendar";
 import { ProgramSelector } from "./program-selector";
+import { WeeklyVolume } from "./weekly-volume";
 import PageTitle from "@/components/global/page-title";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
@@ -102,6 +103,7 @@ export default function WorkoutLogManager() {
           <TabsList>
             <TabsTrigger value="log">Log</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="volume">Volume</TabsTrigger>
           </TabsList>
         </Tabs>
         <ProgramSelector
@@ -139,7 +141,6 @@ export default function WorkoutLogManager() {
 
           <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-4">
             {/* Left side - Workout Log */}
-
             <div className="lg:col-span-3 space-y-6">
               {selectedTab === "log" ? (
                 <Card>
@@ -153,12 +154,14 @@ export default function WorkoutLogManager() {
                     )}
                   </CardContent>
                 </Card>
-              ) : (
+              ) : selectedTab === "history" ? (
                 <WorkoutLogHistory
                   logs={workoutLogs}
                   onDeleteLog={handleDeleteWorkoutLog}
                   onSelectDate={handleDateSelect}
                 />
+              ) : (
+                <WeeklyVolume workoutLogs={workoutLogs} />
               )}
             </div>
 
