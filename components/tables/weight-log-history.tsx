@@ -311,7 +311,7 @@ export default function WeightLogHistory({
                   }}
                 >
                   <table className="w-full border-collapse">
-                    <thead>
+                    <thead className="bg-foreground/10">
                       {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id} className="border-b">
                           {headerGroup.headers.map((header) => (
