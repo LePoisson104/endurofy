@@ -49,7 +49,7 @@ export default function WeightForm({
   const userInfo = useSelector(selectUserInfo);
   const user = useSelector(selectCurrentUser);
 
-  const [calendarDate, setCalendarDate] = useState<Date>();
+  const [calendarDate, setCalendarDate] = useState<Date | null>(null);
   const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
 
   const [createWeightLog, { isLoading: isCreating }] =
@@ -115,6 +115,8 @@ export default function WeightForm({
           },
         }).unwrap();
         setSuccess("Weight log updated successfully");
+        setCalendarDate(null);
+        setVisibleMonth(new Date());
       } else {
         // create weight log
         await createWeightLog({
@@ -126,6 +128,8 @@ export default function WeightForm({
           },
         }).unwrap();
         setSuccess("Weight log created successfully");
+        setCalendarDate(null);
+        setVisibleMonth(new Date());
       }
 
       // Reset form data
@@ -193,7 +197,7 @@ export default function WeightForm({
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);
             if (value < 1) value = 1;
-            if (value > 1000) value = 1000;
+            if (value > 999) value = 999;
             setFormData({ ...formData, weight: value });
           }}
           required
@@ -238,8 +242,14 @@ export default function WeightForm({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={calendarDate}
-                onSelect={(day: Date | undefined) => setCalendarDate(day)}
+                selected={calendarDate || undefined}
+                onSelect={(day: Date | undefined) => {
+                  if (day) {
+                    setCalendarDate(day);
+                  } else {
+                    setCalendarDate(null);
+                  }
+                }}
                 required
                 disabled={(date) => date > new Date()}
                 modifiers={modifiers}
@@ -250,6 +260,7 @@ export default function WeightForm({
                   outsideHighlighted: "!text-[#90D5FF] hover:!text-black",
                   outsideNonHighlighted: "text-muted-foreground",
                 }}
+                month={visibleMonth}
                 onMonthChange={(month) => setVisibleMonth(month)}
               />
             </PopoverContent>

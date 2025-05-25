@@ -3,18 +3,20 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
+import { selectCurrentToken } from "@/api/auth/auth-slice";
 
-export default function LoginPersist({
+export function LoginPersistProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
   const token = useSelector(selectCurrentToken);
-  const user = useSelector(selectCurrentUser);
 
+  console.log("token", token);
   useEffect(() => {
+    console.log("token", token);
+
     if (token) {
       router.push("/dashboard");
     }

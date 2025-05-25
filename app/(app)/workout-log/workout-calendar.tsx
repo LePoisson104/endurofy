@@ -24,7 +24,6 @@ import type {
   WorkoutProgram,
   WorkoutDay,
 } from "../../../interfaces/workout-program-interfaces";
-import { getDayRange } from "@/helper/get-day-range";
 
 interface WorkoutCalendarProps {
   workoutLogs: any[];
@@ -208,7 +207,7 @@ export function WorkoutCalendar({
                       {isInCurrentWeek &&
                         dayHasScheduledWorkout &&
                         !dayHasWorkout && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 dark:bg-blue-400 rounded-full mx-1"></div>
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 dark:bg-blue-400 rounded-full mx-1" />
                         )}
                     </div>
                   </Button>

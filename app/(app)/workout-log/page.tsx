@@ -106,11 +106,13 @@ export default function WorkoutLogManager() {
             <TabsTrigger value="volume">Volume</TabsTrigger>
           </TabsList>
         </Tabs>
-        <ProgramSelector
-          programs={programs as WorkoutProgram[]}
-          selectedProgramId={selectedProgram?.programId}
-          onSelectProgram={handleSetProgramAsActive}
-        />
+        {selectedTab === "log" && (
+          <ProgramSelector
+            programs={programs as WorkoutProgram[]}
+            selectedProgramId={selectedProgram?.programId}
+            onSelectProgram={handleSetProgramAsActive}
+          />
+        )}
         <div>
           {/* Mobile Calendar Toggle Button */}
           <div className="lg:hidden mb-4">
@@ -133,6 +135,7 @@ export default function WorkoutLogManager() {
                     workoutLogs={workoutLogs}
                     selectedDate={selectedDate}
                     onSelectDate={handleDateSelect}
+                    program={selectedProgram as WorkoutProgram | undefined}
                   />
                 </CardContent>
               </Card>

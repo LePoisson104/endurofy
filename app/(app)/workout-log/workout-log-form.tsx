@@ -31,6 +31,8 @@ import type {
   WorkoutProgram,
   AllDays,
 } from "../../../interfaces/workout-program-interfaces";
+import Image from "next/image";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface WorkoutLogFormProps {
   program: WorkoutProgram;
@@ -45,6 +47,7 @@ export function WorkoutLogForm({
   onSaveLog,
 }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
+  const isDark = useGetCurrentTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
   const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
@@ -112,12 +115,24 @@ export function WorkoutLogForm({
 
   if (!selectedDay) {
     return (
-      <Alert className="mt-4">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          No workout scheduled for this day. This is a rest day.
-        </AlertDescription>
-      </Alert>
+      <>
+        <Alert className="mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            No workout scheduled for this day. This is a rest day.
+          </AlertDescription>
+        </Alert>
+        <div className="flex justify-center items-center w-full mt-4 border rounded-lg h-[400px]">
+          <Image
+            src={
+              isDark ? "/images/darksnorlax.png" : "/images/lightsnorlax.png"
+            }
+            alt="Rest Day"
+            width={150}
+            height={150}
+          />
+        </div>
+      </>
     );
   }
 
