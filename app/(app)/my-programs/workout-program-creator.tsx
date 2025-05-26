@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseForm } from "./exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Plus } from "lucide-react";
+import { CalendarIcon, Loader2, Plus } from "lucide-react";
 
 import type {
   AllDays,
@@ -32,6 +32,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ErrorAlert from "@/components/alerts/error-alert";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format, parse } from "date-fns";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
@@ -47,6 +55,9 @@ export function WorkoutProgramCreator({
   const isMobile = useIsMobile();
   const [programName, setProgramName] = useState("");
   const [description, setDescription] = useState("");
+  const [calendarDate, setCalendarDate] = useState<Date | null>(null);
+  const [calendarInput, setCalendarInput] = useState<string>("");
+  const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
   const [exercises, setExercises] = useState<
     Record<string | AllDays, Exercise[]>
   >({});
@@ -294,6 +305,9 @@ export function WorkoutProgramCreator({
     const program: CreateWorkoutProgram = {
       programName,
       description,
+      startingDate:
+        calendarDate?.toISOString().split("T")[0] ||
+        new Date().toISOString().split("T")[0],
       programType,
       workoutDays,
     };
@@ -305,6 +319,16 @@ export function WorkoutProgramCreator({
     resetForm();
     onSuccess?.();
   };
+
+  // Keep input in sync with calendarDate
+  // (useEffect to update input if calendarDate changes externally)
+  useEffect(() => {
+    if (calendarDate) {
+      setCalendarInput(format(calendarDate, "MM/dd/yyyy"));
+    } else {
+      setCalendarInput("");
+    }
+  }, [calendarDate]);
 
   return (
     <div className="space-y-6">
@@ -340,6 +364,55 @@ export function WorkoutProgramCreator({
               maxLength={100}
             />
           </div>
+          {programType === "custom" && (
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="program-start-date">Program Start Date</Label>
+              <div className="flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-fit justify-start text-left font-normal",
+                        !calendarDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={calendarDate || undefined}
+                      onSelect={function (day) {
+                        if (day) {
+                          setCalendarDate(day);
+                          setCalendarInput(format(day, "MM/dd/yyyy"));
+                        } else {
+                          setCalendarDate(null);
+                          setCalendarInput("");
+                        }
+                      }}
+                      month={visibleMonth}
+                      onMonthChange={(month: Date) => setVisibleMonth(month)}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Input
+                  id="date"
+                  type="text"
+                  pattern="\\d{2}/\\d{2}/\\d{4}"
+                  placeholder="MM/DD/YYYY"
+                  className="placeholder:text-sm w-full text-sm"
+                  value={calendarInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCalendarInput(value);
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

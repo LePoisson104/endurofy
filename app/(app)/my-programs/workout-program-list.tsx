@@ -108,8 +108,6 @@ export default function WorkoutProgramList({
     }
   };
 
-  console.log(isLoading);
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">

@@ -9,8 +9,9 @@ import {
   Plus,
   Loader2,
   Minus,
+  CalendarIcon,
 } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, parse, isValid } from "date-fns";
 import {
   Card,
   CardContent,
@@ -55,6 +56,13 @@ import SuccessAlert from "@/components/alerts/success-alert";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -75,6 +83,7 @@ export function WorkoutProgramDetail({
   const currentDayRef = useRef<HTMLButtonElement>(null);
   const previousActiveDayRef = useRef<AllDays | null>(null);
 
+  const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
   const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -121,7 +130,10 @@ export function WorkoutProgramDetail({
   };
 
   useEffect(() => {
-    setEditedProgram(program);
+    setEditedProgram({
+      ...program,
+      startingDate: format(new Date(program.startingDate), "MM/dd/yyyy"),
+    });
     setAllDays(
       program.programType === "dayOfWeek"
         ? {
@@ -599,20 +611,100 @@ export function WorkoutProgramDetail({
               </div>
             )}
             {isEditing ? (
-              <div className="space-y-2 mt-5">
-                <Label htmlFor="program-description">Description</Label>
-                <Textarea
-                  id="program-description"
-                  value={editedProgram.description || ""}
-                  onChange={(e) =>
-                    setEditedProgram({
-                      ...editedProgram,
-                      description: e.target.value || undefined,
-                    })
-                  }
-                  className="min-h-[100px] text-sm"
-                />
-              </div>
+              <>
+                <div className="space-y-2 mt-5">
+                  <Label htmlFor="program-description">Description</Label>
+                  <Textarea
+                    id="program-description"
+                    value={editedProgram.description || ""}
+                    onChange={(e) =>
+                      setEditedProgram({
+                        ...editedProgram,
+                        description: e.target.value || undefined,
+                      })
+                    }
+                    className="min-h-[100px] text-sm"
+                  />
+                </div>
+                {program.programType === "custom" && (
+                  <div className="flex flex-col gap-2 mt-5 mb-5">
+                    <Label htmlFor="program-start-date">
+                      Program Start Date
+                    </Label>
+                    <div className="flex gap-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-fit justify-start text-left font-normal"
+                            )}
+                          >
+                            <CalendarIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={
+                              editedProgram.startingDate
+                                ? isValid(
+                                    parse(
+                                      editedProgram.startingDate,
+                                      "MM/dd/yyyy",
+                                      new Date()
+                                    )
+                                  )
+                                  ? parse(
+                                      editedProgram.startingDate,
+                                      "MM/dd/yyyy",
+                                      new Date()
+                                    )
+                                  : parseISO(editedProgram.startingDate)
+                                : undefined
+                            }
+                            onSelect={function (day) {
+                              if (day) {
+                                setEditedProgram({
+                                  ...editedProgram,
+                                  startingDate: format(day, "MM/dd/yyyy"),
+                                });
+                              } else {
+                                setEditedProgram({
+                                  ...editedProgram,
+                                  startingDate: "",
+                                });
+                              }
+                            }}
+                            month={visibleMonth}
+                            onMonthChange={(month: Date) =>
+                              setVisibleMonth(month)
+                            }
+                            classNames={{
+                              day_selected:
+                                "bg-blue-500 text-white hover:bg-amber-600",
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        id="date"
+                        type="text"
+                        pattern="\d{2}/\d{2}/\d{4}"
+                        placeholder="MM/DD/YYYY"
+                        className="placeholder:text-sm w-full text-sm"
+                        value={editedProgram.startingDate}
+                        onChange={(e) => {
+                          setEditedProgram({
+                            ...editedProgram,
+                            startingDate: e.target.value,
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <CardDescription>{program.description || ""}</CardDescription>
             )}
@@ -624,7 +716,9 @@ export function WorkoutProgramDetail({
                 disabled={
                   isUpdatingDescription ||
                   (editedProgram.programName === program.programName &&
-                    editedProgram.description === program.description)
+                    editedProgram.description === program.description &&
+                    editedProgram.startingDate ===
+                      format(new Date(program.startingDate), "MM/dd/yyyy"))
                 }
                 className="w-[130px]"
                 onClick={handleSaveProgramDescription}
@@ -640,6 +734,15 @@ export function WorkoutProgramDetail({
         </CardHeader>
         {!isEditing && (
           <CardContent>
+            {program.programType === "custom" && (
+              <div
+                className={`text-xs ${
+                  isDarkMode ? "text-blue-300" : "text-blue-500"
+                }`}
+              >
+                Starting date: {formatDate(program.startingDate).split("at")[0]}
+              </div>
+            )}
             <div
               className={`text-xs ${
                 isDarkMode ? "text-slate-400" : "text-slate-500"

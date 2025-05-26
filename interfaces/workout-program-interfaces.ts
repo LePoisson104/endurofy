@@ -43,6 +43,7 @@ export interface WorkoutProgram {
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   isActive: number;
+  startingDate: string; // ISO date string
   workoutDays: WorkoutDay[];
 }
 
@@ -50,6 +51,7 @@ export interface CreateWorkoutProgram {
   programName: string;
   description?: string;
   programType: "dayOfWeek" | "custom";
+  startingDate?: string; // ISO date string
   workoutDays: CreateWorkoutDay[];
 }
 
