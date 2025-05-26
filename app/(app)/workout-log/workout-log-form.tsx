@@ -60,15 +60,51 @@ export function WorkoutLogForm({
   // Set initial selected day when program or selectedDate changes
   useEffect(() => {
     if (program.workoutDays && program.workoutDays.length > 0) {
-      // Get the day of week (1-7, where 1 is Monday)
-      const dayOfWeek = selectedDate.getDay() || 7; // Convert Sunday (0) to 7
+      let matchingDay: WorkoutDay | null = null;
 
-      // Find the workout day that matches the selected date's day of week
-      const matchingDay = program.workoutDays.find(
-        (day) => day.dayNumber === dayOfWeek
-      );
+      if (program.programType === "custom") {
+        // For custom programs, calculate the cycle day based on starting date
+        const startingDate = new Date(program.startingDate);
+        const daysDifference = Math.floor(
+          (selectedDate.getTime() - startingDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
 
-      setSelectedDay(matchingDay || null);
+        // Get the maximum day number to determine the cycle length (accounts for rest days)
+        const maxDayNumber = Math.max(
+          ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber)
+        );
+
+        if (maxDayNumber > 0) {
+          // Calculate which day in the cycle this date represents (1-based)
+          // Handle both positive and negative daysDifference (before and after start date)
+          let cycleDay;
+          if (daysDifference >= 0) {
+            cycleDay = (daysDifference % maxDayNumber) + 1;
+          } else {
+            // For days before start date, calculate backwards
+            const positiveDays = Math.abs(daysDifference);
+            const remainder = positiveDays % maxDayNumber;
+            cycleDay =
+              remainder === 0 ? maxDayNumber : maxDayNumber - remainder + 1;
+          }
+
+          // Find the workout day that matches this cycle day
+          matchingDay =
+            program.workoutDays.find((day) => day.dayNumber === cycleDay) ||
+            null;
+        }
+      } else {
+        // Original logic for dayOfWeek programs
+        const dayOfWeek = selectedDate.getDay() || 7; // Convert Sunday (0) to 7
+
+        // Find the workout day that matches the selected date's day of week
+        matchingDay =
+          program.workoutDays.find((day) => day.dayNumber === dayOfWeek) ||
+          null;
+      }
+
+      setSelectedDay(matchingDay);
     }
 
     setAllDays(

@@ -67,10 +67,80 @@ export function WorkoutCalendar({
   // Check if a day has a scheduled workout in the program
   const hasScheduledWorkout = (day: Date) => {
     if (!program) return false;
-    const dayOfWeek = day.getDay() || 7; // Convert Sunday (0) to 7
-    return program.workoutDays.some(
-      (workoutDay: WorkoutDay) => workoutDay.dayNumber === dayOfWeek
+
+    if (program.programType === "custom") {
+      return hasScheduledWorkoutCustom(day);
+    } else {
+      // Original logic for dayOfWeek programs
+      const dayOfWeek = day.getDay() || 7; // Convert Sunday (0) to 7
+      return program.workoutDays.some(
+        (workoutDay: WorkoutDay) => workoutDay.dayNumber === dayOfWeek
+      );
+    }
+  };
+
+  // Check if a day has a scheduled workout for custom programs
+  const hasScheduledWorkoutCustom = (day: Date) => {
+    if (!program || program.programType !== "custom") return false;
+
+    const startingDate = parseISO(program.startingDate);
+    const daysDifference = Math.floor(
+      (day.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
     );
+
+    // Get the maximum day number to determine the cycle length (accounts for rest days)
+    const maxDayNumber = Math.max(
+      ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber)
+    );
+    if (maxDayNumber === 0) return false;
+
+    // Calculate which day in the cycle this date represents (1-based)
+    // Handle both positive and negative daysDifference (before and after start date)
+    let cycleDay;
+    if (daysDifference >= 0) {
+      cycleDay = (daysDifference % maxDayNumber) + 1;
+    } else {
+      // For days before start date, calculate backwards
+      const positiveDays = Math.abs(daysDifference);
+      const remainder = positiveDays % maxDayNumber;
+      cycleDay = remainder === 0 ? maxDayNumber : maxDayNumber - remainder + 1;
+    }
+
+    // Check if there's a workout day with this cycle day number
+    return program.workoutDays.some(
+      (workoutDay: WorkoutDay) => workoutDay.dayNumber === cycleDay
+    );
+  };
+
+  // Check if a day is in the current rotation for custom programs
+  const isInCurrentRotation = (day: Date) => {
+    if (!program || program.programType !== "custom") return false;
+
+    const today = new Date();
+    const startingDate = parseISO(program.startingDate);
+
+    // Get the maximum day number to determine the cycle length
+    const maxDayNumber = Math.max(
+      ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber)
+    );
+    if (maxDayNumber === 0) return false;
+
+    // Calculate which rotation today is in
+    const todaysDifference = Math.floor(
+      (today.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const todaysRotation = Math.floor(todaysDifference / maxDayNumber);
+
+    // Calculate which rotation the given day is in
+    const daysDifference = Math.floor(
+      (day.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const daysRotation = Math.floor(daysDifference / maxDayNumber);
+
+    // Check if they're in the same rotation
+    return todaysRotation === daysRotation;
   };
 
   // Check if a day is in the future
@@ -156,13 +226,17 @@ export function WorkoutCalendar({
       {/* Calendar grid */}
       <div className="space-y-1">
         {weeks.map((week, weekIndex) => {
-          const isWeekCurrentWeek = week.some(isCurrentWeek);
+          const isWeekHighlighted =
+            program?.programType === "custom"
+              ? week.some(isInCurrentRotation)
+              : week.some(isCurrentWeek);
+
           return (
             <div
               key={weekIndex}
               className={cn(
                 "grid grid-cols-7 gap-1",
-                isWeekCurrentWeek &&
+                isWeekHighlighted &&
                   "bg-blue-50 dark:bg-blue-950 rounded-lg p-1"
               )}
             >
@@ -173,7 +247,10 @@ export function WorkoutCalendar({
                 const dayHasScheduledWorkout = hasScheduledWorkout(day);
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const isFuture = isFutureDay(day);
-                const isInCurrentWeek = isCurrentWeek(day);
+                const isInCurrentWeekOrRotation =
+                  program?.programType === "custom"
+                    ? isInCurrentRotation(day)
+                    : isCurrentWeek(day);
 
                 return (
                   <Button
@@ -190,11 +267,12 @@ export function WorkoutCalendar({
                       !isCurrentMonth && "text-slate-500 dark:text-slate-400",
                       dayHasWorkout && "bg-green-50 dark:bg-green-950",
                       isFuture && "opacity-50 cursor-not-allowed",
-                      isInCurrentWeek &&
+                      isInCurrentWeekOrRotation &&
                         dayHasScheduledWorkout &&
                         !dayHasWorkout &&
                         "bg-blue-100/50 dark:bg-blue-900/50",
-                      isInCurrentWeek && "text-slate-900 dark:text-slate-100"
+                      isInCurrentWeekOrRotation &&
+                        "text-slate-900 dark:text-slate-100"
                     )}
                     onClick={() => !isFuture && onSelectDate(day)}
                     disabled={isFuture}
@@ -204,7 +282,7 @@ export function WorkoutCalendar({
                       {dayHasWorkout && (
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1"></div>
                       )}
-                      {isInCurrentWeek &&
+                      {isInCurrentWeekOrRotation &&
                         dayHasScheduledWorkout &&
                         !dayHasWorkout && (
                           <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 dark:bg-blue-400 rounded-full mx-1" />
