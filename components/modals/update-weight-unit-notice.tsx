@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import { Loader2 } from "lucide-react";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 export default function UpdateWeightUnitNotice({
   isOpen,
   setIsOpen,
@@ -30,6 +30,7 @@ export default function UpdateWeightUnitNotice({
   setIsEditing: (isEditing: boolean) => void;
 }) {
   const user = useSelector(selectCurrentUser);
+  const isMobile = useIsMobile();
   const [updateUsersAndConvertWeightLogs, { isLoading }] =
     useUpdateUsersAndConvertWeightLogsMutation();
 
@@ -68,21 +69,23 @@ export default function UpdateWeightUnitNotice({
 
   return (
     <AlertDialog open={isOpen}>
-      <AlertDialogContent className="bg-card border-none">
+      <AlertDialogContent
+        className={`bg-card border-none ${
+          isMobile ? "w-[330px]" : "w-[350px]"
+        }`}
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-1 ">
-            Notice
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-center">Notice</AlertDialogTitle>
+          <AlertDialogDescription className="text-center">
             Updating your weight unit will convert all weight and workout logs
             to match. This may take time depending on your log history.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex flex-row justify-end gap-2">
+        <AlertDialogFooter className="flex flex-row justify-between gap-2">
           <AlertDialogCancel
             onClick={() => setIsOpen(false)}
             disabled={isLoading}
-            className="w-[100px]"
+            className="w-1/2 border-none bg-foreground/20"
           >
             Cancel
           </AlertDialogCancel>
@@ -91,7 +94,7 @@ export default function UpdateWeightUnitNotice({
             onClick={() => {
               handleSubmit();
             }}
-            className="w-[100px]"
+            className="w-1/2 border-none"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

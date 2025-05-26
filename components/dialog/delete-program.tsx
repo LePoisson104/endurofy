@@ -28,16 +28,24 @@ export default function DeleteProgramDialog({
 
   return (
     <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-      <AlertDialogContent className="bg-card">
+      <AlertDialogContent
+        className={`bg-card ${
+          isMobile ? "w-[330px]" : "w-[350px]"
+        } border-none`}
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Workout {context}</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-center">
+            Delete Workout {context}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-center">
             Are you sure you want to delete this workout {context}? This action
             cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-row justify-between gap-2">
-          <AlertDialogCancel className="w-1/2">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="w-1/2 border-none bg-foreground/20">
+            Cancel
+          </AlertDialogCancel>
           <Button
             onClick={handleDelete}
             variant="destructive"
