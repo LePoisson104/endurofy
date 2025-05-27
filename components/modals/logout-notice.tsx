@@ -8,9 +8,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
+import { useRouter } from "next/navigation";
 
 export default function LogoutNotice({ isOpen }: { isOpen: boolean }) {
   const [logout] = useLogoutMutation();
+  const router = useRouter();
 
   return (
     <AlertDialog open={isOpen}>
@@ -25,7 +27,14 @@ export default function LogoutNotice({ isOpen }: { isOpen: boolean }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <Button onClick={() => logout()}>Log out</Button>
+          <Button
+            onClick={() => {
+              logout();
+              router.push("/login");
+            }}
+          >
+            Log out
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

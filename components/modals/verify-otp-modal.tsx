@@ -18,6 +18,8 @@ import ErrorAlert from "@/components/alerts/error-alert";
 import { useResendOTPMutation } from "@/api/auth/auth-api-slice";
 import { useVerifyUpdateEmailMutation } from "@/api/user/user-api-slice";
 import LogoutNotice from "@/components/modals/logout-notice";
+import SuccessAlert from "../alerts/success-alert";
+
 interface VerifyOTPModalProps {
   pendingEmail: string;
   userId: string;
@@ -43,6 +45,8 @@ export default function VerifyOTPModal({
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(900);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   const [verifyEmailChange, { isLoading: isVerifying }] =
     useVerifyUpdateEmailMutation();
   const [resendOTP, { isLoading: isResending }] = useResendOTPMutation();
@@ -111,10 +115,11 @@ export default function VerifyOTPModal({
       return;
     }
     try {
-      const response = await resendOTP({
+      await resendOTP({
         user_id: userId,
         email: pendingEmail,
       }).unwrap();
+      setSuccess("Verification code resent successfully.");
       setOtp("");
       setTimeLeft(900);
     } catch (err: any) {
@@ -138,6 +143,7 @@ export default function VerifyOTPModal({
   return (
     <>
       <ErrorAlert error={error} setError={setError} />
+      <SuccessAlert success={success} setSuccess={setSuccess} />
       <LogoutNotice isOpen={openLogoutNotice} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-md bg-card border-none">

@@ -288,8 +288,7 @@ function UserProfileMenu() {
   const { setTheme, theme } = useTheme();
   const isMobile = useIsMobile();
   const [logout] = useLogoutMutation();
-  const searchParams = useSearchParams();
-  const router = useRouter();
+
   const { openMobile, setOpenMobile } = useSidebar();
 
   const handleCloseSidebarOnMobile = () => {
