@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -38,8 +39,6 @@ export default function ResetPassword() {
   // Get email and otp from URL parameters
   const email = searchParams.get("email");
   const otp = searchParams.get("token");
-
-  console.log(email, otp);
 
   const validateField = (name: string, value: string) => {
     switch (name) {
