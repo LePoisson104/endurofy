@@ -13,6 +13,7 @@ import ErrorAlert from "@/components/alerts/error-alert";
 import { useRouter } from "next/navigation";
 import { useSignupMutation } from "@/api/auth/auth-api-slice";
 import { Loader2 } from "lucide-react";
+import { validatePasswordField } from "@/helper/password-validator";
 
 interface FormErrors {
   firstName: string;
@@ -59,17 +60,8 @@ export default function Signup() {
           ? "Invalid email format"
           : "";
       case "password":
-        return value.trim() === ""
-          ? "Password is required"
-          : value.length < 8
-          ? "Password must be at least 8 characters"
-          : "";
       case "confirmPassword":
-        return value.trim() === ""
-          ? "Please confirm your password"
-          : value !== password
-          ? "Passwords do not match"
-          : "";
+        return validatePasswordField(name, value, password);
       default:
         return "";
     }

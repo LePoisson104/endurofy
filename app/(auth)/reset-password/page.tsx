@@ -13,11 +13,10 @@ import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-
-interface FormErrors {
-  password: string;
-  confirmPassword: string;
-}
+import {
+  PasswordFormErrors,
+  usePasswordValidation,
+} from "@/helper/password-validator";
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -27,7 +26,7 @@ export default function ResetPassword() {
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [formErrors, setFormErrors] = useState<FormErrors>({
+  const [formErrors, setFormErrors] = useState<PasswordFormErrors>({
     password: "",
     confirmPassword: "",
   });
@@ -40,24 +39,11 @@ export default function ResetPassword() {
   const email = searchParams.get("email");
   const otp = searchParams.get("token");
 
-  const validateField = (name: string, value: string) => {
-    switch (name) {
-      case "password":
-        return value.trim() === ""
-          ? "Password is required"
-          : value.length < 8
-          ? "Password must be at least 8 characters"
-          : "";
-      case "confirmPassword":
-        return value.trim() === ""
-          ? "Please confirm your password"
-          : value !== password
-          ? "Passwords do not match"
-          : "";
-      default:
-        return "";
-    }
-  };
+  // Use the reusable password validation
+  const { validateField, validateAllFields } = usePasswordValidation(
+    password,
+    confirmPassword
+  );
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -98,18 +84,15 @@ export default function ResetPassword() {
       return;
     }
     console.log(email, otp);
+
     // Mark all fields as touched
     setTouched({
       password: true,
       confirmPassword: true,
     });
 
-    // Validate all fields
-    const newErrors = {
-      password: validateField("password", password),
-      confirmPassword: validateField("confirmPassword", confirmPassword),
-    };
-
+    // Validate all fields using the reusable validator
+    const newErrors = validateAllFields();
     setFormErrors(newErrors);
 
     // Check if there are any errors
