@@ -226,10 +226,9 @@ export function WorkoutCalendar({
       {/* Calendar grid */}
       <div className="space-y-1">
         {weeks.map((week, weekIndex) => {
+          // Only highlight weeks for dayOfWeek programs, not custom programs
           const isWeekHighlighted =
-            program?.programType === "custom"
-              ? week.some(isInCurrentRotation)
-              : week.some(isCurrentWeek);
+            program?.programType !== "custom" && week.some(isCurrentWeek);
 
           return (
             <div
@@ -253,42 +252,53 @@ export function WorkoutCalendar({
                     : isCurrentWeek(day);
 
                 return (
-                  <Button
+                  <div
                     key={dayIndex}
-                    variant="ghost"
-                    size="sm"
                     className={cn(
-                      "h-10 w-full p-0 font-normal relative",
-                      isSelected &&
-                        "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 ring-1 ring-blue-400 dark:ring-blue-500",
-                      isToday &&
-                        !isSelected &&
-                        "border-2 border-blue-600 dark:border-blue-300",
-                      !isCurrentMonth && "text-slate-500 dark:text-slate-400",
-                      dayHasWorkout && "bg-green-50 dark:bg-green-950",
-                      isFuture && "opacity-50 cursor-not-allowed",
-                      isInCurrentWeekOrRotation &&
-                        dayHasScheduledWorkout &&
-                        !dayHasWorkout &&
-                        "bg-blue-100/50 dark:bg-blue-900/50",
-                      isInCurrentWeekOrRotation &&
-                        "text-slate-900 dark:text-slate-100"
+                      "relative",
+                      // Apply rotation background to the div for custom programs
+                      program?.programType === "custom" &&
+                        isInCurrentWeekOrRotation &&
+                        "bg-blue-50 dark:bg-blue-950 rounded-lg"
                     )}
-                    onClick={() => !isFuture && onSelectDate(day)}
-                    disabled={isFuture}
                   >
-                    <div className="flex flex-col items-center justify-center">
-                      <span>{format(day, "d")}</span>
-                      {dayHasWorkout && (
-                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1"></div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "h-10 w-full p-0 font-normal relative",
+                        isSelected &&
+                          "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 ring-1 ring-blue-400 dark:ring-blue-500",
+                        isToday &&
+                          !isSelected &&
+                          "border-2 border-blue-600 dark:border-blue-300",
+                        !isCurrentMonth && "text-slate-500 dark:text-slate-400",
+                        dayHasWorkout && "bg-green-50 dark:bg-green-950",
+                        isFuture && "opacity-50 cursor-not-allowed",
+                        // Keep the original logic for scheduled workouts
+                        isInCurrentWeekOrRotation &&
+                          dayHasScheduledWorkout &&
+                          !dayHasWorkout &&
+                          "bg-blue-100/50 dark:bg-blue-900/50",
+                        isInCurrentWeekOrRotation &&
+                          "text-slate-900 dark:text-slate-100"
                       )}
-                      {isInCurrentWeekOrRotation &&
-                        dayHasScheduledWorkout &&
-                        !dayHasWorkout && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 dark:bg-blue-400 rounded-full mx-1" />
+                      onClick={() => !isFuture && onSelectDate(day)}
+                      disabled={isFuture}
+                    >
+                      <div className="flex flex-col items-center justify-center">
+                        <span>{format(day, "d")}</span>
+                        {dayHasWorkout && (
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1"></div>
                         )}
-                    </div>
-                  </Button>
+                        {isInCurrentWeekOrRotation &&
+                          dayHasScheduledWorkout &&
+                          !dayHasWorkout && (
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 dark:bg-blue-400 rounded-full mx-1" />
+                          )}
+                      </div>
+                    </Button>
+                  </div>
                 );
               })}
             </div>
