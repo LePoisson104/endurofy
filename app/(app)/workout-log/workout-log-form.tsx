@@ -200,7 +200,7 @@ export function WorkoutLogForm({
             variant="outline"
             size="sm"
             onClick={() => setShowPrevious(!showPrevious)}
-            className="border w-fit"
+            className="border3 w-fit"
           >
             <History className="h-4 w-4 mr-2" />
             {showPrevious ? "Hide Previous" : "Show Previous"}

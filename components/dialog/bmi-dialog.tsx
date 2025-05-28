@@ -17,7 +17,7 @@ export default function BMIDialog() {
           <Info className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-2xl p-6 bg-card">
+      <DialogContent className="sm:max-w-md rounded-2xl p-6 bg-card border-none">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             BMI Categories
