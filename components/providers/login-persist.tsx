@@ -31,6 +31,10 @@ export function LoginPersistProvider({
   ];
   const isPublicRoute = publicRoutes.includes(pathname);
 
+  // Check if authenticated user is on public route (should show loading before redirect)
+  const shouldShowLoadingForRedirect =
+    !isInitializing && !isRefreshing && token && user && isPublicRoute;
+
   const verifyRefreshToken = async () => {
     try {
       await refresh().unwrap();
@@ -61,13 +65,13 @@ export function LoginPersistProvider({
 
   // Redirect logic for authenticated users on public routes
   useEffect(() => {
-    if (!isInitializing && !isRefreshing && token && user && isPublicRoute) {
+    if (shouldShowLoadingForRedirect) {
       router.push("/dashboard");
     }
-  }, [token, user, isPublicRoute, isInitializing, isRefreshing, router]);
+  }, [shouldShowLoadingForRedirect, router]);
 
-  // Show loading while initializing
-  if (isInitializing || isRefreshing || publicRoutes.includes(pathname)) {
+  // Show loading while initializing, refreshing, or redirecting authenticated users from public routes
+  if (isInitializing || isRefreshing || shouldShowLoadingForRedirect) {
     return (
       <div className="w-full h-screen flex justify-center items-center bg-background">
         <DotPulse />
