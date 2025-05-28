@@ -1,20 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertCircle,
-  Save,
+  Check,
   ArrowUp,
   ArrowDown,
   Minus,
   History,
+  SquarePen,
 } from "lucide-react";
 import {
   Table,
@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type {
   WorkoutDay,
@@ -175,23 +176,36 @@ export function WorkoutLogForm({
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <div className="space-y-2">
-          <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
-          <div className="text-sm text-slate-500">
-            {format(selectedDate, "MMMM d, yyyy")}
+        <div className="space-y-2 flex justify-between items-center w-full">
+          <div className="flex">
+            <div>
+              <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
+              <div className="text-sm text-slate-500">
+                {format(selectedDate, "MMMM d, yyyy")}
+              </div>
+            </div>
           </div>
-          {isMobile && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPrevious(!showPrevious)}
-              className="border"
-            >
-              <History className="h-4 w-4 mr-2" />
-              {showPrevious ? "Hide Previous" : "Show Previous"}
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(!isEditing)}
+            className="flex items-center gap-2"
+          >
+            <SquarePen className="h-4 w-4" />
+            {isEditing ? "Done" : "Edit"}
+          </Button>
         </div>
+        {isMobile && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPrevious(!showPrevious)}
+            className="border w-fit"
+          >
+            <History className="h-4 w-4 mr-2" />
+            {showPrevious ? "Hide Previous" : "Show Previous"}
+          </Button>
+        )}
       </div>
 
       {selectedDay && (
@@ -215,8 +229,11 @@ export function WorkoutLogForm({
 
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px] text-center">
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-[60px]">
+                        <Check className="h-4 w-4 mx-auto" />
+                      </TableHead>
+                      <TableHead className="w-[60px] text-center">
                         Set #
                       </TableHead>
                       <TableHead className="w-[120px] text-center">
@@ -242,6 +259,9 @@ export function WorkoutLogForm({
                       (_, setIndex) => {
                         return (
                           <TableRow key={setIndex}>
+                            <TableCell className="text-center">
+                              <Checkbox />
+                            </TableCell>
                             <TableCell className="font-medium text-center">
                               {setIndex + 1}
                             </TableCell>
