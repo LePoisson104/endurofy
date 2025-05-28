@@ -1,9 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { selectCurrentToken } from "@/api/auth/auth-slice";
+import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
+import { useRefreshMutation } from "@/api/auth/auth-api-slice";
+import DotPulse from "@/components/global/dot-pulse";
 
 export function LoginPersistProvider({
   children,
@@ -11,16 +13,67 @@ export function LoginPersistProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const token = useSelector(selectCurrentToken);
+  const user = useSelector(selectCurrentUser);
 
-  console.log("token", token);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [refresh, { isLoading: isRefreshing }] = useRefreshMutation();
+
+  // Define public routes that authenticated users should be redirected from
+  const publicRoutes = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-otp",
+    "/",
+  ];
+  const isPublicRoute = publicRoutes.includes(pathname);
+
+  const verifyRefreshToken = async () => {
+    try {
+      await refresh().unwrap();
+    } catch (err) {
+      console.log("Error refreshing token globally");
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  // Initialize authentication state on mount
   useEffect(() => {
-    console.log("token", token);
+    verifyRefreshToken();
+  }, []);
 
-    if (token) {
+  // Handle cross-tab authentication persistence
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "auth-state-changed") {
+        // Trigger a refresh to sync auth state across tabs
+        verifyRefreshToken();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // Redirect logic for authenticated users on public routes
+  useEffect(() => {
+    if (!isInitializing && !isRefreshing && token && user && isPublicRoute) {
       router.push("/dashboard");
     }
-  }, [token]);
+  }, [token, user, isPublicRoute, isInitializing, isRefreshing, router]);
+
+  // Show loading while initializing
+  if (isInitializing || isRefreshing || publicRoutes.includes(pathname)) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center bg-background">
+        <DotPulse />
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }
