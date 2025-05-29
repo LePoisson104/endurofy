@@ -50,19 +50,6 @@ export function LoginPersistProvider({
     verifyRefreshToken();
   }, []);
 
-  // Handle cross-tab authentication persistence
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "auth-state-changed") {
-        // Trigger a refresh to sync auth state across tabs
-        verifyRefreshToken();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
   // Redirect logic for authenticated users on public routes
   useEffect(() => {
     if (shouldShowLoadingForRedirect) {

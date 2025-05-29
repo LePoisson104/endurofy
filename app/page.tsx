@@ -928,19 +928,26 @@ export default function Home() {
                         Is there a free trial for the paid plans?
                       </AccordionTrigger>
                       <AccordionContent className="text-muted-foreground">
-                        Yes, we offer a 30-day free trial for both our Pro and
-                        Elite plans so you can experience all the features.
+                        Yes, we offer a 7-day free trial no credit card
+                        required.
                       </AccordionContent>
                     </AccordionItem>
                   </motion.div>
                   <motion.div variants={accordionVariants}>
                     <AccordionItem value="item-5">
                       <AccordionTrigger className="text-base font-medium">
-                        How does Endurofy protect my privacy?
+                        How can I re-verify my email?
                       </AccordionTrigger>
                       <AccordionContent className="text-muted-foreground">
-                        We take privacy seriously. Your data is encrypted, never
-                        sold, and you have complete control over what you share.
+                        If you accidentally close out the verification tab, you
+                        can either contact the support team at{" "}
+                        <a
+                          href="mailto:endurofy@gmail.com"
+                          className="text-blue-400/80 hover:underline"
+                        >
+                          endurofy@gmail.com
+                        </a>{" "}
+                        or you can wait 24 hours to sign up again.
                       </AccordionContent>
                     </AccordionItem>
                   </motion.div>
