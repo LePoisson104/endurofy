@@ -48,6 +48,8 @@ import { useDispatch } from "react-redux";
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
+
+  console.log("userInfo", userInfo);
   const dispatch = useDispatch();
   const age =
     new Date().getFullYear() -
@@ -382,7 +384,7 @@ export default function ProfilePage() {
                     <Input
                       id="weight"
                       type="number"
-                      value={editedProfile?.starting_weight?.toString() || ""}
+                      value={editedProfile?.current_weight?.toString() || ""}
                       onChange={(e) => {
                         let value = Number.parseFloat(e.target.value);
                         if (value < 1) value = 1;
@@ -396,40 +398,50 @@ export default function ProfilePage() {
                       className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
                     />
                     <Select
-                      value={editedProfile?.starting_weight_unit || "kg"}
+                      value={editedProfile?.current_weight_unit || "kg"}
                       onValueChange={(value) => {
-                        const currentWeight = Number(
-                          editedProfile?.starting_weight || 0
+                        let newCurrentWeight = Number(
+                          editedProfile?.current_weight || 0
                         );
-                        const goalWeight = Number(
+                        let newGoalWeight = Number(
                           editedProfile?.weight_goal || 0
                         );
-                        let newCurrentWeight = currentWeight;
-                        let newGoalWeight = goalWeight;
+                        let newStartingWeight = Number(
+                          editedProfile?.starting_weight || 0
+                        );
 
                         if (
                           value === "lb" &&
-                          editedProfile?.starting_weight_unit === "kg"
+                          editedProfile?.current_weight_unit === "kg"
                         ) {
                           // Convert from kg to lbs
                           newCurrentWeight = Math.round(
-                            currentWeight * 2.20462
+                            newCurrentWeight * 2.20462
                           );
-                          newGoalWeight = Math.round(goalWeight * 2.20462);
+                          newStartingWeight = Math.round(
+                            newStartingWeight * 2.20462
+                          );
+                          newGoalWeight = Math.round(newGoalWeight * 2.20462);
                         } else if (
                           value === "kg" &&
-                          editedProfile?.starting_weight_unit === "lb"
+                          editedProfile?.current_weight_unit === "lb"
                         ) {
                           // Convert from lbs to kg
                           newCurrentWeight = Math.round(
-                            currentWeight / 2.20462
+                            newCurrentWeight / 2.20462
                           );
-                          newGoalWeight = Math.round(goalWeight / 2.20462);
+                          newStartingWeight = Math.round(
+                            newStartingWeight / 2.20462
+                          );
+                          newGoalWeight = Math.round(newGoalWeight / 2.20462);
                         }
-
+                        handleInputChange(
+                          "current_weight",
+                          Number(newCurrentWeight.toFixed(2))
+                        );
                         handleInputChange(
                           "starting_weight",
-                          Number(newCurrentWeight.toFixed(2))
+                          Number(newStartingWeight.toFixed(2))
                         );
                         handleInputChange(
                           "weight_goal",
