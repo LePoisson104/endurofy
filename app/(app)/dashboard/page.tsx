@@ -206,13 +206,41 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="flex gap-4">
                   <div className="flex flex-col w-1/2">
-                    <p className="text-xl font-bold">Sunday, Mar 24th</p>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      All-day events
+                    <p className="text-xl font-bold">
+                      {new Date().toLocaleDateString("en-US", {
+                        weekday: "long",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </p>
-                    <Button className="w-fit">
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Today's Events
+                    </p>
+                    <Button className="w-fit arrow-button">
                       View
-                      <ChevronRight className="h-4 w-4" />
+                      <svg
+                        className="arrow-icon"
+                        viewBox="0 -3.5 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="7"
+                        height="7"
+                      >
+                        <path
+                          className="arrow-icon__tip"
+                          d="M8 15L14 8.5L8 2"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <line
+                          className="arrow-icon__line"
+                          x1="13"
+                          y1="8.5"
+                          y2="8.5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                      </svg>
                     </Button>
                   </div>
                   <div className="flex flex-col gap-2 w-1/2">
@@ -263,7 +291,32 @@ export default function DashboardPage() {
                           </p>
                         </div>
                         <div className="w-3/10 flex justify-end">
-                          <Button>View</Button>
+                          <Button className="w-fit arrow-button">
+                            View
+                            <svg
+                              className="arrow-icon"
+                              viewBox="0 -3.5 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="7"
+                              height="7"
+                            >
+                              <path
+                                className="arrow-icon__tip"
+                                d="M8 15L14 8.5L8 2"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              />
+                              <line
+                                className="arrow-icon__line"
+                                x1="13"
+                                y1="8.5"
+                                y2="8.5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              />
+                            </svg>
+                          </Button>
                         </div>
                       </div>
                       <Separator />
