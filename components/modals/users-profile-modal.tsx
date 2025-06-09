@@ -33,6 +33,9 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { DateInput } from "@/components/ui/date-input";
+import { convertDateForSubmission } from "@/lib/date-utils";
+
 interface UsersProfileModalProps {
   isOpen: boolean;
   profileStatus: string;
@@ -106,11 +109,14 @@ export default function UsersProfileModal({
     }
 
     try {
+      const submissionPayload = {
+        ...formData,
+        birth_date: convertDateForSubmission(formData.birth_date),
+      };
+
       await updateUserProfile({
         userId: user?.user_id || "",
-        payload: {
-          ...formData,
-        },
+        payload: submissionPayload,
       }).unwrap();
 
       // Reset form data
@@ -267,19 +273,11 @@ export default function UsersProfileModal({
                       </div>
                     </RadioGroup>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Birth Date</Label>
-                    <Input
-                      id="birth_date"
-                      type="date"
-                      value={formData.birth_date || ""}
-                      className="text-sm"
-                      onChange={(e) =>
-                        updateField("birth_date", e.target.value)
-                      }
-                      max={new Date().toISOString().split("T")[0]}
-                    />
-                  </div>
+                  <DateInput
+                    label="Birth Date"
+                    value={formData.birth_date}
+                    onChange={(value) => updateField("birth_date", value)}
+                  />
                 </div>
               </CardContent>
             </Card>

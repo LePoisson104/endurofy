@@ -44,6 +44,11 @@ import { Loader2 } from "lucide-react";
 import { calculateAndSetBMR, selectUserInfo } from "@/api/user/user-slice";
 import UpdateWeightUnitNotice from "@/components/modals/update-weight-unit-notice";
 import { useDispatch } from "react-redux";
+import { DateInput } from "@/components/ui/date-input";
+import {
+  convertDateForDisplay,
+  convertDateForSubmission,
+} from "@/lib/date-utils";
 
 export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
@@ -87,7 +92,7 @@ export default function ProfilePage() {
         current_weight: userInfo?.current_weight || 0,
         current_weight_unit: userInfo?.current_weight_unit || "",
         gender: userInfo?.gender || "",
-        birth_date: userInfo?.birth_date?.split("T")[0] || "",
+        birth_date: convertDateForDisplay(userInfo?.birth_date || ""),
         height: userInfo?.height || 0,
         height_unit: userInfo?.height_unit || "",
         starting_weight: userInfo?.starting_weight || 0,
@@ -151,9 +156,15 @@ export default function ProfilePage() {
     try {
       if (!editedProfile) return;
 
+      // Convert birth_date from MM/DD/YYYY to YYYY-MM-DD for backend
+      const submissionPayload = {
+        ...editedProfile,
+        birth_date: convertDateForSubmission(editedProfile.birth_date || ""),
+      };
+
       await updateUserProfile({
         userId: user?.user_id || "",
-        payload: editedProfile,
+        payload: submissionPayload,
       }).unwrap();
 
       setIsEditing(false);
@@ -279,19 +290,14 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Birthday */}
-                <div className="space-y-2">
-                  <Label htmlFor="birth_date">Date of Birth</Label>
-                  <Input
-                    id="birth_date"
-                    type="date"
-                    value={editedProfile?.birth_date || ""}
-                    onChange={(e) =>
-                      handleInputChange("birth_date", e.target.value)
-                    }
-                    max={new Date().toISOString().split("T")[0]} // Prevents selecting future dates
-                    className="text-sm"
-                  />
-                </div>
+                <DateInput
+                  id="birth_date"
+                  label="Date of Birth"
+                  value={editedProfile?.birth_date || ""}
+                  onChange={(date) => {
+                    handleInputChange("birth_date", date);
+                  }}
+                />
 
                 {/* Height */}
                 <div className="space-y-2">
