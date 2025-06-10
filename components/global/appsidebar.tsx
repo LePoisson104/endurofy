@@ -15,6 +15,7 @@ import {
   LogOut,
   Moon,
   Sun,
+  Apple,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -116,7 +117,19 @@ export function AppSidebar() {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/food-log"}
+                    tooltip="Food Log"
+                    onClick={handleCloseSidebarOnMobile}
+                  >
+                    <Link href="/food-log" className="truncate">
+                      <Apple />
+                      <span className="truncate">Food Log</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild

@@ -354,7 +354,10 @@ export function WorkoutProgramCreator({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="program-description">Description (optional)</Label>
+            <Label htmlFor="program-description">
+              Description{" "}
+              <span className="text-xs text-slate-500">(optional)</span>
+            </Label>
             <Textarea
               id="program-description"
               placeholder="Describe your workout program... (100 characters max)"

@@ -143,7 +143,10 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                     showPrevious={showPrevious}
                   />
                   <div className="space-y-2">
-                    <Label htmlFor="workout-notes">Exercise Notes:</Label>
+                    <Label htmlFor="workout-notes">
+                      Exercise Notes
+                      <span className="text-sm text-slate-500">(optional)</span>
+                    </Label>
                     <Textarea
                       id="workout-notes"
                       placeholder="Add notes about this exercise..."

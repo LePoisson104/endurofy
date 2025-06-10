@@ -109,6 +109,7 @@ export default function WeightLogHistory({
                       weightLogId: row.original.weight_log_id,
                     });
                   }}
+                  variant="destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
