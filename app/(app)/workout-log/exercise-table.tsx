@@ -51,6 +51,43 @@ export default function ExerciseTable({
   isMobile,
   showPrevious,
 }: ExerciseTableProps) {
+  // Function to log set data to console
+  const logSetData = (
+    setData: SetData,
+    setIndex: number,
+    exercise: Exercise
+  ) => {
+    console.log("Set Data for Exercise:", exercise.exerciseName);
+    console.log("Set Index:", setIndex + 1);
+    console.log("Current Set Data:", {
+      weight: setData.weight,
+      reps: setData.reps,
+      leftReps: setData.leftReps,
+      rightReps: setData.rightReps,
+      isLogged: setData.isLogged,
+      exercise: {
+        exerciseId: exercise.exerciseId,
+        exerciseName: exercise.exerciseName,
+        bodyPart: exercise.bodyPart,
+        laterality: exercise.laterality,
+      },
+    });
+  };
+
+  // Handle checkbox toggle with logging
+  const handleSetToggle = (
+    exerciseId: string,
+    setIndex: number,
+    exercise: Exercise,
+    setData: SetData
+  ) => {
+    // Log the current set data
+    logSetData(setData, setIndex, exercise);
+
+    // Call the original toggle function
+    toggleSetLogged(exerciseId, setIndex, exercise);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -111,9 +148,14 @@ export default function ExerciseTable({
               <TableCell className="text-center">
                 <Checkbox
                   checked={setData.isLogged}
-                  onCheckedChange={() =>
-                    toggleSetLogged(exercise.exerciseId, setIndex, exercise)
-                  }
+                  onCheckedChange={() => {
+                    handleSetToggle(
+                      exercise.exerciseId,
+                      setIndex,
+                      exercise,
+                      setData
+                    );
+                  }}
                   className="h-4 w-4"
                 />
               </TableCell>

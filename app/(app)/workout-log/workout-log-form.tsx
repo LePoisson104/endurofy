@@ -6,15 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertCircle,
-  Check,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  History,
-  SquarePen,
-} from "lucide-react";
+import { AlertCircle, Check, History, SquarePen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -23,13 +15,14 @@ import { WorkoutLogFormProps } from "@/interfaces/workout-log-interfaces";
 import ExerciseTable from "./exercise-table";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
 import { useWorkoutDay } from "@/hooks/use-workout-day";
+import { Badge } from "@/components/ui/badge";
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [showPrevious, setShowPrevious] = useState(false);
-  const [workoutNotes, setWorkoutNotes] = useState("");
+  const [exerciseNotes, setExerciseNotes] = useState("");
 
   const { selectedDay } = useWorkoutDay(program, selectedDate);
   const {
@@ -116,13 +109,18 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                   }`}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex flex-col flex-1">
+                    <div className="flex flex-col flex-1 ">
                       <div className="flex items-center gap-3">
                         <h4 className="font-medium">{exercise.exerciseName}</h4>
                         {isFullyLogged && (
                           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <Check className="h-4 w-4" />
-                            <span className="text-sm font-medium">Logged</span>
+                            <Badge
+                              variant="outline"
+                              className="bg-green-600 text-white"
+                            >
+                              <Check className="h-2 w-2" />
+                              Completed
+                            </Badge>
                           </div>
                         )}
                       </div>
@@ -144,21 +142,19 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                     isMobile={isMobile}
                     showPrevious={showPrevious}
                   />
+                  <div className="space-y-2">
+                    <Label htmlFor="workout-notes">Exercise Notes:</Label>
+                    <Textarea
+                      id="workout-notes"
+                      placeholder="Add notes about this exercise..."
+                      className="min-h-[80px]"
+                      value={exerciseNotes}
+                      onChange={(e) => setExerciseNotes(e.target.value)}
+                    />
+                  </div>
                 </div>
               );
             })}
-
-          <div className="space-y-2">
-            <Label htmlFor="workout-notes">Workout Notes:</Label>
-            <Textarea
-              id="workout-notes"
-              placeholder="Add notes about this workout..."
-              className="min-h-[100px]"
-              value={workoutNotes}
-              disabled={!isEditing}
-              onChange={(e) => setWorkoutNotes(e.target.value)}
-            />
-          </div>
 
           <div className="flex justify-end pt-4">
             <Button className="w-[170px]" disabled={!isEditing}>
