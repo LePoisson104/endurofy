@@ -85,8 +85,11 @@ export default function ExerciseTable({
     exercise: Exercise,
     setData: SetData
   ) => {
-    // Log the current set data
-    logSetData(setData, exercise, setIndex);
+    // Only save to API when marking a set as logged (not when unmarking)
+    if (!setData.isLogged) {
+      // Log the current set data to API
+      logSetData(setData, exercise, setIndex);
+    }
 
     // Call the original toggle function
     toggleSetLogged(exerciseId, setIndex, exercise);
@@ -160,6 +163,7 @@ export default function ExerciseTable({
                       setData
                     );
                   }}
+                  disabled={setData.isLogged}
                   className="h-4 w-4"
                 />
               </TableCell>

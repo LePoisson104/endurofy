@@ -3,31 +3,86 @@ import { SetData } from "@/interfaces/workout-log-interfaces";
 import { useEffect, useState } from "react";
 import { WorkoutDay, Exercise } from "@/interfaces/workout-program-interfaces";
 
-export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
+export const useExerciseSets = (
+  selectedDay: WorkoutDay | null,
+  workoutLog?: any
+) => {
   const [exerciseSets, setExerciseSets] = useState<Record<string, SetData[]>>(
     {}
   );
+
   const [validationAttempts, setValidationAttempts] = useState<
     Record<string, boolean[]>
   >({});
 
-  // Initialize sets when selectedDay changes
+  // Helper function to group workout log entries by exercise
+  const groupWorkoutLogByExercise = (workoutLogData: any[]) => {
+    const grouped: Record<string, any[]> = {};
+
+    if (workoutLogData && Array.isArray(workoutLogData)) {
+      workoutLogData.forEach((entry) => {
+        const exerciseId = entry.programExerciseId;
+        if (!grouped[exerciseId]) {
+          grouped[exerciseId] = [];
+        }
+        grouped[exerciseId].push(entry);
+      });
+    }
+
+    return grouped;
+  };
+
+  // Initialize sets when selectedDay or workoutLog changes
   useEffect(() => {
     if (selectedDay) {
       const initialSets: Record<string, SetData[]> = {};
       const initialValidationAttempts: Record<string, boolean[]> = {};
 
+      // Group workout log data by exercise
+      const loggedExercises = workoutLog?.data[0]?.workoutExercises
+        ? groupWorkoutLogByExercise(workoutLog.data[0]?.workoutExercises)
+        : {};
+
       selectedDay.exercises.forEach((exercise) => {
+        const loggedExercise = loggedExercises[exercise.exerciseId] || [];
+
         initialSets[exercise.exerciseId] = Array.from(
           { length: exercise.sets },
-          () => ({
-            weight: 0,
-            weightUnit: "lb",
-            reps: 0,
-            leftReps: 0,
-            rightReps: 0,
-            isLogged: Math.random() > 0.7, // 30% chance of being logged for demo
-          })
+          (_, index) => {
+            const loggedSet = loggedExercise.find(
+              (set) => set.workoutSets[index]?.setNumber === index + 1
+            );
+
+            if (loggedSet) {
+              // Use data from workout log
+              return {
+                weight: loggedSet.workoutSets[index]?.weight || 0,
+                weightUnit: loggedSet.weightUnit || "lb",
+                reps:
+                  loggedSet.workoutSets[index]?.repsLeft &&
+                  loggedSet.workoutSets[index]?.repsRight
+                    ? (loggedSet.workoutSets[index]?.repsLeft +
+                        loggedSet.workoutSets[index]?.repsRight) /
+                      2
+                    : loggedSet.workoutSets[index]?.repsLeft ||
+                      loggedSet.workoutSets[index]?.repsRight ||
+                      0,
+                leftReps: loggedSet.workoutSets[index]?.repsLeft || 0,
+                rightReps: loggedSet.workoutSets[index]?.repsRight || 0,
+                isLogged: true, // Already logged
+              };
+            } else {
+              // Empty set for unlogged exercises
+              return {
+                weight: 0,
+                weightUnit: "lb",
+                reps: 0,
+                leftReps: 0,
+                rightReps: 0,
+                isLogged: false,
+              };
+            }
+          }
         );
 
         initialValidationAttempts[exercise.exerciseId] = Array.from(
@@ -39,7 +94,7 @@ export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
       setExerciseSets(initialSets);
       setValidationAttempts(initialValidationAttempts);
     }
-  }, [selectedDay]);
+  }, [selectedDay, workoutLog]);
 
   const updateSetData = (
     exerciseId: string,
@@ -63,6 +118,11 @@ export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
                 updatedSet.rightReps = Number(value);
               }
             }
+
+            // If this set was previously logged and we're editing it,
+            // we need to mark it as needing to be re-saved
+            // For now, we'll keep it as logged but this could be extended
+            // to have a "modified" state if needed
 
             return updatedSet;
           }

@@ -40,11 +40,11 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const { data: workoutLog } = useGetWorkoutLogQuery({
     userId: user?.user_id,
     programId: program.programId,
-    startDate: new Date(selectedDate).toISOString().split("T")[0],
-    endDate: new Date(selectedDate).toISOString().split("T")[0],
+    startDate: format(selectedDate, "yyyy-MM-dd"),
+    endDate: format(selectedDate, "yyyy-MM-dd"),
   });
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
-  console.log(workoutLog);
+
   const { selectedDay } = useWorkoutDay(program, selectedDate);
   const {
     exerciseSets,
@@ -53,16 +53,14 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     isFieldInvalid,
     isExerciseFullyLogged,
     hasLoggedSets,
-  } = useExerciseSets(selectedDay);
+  } = useExerciseSets(selectedDay, workoutLog);
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
     const workoutLogPayload: WorkoutLogPayload = {
       workoutName: program.programName,
-      workoutDate: new Date(selectedDate).toISOString().split("T")[0],
+      workoutDate: format(selectedDate, "yyyy-MM-dd"),
       ...exercisePayload,
     };
-
-    console.log(exercisePayload);
 
     if (
       exercisePayload.weight === 0 &&
