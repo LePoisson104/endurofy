@@ -11,19 +11,40 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { Exercise } from "@/interfaces/workout-program-interfaces";
-import { WorkoutLogFormProps } from "@/interfaces/workout-log-interfaces";
+import {
+  WorkoutLogFormProps,
+  ExercisePayload,
+  WorkoutLogPayload,
+} from "@/interfaces/workout-log-interfaces";
 import ExerciseTable from "./exercise-table";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
 import { useWorkoutDay } from "@/hooks/use-workout-day";
 import { Badge } from "@/components/ui/badge";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import {
+  useGetWorkoutLogQuery,
+  useCreateWorkoutLogMutation,
+} from "@/api/workout-log/workout-log-api-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
+  const user = useSelector(selectCurrentUser);
   const [isEditing, setIsEditing] = useState(false);
   const [showPrevious, setShowPrevious] = useState(false);
   const [exerciseNotes, setExerciseNotes] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
+  const { data: workoutLog } = useGetWorkoutLogQuery({
+    userId: user?.user_id,
+    programId: program.programId,
+    startDate: new Date(selectedDate).toISOString().split("T")[0],
+    endDate: new Date(selectedDate).toISOString().split("T")[0],
+  });
+  const [createWorkoutLog] = useCreateWorkoutLogMutation();
+  console.log(workoutLog);
   const { selectedDay } = useWorkoutDay(program, selectedDate);
   const {
     exerciseSets,
@@ -33,6 +54,39 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     isExerciseFullyLogged,
     hasLoggedSets,
   } = useExerciseSets(selectedDay);
+
+  const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
+    const workoutLogPayload: WorkoutLogPayload = {
+      workoutName: program.programName,
+      workoutDate: new Date(selectedDate).toISOString().split("T")[0],
+      ...exercisePayload,
+    };
+
+    console.log(exercisePayload);
+
+    if (
+      exercisePayload.weight === 0 &&
+      exercisePayload.repsLeft === 0 &&
+      exercisePayload.repsRight === 0
+    ) {
+      setError("Weight and reps cannot be 0");
+      return;
+    }
+
+    try {
+      await createWorkoutLog({
+        userId: user?.user_id || "",
+        programId: program.programId || "",
+        workoutLog: workoutLogPayload,
+      }).unwrap();
+    } catch (error: any) {
+      if (error) {
+        setError(error.data.message);
+      } else {
+        setError("Internal server error. Failed to save workout log");
+      }
+    }
+  };
 
   if (!selectedDay) {
     return (
@@ -59,6 +113,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
 
   return (
     <div className="space-y-6">
+      <ErrorAlert error={error} setError={setError} />
       <div className="flex flex-col space-y-4">
         <div className="space-y-2 flex justify-between items-center w-full">
           <div className="flex">
@@ -132,6 +187,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                   </div>
 
                   <ExerciseTable
+                    onSaveExerciseSets={onSaveExerciseSets}
                     exercise={exercise}
                     exerciseSets={sets}
                     updateSetData={updateSetData}

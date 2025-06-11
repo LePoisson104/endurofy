@@ -1,5 +1,8 @@
 import { Exercise } from "../../../interfaces/workout-program-interfaces";
-import { SetData } from "../../../interfaces/workout-log-interfaces";
+import {
+  SetData,
+  ExercisePayload,
+} from "../../../interfaces/workout-log-interfaces";
 import {
   Table,
   TableHeader,
@@ -16,6 +19,7 @@ import { Edit } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface ExerciseTableProps {
+  onSaveExerciseSets: (exercisePayload: ExercisePayload) => void;
   exercise: Exercise;
   exerciseSets: SetData[];
   updateSetData: (
@@ -41,6 +45,7 @@ interface ExerciseTableProps {
 }
 
 export default function ExerciseTable({
+  onSaveExerciseSets,
   exercise,
   exerciseSets,
   updateSetData,
@@ -54,24 +59,23 @@ export default function ExerciseTable({
   // Function to log set data to console
   const logSetData = (
     setData: SetData,
-    setIndex: number,
-    exercise: Exercise
+    exercise: Exercise,
+    setIndex: number
   ) => {
-    console.log("Set Data for Exercise:", exercise.exerciseName);
-    console.log("Set Index:", setIndex + 1);
-    console.log("Current Set Data:", {
+    const exercisePayload: ExercisePayload = {
+      exerciseNotes: "",
+      exerciseName: exercise.exerciseName,
+      bodyPart: exercise.bodyPart,
+      laterality: exercise.laterality,
+      setNumber: setIndex + 1,
+      repsLeft: setData.leftReps,
+      repsRight: setData.rightReps,
       weight: setData.weight,
-      reps: setData.reps,
-      leftReps: setData.leftReps,
-      rightReps: setData.rightReps,
-      isLogged: setData.isLogged,
-      exercise: {
-        exerciseId: exercise.exerciseId,
-        exerciseName: exercise.exerciseName,
-        bodyPart: exercise.bodyPart,
-        laterality: exercise.laterality,
-      },
-    });
+      weightUnit: setData.weightUnit as "kg" | "lb",
+      programExerciseId: exercise.exerciseId,
+      exerciseOrder: exercise.exerciseOrder,
+    };
+    onSaveExerciseSets(exercisePayload);
   };
 
   // Handle checkbox toggle with logging
@@ -82,7 +86,7 @@ export default function ExerciseTable({
     setData: SetData
   ) => {
     // Log the current set data
-    logSetData(setData, setIndex, exercise);
+    logSetData(setData, exercise, setIndex);
 
     // Call the original toggle function
     toggleSetLogged(exerciseId, setIndex, exercise);

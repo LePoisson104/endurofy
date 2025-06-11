@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { format, parseISO, isSameDay } from "date-fns";
+import { useState, useEffect } from "react";
+import { format, parseISO } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutLogForm } from "./workout-log-form";
 import { WorkoutLogHistory } from "./workout-log-history";

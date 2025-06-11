@@ -21,10 +21,11 @@ export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
         initialSets[exercise.exerciseId] = Array.from(
           { length: exercise.sets },
           () => ({
-            weight: "",
-            reps: "",
-            leftReps: "",
-            rightReps: "",
+            weight: 0,
+            weightUnit: "lb",
+            reps: 0,
+            leftReps: 0,
+            rightReps: 0,
             isLogged: Math.random() > 0.7, // 30% chance of being logged for demo
           })
         );
@@ -43,15 +44,34 @@ export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
   const updateSetData = (
     exerciseId: string,
     setIndex: number,
-    field: "weight" | "reps" | "leftReps" | "rightReps",
-    value: string
+    field: "weight" | "reps" | "leftReps" | "rightReps" | "weightUnit",
+    value: string | number
   ) => {
-    setExerciseSets((prev) => ({
-      ...prev,
-      [exerciseId]: prev[exerciseId].map((set, index) =>
-        index === setIndex ? { ...set, [field]: value } : set
-      ),
-    }));
+    setExerciseSets((prev) => {
+      const updatedSets = {
+        ...prev,
+        [exerciseId]: prev[exerciseId].map((set, index) => {
+          if (index === setIndex) {
+            const updatedSet = { ...set, [field]: value };
+
+            // If updating reps and leftReps/rightReps are empty or zero, sync them
+            if (field === "reps" && value && Number(value) > 0) {
+              if (!updatedSet.leftReps || updatedSet.leftReps <= 0) {
+                updatedSet.leftReps = Number(value);
+              }
+              if (!updatedSet.rightReps || updatedSet.rightReps <= 0) {
+                updatedSet.rightReps = Number(value);
+              }
+            }
+
+            return updatedSet;
+          }
+          return set;
+        }),
+      };
+
+      return updatedSets;
+    });
   };
 
   const validateSet = (
@@ -62,14 +82,19 @@ export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
     const currentSet = exerciseSets[exerciseId]?.[setIndex];
     if (!currentSet) return false;
 
-    // Check weight
-    if (!currentSet.weight?.trim()) return false;
+    // Check weight (must be greater than 0)
+    if (!currentSet.weight || currentSet.weight <= 0) return false;
 
     // Check reps based on exercise laterality
     if (exercise.laterality === "unilateral") {
-      return !!(currentSet.leftReps?.trim() && currentSet.rightReps?.trim());
+      return !!(
+        currentSet.leftReps &&
+        currentSet.leftReps > 0 &&
+        currentSet.rightReps &&
+        currentSet.rightReps > 0
+      );
     } else {
-      return !!currentSet.reps?.trim();
+      return !!(currentSet.reps && currentSet.reps > 0);
     }
   };
 
@@ -117,9 +142,11 @@ export const useExerciseSets = (selectedDay: WorkoutDay | null) => {
 
     const wasValidationAttempted =
       validationAttempts[exerciseId]?.[setIndex] || false;
-    const fieldValue = currentSet[field] as string;
+    const fieldValue = currentSet[field] as number;
     return (
-      wasValidationAttempted && !currentSet.isLogged && !fieldValue?.trim()
+      wasValidationAttempted &&
+      !currentSet.isLogged &&
+      (!fieldValue || fieldValue <= 0)
     );
   };
 
