@@ -121,32 +121,30 @@ function SortableTableRow({
           <TableCell className="w-8">
             <button
               {...listeners}
-              className="touch-none cursor-grab active:cursor-grabbing"
+              className="touch-none cursor-grab active:cursor-grabbing flex items-center"
               aria-label="Drag handle"
             >
               <GripVertical className="h-4 w-4 text-slate-400" />
             </button>
           </TableCell>
           <TableCell>
-            <div className="space-y-2">
-              <Label htmlFor="exercise-name" className="sr-only">
-                Exercise Name
-              </Label>
-              <Input
-                id="exercise-name"
-                placeholder="Exercise name"
-                value={editedExercise?.exerciseName || ""}
-                onChange={(e) =>
-                  setEditedExercise({
-                    ...editedExercise!,
-                    exerciseName: e.target.value,
-                  })
-                }
-                className="w-full text-sm"
-              />
-            </div>
+            <Label htmlFor="exercise-name" className="sr-only">
+              Exercise Name
+            </Label>
+            <Input
+              id="exercise-name"
+              placeholder="Exercise name"
+              value={editedExercise?.exerciseName || ""}
+              onChange={(e) =>
+                setEditedExercise({
+                  ...editedExercise!,
+                  exerciseName: e.target.value,
+                })
+              }
+              className="w-full text-sm"
+            />
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell className="flex justify-center items-center mx-3">
             <Label htmlFor="exercise-sets" className="sr-only">
               Sets
             </Label>
@@ -162,7 +160,7 @@ function SortableTableRow({
                     e.target.value === "" ? 0 : Number.parseInt(e.target.value),
                 })
               }
-              className="w-16 text-center mx-auto flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+              className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
             />
           </TableCell>
           <TableCell>
@@ -208,7 +206,7 @@ function SortableTableRow({
               />
             </div>
           </TableCell>
-          <TableCell>
+          <TableCell className="flex justify-center items-center ml-3">
             <Label htmlFor="exercise-sets" className="sr-only">
               Laterality
             </Label>
@@ -265,7 +263,7 @@ function SortableTableRow({
             <TableCell className="w-8">
               <button
                 {...listeners}
-                className="touch-none cursor-grab active:cursor-grabbing"
+                className="touch-none cursor-grab active:cursor-grabbing flex items-center"
                 aria-label="Drag handle"
               >
                 <GripVertical className="h-4 w-4 text-slate-400" />
