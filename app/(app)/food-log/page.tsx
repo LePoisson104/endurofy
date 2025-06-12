@@ -265,8 +265,7 @@ export default function FoodLogPage() {
               <div className="flex gap-2 text-xs">
                 <span>{Math.round(mealMacros.calories)} kcal</span>
                 <span>•</span>
-                <span>P: {Math.round(mealMacros.protein)}g</span>
-                <span>•</span>
+                <span>P: {Math.round(mealMacros.protein)}g</span>3<span>•</span>
                 <span>C: {Math.round(mealMacros.carbs)}g</span>
                 <span>•</span>
                 <span>F: {Math.round(mealMacros.fat)}g</span>

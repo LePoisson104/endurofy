@@ -208,7 +208,7 @@ function SortableTableRow({
               />
             </div>
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell>
             <Label htmlFor="exercise-sets" className="sr-only">
               Laterality
             </Label>

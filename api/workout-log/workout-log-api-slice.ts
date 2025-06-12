@@ -32,8 +32,18 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
+    deleteWorkoutSet: builder.mutation({
+      query: ({ workoutSetId, workoutExerciseId }) => ({
+        url: `/api/v1/workout-log/delete-workout-set/${workoutSetId}/${workoutExerciseId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
   }),
 });
 
-export const { useGetWorkoutLogQuery, useCreateWorkoutLogMutation } =
-  workoutLogApiSlice;
+export const {
+  useGetWorkoutLogQuery,
+  useCreateWorkoutLogMutation,
+  useDeleteWorkoutSetMutation,
+} = workoutLogApiSlice;

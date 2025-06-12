@@ -49,37 +49,46 @@ export const useExerciseSets = (
         initialSets[exercise.exerciseId] = Array.from(
           { length: exercise.sets },
           (_, index) => {
-            const loggedSet = loggedExercise.find(
-              (set) => set.workoutSets[index]?.setNumber === index + 1
+            // Find the logged set that matches this set number (index + 1)
+            const loggedSet = loggedExercise.find((exerciseData: any) =>
+              exerciseData.workoutSets?.some(
+                (set: any) => set.setNumber === index + 1
+              )
             );
 
-            if (loggedSet) {
+            // If we found a matching exercise, get the specific set data
+            const setData = loggedSet?.workoutSets?.find(
+              (set: any) => set.setNumber === index + 1
+            );
+
+            if (setData) {
               // Use data from workout log
               return {
-                weight: loggedSet.workoutSets[index]?.weight || 0,
+                setNumber: setData.setNumber,
+                workoutSetId: setData.workoutSetId,
+                workoutExerciseId: setData.workoutExerciseId,
+                weight: setData.weight || 0,
                 weightUnit: loggedSet.weightUnit || "lb",
                 reps:
-                  loggedSet.workoutSets[index]?.repsLeft &&
-                  loggedSet.workoutSets[index]?.repsRight
-                    ? (loggedSet.workoutSets[index]?.repsLeft +
-                        loggedSet.workoutSets[index]?.repsRight) /
-                      2
-                    : loggedSet.workoutSets[index]?.repsLeft ||
-                      loggedSet.workoutSets[index]?.repsRight ||
-                      0,
-                leftReps: loggedSet.workoutSets[index]?.repsLeft || 0,
-                rightReps: loggedSet.workoutSets[index]?.repsRight || 0,
+                  setData.repsLeft && setData.repsRight
+                    ? (setData.repsLeft + setData.repsRight) / 2
+                    : setData.repsLeft || setData.repsRight || 0,
+                leftReps: setData.repsLeft || 0,
+                rightReps: setData.repsRight || 0,
                 isLogged: true, // Already logged
               };
             } else {
               // Empty set for unlogged exercises
               return {
+                setNumber: index + 1,
                 weight: 0,
                 weightUnit: "lb",
                 reps: 0,
                 leftReps: 0,
                 rightReps: 0,
                 isLogged: false,
+                workoutSetId: null,
+                workoutExerciseId: null,
               };
             }
           }

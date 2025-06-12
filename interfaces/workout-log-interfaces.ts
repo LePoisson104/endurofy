@@ -7,6 +7,9 @@ export interface SetData {
   rightReps: number;
   reps: number;
   isLogged: boolean;
+  workoutSetId: string | null;
+  workoutExerciseId: string | null;
+  setNumber: number;
 }
 
 export interface WorkoutLogFormProps {
