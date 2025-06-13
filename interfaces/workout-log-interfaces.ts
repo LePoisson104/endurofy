@@ -1,6 +1,7 @@
 import type { WorkoutProgram } from "./workout-program-interfaces";
 
 export interface SetData {
+  workoutLogId: string | null;
   weight: number;
   weightUnit: string;
   leftReps: number;

@@ -32,9 +32,17 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
+    updateExerciseNotes: builder.mutation({
+      query: ({ workoutExerciseId, exerciseNotes }) => ({
+        url: `/api/v1/workout-log/update-exercise-notes/${workoutExerciseId}`,
+        method: "PATCH",
+        body: { exerciseNotes },
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
     deleteWorkoutSet: builder.mutation({
-      query: ({ workoutSetId, workoutExerciseId }) => ({
-        url: `/api/v1/workout-log/delete-workout-set/${workoutSetId}/${workoutExerciseId}`,
+      query: ({ workoutSetId, workoutExerciseId, workoutLogId }) => ({
+        url: `/api/v1/workout-log/delete-workout-set/${workoutSetId}/${workoutExerciseId}/${workoutLogId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
@@ -46,4 +54,5 @@ export const {
   useGetWorkoutLogQuery,
   useCreateWorkoutLogMutation,
   useDeleteWorkoutSetMutation,
+  useUpdateExerciseNotesMutation,
 } = workoutLogApiSlice;

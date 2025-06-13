@@ -64,6 +64,7 @@ export const useExerciseSets = (
             if (setData) {
               // Use data from workout log
               return {
+                workoutLogId: loggedExercise[0]?.workoutLogId,
                 setNumber: setData.setNumber,
                 workoutSetId: setData.workoutSetId,
                 workoutExerciseId: setData.workoutExerciseId,
@@ -80,6 +81,7 @@ export const useExerciseSets = (
             } else {
               // Empty set for unlogged exercises
               return {
+                workoutLogId: null,
                 setNumber: index + 1,
                 weight: 0,
                 weightUnit: "lb",
@@ -229,6 +231,20 @@ export const useExerciseSets = (
     return sets.some((set) => set.isLogged);
   };
 
+  const getWorkoutExerciseId = (exerciseId: string): string => {
+    return (
+      exerciseSets[exerciseId]?.find((set) => set.isLogged)
+        ?.workoutExerciseId || ""
+    );
+  };
+
+  const getExerciseNotes = (workoutExerciseId: string): string => {
+    const notes = workoutLog?.data[0]?.workoutExercises.find(
+      (exercise: any) => exercise.workoutExerciseId === workoutExerciseId
+    )?.notes;
+    return notes || "";
+  };
+
   return {
     exerciseSets,
     updateSetData,
@@ -236,5 +252,7 @@ export const useExerciseSets = (
     isFieldInvalid,
     isExerciseFullyLogged,
     hasLoggedSets,
+    getWorkoutExerciseId,
+    getExerciseNotes,
   };
 };

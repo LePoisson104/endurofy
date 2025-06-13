@@ -103,10 +103,15 @@ export default function ExerciseTable({
 
   const handleDeleteSet = async (
     workoutSetId: string | null,
-    workoutExerciseId: string | null
+    workoutExerciseId: string | null,
+    workoutLogId: string | null
   ) => {
     try {
-      await deleteWorkoutSet({ workoutSetId, workoutExerciseId }).unwrap();
+      await deleteWorkoutSet({
+        workoutSetId,
+        workoutExerciseId,
+        workoutLogId,
+      }).unwrap();
     } catch (error: any) {
       if (!error.status) {
         setError("No Server Response");
@@ -177,6 +182,7 @@ export default function ExerciseTable({
               isLogged: false,
               workoutSetId: null,
               workoutExerciseId: null,
+              workoutLogId: null,
               setNumber: setIndex + 1,
             };
 
@@ -354,7 +360,8 @@ export default function ExerciseTable({
                           onClick={() =>
                             handleDeleteSet(
                               setData.workoutSetId,
-                              setData.workoutExerciseId
+                              setData.workoutExerciseId,
+                              setData.workoutLogId
                             )
                           }
                         >

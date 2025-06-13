@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,8 +25,10 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import {
   useGetWorkoutLogQuery,
   useCreateWorkoutLogMutation,
+  useUpdateExerciseNotesMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
+import { useDebounceCallback } from "@/hooks/use-debounce";
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
@@ -34,7 +36,9 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const user = useSelector(selectCurrentUser);
   const [isEditing, setIsEditing] = useState(false);
   const [showPrevious, setShowPrevious] = useState(false);
-  const [exerciseNotes, setExerciseNotes] = useState("");
+  const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
+    {}
+  );
   const [error, setError] = useState<string | null>(null);
 
   const { data: workoutLog } = useGetWorkoutLogQuery({
@@ -43,7 +47,10 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     startDate: format(selectedDate, "yyyy-MM-dd"),
     endDate: format(selectedDate, "yyyy-MM-dd"),
   });
+
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
+  const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
+    useUpdateExerciseNotesMutation();
 
   const { selectedDay } = useWorkoutDay(program, selectedDate);
   const {
@@ -53,7 +60,77 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     isFieldInvalid,
     isExerciseFullyLogged,
     hasLoggedSets,
+    getWorkoutExerciseId,
+    getExerciseNotes,
   } = useExerciseSets(selectedDay, workoutLog);
+
+  // Load existing notes when workout log data is available
+  useEffect(() => {
+    if (selectedDay && workoutLog) {
+      const initialNotes: { [id: string]: string } = {};
+
+      selectedDay.exercises.forEach((exercise) => {
+        const workoutExerciseId = getWorkoutExerciseId(exercise.exerciseId);
+        const existingNotes = getExerciseNotes(workoutExerciseId);
+
+        if (existingNotes && existingNotes.trim()) {
+          initialNotes[workoutExerciseId] = existingNotes;
+        }
+      });
+
+      // Only update state if there are actually notes to set
+      if (Object.keys(initialNotes).length > 0) {
+        setExerciseNotes((prev) => ({
+          ...prev,
+          ...initialNotes,
+        }));
+      }
+    }
+  }, [selectedDay, workoutLog]); // Remove function dependencies
+
+  const debouncedSaveNote = useDebounceCallback(
+    async (workoutExerciseId: string, notes: string) => {
+      if (!workoutExerciseId && notes.trim() === "") {
+        return;
+      }
+
+      try {
+        await updateExerciseNotes({
+          workoutExerciseId: workoutExerciseId,
+          exerciseNotes: notes.trim(),
+        }).unwrap();
+      } catch (error: any) {
+        if (error) {
+          setError(error.data.message);
+        } else {
+          setError("Internal server error. Failed to save exercise notes");
+        }
+      }
+    },
+    2000
+  );
+
+  const handleNotesChange = (workoutExerciseId: string, notes: string) => {
+    // Update UI immediately
+    setExerciseNotes((prev) => ({
+      ...prev,
+      [workoutExerciseId]: notes,
+    }));
+
+    // Save to API with debounce
+    debouncedSaveNote(workoutExerciseId, notes);
+  };
+
+  // Get the current value for a textarea (local state takes precedence over saved notes)
+  const getCurrentNoteValue = (workoutExerciseId: string): string => {
+    // If we have local changes, use those
+    if (exerciseNotes[workoutExerciseId] !== undefined) {
+      return exerciseNotes[workoutExerciseId];
+    }
+
+    // Otherwise, use the saved notes from the database
+    return getExerciseNotes(workoutExerciseId) || "";
+  };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
     const workoutLogPayload: WorkoutLogPayload = {
@@ -67,7 +144,6 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
       exercisePayload.repsLeft === 0 &&
       exercisePayload.repsRight === 0
     ) {
-      setError("Weight and reps cannot be 0");
       return;
     }
 
@@ -199,14 +275,34 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                   <div className="space-y-2">
                     <Label htmlFor="workout-notes">
                       Exercise Notes
-                      <span className="text-sm text-slate-500">(optional)</span>
+                      <span className="text-sm text-slate-500">
+                        {isUpdatingExerciseNotes
+                          ? "(Saving...)"
+                          : getExerciseNotes(
+                              getWorkoutExerciseId(exercise.exerciseId)
+                            ) !== ""
+                          ? "(Saved)"
+                          : "(Optional)"}
+                      </span>
                     </Label>
                     <Textarea
                       id="workout-notes"
-                      placeholder="Add notes about this exercise..."
+                      placeholder={
+                        hasAnyLoggedSets
+                          ? "Add notes about this exercise..."
+                          : "No sets logged yet"
+                      }
                       className="min-h-[80px]"
-                      value={exerciseNotes}
-                      onChange={(e) => setExerciseNotes(e.target.value)}
+                      value={getCurrentNoteValue(
+                        getWorkoutExerciseId(exercise.exerciseId)
+                      )}
+                      onChange={(e) =>
+                        handleNotesChange(
+                          getWorkoutExerciseId(exercise.exerciseId),
+                          e.target.value
+                        )
+                      }
+                      disabled={!hasAnyLoggedSets}
                     />
                   </div>
                 </div>
