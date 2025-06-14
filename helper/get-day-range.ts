@@ -44,3 +44,27 @@ export const getDateRange = ({ currentMonth }: { currentMonth: Date }) => {
     endDateOfPreviousMonth: endDateOfPreviousMonth.toISOString().split("T")[0],
   };
 };
+
+export const getStartOfPreviousAndEndOfNextMonth = ({
+  currentMonth,
+}: {
+  currentMonth: Date;
+}) => {
+  const startDateOfPreviousMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() - 1,
+    1
+  );
+  const endDateOfPreviousMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 2,
+    0
+  );
+
+  return {
+    startDateOfPreviousMonth: startDateOfPreviousMonth
+      .toISOString()
+      .split("T")[0],
+    endDateOfPreviousMonth: endDateOfPreviousMonth.toISOString().split("T")[0],
+  };
+};

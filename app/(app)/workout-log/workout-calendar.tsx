@@ -24,21 +24,39 @@ import type {
   WorkoutProgram,
   WorkoutDay,
 } from "../../../interfaces/workout-program-interfaces";
+import { useGetWorkoutLogDatesQuery } from "@/api/workout-log/workout-log-api-slice";
+import { getStartOfPreviousAndEndOfNextMonth } from "@/helper/get-day-range";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 
 interface WorkoutCalendarProps {
-  workoutLogs: any[];
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   program?: WorkoutProgram;
 }
 
 export function WorkoutCalendar({
-  workoutLogs,
   selectedDate,
   onSelectDate,
   program,
 }: WorkoutCalendarProps) {
+  const user = useSelector(selectCurrentUser);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const { startDateOfPreviousMonth, endDateOfPreviousMonth } =
+    getStartOfPreviousAndEndOfNextMonth({
+      currentMonth: new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        1
+      ),
+    });
+
+  const { data: workoutLogs } = useGetWorkoutLogDatesQuery({
+    userId: user?.user_id || "",
+    programId: program?.programId || "",
+    startDate: startDateOfPreviousMonth,
+    endDate: endDateOfPreviousMonth,
+  });
 
   // Get days in current month
   const monthStart = startOfMonth(currentMonth);
@@ -61,7 +79,16 @@ export function WorkoutCalendar({
 
   // Check if a day has a workout log
   const hasWorkout = (day: Date) => {
-    return workoutLogs.some((log) => isSameDay(parseISO(log.date), day));
+    return workoutLogs?.data.some((log: any) =>
+      isSameDay(parseISO(log.workout_date), day)
+    );
+  };
+
+  const hasCompletedWorkout = (day: Date) => {
+    return workoutLogs?.data.some(
+      (log: any) =>
+        isSameDay(parseISO(log.workout_date), day) && log.status === "completed"
+    );
   };
 
   // Check if a day has a scheduled workout in the program
@@ -244,6 +271,7 @@ export function WorkoutCalendar({
                 const isSelected = isSameDay(day, selectedDate);
                 const dayHasWorkout = hasWorkout(day);
                 const dayHasScheduledWorkout = hasScheduledWorkout(day);
+                const dayHasCompletedWorkout = hasCompletedWorkout(day);
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const isFuture = isFutureDay(day);
                 const isInCurrentWeekOrRotation =
@@ -273,7 +301,7 @@ export function WorkoutCalendar({
                           !isSelected &&
                           "border-2 border-blue-600 dark:border-blue-300",
                         !isCurrentMonth && "text-slate-500 dark:text-slate-400",
-                        dayHasWorkout && "bg-green-50 dark:bg-green-950",
+                        dayHasWorkout && "bg-green-200 dark:bg-green-700",
                         isFuture && "opacity-50 cursor-not-allowed",
                         // Keep the original logic for scheduled workouts
                         isInCurrentWeekOrRotation &&
@@ -288,8 +316,8 @@ export function WorkoutCalendar({
                     >
                       <div className="flex flex-col items-center justify-center">
                         <span>{format(day, "d")}</span>
-                        {dayHasWorkout && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1"></div>
+                        {dayHasWorkout && dayHasCompletedWorkout && (
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1" />
                         )}
                         {isInCurrentWeekOrRotation &&
                           dayHasScheduledWorkout &&
@@ -309,8 +337,12 @@ export function WorkoutCalendar({
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-green-700 rounded-sm"></div>
+          <div className="border-b border-2 rounded-full border-green-500 w-[23px]" />
           <span>Completed</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+          <span>Logged Workouts</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="border-b border-2 rounded-full border-blue-600 dark:border-blue-400 w-[23px]" />

@@ -16,6 +16,19 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         { type: "WorkoutLog", id: "LIST" },
       ],
     }),
+    getWorkoutLogDates: builder.query({
+      query: ({ userId, programId, startDate, endDate }) => ({
+        url: `/api/v1/workout-log/get-workout-log-dates/${userId}/${programId}/${startDate}/${endDate}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, arg) => [
+        {
+          type: "WorkoutLog",
+          id: `${arg.userId}-${arg.programId}-${arg.startDate}-${arg.endDate}`,
+        },
+        { type: "WorkoutLog", id: "LIST" },
+      ],
+    }),
     createWorkoutLog: builder.mutation({
       query: ({
         userId,
@@ -40,6 +53,14 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
+    updateWorkoutSet: builder.mutation({
+      query: ({ workoutSetId, workoutExerciseId, workoutSetPayload }) => ({
+        url: `/api/v1/workout-log/update-workout-set/${workoutSetId}/${workoutExerciseId}`,
+        method: "PATCH",
+        body: workoutSetPayload,
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
     deleteWorkoutSet: builder.mutation({
       query: ({ workoutSetId, workoutExerciseId, workoutLogId }) => ({
         url: `/api/v1/workout-log/delete-workout-set/${workoutSetId}/${workoutExerciseId}/${workoutLogId}`,
@@ -52,7 +73,9 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetWorkoutLogQuery,
+  useGetWorkoutLogDatesQuery,
   useCreateWorkoutLogMutation,
   useDeleteWorkoutSetMutation,
   useUpdateExerciseNotesMutation,
+  useUpdateWorkoutSetMutation,
 } = workoutLogApiSlice;

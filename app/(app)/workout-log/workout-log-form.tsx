@@ -289,9 +289,10 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                       id="workout-notes"
                       placeholder={
                         hasAnyLoggedSets
-                          ? "Add notes about this exercise..."
+                          ? "Add notes about this exercise... (max 200 characters)"
                           : "No sets logged yet"
                       }
+                      maxLength={200}
                       className="min-h-[80px]"
                       value={getCurrentNoteValue(
                         getWorkoutExerciseId(exercise.exerciseId)
@@ -308,12 +309,6 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                 </div>
               );
             })}
-
-          <div className="flex justify-end pt-4">
-            <Button className="w-[170px]" disabled={!isEditing}>
-              Complete Workout
-            </Button>
-          </div>
         </div>
       )}
     </div>

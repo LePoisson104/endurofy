@@ -11,14 +11,16 @@ import {
   TableCell,
   TableBody,
 } from "@/components/ui/table";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { Edit } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useDeleteWorkoutSetMutation } from "@/api/workout-log/workout-log-api-slice";
-import { useState } from "react";
+import {
+  useDeleteWorkoutSetMutation,
+  useUpdateWorkoutSetMutation,
+} from "@/api/workout-log/workout-log-api-slice";
+import { useState, useEffect } from "react";
 import ErrorAlert from "@/components/alerts/error-alert";
 
 interface ExerciseTableProps {
@@ -59,6 +61,148 @@ export default function ExerciseTable({
   isMobile,
   showPrevious,
 }: ExerciseTableProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
+  const [successSetId, setSuccessSetId] = useState<string | null>(null);
+  const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
+  const [originalValues, setOriginalValues] = useState<{
+    [setId: string]: SetData;
+  }>({});
+
+  const [deleteWorkoutSet, { isLoading: isDeleting }] =
+    useDeleteWorkoutSetMutation();
+  const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
+
+  // Store original values when sets are first loaded
+  useEffect(() => {
+    const originals: { [setId: string]: SetData } = {};
+    exerciseSets.forEach((setData) => {
+      if (
+        setData.isLogged &&
+        setData.workoutSetId &&
+        !originalValues[setData.workoutSetId]
+      ) {
+        originals[setData.workoutSetId] = { ...setData };
+      }
+    });
+    if (Object.keys(originals).length > 0) {
+      setOriginalValues((prev) => ({ ...prev, ...originals }));
+    }
+  }, [exerciseSets]);
+
+  // Reset unsaved changes when exiting edit mode
+  useEffect(() => {
+    if (!isEditing && modifiedSets.size > 0) {
+      // Reset any unsaved changes back to original values
+      modifiedSets.forEach((setId) => {
+        const original = originalValues[setId];
+        if (original) {
+          // Find the set index for this setId
+          const setIndex = exerciseSets.findIndex(
+            (set) => set.workoutSetId === setId
+          );
+          if (setIndex !== -1) {
+            // Reset each field back to original value
+            if (exerciseSets[setIndex].weight !== original.weight) {
+              updateSetData(
+                exercise.exerciseId,
+                setIndex,
+                "weight",
+                String(original.weight || "")
+              );
+            }
+            if (exerciseSets[setIndex].reps !== original.reps) {
+              updateSetData(
+                exercise.exerciseId,
+                setIndex,
+                "reps",
+                String(original.reps || "")
+              );
+            }
+            if (exerciseSets[setIndex].leftReps !== original.leftReps) {
+              updateSetData(
+                exercise.exerciseId,
+                setIndex,
+                "leftReps",
+                String(original.leftReps || "")
+              );
+            }
+            if (exerciseSets[setIndex].rightReps !== original.rightReps) {
+              updateSetData(
+                exercise.exerciseId,
+                setIndex,
+                "rightReps",
+                String(original.rightReps || "")
+              );
+            }
+          }
+        }
+      });
+
+      // Clear modified sets after reset
+      setModifiedSets(new Set());
+    }
+  }, [
+    isEditing,
+    modifiedSets,
+    originalValues,
+    exerciseSets,
+    exercise.exerciseId,
+    updateSetData,
+  ]);
+
+  // Check if current values differ from original values
+  const hasActualChanges = (setData: SetData): boolean => {
+    if (!setData.workoutSetId || !originalValues[setData.workoutSetId]) {
+      return false;
+    }
+
+    const original = originalValues[setData.workoutSetId];
+    const hasChanges =
+      String(setData.weight || "") !== String(original.weight || "") ||
+      String(setData.reps || "") !== String(original.reps || "") ||
+      String(setData.leftReps || "") !== String(original.leftReps || "") ||
+      String(setData.rightReps || "") !== String(original.rightReps || "");
+
+    // Debug logging
+    console.log("hasActualChanges check:", {
+      setId: setData.workoutSetId,
+      current: {
+        weight: String(setData.weight || ""),
+        reps: String(setData.reps || ""),
+        leftReps: String(setData.leftReps || ""),
+        rightReps: String(setData.rightReps || ""),
+      },
+      original: {
+        weight: String(original.weight || ""),
+        reps: String(original.reps || ""),
+        leftReps: String(original.leftReps || ""),
+        rightReps: String(original.rightReps || ""),
+      },
+      hasChanges,
+    });
+
+    return hasChanges;
+  };
+
+  // Enhanced updateSetData that tracks modifications only if values actually changed
+  const handleUpdateSetData = (
+    exerciseId: string,
+    setIndex: number,
+    field: "weight" | "reps" | "leftReps" | "rightReps",
+    value: string
+  ) => {
+    // First update the data
+    updateSetData(exerciseId, setIndex, field, value);
+
+    // Simply mark any logged set as potentially modified when user types
+    // The actual change check will happen in the render
+    const setData = exerciseSets[setIndex];
+    if (setData?.workoutSetId && setData.isLogged) {
+      setModifiedSets((prev) => new Set(prev).add(setData.workoutSetId!));
+    }
+  };
+
   // Function to log set data to console
   const logSetData = (
     setData: SetData,
@@ -80,9 +224,6 @@ export default function ExerciseTable({
     };
     onSaveExerciseSets(exercisePayload);
   };
-  const [error, setError] = useState<string | null>(null);
-  const [deleteWorkoutSet, { isLoading: isDeleting }] =
-    useDeleteWorkoutSetMutation();
 
   // Handle checkbox toggle with logging
   const handleSetToggle = (
@@ -99,6 +240,83 @@ export default function ExerciseTable({
 
     // Call the original toggle function
     toggleSetLogged(exerciseId, setIndex, exercise);
+  };
+
+  const handleSaveSetChanges = async (setData: SetData) => {
+    const setId = setData.workoutSetId;
+    if (!setId) return;
+
+    setUpdatingSetId(setId);
+    setSuccessSetId(null); // Clear any previous success state
+
+    let workoutSetPayload = {};
+
+    if (exercise.laterality === "bilateral") {
+      workoutSetPayload = {
+        weight: setData.weight,
+        weightUnit: setData.weightUnit,
+        leftReps: Number(setData.reps),
+        rightReps: Number(setData.reps),
+      };
+    } else {
+      workoutSetPayload = {
+        weight: setData.weight,
+        weightUnit: setData.weightUnit,
+        leftReps: setData.leftReps,
+        rightReps: setData.rightReps,
+      };
+    }
+
+    try {
+      await updateWorkoutSet({
+        workoutSetId: setData.workoutSetId,
+        workoutExerciseId: setData.workoutExerciseId,
+        workoutSetPayload: workoutSetPayload,
+      }).unwrap();
+
+      // Show success state for this specific set
+      setSuccessSetId(setId);
+
+      // Update original values with the new saved values (use the exact values sent to API)
+      const updatedSetData = { ...setData };
+      if (exercise.laterality === "bilateral") {
+        updatedSetData.leftReps = Number(setData.reps);
+        updatedSetData.rightReps = Number(setData.reps);
+      }
+
+      setOriginalValues((prev) => {
+        const newOriginals = {
+          ...prev,
+          [setId]: updatedSetData,
+        };
+        console.log("Updated original values after save:", {
+          setId,
+          newOriginalValue: newOriginals[setId],
+          allOriginals: newOriginals,
+        });
+        return newOriginals;
+      });
+
+      // Remove from modified sets after successful save
+      setModifiedSets((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(setId);
+        return newSet;
+      });
+
+      // Clear success state after 2 seconds
+      setTimeout(() => {
+        setSuccessSetId(null);
+      }, 2000);
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else {
+        setError(error.data?.message);
+      }
+    } finally {
+      setUpdatingSetId(null);
+    }
   };
 
   const handleDeleteSet = async (
@@ -127,21 +345,23 @@ export default function ExerciseTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="w-[60px]">
-              <Check className="h-4 w-4 mx-auto" />
+            <TableHead className="w-[60px] text-center">
+              {!isEditing && hasLoggedSets ? (
+                <Check className="h-4 w-4 mx-auto" />
+              ) : (
+                "Actions"
+              )}
             </TableHead>
             <TableHead className="w-[60px] text-center">Set #</TableHead>
             <TableHead className="w-[120px] text-center">
-              Weight (lbs)
+              Weight {exercise.laterality === "bilateral" ? "(lbs)" : ""}
             </TableHead>
             {exercise.laterality === "unilateral" ? (
               <>
                 <TableHead className="w-[120px] text-center">
-                  Left Reps
+                  {isMobile ? "Left" : "Right"}
                 </TableHead>
-                <TableHead className="w-[120px] text-center">
-                  Right Reps
-                </TableHead>
+                <TableHead className="w-[120px] text-center">Right</TableHead>
               </>
             ) : (
               <TableHead className="w-[120px] text-center">Reps</TableHead>
@@ -167,9 +387,6 @@ export default function ExerciseTable({
                 )}
               </>
             )}
-            {isEditing && hasLoggedSets && (
-              <TableHead className="w-[120px] text-center">Actions</TableHead>
-            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -186,23 +403,81 @@ export default function ExerciseTable({
               setNumber: setIndex + 1,
             };
 
+            const isModified = setData.workoutSetId
+              ? modifiedSets.has(setData.workoutSetId) &&
+                hasActualChanges(setData)
+              : false;
+
             return (
               <TableRow key={`${exercise.exerciseId}-set-${setIndex}`}>
-                <TableCell className="text-center">
-                  <Checkbox
-                    checked={setData.isLogged}
-                    onCheckedChange={() => {
-                      handleSetToggle(
-                        exercise.exerciseId,
-                        setIndex,
-                        exercise,
-                        setData
-                      );
-                    }}
-                    disabled={setData.isLogged}
-                    className="h-4 w-4"
-                  />
-                </TableCell>
+                {setData.isLogged && isEditing ? (
+                  <TableCell className="text-center">
+                    <div className="flex justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleSaveSetChanges(setData)}
+                        disabled={
+                          !isModified || updatingSetId === setData.workoutSetId
+                        }
+                        title={
+                          !isModified
+                            ? "No changes to save"
+                            : updatingSetId === setData.workoutSetId
+                            ? "Saving..."
+                            : "Save changes to this set"
+                        }
+                      >
+                        {updatingSetId === setData.workoutSetId ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : successSetId === setData.workoutSetId ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">Save set</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-destructive"
+                        disabled={isDeleting}
+                        onClick={() =>
+                          handleDeleteSet(
+                            setData.workoutSetId,
+                            setData.workoutExerciseId,
+                            setData.workoutLogId
+                          )
+                        }
+                      >
+                        {isDeleting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        )}
+                        <span className="sr-only">Delete set</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                ) : (
+                  <TableCell className="text-center">
+                    <Checkbox
+                      checked={setData.isLogged}
+                      onCheckedChange={() => {
+                        handleSetToggle(
+                          exercise.exerciseId,
+                          setIndex,
+                          exercise,
+                          setData
+                        );
+                      }}
+                      disabled={setData.isLogged}
+                      className="h-4 w-4"
+                    />
+                  </TableCell>
+                )}
+
                 <TableCell className="font-medium text-center">
                   {setData.setNumber}
                 </TableCell>
@@ -214,15 +489,17 @@ export default function ExerciseTable({
                     step="2.5"
                     value={setData.weight}
                     onChange={(e) =>
-                      updateSetData(
+                      handleUpdateSetData(
                         exercise.exerciseId,
                         setIndex,
                         "weight",
                         e.target.value
                       )
                     }
-                    disabled={setData.isLogged}
-                    className={`w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                    disabled={setData.isLogged && !isEditing}
+                    className={`${
+                      isMobile ? "w-16" : "w-20"
+                    } mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                       setData.isLogged
                         ? "bg-muted/50"
                         : isFieldInvalid(
@@ -244,15 +521,17 @@ export default function ExerciseTable({
                         min="0"
                         value={setData.leftReps}
                         onChange={(e) =>
-                          updateSetData(
+                          handleUpdateSetData(
                             exercise.exerciseId,
                             setIndex,
                             "leftReps",
                             e.target.value
                           )
                         }
-                        disabled={setData.isLogged}
-                        className={`w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                        disabled={setData.isLogged && !isEditing}
+                        className={`${
+                          isMobile ? "w-13" : "w-20"
+                        } mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                           setData.isLogged
                             ? "bg-muted/50"
                             : isFieldInvalid(
@@ -272,15 +551,17 @@ export default function ExerciseTable({
                         min="0"
                         value={setData.rightReps}
                         onChange={(e) =>
-                          updateSetData(
+                          handleUpdateSetData(
                             exercise.exerciseId,
                             setIndex,
                             "rightReps",
                             e.target.value
                           )
                         }
-                        disabled={setData.isLogged}
-                        className={`w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                        disabled={setData.isLogged && !isEditing}
+                        className={`${
+                          isMobile ? "w-13" : "w-20"
+                        } mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                           setData.isLogged
                             ? "bg-muted/50"
                             : isFieldInvalid(
@@ -302,14 +583,14 @@ export default function ExerciseTable({
                       min="0"
                       value={setData.reps}
                       onChange={(e) =>
-                        updateSetData(
+                        handleUpdateSetData(
                           exercise.exerciseId,
                           setIndex,
                           "reps",
                           e.target.value
                         )
                       }
-                      disabled={setData.isLogged}
+                      disabled={setData.isLogged && !isEditing}
                       className={`w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                         setData.isLogged
                           ? "bg-muted/50"
@@ -344,35 +625,6 @@ export default function ExerciseTable({
                       </TableCell>
                     )}
                   </>
-                )}
-                {isEditing && hasLoggedSets && (
-                  <TableCell className="text-center">
-                    {setData.isLogged ? (
-                      <div className="flex justify-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit set</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() =>
-                            handleDeleteSet(
-                              setData.workoutSetId,
-                              setData.workoutExerciseId,
-                              setData.workoutLogId
-                            )
-                          }
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                          <span className="sr-only">Delete set</span>
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-slate-400 text-sm">-</span>
-                    )}
-                  </TableCell>
                 )}
               </TableRow>
             );

@@ -132,7 +132,6 @@ export default function WorkoutLogManager() {
               <Card>
                 <CardContent>
                   <WorkoutCalendar
-                    workoutLogs={workoutLogs}
                     selectedDate={selectedDate}
                     onSelectDate={handleDateSelect}
                     program={selectedProgram as WorkoutProgram | undefined}
@@ -173,7 +172,6 @@ export default function WorkoutLogManager() {
               <Card>
                 <CardContent>
                   <WorkoutCalendar
-                    workoutLogs={workoutLogs}
                     selectedDate={selectedDate}
                     onSelectDate={handleDateSelect}
                     program={selectedProgram as WorkoutProgram | undefined}
