@@ -77,10 +77,6 @@ export function WorkoutCalendar({
   const currentWeekStart = startOfWeek(new Date());
   const currentWeekEnd = endOfWeek(new Date());
 
-  useEffect(() => {
-    onSelectDate(new Date());
-  }, [program]);
-
   // Check if a day has a workout log
   const hasLoggedWorkout = (day: Date) => {
     return workoutLogs?.data.some((log: any) =>

@@ -56,6 +56,13 @@ export default function WorkoutLogManager() {
     }
   }, [programs]);
 
+  // Reset selectedDate to current date when program changes
+  useEffect(() => {
+    if (selectedProgram) {
+      setSelectedDate(new Date());
+    }
+  }, [selectedProgram?.programId]);
+
   const handleSetProgramAsActive = async (programId: string) => {
     if (programId === "without-program") {
       setSelectedProgram(null);
