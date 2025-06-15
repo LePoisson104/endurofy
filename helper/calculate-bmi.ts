@@ -1,9 +1,7 @@
-import { UserInfo } from "@/interfaces/user-interfaces";
-
 // MBI for kg and cm = weight(kg) / (height(m) * height(m))
 // MBI for lb and ft = weight(lb) / (height(in) * height(in)) * 703
 
-export const calculateBMI = (userInfo: UserInfo) => {
+export const calculateBMI = (userInfo: any) => {
   let bmi = 0;
   let bmiCategory = "";
   let bmiCategoryColor = "";

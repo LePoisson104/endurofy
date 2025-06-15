@@ -16,6 +16,19 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         { type: "WorkoutLog", id: "LIST" },
       ],
     }),
+    getCompletedWorkoutLogs: builder.query({
+      query: ({ userId, programId, startDate, endDate }) => ({
+        url: `/api/v1/workout-log/get-completed-workout-logs/${userId}/${programId}/${startDate}/${endDate}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, arg) => [
+        {
+          type: "WorkoutLog",
+          id: `${arg.userId}-${arg.programId}-${arg.startDate}-${arg.endDate}`,
+        },
+        { type: "WorkoutLog", id: "LIST" },
+      ],
+    }),
     getWorkoutLogDates: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
         url: `/api/v1/workout-log/get-workout-log-dates/${userId}/${programId}/${startDate}/${endDate}`,
@@ -89,4 +102,5 @@ export const {
   useUpdateExerciseNotesMutation,
   useUpdateWorkoutSetMutation,
   useUpdateWorkoutLogStatusMutation,
+  useGetCompletedWorkoutLogsQuery,
 } = workoutLogApiSlice;

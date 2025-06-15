@@ -117,7 +117,7 @@ export function WorkoutCalendar({
 
     // Get the maximum day number to determine the cycle length (accounts for rest days)
     const maxDayNumber = Math.max(
-      ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber)
+      ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber + 1)
     );
     if (maxDayNumber === 0) return false;
 
@@ -148,7 +148,7 @@ export function WorkoutCalendar({
 
     // Get the maximum day number to determine the cycle length
     const maxDayNumber = Math.max(
-      ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber)
+      ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber + 1)
     );
     if (maxDayNumber === 0) return false;
 

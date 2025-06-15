@@ -43,7 +43,7 @@ export const useWorkoutDay = (program: WorkoutProgram, selectedDate: Date) => {
       );
 
       const maxDayNumber = Math.max(
-        ...program.workoutDays.map((day) => day.dayNumber)
+        ...program.workoutDays.map((day) => day.dayNumber + 1)
       );
 
       if (maxDayNumber <= 0) return null;

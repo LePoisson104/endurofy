@@ -16,10 +16,6 @@ import { useSelector } from "react-redux";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-program-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import {
-  getCurrentDate,
-  getCurrentTime,
-} from "@/helper/get-current-date-n-time";
 import ErrorAlert from "@/components/alerts/error-alert";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";

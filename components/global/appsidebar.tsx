@@ -44,7 +44,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { selectUserInfo } from "@/api/user/user-slice";
-
+import { isInCurrentRotation } from "@/helper/get-current-rotation";
+import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
+import { startOfWeek, endOfWeek } from "date-fns";
+import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 export function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -52,14 +56,46 @@ export function AppSidebar() {
   const { open, openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
-  const [activeProgramDayLength, setActiveProgramDayLength] = useState(0);
-  const [progress, setProgress] = useState(0);
+  const currentUser = useSelector(selectCurrentUser);
+  const [activeProgram, setActiveProgram] = useState<WorkoutProgram | null>(
+    null
+  );
+
+  const [currentStartingDate, setCurrentStartingDate] = useState<string | null>(
+    null
+  );
+  const [currentEndingDate, setCurrentEndingDate] = useState<string | null>(
+    null
+  );
+  const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery({
+    userId: currentUser?.user_id,
+    programId: activeProgram?.programId,
+    startDate: currentStartingDate,
+    endDate: currentEndingDate,
+  });
+
+  console.log("completedWorkoutLogs", completedWorkoutLogs);
 
   useEffect(() => {
     const active = workoutPrograms?.filter((program) => program.isActive === 1);
-
-    setActiveProgramDayLength(active?.[0]?.workoutDays.length || 0);
+    setActiveProgram(active?.[0] || null);
   }, [workoutPrograms]);
+
+  useEffect(() => {
+    if (activeProgram?.programType === "custom") {
+      const { currentRotationStart, currentRotationEnd } =
+        isInCurrentRotation(activeProgram);
+      setCurrentStartingDate(currentRotationStart);
+      setCurrentEndingDate(currentRotationEnd);
+    } else {
+      setCurrentStartingDate(
+        startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString().split("T")[0]
+      );
+      setCurrentEndingDate(
+        endOfWeek(new Date(), { weekStartsOn: 0 }).toISOString().split("T")[0]
+      );
+    }
+  }, [activeProgram]);
 
   const handleCloseSidebarOnMobile = () => {
     if (isMobile && openMobile) {
@@ -176,17 +212,36 @@ export function AppSidebar() {
           <SidebarSeparator />
 
           <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-            <SidebarGroupLabel>Weekly Progress</SidebarGroupLabel>
+            <SidebarGroupLabel>
+              {activeProgram?.programType === "dayOfWeek"
+                ? "Weekly Progress"
+                : "Rotation Progress"}
+            </SidebarGroupLabel>
             {workoutPrograms ? (
               <SidebarGroupContent>
                 <div className="px-3 py-2">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs text-muted-foreground">
-                      0/{activeProgramDayLength} workouts
+                      {completedWorkoutLogs?.data}/
+                      {activeProgram?.workoutDays.length} workouts
                     </span>
-                    <span className="text-xs font-medium">{progress}%</span>
+                    <span className="text-xs font-medium">
+                      {Math.round(
+                        (completedWorkoutLogs?.data /
+                          (activeProgram?.workoutDays.length || 0)) *
+                          100
+                      )}
+                      %
+                    </span>
                   </div>
-                  <Progress value={progress} className="h-2" />
+                  <Progress
+                    value={
+                      (completedWorkoutLogs?.data /
+                        (activeProgram?.workoutDays.length || 0)) *
+                      100
+                    }
+                    className="h-2"
+                  />
                 </div>
               </SidebarGroupContent>
             ) : (
