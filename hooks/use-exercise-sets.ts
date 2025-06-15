@@ -76,6 +76,9 @@ export const useExerciseSets = (
                     : setData.repsLeft || setData.repsRight || 0,
                 leftReps: setData.repsLeft || 0,
                 rightReps: setData.repsRight || 0,
+                previousLeftReps: setData.previousLeftReps || null,
+                previousRightReps: setData.previousRightReps || null,
+                previousWeight: setData.previousWeight || null,
                 isLogged: true, // Already logged
               };
             } else {
@@ -88,6 +91,9 @@ export const useExerciseSets = (
                 reps: 0,
                 leftReps: 0,
                 rightReps: 0,
+                previousLeftReps: null,
+                previousRightReps: null,
+                previousWeight: null,
                 isLogged: false,
                 workoutSetId: null,
                 workoutExerciseId: null,

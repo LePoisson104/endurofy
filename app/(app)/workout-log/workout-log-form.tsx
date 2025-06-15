@@ -35,13 +35,13 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
+  const { selectedDay } = useWorkoutDay(program, selectedDate);
+
   const [isEditing, setIsEditing] = useState(false);
   const [showPrevious, setShowPrevious] = useState(false);
   const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
     {}
   );
-  const [totalSets, setTotalSets] = useState(0);
-  const [totalLoggedSets, setTotalLoggedSets] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
@@ -56,7 +56,6 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
     useUpdateExerciseNotesMutation();
 
-  const { selectedDay } = useWorkoutDay(program, selectedDate);
   const {
     exerciseSets,
     updateSetData,
@@ -69,57 +68,35 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   } = useExerciseSets(selectedDay, workoutLog);
 
   useEffect(() => {
-    setTotalSets(
-      selectedDay?.exercises.reduce((acc, exercise) => {
-        return acc + exercise.sets;
-      }, 0) || 0
+    if (!selectedDay || !workoutLog?.data[0]) return;
+    if (selectedDay.dayId !== workoutLog.data[0].dayId) return;
+
+    const currentWorkout = workoutLog.data[0];
+
+    const total = selectedDay.exercises.reduce(
+      (acc, exercise) => acc + exercise.sets,
+      0
     );
-    setTotalLoggedSets(
-      workoutLog?.data[0]?.workoutExercises.reduce(
-        (acc: number, exercise: any) => acc + exercise.workoutSets.length,
-        0
-      ) || 0
+    const logged = currentWorkout.workoutExercises.reduce(
+      (acc: number, exercise: any) => acc + exercise.workoutSets.length,
+      0
     );
-  }, [selectedDay, workoutLog]);
 
-  useEffect(() => {
-    // Only run if we have a valid workout log with data
-    if (!workoutLog?.data[0] || totalSets === 0) {
-      return;
-    }
+    if (total === 0) return;
 
-    // Make sure the workout log date matches the selected date to prevent cross-contamination
-    const workoutLogDate = workoutLog.data[0].workoutDate;
-    const selectedDateString = format(selectedDate, "yyyy-MM-dd");
-
-    if (workoutLogDate !== selectedDateString) {
-      return;
-    }
-
-    if (
-      totalLoggedSets === totalSets &&
-      workoutLog?.data[0]?.status === "incomplete"
-    ) {
+    // Use local variables for comparison to avoid double request
+    if (logged === total && currentWorkout.status === "incomplete") {
       updateWorkoutLogStatus({
-        workoutLogId: workoutLog?.data[0].workoutLogId,
+        workoutLogId: currentWorkout.workoutLogId,
         status: "completed",
       }).unwrap();
-    } else if (
-      totalLoggedSets !== totalSets &&
-      workoutLog?.data[0]?.status === "completed"
-    ) {
+    } else if (logged !== total && currentWorkout.status === "completed") {
       updateWorkoutLogStatus({
-        workoutLogId: workoutLog?.data[0].workoutLogId,
+        workoutLogId: currentWorkout.workoutLogId,
         status: "incomplete",
       }).unwrap();
     }
-  }, [
-    totalLoggedSets,
-    totalSets,
-    workoutLog?.data[0]?.workoutLogId,
-    workoutLog?.data[0]?.status,
-    selectedDate,
-  ]);
+  }, [selectedDay, workoutLog, selectedDate]);
 
   // Load existing notes when workout log data is available
   useEffect(() => {
@@ -208,6 +185,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
       await createWorkoutLog({
         userId: user?.user_id || "",
         programId: program.programId || "",
+        dayId: selectedDay?.dayId || "",
         workoutLog: workoutLogPayload,
       }).unwrap();
     } catch (error: any) {

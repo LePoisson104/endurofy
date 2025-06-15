@@ -33,13 +33,15 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       query: ({
         userId,
         programId,
+        dayId,
         workoutLog,
       }: {
         userId: string;
         programId: string;
+        dayId: string;
         workoutLog: WorkoutLogPayload;
       }) => ({
-        url: `/api/v1/workout-log/create-workout-log/${userId}/${programId}`,
+        url: `/api/v1/workout-log/create-workout-log/${userId}/${programId}/${dayId}`,
         method: "POST",
         body: workoutLog,
       }),

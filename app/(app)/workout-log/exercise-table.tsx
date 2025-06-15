@@ -164,24 +164,6 @@ export default function ExerciseTable({
       String(setData.leftReps || "") !== String(original.leftReps || "") ||
       String(setData.rightReps || "") !== String(original.rightReps || "");
 
-    // Debug logging
-    console.log("hasActualChanges check:", {
-      setId: setData.workoutSetId,
-      current: {
-        weight: String(setData.weight || ""),
-        reps: String(setData.reps || ""),
-        leftReps: String(setData.leftReps || ""),
-        rightReps: String(setData.rightReps || ""),
-      },
-      original: {
-        weight: String(original.weight || ""),
-        reps: String(original.reps || ""),
-        leftReps: String(original.leftReps || ""),
-        rightReps: String(original.rightReps || ""),
-      },
-      hasChanges,
-    });
-
     return hasChanges;
   };
 
@@ -289,11 +271,7 @@ export default function ExerciseTable({
           ...prev,
           [setId]: updatedSetData,
         };
-        console.log("Updated original values after save:", {
-          setId,
-          newOriginalValue: newOriginals[setId],
-          allOriginals: newOriginals,
-        });
+
         return newOriginals;
       });
 
@@ -400,6 +378,9 @@ export default function ExerciseTable({
               workoutSetId: null,
               workoutExerciseId: null,
               workoutLogId: null,
+              previousWeight: null,
+              previousLeftReps: null,
+              previousRightReps: null,
               setNumber: setIndex + 1,
             };
 
@@ -608,20 +589,26 @@ export default function ExerciseTable({
                 {(!isMobile || showPrevious) && (
                   <>
                     <TableCell className="text-slate-500 text-center">
-                      -
+                      {setData.previousWeight ? setData.previousWeight : "-"}
                     </TableCell>
                     {exercise.laterality === "unilateral" ? (
                       <>
                         <TableCell className="text-slate-500 text-center">
-                          -
+                          {setData.previousLeftReps
+                            ? setData.previousLeftReps
+                            : "-"}
                         </TableCell>
                         <TableCell className="text-slate-500 text-center">
-                          -
+                          {setData.previousRightReps
+                            ? setData.previousRightReps
+                            : "-"}
                         </TableCell>
                       </>
                     ) : (
                       <TableCell className="text-slate-500 text-center">
-                        -
+                        {setData.previousLeftReps
+                          ? setData.previousLeftReps
+                          : "-"}
                       </TableCell>
                     )}
                   </>

@@ -11,6 +11,9 @@ export interface SetData {
   workoutSetId: string | null;
   workoutExerciseId: string | null;
   setNumber: number;
+  previousLeftReps: number | null;
+  previousRightReps: number | null;
+  previousWeight: number | null;
 }
 
 export interface WorkoutLogFormProps {
