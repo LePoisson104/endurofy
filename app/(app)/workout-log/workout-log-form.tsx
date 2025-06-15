@@ -88,6 +88,14 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
       return;
     }
 
+    // Make sure the workout log date matches the selected date to prevent cross-contamination
+    const workoutLogDate = workoutLog.data[0].workoutDate;
+    const selectedDateString = format(selectedDate, "yyyy-MM-dd");
+
+    if (workoutLogDate !== selectedDateString) {
+      return;
+    }
+
     if (
       totalLoggedSets === totalSets &&
       workoutLog?.data[0]?.status === "incomplete"
@@ -110,6 +118,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     totalSets,
     workoutLog?.data[0]?.workoutLogId,
     workoutLog?.data[0]?.status,
+    selectedDate,
   ]);
 
   // Load existing notes when workout log data is available
