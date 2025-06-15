@@ -41,6 +41,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import FoodSearchModal from "./food-search-modal";
 import FoodCalendar from "./food-calendar";
+import PageTitle from "@/components/global/page-title";
 
 interface FoodItem {
   id: string;
@@ -355,10 +356,11 @@ export default function FoodLogPage() {
       <header>
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Food Log</h1>
-            <p className="text-muted-foreground">
-              {format(selectedDate, "EEEE, MMMM d, yyyy")}
-            </p>
+            <PageTitle
+              title="Food Log"
+              showCurrentDateAndTime={false}
+              subTitle={`${format(selectedDate, "EEEE, MMMM d, yyyy")}`}
+            />
           </div>
           {isMobile && (
             <Button

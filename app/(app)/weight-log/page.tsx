@@ -27,10 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageTitle from "@/components/global/page-title";
-import {
-  getCurrentDate,
-  getCurrentTime,
-} from "@/helper/get-current-date-n-time";
 import WeightLogHistory from "@/components/tables/weight-log-history";
 import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
 import { useSelector } from "react-redux";
@@ -52,8 +48,6 @@ import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
 export default function WeightLogPage() {
   const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
-  const [currentDate, setCurrentDate] = useState("");
-  const [currentTime, setCurrentTime] = useState("");
 
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
@@ -173,11 +167,6 @@ export default function WeightLogPage() {
     setLineChartDateRange(lineChartOptions, weightLogWithRates?.data);
   }, [lineChartOptions, weightLogWithRates?.data]);
 
-  useEffect(() => {
-    setCurrentDate(getCurrentDate());
-    setCurrentTime(getCurrentTime());
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col p-[1rem] relative">
       <ErrorAlert error={error} setError={setError} />
@@ -187,12 +176,7 @@ export default function WeightLogPage() {
           {/* Page Header */}
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
-              <PageTitle
-                title="Weight Log"
-                subTitle={`${
-                  currentDate ? `${currentDate} | ${currentTime}` : ""
-                }`}
-              />
+              <PageTitle title="Weight Log" />
             </div>
             {/* Mobile add button - only visible on small screens */}
             <Button

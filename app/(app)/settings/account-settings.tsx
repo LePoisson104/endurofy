@@ -125,6 +125,7 @@ export function AccountSettings() {
           <div className="mb-4">
             <PageTitle
               title="Account Settings"
+              showCurrentDateAndTime={false}
               subTitle={`Last updated: ${lastUpdated}`}
             />
           </div>

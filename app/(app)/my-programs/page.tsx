@@ -188,6 +188,7 @@ export default function MyPrograms() {
       <header className="mb-6">
         <PageTitle
           title="Workout Programs"
+          showCurrentDateAndTime={false}
           subTitle="Create personalize workout plans and progress tracking"
         />
       </header>

@@ -7,13 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dumbbell,
-  Activity,
-  Flame,
-  CalendarDays,
-  ChevronRight,
-} from "lucide-react";
+import { Dumbbell, Activity, Flame, CalendarDays } from "lucide-react";
 import BarChart from "@/components/charts/bar-chart";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
@@ -28,10 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageTitle from "@/components/global/page-title";
-import {
-  getCurrentDate,
-  getCurrentTime,
-} from "@/helper/get-current-date-n-time";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
@@ -48,8 +38,6 @@ export default function DashboardPage() {
   const dispatch = useDispatch();
 
   const [timeRange, setTimeRange] = useState("90d");
-  const [currentDate, setCurrentDate] = useState("");
-  const [currentTime, setCurrentTime] = useState("");
   const userInfo = useSelector(selectUserInfo);
   const weeklyRate = useSelector(selectWeeklyRate);
 
@@ -73,11 +61,6 @@ export default function DashboardPage() {
   );
 
   useEffect(() => {
-    setCurrentDate(getCurrentDate());
-    setCurrentTime(getCurrentTime());
-  }, []);
-
-  useEffect(() => {
     if (userInfo) {
       dispatch(calculateAndSetBMR());
     }
@@ -90,10 +73,7 @@ export default function DashboardPage() {
         <main className="flex-1">
           <div className="flex flex-col space-y-6">
             {/* Dashboard Header */}
-            <PageTitle
-              title="Dashboard"
-              subTitle={`${currentDate} | ${currentTime}`}
-            />
+            <PageTitle title="Dashboard" />
             {/* Metrics Cards */}
             <DashboardSkeleton />
           </div>
@@ -108,10 +88,7 @@ export default function DashboardPage() {
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Dashboard Header */}
-          <PageTitle
-            title="Dashboard"
-            subTitle={`${currentDate} | ${currentTime}`}
-          />
+          <PageTitle title="Dashboard" />
 
           {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xs:grid-cols-4">

@@ -48,10 +48,7 @@ export default function AnalyticsPage() {
   return (
     <div className="flex min-h-screen flex-col p-[1rem] space-y-6">
       <div className="flex flex-col gap-4">
-        <PageTitle
-          title="Analytics"
-          subTitle="View your progress and statistics"
-        />
+        <PageTitle title="Analytics" />
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2 md:flex-row md:items-center">
