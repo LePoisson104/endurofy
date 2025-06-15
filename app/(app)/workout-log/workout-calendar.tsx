@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   format,
   startOfMonth,
@@ -77,8 +77,12 @@ export function WorkoutCalendar({
   const currentWeekStart = startOfWeek(new Date());
   const currentWeekEnd = endOfWeek(new Date());
 
+  useEffect(() => {
+    onSelectDate(new Date());
+  }, [program]);
+
   // Check if a day has a workout log
-  const hasWorkout = (day: Date) => {
+  const hasLoggedWorkout = (day: Date) => {
     return workoutLogs?.data.some((log: any) =>
       isSameDay(parseISO(log.workout_date), day)
     );
@@ -177,7 +181,11 @@ export function WorkoutCalendar({
       start: currentWeekStart,
       end: currentWeekEnd,
     });
-    return !isInCurrentWeek && isAfter(startOfDay(day), startOfDay(today));
+    return (
+      !isInCurrentWeek &&
+      isAfter(startOfDay(day), startOfDay(today)) &&
+      !isInCurrentRotation(day)
+    );
   };
 
   // Check if a day is in the current week
@@ -269,7 +277,7 @@ export function WorkoutCalendar({
               {week.map((day, dayIndex) => {
                 const isToday = isSameDay(day, new Date());
                 const isSelected = isSameDay(day, selectedDate);
-                const dayHasWorkout = hasWorkout(day);
+                const dayHasLoggedWorkout = hasLoggedWorkout(day);
                 const dayHasScheduledWorkout = hasScheduledWorkout(day);
                 const dayHasCompletedWorkout = hasCompletedWorkout(day);
                 const isCurrentMonth = isSameMonth(day, currentMonth);
@@ -296,18 +304,26 @@ export function WorkoutCalendar({
                       className={cn(
                         "h-10 w-full p-0 font-normal relative",
                         isSelected &&
-                          "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 ring-1 ring-blue-400 dark:ring-blue-500",
+                          `bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 ring-1 ${
+                            dayHasLoggedWorkout
+                              ? "dark:ring-green-300 ring-green-500"
+                              : "dark:ring-blue-500 ring-blue-500"
+                          } hover:bg-blue-200/50 dark:hover:bg-blue-800/50`,
                         isToday &&
                           !isSelected &&
-                          "border-2 border-blue-600 dark:border-blue-300",
+                          `border-2 border-blue-600 dark:border-blue-300 ${
+                            dayHasLoggedWorkout
+                              ? "border-green-600 dark:border-green-300"
+                              : "border-blue-200 dark:border-blue-300"
+                          }`,
                         !isCurrentMonth && "text-slate-500 dark:text-slate-400",
-                        dayHasWorkout && "bg-green-200 dark:bg-green-700",
+                        dayHasLoggedWorkout &&
+                          "bg-green-200 dark:bg-green-700 hover:bg-green-300 dark:hover:bg-green-600",
                         isFuture && "opacity-50 cursor-not-allowed",
                         // Keep the original logic for scheduled workouts
                         isInCurrentWeekOrRotation &&
-                          dayHasScheduledWorkout &&
-                          !dayHasWorkout &&
-                          "bg-blue-100/50 dark:bg-blue-900/50",
+                          !dayHasLoggedWorkout &&
+                          "bg-blue-100/50 dark:bg-blue-900/50 hover:bg-blue-200/50 dark:hover:bg-blue-800/50",
                         isInCurrentWeekOrRotation &&
                           "text-slate-900 dark:text-slate-100"
                       )}
@@ -316,12 +332,12 @@ export function WorkoutCalendar({
                     >
                       <div className="flex flex-col items-center justify-center">
                         <span>{format(day, "d")}</span>
-                        {dayHasWorkout && dayHasCompletedWorkout && (
+                        {dayHasLoggedWorkout && dayHasCompletedWorkout && (
                           <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1" />
                         )}
                         {isInCurrentWeekOrRotation &&
                           dayHasScheduledWorkout &&
-                          !dayHasWorkout && (
+                          !dayHasLoggedWorkout && (
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 dark:bg-blue-400 rounded-full mx-1" />
                           )}
                       </div>

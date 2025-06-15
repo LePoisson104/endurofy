@@ -29,6 +29,7 @@ import {
 } from "@/api/workout-log/workout-log-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useDebounceCallback } from "@/hooks/use-debounce";
+import { useUpdateWorkoutLogStatusMutation } from "@/api/workout-log/workout-log-api-slice";
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
@@ -39,8 +40,11 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
     {}
   );
+  const [totalSets, setTotalSets] = useState(0);
+  const [totalLoggedSets, setTotalLoggedSets] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
   const { data: workoutLog } = useGetWorkoutLogQuery({
     userId: user?.user_id,
     programId: program.programId,
@@ -63,6 +67,50 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     getWorkoutExerciseId,
     getExerciseNotes,
   } = useExerciseSets(selectedDay, workoutLog);
+
+  useEffect(() => {
+    setTotalSets(
+      selectedDay?.exercises.reduce((acc, exercise) => {
+        return acc + exercise.sets;
+      }, 0) || 0
+    );
+    setTotalLoggedSets(
+      workoutLog?.data[0]?.workoutExercises.reduce(
+        (acc: number, exercise: any) => acc + exercise.workoutSets.length,
+        0
+      ) || 0
+    );
+  }, [selectedDay, workoutLog]);
+
+  useEffect(() => {
+    // Only run if we have a valid workout log with data
+    if (!workoutLog?.data[0] || totalSets === 0) {
+      return;
+    }
+
+    if (
+      totalLoggedSets === totalSets &&
+      workoutLog?.data[0]?.status === "incomplete"
+    ) {
+      updateWorkoutLogStatus({
+        workoutLogId: workoutLog?.data[0].workoutLogId,
+        status: "completed",
+      }).unwrap();
+    } else if (
+      totalLoggedSets !== totalSets &&
+      workoutLog?.data[0]?.status === "completed"
+    ) {
+      updateWorkoutLogStatus({
+        workoutLogId: workoutLog?.data[0].workoutLogId,
+        status: "incomplete",
+      }).unwrap();
+    }
+  }, [
+    totalLoggedSets,
+    totalSets,
+    workoutLog?.data[0]?.workoutLogId,
+    workoutLog?.data[0]?.status,
+  ]);
 
   // Load existing notes when workout log data is available
   useEffect(() => {
