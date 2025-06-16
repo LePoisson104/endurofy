@@ -49,6 +49,7 @@ import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { startOfWeek, endOfWeek } from "date-fns";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
+
 export function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -73,8 +74,6 @@ export function AppSidebar() {
     startDate: currentStartingDate,
     endDate: currentEndingDate,
   });
-
-  console.log("completedWorkoutLogs", completedWorkoutLogs);
 
   useEffect(() => {
     const active = workoutPrograms?.filter((program) => program.isActive === 1);

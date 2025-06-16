@@ -5,7 +5,8 @@ import { WorkoutDay, Exercise } from "@/interfaces/workout-program-interfaces";
 
 export const useExerciseSets = (
   selectedDay: WorkoutDay | null,
-  workoutLog?: any
+  workoutLog?: any,
+  previousLog?: any
 ) => {
   const [exerciseSets, setExerciseSets] = useState<Record<string, SetData[]>>(
     {}
@@ -43,8 +44,14 @@ export const useExerciseSets = (
         ? groupWorkoutLogByExercise(workoutLog.data[0]?.workoutExercises)
         : {};
 
+      const previousLoggedExercises = previousLog?.data
+        ? groupWorkoutLogByExercise(previousLog?.data)
+        : {};
+
       selectedDay.exercises.forEach((exercise) => {
         const loggedExercise = loggedExercises[exercise.exerciseId] || [];
+        const previousLoggedExercise =
+          previousLoggedExercises[exercise.exerciseId] || [];
 
         initialSets[exercise.exerciseId] = Array.from(
           { length: exercise.sets },
@@ -56,10 +63,22 @@ export const useExerciseSets = (
               )
             );
 
+            const previousLoggedSet = previousLoggedExercise.find(
+              (previousExerciseData: any) =>
+                previousExerciseData.previousWorkoutSets?.some(
+                  (set: any) => set.setNumber === index + 1
+                )
+            );
+
             // If we found a matching exercise, get the specific set data
             const setData = loggedSet?.workoutSets?.find(
               (set: any) => set.setNumber === index + 1
             );
+
+            const previousSetData =
+              previousLoggedSet?.previousWorkoutSets?.find(
+                (set: any) => set.setNumber === index + 1
+              );
 
             if (setData) {
               // Use data from workout log
@@ -91,9 +110,9 @@ export const useExerciseSets = (
                 reps: 0,
                 leftReps: 0,
                 rightReps: 0,
-                previousLeftReps: null,
-                previousRightReps: null,
-                previousWeight: null,
+                previousLeftReps: previousSetData?.leftReps || null,
+                previousRightReps: previousSetData?.rightReps || null,
+                previousWeight: previousSetData?.weight || null,
                 isLogged: false,
                 workoutSetId: null,
                 workoutExerciseId: null,

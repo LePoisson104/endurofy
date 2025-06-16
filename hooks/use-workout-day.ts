@@ -1,7 +1,6 @@
 "use client";
 import { useMemo } from "react";
 import {
-  AllDays,
   WorkoutDay,
   WorkoutProgram,
 } from "@/interfaces/workout-program-interfaces";

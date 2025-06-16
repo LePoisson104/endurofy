@@ -29,7 +29,10 @@ import {
 } from "@/api/workout-log/workout-log-api-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useDebounceCallback } from "@/hooks/use-debounce";
-import { useUpdateWorkoutLogStatusMutation } from "@/api/workout-log/workout-log-api-slice";
+import {
+  useUpdateWorkoutLogStatusMutation,
+  useGetPreviousWorkoutLogQuery,
+} from "@/api/workout-log/workout-log-api-slice";
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
@@ -51,6 +54,12 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     startDate: format(selectedDate, "yyyy-MM-dd"),
     endDate: format(selectedDate, "yyyy-MM-dd"),
   });
+  const { data: previousWorkoutLog } = useGetPreviousWorkoutLogQuery({
+    userId: user?.user_id,
+    programId: program.programId,
+    dayId: selectedDay?.dayId,
+    currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
+  });
 
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
@@ -65,7 +74,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     hasLoggedSets,
     getWorkoutExerciseId,
     getExerciseNotes,
-  } = useExerciseSets(selectedDay, workoutLog);
+  } = useExerciseSets(selectedDay, workoutLog, previousWorkoutLog);
 
   useEffect(() => {
     if (!selectedDay || !workoutLog?.data[0]) return;
