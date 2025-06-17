@@ -55,14 +55,13 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     startDate: format(selectedDate, "yyyy-MM-dd"),
     endDate: format(selectedDate, "yyyy-MM-dd"),
   });
+
   const { data: previousWorkoutLog } = useGetPreviousWorkoutLogQuery({
     userId: user?.user_id,
     programId: program.programId,
     dayId: selectedDay?.dayId,
     currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
   });
-
-  console.log("previousWorkoutLog", previousWorkoutLog);
 
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
@@ -245,15 +244,19 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
               </div>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-2"
-          >
-            <SquarePen className="h-4 w-4" />
-            {isEditing ? "Done" : "Edit"}
-          </Button>
+          {workoutLog?.data?.length > 0 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center gap-2"
+            >
+              <SquarePen className="h-4 w-4" />
+              {isEditing ? "Done" : "Edit"}
+            </Button>
+          ) : (
+            ""
+          )}
         </div>
         {isMobile && (
           <Button
