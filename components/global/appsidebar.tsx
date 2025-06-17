@@ -68,12 +68,22 @@ export function AppSidebar() {
   const [currentEndingDate, setCurrentEndingDate] = useState<string | null>(
     null
   );
-  const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery({
-    userId: currentUser?.user_id,
-    programId: activeProgram?.programId,
-    startDate: currentStartingDate,
-    endDate: currentEndingDate,
-  });
+
+  const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery(
+    {
+      userId: currentUser?.user_id,
+      programId: activeProgram?.programId,
+      startDate: currentStartingDate,
+      endDate: currentEndingDate,
+    },
+    {
+      skip:
+        !currentStartingDate ||
+        !currentEndingDate ||
+        !currentUser?.user_id ||
+        !activeProgram?.programId,
+    }
+  );
 
   useEffect(() => {
     const active = workoutPrograms?.filter((program) => program.isActive === 1);
@@ -216,7 +226,7 @@ export function AppSidebar() {
                 ? "Weekly Progress"
                 : "Rotation Progress"}
             </SidebarGroupLabel>
-            {workoutPrograms ? (
+            {workoutPrograms && completedWorkoutLogs ? (
               <SidebarGroupContent>
                 <div className="px-3 py-2">
                   <div className="flex justify-between items-center mb-1">
@@ -244,7 +254,7 @@ export function AppSidebar() {
                 </div>
               </SidebarGroupContent>
             ) : (
-              <Skeleton className="h-11 w-full" />
+              <Skeleton className="h-20 w-full" />
             )}
           </SidebarGroup>
 

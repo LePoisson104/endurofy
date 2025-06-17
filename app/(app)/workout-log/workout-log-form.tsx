@@ -48,6 +48,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
+
   const { data: workoutLog } = useGetWorkoutLogQuery({
     userId: user?.user_id,
     programId: program.programId,
@@ -60,6 +61,8 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     dayId: selectedDay?.dayId,
     currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
   });
+
+  console.log("previousWorkoutLog", previousWorkoutLog);
 
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =

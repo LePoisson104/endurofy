@@ -5,8 +5,8 @@ import { WorkoutDay, Exercise } from "@/interfaces/workout-program-interfaces";
 
 export const useExerciseSets = (
   selectedDay: WorkoutDay | null,
-  workoutLog?: any,
-  previousLog?: any
+  workoutLog: any,
+  previousLog: any
 ) => {
   const [exerciseSets, setExerciseSets] = useState<Record<string, SetData[]>>(
     {}
@@ -130,7 +130,7 @@ export const useExerciseSets = (
       setExerciseSets(initialSets);
       setValidationAttempts(initialValidationAttempts);
     }
-  }, [selectedDay, workoutLog]);
+  }, [selectedDay, workoutLog, previousLog]);
 
   const updateSetData = (
     exerciseId: string,
