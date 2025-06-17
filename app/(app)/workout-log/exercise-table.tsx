@@ -464,11 +464,15 @@ export default function ExerciseTable({
                 </TableCell>
                 <TableCell className="text-center">
                   <Input
-                    placeholder="-"
+                    placeholder={
+                      setData.previousWeight
+                        ? String(setData.previousWeight)
+                        : "-"
+                    }
                     type="number"
                     min="0"
                     step="2.5"
-                    value={setData.weight}
+                    value={setData.weight === 0 ? "" : setData.weight}
                     onChange={(e) =>
                       handleUpdateSetData(
                         exercise.exerciseId,
@@ -497,10 +501,14 @@ export default function ExerciseTable({
                   <>
                     <TableCell className="text-center">
                       <Input
-                        placeholder="-"
+                        placeholder={
+                          setData.previousLeftReps
+                            ? String(setData.previousLeftReps)
+                            : "-"
+                        }
                         type="number"
                         min="0"
-                        value={setData.leftReps}
+                        value={setData.leftReps === 0 ? "" : setData.leftReps}
                         onChange={(e) =>
                           handleUpdateSetData(
                             exercise.exerciseId,
@@ -527,10 +535,14 @@ export default function ExerciseTable({
                     </TableCell>
                     <TableCell className="text-center">
                       <Input
-                        placeholder="-"
+                        placeholder={
+                          setData.previousRightReps
+                            ? String(setData.previousRightReps)
+                            : "-"
+                        }
                         type="number"
                         min="0"
-                        value={setData.rightReps}
+                        value={setData.rightReps === 0 ? "" : setData.rightReps}
                         onChange={(e) =>
                           handleUpdateSetData(
                             exercise.exerciseId,
@@ -559,10 +571,14 @@ export default function ExerciseTable({
                 ) : (
                   <TableCell className="text-center">
                     <Input
-                      placeholder="-"
+                      placeholder={
+                        setData.previousLeftReps
+                          ? String(setData.previousLeftReps)
+                          : "-"
+                      }
                       type="number"
                       min="0"
-                      value={setData.reps}
+                      value={setData.reps === 0 ? "" : setData.reps}
                       onChange={(e) =>
                         handleUpdateSetData(
                           exercise.exerciseId,

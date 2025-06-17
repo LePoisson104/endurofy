@@ -349,11 +349,11 @@ export function WorkoutCalendar({
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mt-4">
         <div className="flex items-center gap-2">
-          <div className="border-b border-2 rounded-full border-green-500 w-[23px]" />
+          <div className="border-b border-2 rounded-full border-green-600 dark:border-green-400 w-[23px]" />
           <span>Completed</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+          <div className="w-3 h-3 bg-green-400 dark:bg-green-600 rounded-[2px]"></div>
           <span>Logged Workouts</span>
         </div>
         <div className="flex items-center gap-2">
@@ -361,7 +361,7 @@ export function WorkoutCalendar({
           <span>Upcoming Workouts</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-blue-400 rounded-sm"></div>
+          <div className="w-3 h-3 dark:bg-blue-500 bg-blue-400 rounded-[2px]" />
           {program?.programType === "custom" ? (
             <span>Current Rotation</span>
           ) : (
