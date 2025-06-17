@@ -45,19 +45,25 @@ export default function WorkoutLogManager() {
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
 
+  // Load selectedDate from localStorage on component mount
+  useEffect(() => {
+    const savedDate = localStorage.getItem("selectedDate");
+    if (savedDate) {
+      setSelectedDate(new Date(savedDate));
+    }
+
+    const savedTab = localStorage.getItem("selectedTab");
+    if (savedTab) {
+      setSelectedTab(savedTab);
+    }
+  }, []);
+
   useEffect(() => {
     if (programs) {
       const program = programs.filter((program) => program.isActive === 1);
       setSelectedProgram(program[0]);
     }
   }, [programs]);
-
-  // Reset selectedDate to current date when program changes
-  useEffect(() => {
-    if (selectedProgram) {
-      setSelectedDate(new Date());
-    }
-  }, [selectedProgram?.programId]);
 
   const handleSetProgramAsActive = async (programId: string) => {
     if (programId === "without-program") {
@@ -80,6 +86,7 @@ export default function WorkoutLogManager() {
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
+    localStorage.setItem("selectedDate", date.toISOString());
     setShowCalendar(false); // Hide calendar on mobile after selection
   };
 
@@ -90,6 +97,11 @@ export default function WorkoutLogManager() {
   const handleSaveWorkoutLog = () => {};
 
   const handleDeleteWorkoutLog = () => {};
+
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
+    localStorage.setItem("selectedTab", value);
+  };
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
@@ -102,7 +114,7 @@ export default function WorkoutLogManager() {
         <Tabs
           className="mb-4"
           value={selectedTab}
-          onValueChange={setSelectedTab}
+          onValueChange={handleTabChange}
         >
           <TabsList>
             <TabsTrigger value="log">Log</TabsTrigger>
