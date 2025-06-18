@@ -41,3 +41,40 @@ export interface ExercisePayload {
   programExerciseId: string;
   exerciseOrder: number;
 }
+
+export interface WorkoutLog {
+  userId: string;
+  workoutLogId: string;
+  programId: string;
+  dayId: string;
+  workoutDate: string;
+  title: string;
+  status: string;
+  workoutExercises: WorkoutExercise[];
+}
+
+export interface WorkoutExercise {
+  workoutExerciseId: string;
+  programExerciseId: string;
+  workoutLogId: string;
+  exerciseOrder: number;
+  exerciseName: string;
+  bodyPart: string;
+  laterality: string;
+  notes: string;
+  workoutSets: WorkoutSet[];
+}
+
+export interface WorkoutSet {
+  workoutSetId: string;
+  workoutExerciseId: string;
+  setNumber: number;
+  repsLeft: number;
+  repsRight: number;
+  weight: number;
+  weightUnit: string;
+  previousLeftReps: number | null;
+  previousRightReps: number | null;
+  previousWeight: number | null;
+  previousWeightUnit: string | null;
+}

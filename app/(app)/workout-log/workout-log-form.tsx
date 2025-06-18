@@ -55,7 +55,6 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
     startDate: format(selectedDate, "yyyy-MM-dd"),
     endDate: format(selectedDate, "yyyy-MM-dd"),
   });
-
   const { data: previousWorkoutLog } = useGetPreviousWorkoutLogQuery({
     userId: user?.user_id,
     programId: program.programId,
@@ -244,7 +243,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
               </div>
             </div>
           </div>
-          {workoutLog?.data?.length > 0 ? (
+          {workoutLog?.data?.length > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -254,8 +253,6 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
               <SquarePen className="h-4 w-4" />
               {isEditing ? "Done" : "Edit"}
             </Button>
-          ) : (
-            ""
           )}
         </div>
         {isMobile && (
