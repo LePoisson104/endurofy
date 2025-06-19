@@ -106,12 +106,33 @@ export function WorkoutLogHistory({
           <div className="space-y-6">
             {/* Back Button */}
             <Button
-              variant="outline"
+              variant="ghost"
+              size="sm"
               onClick={handleBackToList}
-              className="mb-4"
+              className="gap-1 arrow-button"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Workouts
+              <svg
+                className="arrow-icon transform rotate-180 mr-2"
+                viewBox="0 -3.5 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  className="arrow-icon__tip"
+                  d="M8 15L14 8.5L8 2"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <line
+                  className="arrow-icon__line"
+                  x1="13"
+                  y1="8.5"
+                  y2="8.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+              Back to History
             </Button>
 
             {/* Workout Detail */}
