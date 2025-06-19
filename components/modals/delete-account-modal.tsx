@@ -62,7 +62,7 @@ export default function DeleteAccountModal() {
       <DialogTrigger asChild>
         <Button variant="destructive">Delete Account</Button>
       </DialogTrigger>
-      <DialogContent className="bg-card border-none">
+      <DialogContent className="bg-card">
         <DialogHeader>
           <DialogTitle>Delete Account</DialogTitle>
         </DialogHeader>

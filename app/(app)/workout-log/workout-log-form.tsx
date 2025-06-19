@@ -178,7 +178,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
     const workoutLogPayload: WorkoutLogPayload = {
-      workoutName: program.programName,
+      workoutName: selectedDay?.dayName || "",
       workoutDate: format(selectedDate, "yyyy-MM-dd"),
       ...exercisePayload,
     };

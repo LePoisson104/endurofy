@@ -70,9 +70,7 @@ export default function UpdateWeightUnitNotice({
   return (
     <AlertDialog open={isOpen}>
       <AlertDialogContent
-        className={`bg-card border-none ${
-          isMobile ? "w-[330px]" : "w-[350px]"
-        }`}
+        className={`bg-card ${isMobile ? "w-[330px]" : "w-[350px]"}`}
       >
         <AlertDialogHeader>
           <AlertDialogTitle className="text-center">Notice</AlertDialogTitle>

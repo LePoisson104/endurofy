@@ -11,7 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TrendingUp, Target, Dumbbell } from "lucide-react";
+import { TrendingUp, Target, Dumbbell, Check } from "lucide-react";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
@@ -19,25 +21,11 @@ interface WorkoutDetailModalProps {
 }
 
 export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
+  const isDark = useGetCurrentTheme();
   // Don't render the modal if there's no workout
   if (!workout) {
     return null;
   }
-
-  const getWorkoutTypeColor = (type: string) => {
-    switch (type) {
-      case "strength":
-        return "bg-blue-100 text-blue-800";
-      case "cardio":
-        return "bg-red-100 text-red-800";
-      case "flexibility":
-        return "bg-green-100 text-green-800";
-      case "sports":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const calculateTotalVolume = () => {
     return workout.workoutExercises.reduce(
@@ -60,57 +48,62 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
     );
   };
 
+  console.log(workout);
+
   return (
     <div className="space-y-6">
-      {/* Workout Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Badge className={getWorkoutTypeColor(workout.status)}>
-            {workout.status}
-          </Badge>
-        </div>
-        <div className="text-sm">
-          {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
-        </div>
-      </div>
-
       {/* Workout Overview */}
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Dumbbell className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-            <div className="text-sm font-medium">Total Exercises</div>
-            <div className="text-xl font-bold">
-              {workout.workoutExercises.length}
+      <Card>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <CardTitle>{workout.title}</CardTitle>
+            {workout.status === "completed" && (
+              <Badge className="bg-green-600 text-white">
+                <Check className="h-2 w-2" />
+                Completed
+              </Badge>
+            )}
+          </div>
+          <div
+            className={`text-xs ${
+              isDark ? "text-slate-400" : "text-slate-500"
+            } mt-1`}
+          >
+            {workout.status === "completed" ? "Completed on " : "Started on "}
+            {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
+            <div className="shadow-none">
+              <div className="p-4 text-center">
+                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+                <div className="text-sm font-medium">Total Exercises</div>
+                <div className="text-xl font-bold">
+                  {workout.workoutExercises.length}
+                </div>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-            <div className="text-sm font-medium">Total Sets</div>
-            <div className="text-xl font-bold">{calculateTotalSets()}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <TrendingUp className="h-6 w-6 mx-auto mb-2 text-orange-600" />
-            <div className="text-sm font-medium">Volume</div>
-            <div className="text-xl font-bold">
-              {(calculateTotalVolume() / 1000).toFixed(1)}K lbs
+            <div className="shadow-none">
+              <div className="p-4 text-center">
+                <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                <div className="text-sm font-medium">Total Sets</div>
+                <div className="text-xl font-bold">{calculateTotalSets()}</div>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="shadow-none">
+              <div className="p-4 text-center">
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-orange-600" />
+                <div className="text-sm font-medium">Volume</div>
+                <div className="text-xl font-bold">
+                  {(calculateTotalVolume() / 1000).toFixed(1)}K lbs
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Exercises */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Exercises ({workout.workoutExercises.length})
-          </CardTitle>
-        </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {workout.workoutExercises.map((exercise) => (
@@ -138,7 +131,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
                       ).toFixed(1)}
                       K lbs
                     </div>
-                    <div>{exercise.workoutSets.length} sets</div>
                   </div>
                 </div>
 

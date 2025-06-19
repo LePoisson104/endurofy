@@ -234,7 +234,7 @@ export default function UsersProfileModal({
       <ErrorAlert error={error} setError={setError} />
       <Dialog open={isOpen}>
         <DialogContent
-          className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto bg-card scroll-bar border-none"
+          className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto bg-card scroll-bar"
           closeXButton={true}
         >
           <DialogHeader>

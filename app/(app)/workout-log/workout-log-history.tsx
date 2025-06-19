@@ -4,11 +4,10 @@ import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
-import { WorkoutHistoryStats } from "@/components/cards/workout-stats-card";
 import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ListFilterPlus, Search, ArrowLeft } from "lucide-react";
+import { ListFilterPlus, Search } from "lucide-react";
 import { WorkoutFiltersModal } from "@/components/modals/filters-modal";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
@@ -91,9 +90,6 @@ export function WorkoutLogHistory({
                 />
               </div>
             </div>
-
-            {/* Stats */}
-            <WorkoutHistoryStats workouts={filteredLogs} />
 
             {/* Workout List */}
             <WorkoutHistoryList

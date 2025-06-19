@@ -146,7 +146,7 @@ export default function VerifyOTPModal({
       <SuccessAlert success={success} setSuccess={setSuccess} />
       <LogoutNotice isOpen={openLogoutNotice} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md bg-card border-none">
+        <DialogContent className="sm:max-w-md bg-card">
           <DialogHeader className="space-y-1">
             <DialogTitle className="text-2xl font-bold text-center">
               Verify your email
