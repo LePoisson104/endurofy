@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TrendingUp, Target } from "lucide-react";
+import { TrendingUp, Target, Dumbbell } from "lucide-react";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
@@ -60,19 +60,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
     );
   };
 
-  const calculateTotalReps = () => {
-    return workout.workoutExercises.reduce(
-      (sum, exercise) =>
-        sum +
-        exercise.workoutSets.reduce((setSum, set) => {
-          const leftReps = set.repsLeft || 0;
-          const rightReps = set.repsRight || 0;
-          return setSum + leftReps + rightReps;
-        }, 0),
-      0
-    );
-  };
-
   return (
     <div className="space-y-6">
       {/* Workout Header */}
@@ -88,7 +75,23 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
       </div>
 
       {/* Workout Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <Dumbbell className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+            <div className="text-sm font-medium">Total Exercises</div>
+            <div className="text-xl font-bold">
+              {workout.workoutExercises.length}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+            <div className="text-sm font-medium">Total Sets</div>
+            <div className="text-xl font-bold">{calculateTotalSets()}</div>
+          </CardContent>
+        </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <TrendingUp className="h-6 w-6 mx-auto mb-2 text-orange-600" />
@@ -98,22 +101,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-            <div className="text-sm font-medium">Total Sets</div>
-            <div className="text-xl font-bold">{calculateTotalSets()}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="text-center p-4 rounded-lg">
-          <div className="text-2xl font-bold">{calculateTotalReps()}</div>
-          <div className="text-sm">Total Reps</div>
-        </div>
       </div>
 
       {/* Exercises */}
