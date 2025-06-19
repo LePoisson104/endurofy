@@ -117,6 +117,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
           dispatch(resetUserInfo());
           dispatch(resetWorkoutProgram());
           dispatch(resetWeeklyRate());
+          localStorage.clear();
           setTimeout(() => {
             dispatch(apiSlice.util.resetApiState());
           }, 1000);

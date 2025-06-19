@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, Dumbbell, TrendingUp, Flame } from "lucide-react";
+import { TrendingUp, Target } from "lucide-react";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 export function WorkoutHistoryStats({
@@ -69,65 +69,16 @@ export function WorkoutHistoryStats({
     100
   );
 
-  const stats = [
-    {
-      title: "Total Workouts",
-      value: totalWorkouts.toString(),
-      icon: Dumbbell,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-    },
-    {
-      title: "This Month",
-      value: thisMonthWorkouts.toString(),
-      icon: Calendar,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
-    },
-    {
-      title: "This Week",
-      value: thisWeekWorkouts.toString(),
-      icon: TrendingUp,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-    },
-    {
-      title: "Streaks",
-      value: "10",
-      icon: Flame,
-      color: "text-red-600",
-      bgColor: "bg-red-100",
-    },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <div className={`rounded-full p-2 ${stat.bgColor}`}>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-muted-foreground truncate">
-                    {stat.title}
-                  </p>
-                  <p className="text-lg font-bold">{stat.value}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
       {/* Progress Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Monthly Goal Progress</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="h-5 w-5 text-purple-600" />
+              Monthly Goal Progress
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -151,10 +102,10 @@ export function WorkoutHistoryStats({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Total Volume Lifted</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Across all strength training sessions
-            </p>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Total Volume Lifted
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">

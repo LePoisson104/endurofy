@@ -286,21 +286,32 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col flex-1 ">
-                      <div className="flex items-center gap-3">
+                      <div
+                        className={`flex items-center gap-3 ${
+                          isMobile ? "justify-between" : ""
+                        }`}
+                      >
                         <h4 className="font-medium">{exercise.exerciseName}</h4>
                         {isFullyLogged && (
                           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <Badge
-                              variant="outline"
-                              className="bg-green-600 text-white"
-                            >
+                            <Badge className="bg-green-600 text-white">
                               <Check className="h-2 w-2" />
                               Completed
                             </Badge>
                           </div>
                         )}
                       </div>
-                      <div className="text-sm text-slate-500">
+                      <div className="flex items-center gap-2 my-1">
+                        <Badge className="text-xs">{exercise.laterality}</Badge>
+                        <Badge className="text-xs bg-blue-500 text-white">
+                          {exercise.bodyPart}
+                        </Badge>
+                      </div>
+                      <div
+                        className={`text-sm ${
+                          isDark ? "text-slate-400" : "text-slate-500"
+                        }`}
+                      >
                         Target: {exercise.sets} sets × {exercise.minReps}-
                         {exercise.maxReps} reps
                       </div>

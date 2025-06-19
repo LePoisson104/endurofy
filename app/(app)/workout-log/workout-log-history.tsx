@@ -5,10 +5,11 @@ import { format, parseISO } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
 import { WorkoutHistoryStats } from "@/components/cards/workout-stats-card";
-import { WorkoutDetailModal } from "@/components/modals/workout-log-modal";
+import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ListFilterPlus } from "lucide-react";
+import { ListFilterPlus, Search, ArrowLeft } from "lucide-react";
+import { WorkoutFiltersModal } from "@/components/modals/filters-modal";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -24,12 +25,10 @@ export function WorkoutLogHistory({
   onSelectDate,
 }: WorkoutLogHistoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [logToDelete, setLogToDelete] = useState<string | null>(null);
-  const [expandedLog, setExpandedLog] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
     null
   );
-  const isMobile = useIsMobile();
+  const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
 
   // Ensure logs is an array and sort by date (newest first)
   // Handle different data structures that might come from API
@@ -56,59 +55,76 @@ export function WorkoutLogHistory({
       log.dayId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Format date
-  const formatLogDate = (dateString: string) => {
-    return format(parseISO(dateString), "EEEE, MMMM d, yyyy");
-  };
-
-  // Handle delete confirmation
-  const handleDeleteConfirm = () => {
-    if (logToDelete) {
-      onDeleteLog(logToDelete);
-      setLogToDelete(null);
-    }
-  };
-
-  // Toggle expanded log
-  const toggleExpandLog = (logId: string) => {
-    setExpandedLog(expandedLog === logId ? null : logId);
-  };
-
-  // Handle workout selection for modal
+  // Handle workout selection for detail view
   const handleSelectWorkout = (workout: WorkoutLog) => {
     setSelectedWorkout(workout);
   };
 
-  // Handle modal close
-  const handleCloseModal = () => {
+  // Handle back to list
+  const handleBackToList = () => {
     setSelectedWorkout(null);
   };
 
   return (
     <div className="min-h-screen">
       <main className="mx-auto max-w-7xl p-4 md:p-6">
-        <div className="flex flex-col gap-4">
-          <WorkoutHistoryStats workouts={logs} />
-          <div className="flex items-center gap-2">
-            <Button variant="outline">
-              <ListFilterPlus className="w-4 h-4" />
-              Filter
-            </Button>
-            <Input placeholder="Search workouts" />
+        {!selectedWorkout ? (
+          // Workout List View
+          <div className="space-y-6">
+            {/* Search and Filters */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsFiltersModalOpen(true)}
+              >
+                <ListFilterPlus className="w-4 h-4" />
+                Filters
+              </Button>
+              <div className="relative w-full">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4" />
+                <Input
+                  type="search"
+                  placeholder="Search logs..."
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Stats */}
+            <WorkoutHistoryStats workouts={filteredLogs} />
+
+            {/* Workout List */}
+            <WorkoutHistoryList
+              workouts={filteredLogs}
+              onSelectWorkout={handleSelectWorkout}
+            />
           </div>
-          <WorkoutHistoryList
-            workouts={logs}
-            onSelectWorkout={handleSelectWorkout}
-          />
-        </div>
+        ) : (
+          // Workout Detail View
+          <div className="space-y-6">
+            {/* Back Button */}
+            <Button
+              variant="outline"
+              onClick={handleBackToList}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Workouts
+            </Button>
+
+            {/* Workout Detail */}
+            <WorkoutDetailView workout={selectedWorkout} />
+          </div>
+        )}
       </main>
 
-      {selectedWorkout && (
-        <WorkoutDetailModal
-          workout={selectedWorkout}
-          onClose={handleCloseModal}
-        />
-      )}
+      {/* Filters Modal */}
+      <WorkoutFiltersModal
+        isOpen={isFiltersModalOpen}
+        onClose={() => setIsFiltersModalOpen(false)}
+      />
     </div>
   );
 }
