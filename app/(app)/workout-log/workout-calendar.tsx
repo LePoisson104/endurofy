@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   format,
   startOfMonth,
@@ -20,14 +20,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type {
-  WorkoutProgram,
-  WorkoutDay,
-} from "../../../interfaces/workout-program-interfaces";
 import { useGetWorkoutLogDatesQuery } from "@/api/workout-log/workout-log-api-slice";
 import { getStartOfPreviousAndEndOfNextMonth } from "@/helper/get-day-range";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import type {
+  WorkoutProgram,
+  WorkoutDay,
+} from "../../../interfaces/workout-program-interfaces";
 
 interface WorkoutCalendarProps {
   selectedDate: Date;
@@ -51,12 +53,13 @@ export function WorkoutCalendar({
       ),
     });
 
-  const { data: workoutLogs } = useGetWorkoutLogDatesQuery({
-    userId: user?.user_id || "",
-    programId: program?.programId || "",
-    startDate: startDateOfPreviousMonth,
-    endDate: endDateOfPreviousMonth,
-  });
+  const { data: workoutLogs, isLoading: isLoadingWorkoutLogs } =
+    useGetWorkoutLogDatesQuery({
+      userId: user?.user_id || "",
+      programId: program?.programId || "",
+      startDate: startDateOfPreviousMonth,
+      endDate: endDateOfPreviousMonth,
+    });
 
   // Get days in current month
   const monthStart = startOfMonth(currentMonth);
@@ -219,6 +222,10 @@ export function WorkoutCalendar({
   // Add the last week if it's not empty
   if (currentWeek.length > 0) {
     weeks.push(currentWeek);
+  }
+
+  if (isLoadingWorkoutLogs) {
+    return <Skeleton className="h-80 w-full" />;
   }
 
   return (

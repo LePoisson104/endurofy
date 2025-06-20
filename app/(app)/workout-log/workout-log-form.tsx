@@ -33,6 +33,7 @@ import {
   useUpdateWorkoutLogStatusMutation,
   useGetPreviousWorkoutLogQuery,
 } from "@/api/workout-log/workout-log-api-slice";
+import { WorkoutLogFormSkeleton } from "@/components/skeletons/workout-log-form-skeleton";
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();
@@ -49,19 +50,20 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
 
-  const { data: workoutLog } = useGetWorkoutLogQuery({
-    userId: user?.user_id,
-    programId: program.programId,
-    startDate: format(selectedDate, "yyyy-MM-dd"),
-    endDate: format(selectedDate, "yyyy-MM-dd"),
-  });
-  const { data: previousWorkoutLog } = useGetPreviousWorkoutLogQuery({
-    userId: user?.user_id,
-    programId: program.programId,
-    dayId: selectedDay?.dayId,
-    currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
-  });
-
+  const { data: workoutLog, isLoading: isLoadingWorkoutLog } =
+    useGetWorkoutLogQuery({
+      userId: user?.user_id,
+      programId: program.programId,
+      startDate: format(selectedDate, "yyyy-MM-dd"),
+      endDate: format(selectedDate, "yyyy-MM-dd"),
+    });
+  const { data: previousWorkoutLog, isLoading: isLoadingPreviousWorkoutLog } =
+    useGetPreviousWorkoutLogQuery({
+      userId: user?.user_id,
+      programId: program.programId,
+      dayId: selectedDay?.dayId,
+      currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
+    });
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
     useUpdateExerciseNotesMutation();
@@ -206,6 +208,10 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
       }
     }
   };
+
+  if (isLoadingWorkoutLog || isLoadingPreviousWorkoutLog) {
+    return <WorkoutLogFormSkeleton />;
+  }
 
   if (!selectedDay) {
     return (
