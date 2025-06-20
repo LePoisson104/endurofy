@@ -2,7 +2,8 @@
 
 import { format, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,20 +12,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TrendingUp, Target, Dumbbell, Check } from "lucide-react";
+import { TrendingUp, Target, Dumbbell, Check, Eye, EyeOff } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
+import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
   workout: WorkoutLog | null;
+  isLoading?: boolean;
 }
 
-export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
+export function WorkoutDetailView({
+  workout,
+  isLoading = false,
+}: WorkoutDetailModalProps) {
   const isDark = useGetCurrentTheme();
-  // Don't render the modal if there's no workout
-  if (!workout) {
-    return null;
+  const isMobile = useIsMobile();
+  const [showPrevious, setShowPrevious] = useState(false);
+
+  // Show skeleton if loading or no workout
+  if (isLoading || !workout) {
+    return <WorkoutDetailSkeleton />;
   }
 
   const calculateTotalVolume = () => {
@@ -47,8 +58,6 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
       0
     );
   };
-
-  console.log(workout);
 
   return (
     <div className="space-y-6">
@@ -75,25 +84,25 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
           <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-blue-500" />
                 <div className="text-sm font-medium">Total Exercises</div>
-                <div className="text-xl font-bold">
+                <div className="text-sm font-bold">
                   {workout.workoutExercises.length}
                 </div>
               </div>
             </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                <Target className="h-6 w-6 mx-auto mb-2 text-emerald-500" />
                 <div className="text-sm font-medium">Total Sets</div>
-                <div className="text-xl font-bold">{calculateTotalSets()}</div>
+                <div className="text-sm font-bold">{calculateTotalSets()}</div>
               </div>
             </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-orange-600" />
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-red-500" />
                 <div className="text-sm font-medium">Volume</div>
-                <div className="text-xl font-bold">
+                <div className="text-sm font-bold">
                   {(calculateTotalVolume() / 1000).toFixed(1)}K lbs
                 </div>
               </div>
@@ -102,6 +111,30 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
         </CardContent>
       </Card>
 
+      {/* Show Previous Button for Mobile */}
+      {isMobile && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPrevious(!showPrevious)}
+            className="flex items-center gap-2"
+          >
+            {showPrevious ? (
+              <>
+                <EyeOff className="h-4 w-4" />
+                Hide Previous
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4" />
+                Show Previous
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
       {/* Exercises */}
       <Card>
         <CardContent>
@@ -109,23 +142,35 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
             {workout.workoutExercises.map((exercise) => (
               <div
                 key={exercise.workoutExerciseId}
-                className="border rounded-lg p-4"
+                className={`${
+                  isMobile ? "p-0 border-none" : "p-4 border rounded-lg"
+                }`}
               >
-                <div className="flex items-center justify-between mb-4">
+                <div
+                  className={`flex mb-4 ${
+                    isMobile
+                      ? "flex-col justify-start"
+                      : "items-center justify-between"
+                  }`}
+                >
                   <div>
                     <h4 className="font-semibold text-lg">
                       {exercise.exerciseName}
                     </h4>
                   </div>
-                  <div className="text-right text-sm">
+                  <div
+                    className={`text-sm ${
+                      isMobile ? "text-left" : "text-right"
+                    } ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                  >
                     <div>
                       Volume:{" "}
                       {(
                         exercise.workoutSets.reduce(
                           (sum, set) =>
                             sum +
-                            set.weight * set.repsLeft +
-                            set.weight * set.repsRight,
+                            (set.weight || 0) * (set.repsLeft || 0) +
+                            (set.weight || 0) * (set.repsRight || 0),
                           0
                         ) / 1000
                       ).toFixed(1)}
@@ -137,32 +182,136 @@ export function WorkoutDetailView({ workout }: WorkoutDetailModalProps) {
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16">Set</TableHead>
-                        <TableHead>Weight</TableHead>
-                        <TableHead>Reps</TableHead>
-                        <TableHead>Volume</TableHead>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="w-[60px] text-center">
+                          Set #
+                        </TableHead>
+                        <TableHead className="w-[100px] text-center">
+                          Weight (lbs)
+                        </TableHead>
+                        {exercise.laterality === "unilateral" ? (
+                          <>
+                            <TableHead className="w-[80px] text-center">
+                              Left
+                            </TableHead>
+                            <TableHead className="w-[80px] text-center">
+                              Right
+                            </TableHead>
+                          </>
+                        ) : (
+                          <TableHead className="w-[80px] text-center">
+                            Reps
+                          </TableHead>
+                        )}
+                        {(!isMobile || showPrevious) && (
+                          <>
+                            <TableHead className="w-[100px] text-center">
+                              Prev Weight
+                            </TableHead>
+                            {exercise.laterality === "unilateral" ? (
+                              <>
+                                <TableHead className="w-[80px] text-center">
+                                  Prev Left
+                                </TableHead>
+                                <TableHead className="w-[80px] text-center">
+                                  Prev Right
+                                </TableHead>
+                              </>
+                            ) : (
+                              <TableHead className="w-[80px] text-center">
+                                Prev Reps
+                              </TableHead>
+                            )}
+                            <TableHead className="w-[100px] text-center">
+                              Volume (lbs)
+                            </TableHead>
+                          </>
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {exercise.workoutSets.map((set, setIndex) => (
-                        <TableRow key={setIndex}>
-                          <TableCell className="font-medium">
-                            {setIndex + 1}
-                          </TableCell>
-                          <TableCell>{set.weight} lbs</TableCell>
-                          <TableCell>{set.repsLeft}</TableCell>
-                          <TableCell className="font-medium">
-                            {set.weight * set.repsLeft} lbs
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {exercise.workoutSets.map((set, setIndex) => {
+                        const volume =
+                          exercise.laterality === "unilateral"
+                            ? (set.weight || 0) *
+                              ((set.repsLeft || 0) + (set.repsRight || 0))
+                            : (set.weight || 0) * (set.repsLeft || 0);
+
+                        return (
+                          <TableRow key={setIndex}>
+                            <TableCell className="font-medium text-center">
+                              {setIndex + 1}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className={`${isMobile ? "text-sm" : ""}`}>
+                                {set.weight || 0}
+                              </div>
+                            </TableCell>
+                            {exercise.laterality === "unilateral" ? (
+                              <>
+                                <TableCell className="text-center">
+                                  <div
+                                    className={`${isMobile ? "text-sm" : ""}`}
+                                  >
+                                    {set.repsLeft || 0}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <div
+                                    className={`${isMobile ? "text-sm" : ""}`}
+                                  >
+                                    {set.repsRight || 0}
+                                  </div>
+                                </TableCell>
+                              </>
+                            ) : (
+                              <TableCell className="text-center">
+                                <div className={`${isMobile ? "text-sm" : ""}`}>
+                                  {set.repsLeft || 0}
+                                </div>
+                              </TableCell>
+                            )}
+                            {(!isMobile || showPrevious) && (
+                              <>
+                                <TableCell className="text-slate-500 text-center">
+                                  {set.previousWeight
+                                    ? set.previousWeight
+                                    : "-"}
+                                </TableCell>
+                                {exercise.laterality === "unilateral" ? (
+                                  <>
+                                    <TableCell className="text-slate-500 text-center">
+                                      {set.previousLeftReps
+                                        ? set.previousLeftReps
+                                        : "-"}
+                                    </TableCell>
+                                    <TableCell className="text-slate-500 text-center">
+                                      {set.previousRightReps
+                                        ? set.previousRightReps
+                                        : "-"}
+                                    </TableCell>
+                                  </>
+                                ) : (
+                                  <TableCell className="text-slate-500 text-center">
+                                    {set.previousLeftReps
+                                      ? set.previousLeftReps
+                                      : "-"}
+                                  </TableCell>
+                                )}
+                                <TableCell className="text-center font-medium">
+                                  {volume}
+                                </TableCell>
+                              </>
+                            )}
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
 
                 {exercise.notes && (
-                  <div className="mt-4 p-3 rounded-md">
+                  <div className="mt-4 p-3 rounded-md bg-muted/30">
                     <div className="text-sm font-medium mb-1">
                       Exercise Notes:
                     </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
 import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,8 @@ interface WorkoutLogHistoryProps {
 
 export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   const user = useSelector(selectCurrentUser);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
@@ -36,12 +38,42 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     endOfWeek(new Date(), { weekStartsOn: 0 })
   );
 
-  const { data: workoutLogsData } = useGetWorkoutLogQuery({
+  const {
+    data: workoutLogsData,
+    isLoading: isLoadingWorkoutLogs,
+    isFetching: isFetchingWorkoutLogs,
+  } = useGetWorkoutLogQuery({
     userId: user?.user_id,
     programId: selectedProgram?.programId,
     startDate: format(startDate, "yyyy-MM-dd"),
     endDate: format(endDate, "yyyy-MM-dd"),
   });
+
+  // Handle URL parameters for workout persistence
+  useEffect(() => {
+    const workoutId = searchParams.get("workoutId");
+    if (
+      workoutId &&
+      workoutLogsData &&
+      !isLoadingWorkoutLogs &&
+      !isFetchingWorkoutLogs
+    ) {
+      const logs = getLogsArray();
+      const workout = logs.find((log) => log.workoutLogId === workoutId);
+      if (workout && workout.workoutLogId !== selectedWorkout?.workoutLogId) {
+        setSelectedWorkout(workout);
+      }
+    } else if (!workoutId && selectedWorkout) {
+      // Clear selected workout when no workoutId in URL
+      setSelectedWorkout(null);
+    }
+  }, [
+    workoutLogsData,
+    searchParams,
+    selectedWorkout?.workoutLogId,
+    isLoadingWorkoutLogs,
+    isFetchingWorkoutLogs,
+  ]);
 
   // Ensure logs is an array and sort by date (newest first)
   // Handle different data structures that might come from API
@@ -75,11 +107,22 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   // Handle workout selection for detail view
   const handleSelectWorkout = (workout: WorkoutLog) => {
     setSelectedWorkout(workout);
+    // Update URL with workout ID for persistence
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("workoutId", workout.workoutLogId);
+    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   // Handle back to list
   const handleBackToList = () => {
     setSelectedWorkout(null);
+    // Remove workout ID from URL
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("workoutId");
+    const newUrl = params.toString()
+      ? `?${params.toString()}`
+      : window.location.pathname;
+    router.push(newUrl, { scroll: false });
   };
 
   return (
@@ -111,8 +154,13 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
             {/* Workout List */}
             <WorkoutHistoryList
-              workouts={filteredLogs}
+              workouts={
+                isLoadingWorkoutLogs || isFetchingWorkoutLogs
+                  ? undefined
+                  : filteredLogs
+              }
               onSelectWorkout={handleSelectWorkout}
+              isLoading={isLoadingWorkoutLogs || isFetchingWorkoutLogs}
             />
           </div>
         ) : (
@@ -150,7 +198,14 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
             </Button>
 
             {/* Workout Detail */}
-            <WorkoutDetailView workout={selectedWorkout} />
+            <WorkoutDetailView
+              workout={
+                isLoadingWorkoutLogs || isFetchingWorkoutLogs
+                  ? null
+                  : selectedWorkout
+              }
+              isLoading={isLoadingWorkoutLogs || isFetchingWorkoutLogs}
+            />
           </div>
         )}
       </main>

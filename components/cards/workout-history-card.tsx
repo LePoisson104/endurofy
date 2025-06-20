@@ -6,19 +6,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dumbbell, Calendar, Eye } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
+
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutHistoryListProps {
   workouts: WorkoutLog[] | any;
   onSelectWorkout: (workout: WorkoutLog) => void;
+  isLoading?: boolean;
 }
 
 export function WorkoutHistoryList({
   workouts,
   onSelectWorkout,
+  isLoading = false,
 }: WorkoutHistoryListProps) {
   const isDark = useGetCurrentTheme();
   // Ensure workouts is an array and handle different data structures that might come from API
+
+  if (isLoading || !workouts) {
+    return <WorkoutHistorySkeleton />;
+  }
+
   const getWorkoutsArray = (): WorkoutLog[] => {
     if (!workouts) return [];
     if (Array.isArray(workouts)) return workouts;
@@ -70,10 +79,20 @@ export function WorkoutHistoryList({
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 {/* Header */}
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center justify-between gap-3 mb-3">
                   <h3 className="text-lg font-semibold truncate">
                     {workout.title}
                   </h3>
+                  {/* Action Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSelectWorkout(workout)}
+                    className="ml-4 shrink-0"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
                 </div>
 
                 {/* Date and Duration */}
@@ -134,17 +153,6 @@ export function WorkoutHistoryList({
                   </span>
                 </div>
               </div>
-
-              {/* Action Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onSelectWorkout(workout)}
-                className="ml-4 shrink-0"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                View
-              </Button>
             </div>
           </CardContent>
         </Card>

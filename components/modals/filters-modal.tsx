@@ -53,22 +53,16 @@ export function WorkoutFiltersModal({
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         setStartDate(weekAgo);
         setEndDate(now);
-        setHistoryStartDate(weekAgo);
-        setHistoryEndDate(now);
         break;
       case "14days":
         const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
         setStartDate(twoWeeksAgo);
         setEndDate(now);
-        setHistoryStartDate(twoWeeksAgo);
-        setHistoryEndDate(now);
         break;
       case "30days":
         const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         setStartDate(monthAgo);
         setEndDate(now);
-        setHistoryStartDate(monthAgo);
-        setHistoryEndDate(now);
         break;
       case "3months":
         const threeMonthsAgo = new Date(
@@ -76,8 +70,6 @@ export function WorkoutFiltersModal({
         );
         setStartDate(threeMonthsAgo);
         setEndDate(now);
-        setHistoryStartDate(threeMonthsAgo);
-        setHistoryEndDate(now);
         break;
       default:
         setStartDate(undefined);
