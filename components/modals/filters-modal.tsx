@@ -26,24 +26,23 @@ import {
 import { RotateCcw, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface WorkoutFiltersModalProps {
   isOpen: boolean;
   onClose: () => void;
+  setHistoryStartDate: (date: Date) => void;
+  setHistoryEndDate: (date: Date) => void;
 }
 
 export function WorkoutFiltersModal({
   isOpen,
   onClose,
+  setHistoryStartDate,
+  setHistoryEndDate,
 }: WorkoutFiltersModalProps) {
-  const isMobile = useIsMobile();
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [datePreset, setDatePreset] = useState<string>("");
-  const [workoutType, setWorkoutType] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("date");
-  const [sortOrder, setSortOrder] = useState<string>("desc");
 
   const handleDatePresetChange = (value: string) => {
     setDatePreset(value);
@@ -54,16 +53,22 @@ export function WorkoutFiltersModal({
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         setStartDate(weekAgo);
         setEndDate(now);
+        setHistoryStartDate(weekAgo);
+        setHistoryEndDate(now);
         break;
       case "14days":
         const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
         setStartDate(twoWeeksAgo);
         setEndDate(now);
+        setHistoryStartDate(twoWeeksAgo);
+        setHistoryEndDate(now);
         break;
       case "30days":
         const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         setStartDate(monthAgo);
         setEndDate(now);
+        setHistoryStartDate(monthAgo);
+        setHistoryEndDate(now);
         break;
       case "3months":
         const threeMonthsAgo = new Date(
@@ -71,6 +76,8 @@ export function WorkoutFiltersModal({
         );
         setStartDate(threeMonthsAgo);
         setEndDate(now);
+        setHistoryStartDate(threeMonthsAgo);
+        setHistoryEndDate(now);
         break;
       default:
         setStartDate(undefined);
@@ -80,15 +87,11 @@ export function WorkoutFiltersModal({
   };
 
   const handleApply = () => {
-    // Here you would apply the filters
-    console.log({
-      startDate,
-      endDate,
-      datePreset,
-      workoutType,
-      sortBy,
-      sortOrder,
-    });
+    // Apply the selected dates to the parent component
+    if (startDate && endDate) {
+      setHistoryStartDate(startDate);
+      setHistoryEndDate(endDate);
+    }
     onClose();
   };
 
@@ -96,9 +99,14 @@ export function WorkoutFiltersModal({
     setStartDate(undefined);
     setEndDate(undefined);
     setDatePreset("");
-    setWorkoutType("all");
-    setSortBy("date");
-    setSortOrder("desc");
+    // Reset parent dates to current week
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    const weekEnd = new Date(now);
+    weekEnd.setDate(now.getDate() + (6 - now.getDay()));
+    setHistoryStartDate(weekStart);
+    setHistoryEndDate(weekEnd);
   };
 
   const handleCancel = () => {
@@ -106,11 +114,15 @@ export function WorkoutFiltersModal({
   };
 
   const handleStartDateChange = (date: Date | undefined) => {
-    setStartDate(date);
+    if (date) {
+      setStartDate(date);
+    }
   };
 
   const handleEndDateChange = (date: Date | undefined) => {
-    setEndDate(date);
+    if (date) {
+      setEndDate(date);
+    }
   };
 
   return (

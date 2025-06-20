@@ -54,7 +54,6 @@ export default function ProfilePage() {
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
 
-  console.log("userInfo", userInfo);
   const dispatch = useDispatch();
   const age =
     new Date().getFullYear() -
@@ -199,21 +198,18 @@ export default function ProfilePage() {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <Avatar className="h-24 w-24 md:h-32 md:w-32 border-2 border-muted">
-                  <AvatarFallback className="text-2xl font-bold bg-red-300 text-white">
-                    {userInfo?.first_name
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
-                    {userInfo?.last_name
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
+                  <AvatarFallback className="bg-[#FE9496] text-white text-2xl font-bold">
+                    {userInfo?.first_name?.charAt(0).toUpperCase()}
+                    {userInfo?.last_name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-2xl font-bold">
-                    {userInfo?.first_name} {userInfo?.last_name}
+                    {userInfo?.first_name?.charAt(0).toUpperCase()}
+                    {userInfo?.first_name?.slice(1)}{" "}
+                    {userInfo?.last_name?.charAt(0).toUpperCase()}
+                    {userInfo?.last_name?.slice(1)}
                   </h1>
                   <p className="text-muted-foreground">{userInfo?.email}</p>
 

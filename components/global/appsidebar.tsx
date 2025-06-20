@@ -226,20 +226,22 @@ export function AppSidebar() {
                 ? "Weekly Progress"
                 : "Rotation Progress"}
             </SidebarGroupLabel>
-            {workoutPrograms && completedWorkoutLogs ? (
+            {workoutPrograms ? (
               <SidebarGroupContent>
                 <div className="px-3 py-2">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs text-muted-foreground">
-                      {completedWorkoutLogs?.data}/
-                      {activeProgram?.workoutDays.length} workouts
+                      {completedWorkoutLogs?.data || 0}/
+                      {activeProgram?.workoutDays.length || 0} workouts
                     </span>
                     <span className="text-xs font-medium">
-                      {Math.round(
-                        (completedWorkoutLogs?.data /
-                          (activeProgram?.workoutDays.length || 0)) *
-                          100
-                      )}
+                      {completedWorkoutLogs?.data
+                        ? Math.round(
+                            (completedWorkoutLogs?.data /
+                              (activeProgram?.workoutDays.length || 0)) *
+                              100
+                          )
+                        : 0}
                       %
                     </span>
                   </div>
@@ -414,13 +416,16 @@ function UserProfileMenu() {
               >
                 <AvatarImage src="#" alt="User" />
                 <AvatarFallback className="bg-[#FE9496] text-white">
-                  {userInfo?.first_name?.charAt(0)}
-                  {userInfo?.last_name?.charAt(0)}
+                  {userInfo?.first_name?.charAt(0).toUpperCase()}
+                  {userInfo?.last_name?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col min-w-0">
                 <span className="font-medium truncate">
-                  {userInfo?.first_name} {userInfo?.last_name}
+                  {userInfo?.first_name?.charAt(0).toUpperCase()}
+                  {userInfo?.first_name?.slice(1)}{" "}
+                  {userInfo?.last_name?.charAt(0).toUpperCase()}
+                  {userInfo?.last_name?.slice(1)}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
                   {userInfo?.email}

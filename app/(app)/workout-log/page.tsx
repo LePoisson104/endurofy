@@ -17,9 +17,9 @@ import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-pro
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import type { WorkoutLog as WorkoutLogInterface } from "../../../interfaces/workout-log-interfaces";
-import { useGetWorkoutLogQuery } from "@/api/workout-log/workout-log-api-slice";
 
 export interface WorkoutLog {
   id: string;
@@ -46,19 +46,6 @@ export default function WorkoutLogManager() {
   const [error, setError] = useState<string | null>(null);
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
-
-  const { data: workoutLogsData } = useGetWorkoutLogQuery({
-    userId: user?.user_id,
-    programId: selectedProgram?.programId,
-    startDate: format(new Date("2025-06-06"), "yyyy-MM-dd"),
-    endDate: format(new Date("2025-06-21"), "yyyy-MM-dd"),
-  });
-
-  useEffect(() => {
-    if (workoutLogsData) {
-      setWorkoutLogs(workoutLogsData);
-    }
-  }, [workoutLogsData]);
 
   // Load selectedDate from localStorage on component mount
   useEffect(() => {
@@ -110,8 +97,6 @@ export default function WorkoutLogManager() {
   };
 
   const handleSaveWorkoutLog = () => {};
-
-  const handleDeleteWorkoutLog = () => {};
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
@@ -203,11 +188,7 @@ export default function WorkoutLogManager() {
                   </CardContent>
                 </Card>
               ) : (
-                <WorkoutLogHistory
-                  logs={workoutLogs}
-                  onDeleteLog={handleDeleteWorkoutLog}
-                  onSelectDate={handleDateSelect}
-                />
+                <WorkoutLogHistory selectedProgram={selectedProgram} />
               )}
             </div>
 

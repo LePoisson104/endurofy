@@ -9,33 +9,51 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ListFilterPlus, Search } from "lucide-react";
 import { WorkoutFiltersModal } from "@/components/modals/filters-modal";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { useGetWorkoutLogQuery } from "@/api/workout-log/workout-log-api-slice";
+import { startOfWeek, endOfWeek } from "date-fns";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
+import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 
 interface WorkoutLogHistoryProps {
-  logs: WorkoutLog[] | any;
-  onDeleteLog: (logId: string) => void;
-  onSelectDate: (date: Date) => void;
+  selectedProgram: WorkoutProgram | null;
 }
 
-export function WorkoutLogHistory({
-  logs,
-  onDeleteLog,
-  onSelectDate,
-}: WorkoutLogHistoryProps) {
+export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
+  const user = useSelector(selectCurrentUser);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
     null
   );
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Date>(
+    startOfWeek(new Date(), { weekStartsOn: 0 })
+  );
+  const [endDate, setEndDate] = useState<Date>(
+    endOfWeek(new Date(), { weekStartsOn: 0 })
+  );
+
+  const { data: workoutLogsData } = useGetWorkoutLogQuery({
+    userId: user?.user_id,
+    programId: selectedProgram?.programId,
+    startDate: format(startDate, "yyyy-MM-dd"),
+    endDate: format(endDate, "yyyy-MM-dd"),
+  });
 
   // Ensure logs is an array and sort by date (newest first)
   // Handle different data structures that might come from API
   const getLogsArray = (): WorkoutLog[] => {
-    if (!logs) return [];
-    if (Array.isArray(logs)) return logs;
-    if (typeof logs === "object" && logs.data && Array.isArray(logs.data))
-      return logs.data;
+    if (!workoutLogsData) return [];
+    if (Array.isArray(workoutLogsData)) return workoutLogsData;
+    if (
+      typeof workoutLogsData === "object" &&
+      workoutLogsData.data &&
+      Array.isArray(workoutLogsData.data)
+    )
+      return workoutLogsData.data;
     return [];
   };
 
@@ -141,6 +159,8 @@ export function WorkoutLogHistory({
       <WorkoutFiltersModal
         isOpen={isFiltersModalOpen}
         onClose={() => setIsFiltersModalOpen(false)}
+        setHistoryStartDate={setStartDate}
+        setHistoryEndDate={setEndDate}
       />
     </div>
   );
