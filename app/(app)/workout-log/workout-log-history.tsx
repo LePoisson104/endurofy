@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetWorkoutLogQuery } from "@/api/workout-log/workout-log-api-slice";
 import { startOfWeek, endOfWeek } from "date-fns";
+import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
+import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
@@ -125,10 +127,14 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     router.push(newUrl, { scroll: false });
   };
 
+  // Check if we should show detail view (either selectedWorkout exists or workoutId in URL)
+  const workoutId = searchParams.get("workoutId");
+  const shouldShowDetailView = selectedWorkout || workoutId;
+
   return (
     <div className="min-h-screen">
       <main className="mx-auto max-w-7xl">
-        {!selectedWorkout ? (
+        {!shouldShowDetailView ? (
           // Workout List View
           <div className="space-y-6">
             {/* Search and Filters */}
@@ -199,12 +205,12 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
             {/* Workout Detail */}
             <WorkoutDetailView
-              workout={
-                isLoadingWorkoutLogs || isFetchingWorkoutLogs
-                  ? null
-                  : selectedWorkout
+              workout={selectedWorkout}
+              isLoading={
+                isLoadingWorkoutLogs ||
+                isFetchingWorkoutLogs ||
+                !selectedWorkout
               }
-              isLoading={isLoadingWorkoutLogs || isFetchingWorkoutLogs}
             />
           </div>
         )}

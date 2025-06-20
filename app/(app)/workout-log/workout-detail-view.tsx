@@ -12,10 +12,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TrendingUp, Target, Dumbbell, Check, Eye, EyeOff } from "lucide-react";
+import {
+  TrendingUp,
+  Target,
+  Dumbbell,
+  Check,
+  Eye,
+  EyeOff,
+  Edit,
+  Play,
+} from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
@@ -31,6 +41,7 @@ export function WorkoutDetailView({
 }: WorkoutDetailModalProps) {
   const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
+  const router = useRouter();
   const [showPrevious, setShowPrevious] = useState(false);
 
   // Show skeleton if loading or no workout
@@ -59,28 +70,66 @@ export function WorkoutDetailView({
     );
   };
 
+  const handleEditWorkout = () => {
+    // Navigate to workout-log page with the specific date and program
+    const workoutDate = new Date(workout.workoutDate);
+    const formattedDate = workoutDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+    const programId = workout.programId;
+    router.push(
+      `/workout-log?date=${formattedDate}&tab=log&programId=${programId}`
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Workout Overview */}
       <Card>
         <CardContent>
-          <div className="flex items-center gap-4">
-            <CardTitle>{workout.title}</CardTitle>
-            {workout.status === "completed" && (
-              <Badge className="bg-green-600 text-white">
-                <Check className="h-2 w-2" />
-                Completed
-              </Badge>
-            )}
-          </div>
           <div
-            className={`text-xs ${
-              isDark ? "text-slate-400" : "text-slate-500"
-            } mt-1`}
+            className={`flex ${
+              isMobile
+                ? "flex-col justify-start gap-2"
+                : "flex-row items-center justify-between"
+            }`}
           >
-            {workout.status === "completed" ? "Completed on " : "Started on "}
-            {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-4">
+                <CardTitle>{workout.title}</CardTitle>
+                {workout.status === "completed" && (
+                  <Badge className="bg-green-600 text-white">
+                    <Check className="h-2 w-2" />
+                    Completed
+                  </Badge>
+                )}
+              </div>
+              <div
+                className={`text-xs ${
+                  isDark ? "text-slate-400" : "text-slate-500"
+                } mt-1`}
+              >
+                {workout.status === "completed"
+                  ? "Completed on "
+                  : "Started on "}
+                {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEditWorkout}
+              className="flex items-center gap-2 w-fit"
+            >
+              {workout.status === "completed" ? (
+                <Edit className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {workout.status === "completed"
+                ? "Edit Workout"
+                : "Complete Workout"}
+            </Button>
           </div>
+
           <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
             <div className="shadow-none">
               <div className="p-4 text-center">

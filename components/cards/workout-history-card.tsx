@@ -22,9 +22,8 @@ export function WorkoutHistoryList({
   isLoading = false,
 }: WorkoutHistoryListProps) {
   const isDark = useGetCurrentTheme();
-  // Ensure workouts is an array and handle different data structures that might come from API
 
-  if (isLoading || !workouts) {
+  if (isLoading) {
     return <WorkoutHistorySkeleton />;
   }
 
