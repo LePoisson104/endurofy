@@ -13,8 +13,6 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetWorkoutLogQuery } from "@/api/workout-log/workout-log-api-slice";
 import { startOfWeek, endOfWeek } from "date-fns";
-import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
-import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
@@ -167,6 +165,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
               }
               onSelectWorkout={handleSelectWorkout}
               isLoading={isLoadingWorkoutLogs || isFetchingWorkoutLogs}
+              isFetching={isFetchingWorkoutLogs}
             />
           </div>
         ) : (
