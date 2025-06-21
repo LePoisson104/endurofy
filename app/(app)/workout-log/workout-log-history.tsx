@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, addDays } from "date-fns";
 import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
 import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,13 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     endOfWeek(new Date(), { weekStartsOn: 0 })
   );
 
+  // Infinite scroll state
+  const [allWorkoutLogs, setAllWorkoutLogs] = useState<WorkoutLog[]>([]);
+  const [currentStartDate, setCurrentStartDate] = useState<Date>(startDate);
+  const [currentEndDate, setCurrentEndDate] = useState<Date>(endDate);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const {
     data: workoutLogsData,
     isLoading: isLoadingWorkoutLogs,
@@ -45,38 +52,125 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   } = useGetWorkoutLogQuery({
     userId: user?.user_id,
     programId: selectedProgram?.programId,
-    startDate: format(startDate, "yyyy-MM-dd"),
-    endDate: format(endDate, "yyyy-MM-dd"),
+    startDate: format(currentStartDate, "yyyy-MM-dd"),
+    endDate: format(currentEndDate, "yyyy-MM-dd"),
   });
+
+  // Reset infinite scroll state when filters change
+  useEffect(() => {
+    setAllWorkoutLogs([]);
+    setCurrentStartDate(startDate);
+    setCurrentEndDate(endDate);
+    setHasMoreData(true);
+    setIsLoadingMore(false);
+  }, [startDate, endDate, selectedProgram?.programId]);
+
+  // Handle new workout data
+  useEffect(() => {
+    if (workoutLogsData && !isLoadingWorkoutLogs) {
+      const newLogs = getLogsArray();
+
+      // If this is the initial load (dates match filter dates)
+      if (
+        format(currentStartDate, "yyyy-MM-dd") ===
+          format(startDate, "yyyy-MM-dd") &&
+        format(currentEndDate, "yyyy-MM-dd") === format(endDate, "yyyy-MM-dd")
+      ) {
+        setAllWorkoutLogs(newLogs);
+        setIsLoadingMore(false);
+      } else {
+        // This is a pagination load - append new data
+        setAllWorkoutLogs((prev) => {
+          if (workoutLogsData.length === 0) {
+            setIsLoadingMore(false);
+            setHasMoreData(false);
+            return prev;
+          }
+          // Filter out duplicates
+          const existingIds = new Set(prev.map((log) => log.workoutLogId));
+          const uniqueNewLogs = newLogs.filter(
+            (log) => !existingIds.has(log.workoutLogId)
+          );
+
+          // If no new logs, we've reached the end
+          if (uniqueNewLogs.length === 0) {
+            setHasMoreData(false);
+          }
+
+          setIsLoadingMore(false);
+          return [...prev, ...uniqueNewLogs];
+        });
+      }
+    }
+  }, [
+    workoutLogsData,
+    isLoadingWorkoutLogs,
+    currentStartDate,
+    currentEndDate,
+    startDate,
+    endDate,
+  ]);
 
   // Handle URL parameters for workout persistence
   useEffect(() => {
     const workoutId = searchParams.get("workoutId");
-    if (
-      workoutId &&
-      workoutLogsData &&
-      !isLoadingWorkoutLogs &&
-      !isFetchingWorkoutLogs
-    ) {
-      const logs = getLogsArray();
-      const workout = logs.find((log) => log.workoutLogId === workoutId);
+    if (workoutId && allWorkoutLogs.length > 0) {
+      const workout = allWorkoutLogs.find(
+        (log) => log.workoutLogId === workoutId
+      );
       if (workout && workout.workoutLogId !== selectedWorkout?.workoutLogId) {
         setSelectedWorkout(workout);
       }
     } else if (!workoutId && selectedWorkout) {
-      // Clear selected workout when no workoutId in URL
       setSelectedWorkout(null);
     }
+  }, [allWorkoutLogs, searchParams, selectedWorkout?.workoutLogId]);
+
+  // Check if user is using custom date filters (not the default current week)
+  const isUsingCustomDateFilter = useCallback(() => {
+    const defaultStartDate = startOfWeek(new Date(), { weekStartsOn: 0 });
+    const defaultEndDate = endOfWeek(new Date(), { weekStartsOn: 0 });
+
+    return (
+      format(startDate, "yyyy-MM-dd") !==
+        format(defaultStartDate, "yyyy-MM-dd") ||
+      format(endDate, "yyyy-MM-dd") !== format(defaultEndDate, "yyyy-MM-dd")
+    );
+  }, [startDate, endDate]);
+
+  // Infinite scroll callback
+  const loadMoreWorkouts = useCallback(() => {
+    if (isLoadingMore || !hasMoreData || isFetchingWorkoutLogs) {
+      return;
+    }
+
+    // Don't fetch more data if user is filtering by specific dates
+    if (isUsingCustomDateFilter()) {
+      setHasMoreData(false);
+      return;
+    }
+
+    setIsLoadingMore(true);
+
+    // Go backwards in time: new end date = previous start date - 1, new start date = previous start date - 7
+    const newEndDate = addDays(currentStartDate, -1); // End one day before current start
+    const newStartDate = addDays(currentStartDate, -7); // Start 7 days before current start
+
+    setTimeout(() => {
+      setCurrentStartDate(newStartDate);
+      setCurrentEndDate(newEndDate);
+    }, 2000);
+    // setCurrentStartDate(newStartDate);
+    // setCurrentEndDate(newEndDate);
   }, [
-    workoutLogsData,
-    searchParams,
-    selectedWorkout?.workoutLogId,
-    isLoadingWorkoutLogs,
+    isLoadingMore,
+    hasMoreData,
     isFetchingWorkoutLogs,
+    currentStartDate,
+    isUsingCustomDateFilter,
   ]);
 
   // Ensure logs is an array and sort by date (newest first)
-  // Handle different data structures that might come from API
   const getLogsArray = (): WorkoutLog[] => {
     if (!workoutLogsData) return [];
     if (Array.isArray(workoutLogsData)) return workoutLogsData;
@@ -89,7 +183,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     return [];
   };
 
-  const sortedLogs = [...getLogsArray()].sort(
+  const sortedLogs = [...allWorkoutLogs].sort(
     (a: WorkoutLog, b: WorkoutLog) =>
       new Date(b.workoutDate).getTime() - new Date(a.workoutDate).getTime()
   );
@@ -158,14 +252,12 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
             {/* Workout List */}
             <WorkoutHistoryList
-              workouts={
-                isLoadingWorkoutLogs || isFetchingWorkoutLogs
-                  ? undefined
-                  : filteredLogs
-              }
+              workouts={filteredLogs}
               onSelectWorkout={handleSelectWorkout}
-              isLoading={isLoadingWorkoutLogs || isFetchingWorkoutLogs}
-              isFetching={isFetchingWorkoutLogs}
+              isLoading={isLoadingWorkoutLogs && allWorkoutLogs.length === 0}
+              isFetching={isLoadingMore}
+              onLoadMore={loadMoreWorkouts}
+              hasMoreData={hasMoreData}
             />
           </div>
         ) : (

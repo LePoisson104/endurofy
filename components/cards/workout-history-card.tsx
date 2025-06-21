@@ -16,6 +16,8 @@ interface WorkoutHistoryListProps {
   onSelectWorkout: (workout: WorkoutLog) => void;
   isLoading?: boolean;
   isFetching?: boolean;
+  onLoadMore?: () => void;
+  hasMoreData?: boolean;
 }
 
 interface WorkoutHistoryCardProps {
@@ -134,6 +136,8 @@ export function WorkoutHistoryList({
   onSelectWorkout,
   isLoading = false,
   isFetching = false,
+  onLoadMore,
+  hasMoreData = true,
 }: WorkoutHistoryListProps) {
   const isDark = useGetCurrentTheme();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -143,13 +147,13 @@ export function WorkoutHistoryList({
       if (isLoading) return;
       if (observerRef.current) observerRef.current?.disconnect();
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          console.log("Reached bottom of list");
+        if (entries[0].isIntersecting && hasMoreData && onLoadMore) {
+          onLoadMore();
         }
       });
       if (node) observerRef.current?.observe(node);
     },
-    [observerRef, isLoading]
+    [isLoading, hasMoreData, onLoadMore]
   );
 
   const getWorkoutsArray = (): WorkoutLog[] => {
@@ -170,7 +174,7 @@ export function WorkoutHistoryList({
     return <WorkoutHistorySkeleton />;
   }
 
-  if (workoutsArray.length === 0) {
+  if (workoutsArray.length === 0 && !isLoading && !isFetching) {
     return (
       <Card>
         <CardContent className="p-12 text-center">
@@ -206,9 +210,19 @@ export function WorkoutHistoryList({
           )
         )}
       </div>
-      {isFetching && (
-        <div className="flex justify-center items-center h-10">
+      {isFetching && hasMoreData && (
+        <div className="flex justify-center items-center h-10 mt-4">
           <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="ml-2 text-sm text-muted-foreground">
+            Loading more workouts...
+          </span>
+        </div>
+      )}
+      {!hasMoreData && workoutsArray.length > 0 && (
+        <div className="flex justify-center items-center h-10 mt-4">
+          <span className="text-sm text-muted-foreground">
+            No more workouts to load
+          </span>
         </div>
       )}
     </>
