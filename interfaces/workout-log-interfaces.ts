@@ -78,3 +78,11 @@ export interface WorkoutSet {
   previousWeight: number | null;
   previousWeightUnit: string | null;
 }
+
+export interface WorkoutLogPagination {
+  hasMoreData: boolean;
+  limit: number;
+  offset: number;
+  nextOffset: number;
+  workoutLogsData: WorkoutLog[];
+}

@@ -18,6 +18,7 @@ interface WorkoutHistoryListProps {
   isFetching?: boolean;
   onLoadMore?: () => void;
   hasMoreData?: boolean;
+  isInitialLoad?: boolean;
 }
 
 interface WorkoutHistoryCardProps {
@@ -134,10 +135,11 @@ function WorkoutHistoryCard({
 export function WorkoutHistoryList({
   workouts,
   onSelectWorkout,
-  isLoading = false,
-  isFetching = false,
+  isLoading,
+  isFetching,
   onLoadMore,
-  hasMoreData = true,
+  hasMoreData,
+  isInitialLoad,
 }: WorkoutHistoryListProps) {
   const isDark = useGetCurrentTheme();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -156,25 +158,12 @@ export function WorkoutHistoryList({
     [isLoading, hasMoreData, onLoadMore]
   );
 
-  const getWorkoutsArray = (): WorkoutLog[] => {
-    if (!workouts) return [];
-    if (Array.isArray(workouts)) return workouts;
-    if (
-      typeof workouts === "object" &&
-      workouts.data &&
-      Array.isArray(workouts.data)
-    )
-      return workouts.data;
-    return [];
-  };
-
-  const workoutsArray = getWorkoutsArray();
-
-  if (isLoading) {
+  if (isInitialLoad || (isLoading && workouts.length === 0)) {
     return <WorkoutHistorySkeleton />;
   }
 
-  if (workoutsArray.length === 0 && !isLoading && !isFetching) {
+  //  Only show "no workouts" if we're not loading AND we have no data
+  if (workouts.length === 0 && !isLoading && !isFetching && !isInitialLoad) {
     return (
       <Card>
         <CardContent className="p-12 text-center">
@@ -191,8 +180,8 @@ export function WorkoutHistoryList({
   return (
     <>
       <div className="space-y-4">
-        {workoutsArray.map((workout, index) =>
-          workoutsArray.length - 1 === index ? (
+        {workouts.map((workout: any, index: number) =>
+          workouts.length - 1 === index ? (
             <WorkoutHistoryCard
               key={workout.workoutLogId}
               workout={workout}
@@ -218,7 +207,7 @@ export function WorkoutHistoryList({
           </span>
         </div>
       )}
-      {!hasMoreData && workoutsArray.length > 0 && (
+      {!hasMoreData && workouts.length > 0 && (
         <div className="flex justify-center items-center h-10 mt-4">
           <span className="text-sm text-muted-foreground">
             No more workouts to load

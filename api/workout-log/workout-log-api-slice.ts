@@ -16,6 +16,19 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         { type: "WorkoutLog", id: "LIST" },
       ],
     }),
+    getWokroutLogPagination: builder.query({
+      query: ({ userId, programId, offset, limit }) => ({
+        url: `/api/v1/workout-log/get-workout-log-pagination/${userId}/${programId}/${offset}/${limit}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, arg) => [
+        {
+          type: "WorkoutLog",
+          id: `${arg.userId}-${arg.programId}-${arg.offset}-${arg.limit}`,
+        },
+        { type: "WorkoutLog", id: "LIST" },
+      ],
+    }),
     getPreviousWorkoutLog: builder.query({
       query: ({ userId, programId, dayId, currentWorkoutDate }) => ({
         url: `/api/v1/workout-log/get-previous-workout-log/${userId}/${programId}/${dayId}/${currentWorkoutDate}`,
@@ -117,4 +130,5 @@ export const {
   useUpdateWorkoutLogStatusMutation,
   useGetCompletedWorkoutLogsQuery,
   useGetPreviousWorkoutLogQuery,
+  useGetWokroutLogPaginationQuery,
 } = workoutLogApiSlice;
