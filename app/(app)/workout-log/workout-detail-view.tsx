@@ -88,10 +88,10 @@ export function WorkoutDetailView({
     // Navigate to workout-log page with the specific date and program
     const workoutDate = new Date(workout.workoutDate);
     const formattedDate = workoutDate.toISOString().split("T")[0]; // YYYY-MM-DD format
-    const programId = workout.programId;
-    router.push(
-      `/workout-log?date=${formattedDate}&tab=log&programId=${programId}`
-    );
+
+    localStorage.setItem("selectedDate", formattedDate);
+    localStorage.setItem("selectedTab", "log");
+    router.push(`/workout-log?date=${formattedDate}&tab=log`);
   };
 
   return (

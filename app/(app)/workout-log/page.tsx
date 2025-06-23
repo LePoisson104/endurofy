@@ -17,6 +17,7 @@ import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-pro
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSearchParams } from "next/navigation";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import type { WorkoutLog as WorkoutLogInterface } from "../../../interfaces/workout-log-interfaces";
@@ -35,7 +36,7 @@ export default function WorkoutLogManager() {
   const programs = useSelector(selectWorkoutProgram);
   const user = useSelector(selectCurrentUser);
   const isMobile = useIsMobile();
-
+  const searchParams = useSearchParams();
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
     null
   );
@@ -60,6 +61,16 @@ export default function WorkoutLogManager() {
       setSelectedTab(savedTab);
     }
   }, []);
+
+  useEffect(() => {
+    const date = searchParams.get("date");
+    const tab = searchParams.get("tab");
+
+    if (date && tab) {
+      setSelectedDate(new Date(date + "T00:00:00"));
+      setSelectedTab(tab);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (programs) {

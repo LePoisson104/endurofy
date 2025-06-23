@@ -132,6 +132,22 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     );
   }, [dateFilteredLogs, searchQuery]);
 
+  useEffect(() => {
+    const date = searchParams.get("date");
+    const tab = searchParams.get("tab");
+    const currentTab = localStorage.getItem("selectedTab");
+
+    if (date && tab && currentTab === "history") {
+      // You need to use router to modify URL params, not searchParams directly
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("date");
+      newSearchParams.delete("tab");
+
+      // Update the URL without the parameters
+      router.replace(`/workout-log?${newSearchParams.toString()}`);
+    }
+  }, [searchParams, router]);
+
   // Reset infinite scroll state when program changes (not dates!)
   useEffect(() => {
     setAllWorkoutLogs([]);
