@@ -7,7 +7,7 @@ import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
 import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ConstructionIcon, ListFilterPlus, Search } from "lucide-react";
+import { ListFilterPlus, Search } from "lucide-react";
 import { WorkoutFiltersModal } from "@/components/modals/filters-modal";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
@@ -15,6 +15,7 @@ import {
   useGetWorkoutLogQuery,
   useGetWokroutLogPaginationQuery,
 } from "@/api/workout-log/workout-log-api-slice";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
@@ -27,6 +28,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   const user = useSelector(selectCurrentUser);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
@@ -57,11 +59,11 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
     },
     {
-      skip: fetchFromBackend,
+      skip: !fetchFromBackend || !startDate || !endDate || !user?.user_id,
     }
   );
 
-  console.log("workoutLogsData", workoutLogsData);
+  // console.log("workoutLogsData", workoutLogsData);
 
   const {
     data: workoutLogPaginationData,
@@ -104,11 +106,19 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       setFetchFromBackend(true);
     }
 
+    if (workoutLogsData) {
+      return workoutLogsData.data.toSorted((a: WorkoutLog, b: WorkoutLog) => {
+        const aDate = new Date(a.workoutDate);
+        const bDate = new Date(b.workoutDate);
+        return bDate.getTime() - aDate.getTime();
+      });
+    }
+
     return allWorkoutLogs.filter((log) => {
       const logDate = log.workoutDate.split("T")[0];
       return logDate >= startDateStr && logDate <= endDateStr;
     });
-  }, [allWorkoutLogs, startDate, endDate]);
+  }, [allWorkoutLogs, fetchFromBackend, workoutLogsData, startDate, endDate]);
 
   // Apply search filter to date-filtered logs
   const filteredLogs = useMemo(() => {
@@ -237,26 +247,28 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
           // Workout List View
           <div className="space-y-6">
             {/* Search and Filters */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsFiltersModalOpen(true)}
-              >
-                <ListFilterPlus className="w-4 h-4" />
-                Filters
-              </Button>
-
-              {/* Clear filters button */}
-              {hasActiveFilters && (
+            <div className={`flex gap-2 ${isMobile ? "flex-col" : "flex-row"}`}>
+              <div className="flex gap-2 items-center">
                 <Button
                   variant="outline"
-                  size="sm"
-                  onClick={clearDateFilters}
-                  className="text-xs"
+                  onClick={() => setIsFiltersModalOpen(true)}
                 >
-                  Clear Filters
+                  <ListFilterPlus className="w-4 h-4" />
+                  Filters
                 </Button>
-              )}
+
+                {/* Clear filters button */}
+                {hasActiveFilters && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearDateFilters}
+                    className="text-xs"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
 
               <div className="relative w-full">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4" />
@@ -273,10 +285,10 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
             {/* Filter status */}
             {hasActiveFilters && (
               <div className="text-sm text-muted-foreground">
-                Showing {filteredCount} of {totalCount} workouts
                 {startDate && endDate && (
                   <span className="ml-2">
-                    from {format(startDate, "MMM d, yyyy")} to{" "}
+                    {filteredLogs.length} workouts from{" "}
+                    {format(startDate, "MMM d, yyyy")} to{" "}
                     {format(endDate, "MMM d, yyyy")}
                   </span>
                 )}

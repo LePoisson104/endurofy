@@ -124,7 +124,7 @@ export function WorkoutFiltersModal({
           {/* Date Range */}
           <div className="space-y-4">
             {/* Date Pickers - always visible */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Start Date */}
               <div className="space-y-2">
                 <Label className="text-sm">From</Label>
