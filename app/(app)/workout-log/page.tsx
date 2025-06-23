@@ -50,6 +50,7 @@ export default function WorkoutLogManager() {
   // Load selectedDate from localStorage on component mount
   useEffect(() => {
     const savedDate = localStorage.getItem("selectedDate");
+
     if (savedDate) {
       setSelectedDate(new Date(savedDate));
     }
@@ -95,8 +96,6 @@ export default function WorkoutLogManager() {
   const toggleCalendar = () => {
     setShowCalendar(!showCalendar);
   };
-
-  const handleSaveWorkoutLog = () => {};
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
@@ -182,7 +181,6 @@ export default function WorkoutLogManager() {
                       <WorkoutLogForm
                         program={selectedProgram}
                         selectedDate={selectedDate}
-                        onSaveLog={handleSaveWorkoutLog}
                       />
                     )}
                   </CardContent>

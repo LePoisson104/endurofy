@@ -32,7 +32,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
-    JSON.parse(localStorage.getItem("selectedWorkout") || "null")
+    null
   );
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -46,6 +46,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   const [offset, setOffset] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [fetchFromBackend, setFetchFromBackend] = useState(false);
+  const [limit, setLimit] = useState(localStorage.getItem("limit") || "10");
 
   const {
     data: workoutLogsData,
@@ -63,8 +64,6 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     }
   );
 
-  // console.log("workoutLogsData", workoutLogsData);
-
   const {
     data: workoutLogPaginationData,
     isLoading: isLoadingWorkoutLogPagination,
@@ -74,7 +73,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       userId: user?.user_id,
       programId: selectedProgram?.programId,
       offset: offset,
-      limit: 10,
+      limit: limit,
     },
     {
       skip: !selectedProgram?.programId || !user?.user_id,
@@ -107,11 +106,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     }
 
     if (workoutLogsData) {
-      return workoutLogsData.data.toSorted((a: WorkoutLog, b: WorkoutLog) => {
-        const aDate = new Date(a.workoutDate);
-        const bDate = new Date(b.workoutDate);
-        return bDate.getTime() - aDate.getTime();
-      });
+      return allWorkoutLogs;
     }
 
     return allWorkoutLogs.filter((log) => {
@@ -144,33 +139,55 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     setIsLoadingMore(false);
     setIsInitialLoad(true);
     setOffset(0);
+    localStorage.removeItem("limit");
   }, [selectedProgram?.programId]); // Only reset on program change
+
+  useEffect(() => {
+    if (workoutLogsData?.data.length > 0) {
+      setAllWorkoutLogs(
+        workoutLogsData.data.toSorted((a: WorkoutLog, b: WorkoutLog) => {
+          const aDate = new Date(a.workoutDate);
+          const bDate = new Date(b.workoutDate);
+          return bDate.getTime() - aDate.getTime();
+        })
+      );
+      localStorage.setItem(
+        "limit",
+        workoutLogsData?.data.length > 0
+          ? workoutLogsData?.data.length.toString()
+          : "10"
+      );
+    }
+  }, [workoutLogsData]);
 
   // Handle new data from pagination
   useEffect(() => {
     if (workoutLogPaginationData && !isLoadingWorkoutLogPagination) {
       const newData = workoutLogPaginationData.data.workoutLogsData;
 
-      if (offset === 0) {
-        // First load - replace all data
-        setAllWorkoutLogs(newData);
-      } else {
-        // Pagination load - append data and remove duplicates
-        setAllWorkoutLogs((prev) => {
-          const existingIds = new Set(prev.map((log) => log.workoutLogId));
-          const uniqueNewLogs = newData.filter(
-            (log: WorkoutLog) => !existingIds.has(log.workoutLogId)
-          );
-          const updatedLogs = [...prev, ...uniqueNewLogs];
-          return updatedLogs;
-        });
-      }
+      // Pagination load - append data and remove duplicates
+      setAllWorkoutLogs((prev) => {
+        const existingIds = new Set(
+          prev.map((log: WorkoutLog) => log.workoutLogId)
+        );
+        const uniqueNewLogs = newData.filter(
+          (log: WorkoutLog) => !existingIds.has(log.workoutLogId)
+        );
+        const updatedLogs = [...prev, ...uniqueNewLogs];
+        return updatedLogs;
+      });
 
+      localStorage.setItem(
+        "limit",
+        allWorkoutLogs.length + newData.length > 0
+          ? (allWorkoutLogs.length + newData.length).toString()
+          : "10"
+      );
       setHasMoreData(workoutLogPaginationData.data.hasMore);
       setIsLoadingMore(false);
       setIsInitialLoad(false);
     }
-  }, [workoutLogPaginationData, isLoadingWorkoutLogPagination, offset]);
+  }, [workoutLogPaginationData, isLoadingWorkoutLogPagination]);
 
   // Handle URL parameters for workout persistence
   useEffect(() => {
@@ -206,7 +223,6 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   // Handle workout selection for detail view
   const handleSelectWorkout = (workout: WorkoutLog) => {
     setSelectedWorkout(workout);
-    localStorage.setItem("selectedWorkout", JSON.stringify(workout));
     // Update URL with workout ID for persistence
     const params = new URLSearchParams(searchParams.toString());
     params.set("workoutId", workout.workoutLogId);
@@ -237,8 +253,6 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
   // Check if filters are active
   const hasActiveFilters = startDate || endDate;
-  const filteredCount = dateFilteredLogs.length;
-  const totalCount = allWorkoutLogs.length;
 
   return (
     <div className="min-h-screen">

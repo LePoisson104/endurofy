@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
@@ -52,31 +52,37 @@ export function WorkoutDetailView({
     });
   }, []);
 
+  const calculateTotalVolume = useMemo(() => {
+    if (workout) {
+      return workout.workoutExercises.reduce(
+        (sum, exercise) =>
+          sum +
+          exercise.workoutSets.reduce((setSum, set) => {
+            const leftReps = set.repsLeft || 0;
+            const rightReps = set.repsRight || 0;
+            const weight = set.weight || 0;
+            return setSum + weight * leftReps + weight * rightReps;
+          }, 0),
+        0
+      );
+    }
+    return 0;
+  }, [workout]);
+
+  const calculateTotalSets = useMemo(() => {
+    if (workout) {
+      return workout.workoutExercises.reduce(
+        (sum, exercise) => sum + exercise.workoutSets.length,
+        0
+      );
+    }
+    return 0;
+  }, [workout]);
+
   // Show skeleton if loading or no workout
   if (isLoading || !workout) {
     return <WorkoutDetailSkeleton />;
   }
-
-  const calculateTotalVolume = () => {
-    return workout.workoutExercises.reduce(
-      (sum, exercise) =>
-        sum +
-        exercise.workoutSets.reduce((setSum, set) => {
-          const leftReps = set.repsLeft || 0;
-          const rightReps = set.repsRight || 0;
-          const weight = set.weight || 0;
-          return setSum + weight * leftReps + weight * rightReps;
-        }, 0),
-      0
-    );
-  };
-
-  const calculateTotalSets = () => {
-    return workout.workoutExercises.reduce(
-      (sum, exercise) => sum + exercise.workoutSets.length,
-      0
-    );
-  };
 
   const handleEditWorkout = () => {
     // Navigate to workout-log page with the specific date and program
@@ -152,7 +158,7 @@ export function WorkoutDetailView({
               <div className="p-4 text-center">
                 <Target className="h-6 w-6 mx-auto mb-2 text-emerald-500" />
                 <div className="text-sm font-medium">Total Sets</div>
-                <div className="text-sm font-bold">{calculateTotalSets()}</div>
+                <div className="text-sm font-bold">{calculateTotalSets}</div>
               </div>
             </div>
             <div className="shadow-none">
@@ -160,7 +166,7 @@ export function WorkoutDetailView({
                 <TrendingUp className="h-6 w-6 mx-auto mb-2 text-red-500" />
                 <div className="text-sm font-medium">Volume</div>
                 <div className="text-sm font-bold">
-                  {(calculateTotalVolume() / 1000).toFixed(1)}K lbs
+                  {(calculateTotalVolume / 1000).toFixed(1)}K lbs
                 </div>
               </div>
             </div>

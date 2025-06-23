@@ -10,9 +10,11 @@ import { AlertCircle, Check, History, SquarePen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-import { Exercise } from "@/interfaces/workout-program-interfaces";
 import {
-  WorkoutLogFormProps,
+  Exercise,
+  WorkoutProgram,
+} from "@/interfaces/workout-program-interfaces";
+import {
   ExercisePayload,
   WorkoutLogPayload,
 } from "@/interfaces/workout-log-interfaces";
@@ -34,6 +36,11 @@ import {
   useGetPreviousWorkoutLogQuery,
 } from "@/api/workout-log/workout-log-api-slice";
 import { WorkoutLogFormSkeleton } from "@/components/skeletons/workout-log-form-skeleton";
+
+interface WorkoutLogFormProps {
+  program: WorkoutProgram;
+  selectedDate: Date;
+}
 
 export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   const isMobile = useIsMobile();

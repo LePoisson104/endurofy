@@ -16,13 +16,6 @@ export interface SetData {
   previousWeight: number | null;
 }
 
-export interface WorkoutLogFormProps {
-  program: WorkoutProgram;
-  selectedDate: Date;
-  onSaveLog: (log: any) => void;
-  workoutLogs?: any[];
-}
-
 export interface WorkoutLogPayload extends ExercisePayload {
   workoutName: string;
   workoutDate: string;

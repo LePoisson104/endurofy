@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dumbbell, Calendar, Eye, Loader2 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -34,17 +34,20 @@ function WorkoutHistoryCard({
   isDark,
   ref,
 }: WorkoutHistoryCardProps) {
-  const calculateTotalVolume = (workout: WorkoutLog) => {
+  const calculateTotalVolume = useMemo(() => {
     return workout.workoutExercises.reduce(
       (sum, exercise) =>
         sum +
-        exercise.workoutSets.reduce((setSum: number, set: any) => {
-          const reps = set.repsLeft || set.repsRight || 0;
-          return setSum + set.weight * reps;
+        exercise.workoutSets.reduce((setSum, set) => {
+          const leftReps = set.repsLeft || 0;
+          const rightReps = set.repsRight || 0;
+          const weight = set.weight || 0;
+          return setSum + weight * leftReps + weight * rightReps;
         }, 0),
       0
     );
-  };
+  }, [workout.workoutExercises]);
+
   return (
     <Card
       key={workout.workoutLogId}
@@ -114,8 +117,7 @@ function WorkoutHistoryCard({
               }`}
             >
               <span>
-                Total Volume:{" "}
-                {(calculateTotalVolume(workout) / 1000).toFixed(1)}K lbs
+                Total Volume: {(calculateTotalVolume / 1000).toFixed(1)}K lbs
               </span>
               <span>
                 Sets:{" "}
