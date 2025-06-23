@@ -43,7 +43,9 @@ export function WorkoutCalendar({
   program,
 }: WorkoutCalendarProps) {
   const user = useSelector(selectCurrentUser);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(
+    new Date(selectedDate) || new Date()
+  );
   const { startDateOfPreviousMonth, endDateOfPreviousMonth } =
     getStartOfPreviousAndEndOfNextMonth({
       currentMonth: new Date(

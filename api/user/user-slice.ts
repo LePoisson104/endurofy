@@ -49,6 +49,7 @@ const userSlice = createSlice({
 
       const today = new Date();
       const birthDateObj = new Date(state.birth_date);
+
       const age = today.getFullYear() - birthDateObj.getFullYear();
 
       // Convert weight to kg if in lbs
