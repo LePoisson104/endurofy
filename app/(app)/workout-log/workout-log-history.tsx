@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
 import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ListFilterPlus, Search } from "lucide-react";
+import { ConstructionIcon, ListFilterPlus, Search } from "lucide-react";
 import { WorkoutFiltersModal } from "@/components/modals/filters-modal";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
@@ -15,7 +15,6 @@ import {
   useGetWorkoutLogQuery,
   useGetWokroutLogPaginationQuery,
 } from "@/api/workout-log/workout-log-api-slice";
-import { startOfWeek, endOfWeek } from "date-fns";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
@@ -31,24 +30,20 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
-    null
+    JSON.parse(localStorage.getItem("selectedWorkout") || "null")
   );
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
-  const [startDate, setStartDate] = useState<Date>(
-    startOfWeek(new Date(), { weekStartsOn: 0 })
-  );
-  const [endDate, setEndDate] = useState<Date>(
-    endOfWeek(new Date(), { weekStartsOn: 0 })
-  );
-  const [currentStartDate, setCurrentStartDate] = useState<Date>(startDate);
-  const [currentEndDate, setCurrentEndDate] = useState<Date>(endDate);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
   // Infinite scroll state
   const [allWorkoutLogs, setAllWorkoutLogs] = useState<WorkoutLog[]>([]);
+
   const [hasMoreData, setHasMoreData] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [fetchFromBackend, setFetchFromBackend] = useState(false);
 
   const {
     data: workoutLogsData,
@@ -58,13 +53,15 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     {
       userId: user?.user_id,
       programId: selectedProgram?.programId,
-      startDate: format(currentStartDate, "yyyy-MM-dd"),
-      endDate: format(currentEndDate, "yyyy-MM-dd"),
+      startDate: startDate ? format(startDate, "yyyy-MM-dd") : "",
+      endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
     },
     {
-      skip: true,
+      skip: fetchFromBackend,
     }
   );
+
+  console.log("workoutLogsData", workoutLogsData);
 
   const {
     data: workoutLogPaginationData,
@@ -82,34 +79,95 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     }
   );
 
-  // Reset infinite scroll state when filters change
+  // Use useMemo for date filtering to avoid infinite loops
+  const dateFilteredLogs = useMemo(() => {
+    if (!allWorkoutLogs.length) {
+      return [];
+    }
+
+    // If no date filters, return all logs
+    if (!startDate || !endDate) {
+      return allWorkoutLogs;
+    }
+
+    const startDateStr = format(startDate, "yyyy-MM-dd");
+    const endDateStr = format(endDate, "yyyy-MM-dd");
+
+    const doesStartLogExist = allWorkoutLogs.find(
+      (log) => log.workoutDate.split("T")[0] === startDateStr
+    );
+    const doesEndLogExist = allWorkoutLogs.find(
+      (log) => log.workoutDate.split("T")[0] === endDateStr
+    );
+
+    if (!doesStartLogExist || !doesEndLogExist) {
+      setFetchFromBackend(true);
+    }
+
+    return allWorkoutLogs.filter((log) => {
+      const logDate = log.workoutDate.split("T")[0];
+      return logDate >= startDateStr && logDate <= endDateStr;
+    });
+  }, [allWorkoutLogs, startDate, endDate]);
+
+  // Apply search filter to date-filtered logs
+  const filteredLogs = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return dateFilteredLogs;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return dateFilteredLogs.filter(
+      (log: WorkoutLog) =>
+        log.title.toLowerCase().includes(query) ||
+        format(parseISO(log.workoutDate), "MMMM d, yyyy")
+          .toLowerCase()
+          .includes(query) ||
+        log.dayId.toLowerCase().includes(query)
+    );
+  }, [dateFilteredLogs, searchQuery]);
+
+  // Reset infinite scroll state when program changes (not dates!)
   useEffect(() => {
     setAllWorkoutLogs([]);
-    setCurrentStartDate(startDate);
-    setCurrentEndDate(endDate);
     setHasMoreData(true);
     setIsLoadingMore(false);
     setIsInitialLoad(true);
-  }, [startDate, endDate, selectedProgram?.programId]);
+    setOffset(0);
+  }, [selectedProgram?.programId]); // Only reset on program change
 
+  // Handle new data from pagination
   useEffect(() => {
     if (workoutLogPaginationData && !isLoadingWorkoutLogPagination) {
-      setAllWorkoutLogs((prev) => [
-        ...prev,
-        ...workoutLogPaginationData.data.workoutLogsData,
-      ]);
+      const newData = workoutLogPaginationData.data.workoutLogsData;
+
+      if (offset === 0) {
+        // First load - replace all data
+        setAllWorkoutLogs(newData);
+      } else {
+        // Pagination load - append data and remove duplicates
+        setAllWorkoutLogs((prev) => {
+          const existingIds = new Set(prev.map((log) => log.workoutLogId));
+          const uniqueNewLogs = newData.filter(
+            (log: WorkoutLog) => !existingIds.has(log.workoutLogId)
+          );
+          const updatedLogs = [...prev, ...uniqueNewLogs];
+          return updatedLogs;
+        });
+      }
+
       setHasMoreData(workoutLogPaginationData.data.hasMore);
       setIsLoadingMore(false);
       setIsInitialLoad(false);
     }
-  }, [workoutLogPaginationData, isLoadingWorkoutLogPagination]);
+  }, [workoutLogPaginationData, isLoadingWorkoutLogPagination, offset]);
 
   // Handle URL parameters for workout persistence
   useEffect(() => {
     const workoutId = searchParams.get("workoutId");
     if (workoutId && allWorkoutLogs.length > 0) {
       const workout = allWorkoutLogs.find(
-        (log) => log.workoutLogId === workoutId
+        (log: WorkoutLog) => log.workoutLogId === workoutId
       );
       if (workout && workout.workoutLogId !== selectedWorkout?.workoutLogId) {
         setSelectedWorkout(workout);
@@ -125,22 +183,20 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       return;
     }
     setIsLoadingMore(true);
-    setOffset(workoutLogPaginationData?.data?.nextOffset);
-  }, [isLoadingMore, hasMoreData, isFetchingWorkoutLogPagination]);
-
-  // Filter logs based on search query
-  const filteredLogs = allWorkoutLogs.filter(
-    (log: WorkoutLog) =>
-      log.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      format(parseISO(log.workoutDate), "MMMM d, yyyy")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      log.dayId.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    // Calculate next offset based on current data length
+    const nextOffset = allWorkoutLogs.length;
+    setOffset(nextOffset);
+  }, [
+    isLoadingMore,
+    hasMoreData,
+    isFetchingWorkoutLogPagination,
+    allWorkoutLogs.length,
+  ]);
 
   // Handle workout selection for detail view
   const handleSelectWorkout = (workout: WorkoutLog) => {
     setSelectedWorkout(workout);
+    localStorage.setItem("selectedWorkout", JSON.stringify(workout));
     // Update URL with workout ID for persistence
     const params = new URLSearchParams(searchParams.toString());
     params.set("workoutId", workout.workoutLogId);
@@ -159,9 +215,20 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     router.push(newUrl, { scroll: false });
   };
 
+  // Clear filters function
+  const clearDateFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+  };
+
   // Check if we should show detail view (either selectedWorkout exists or workoutId in URL)
   const workoutId = searchParams.get("workoutId");
   const shouldShowDetailView = selectedWorkout || workoutId;
+
+  // Check if filters are active
+  const hasActiveFilters = startDate || endDate;
+  const filteredCount = dateFilteredLogs.length;
+  const totalCount = allWorkoutLogs.length;
 
   return (
     <div className="min-h-screen">
@@ -178,6 +245,19 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
                 <ListFilterPlus className="w-4 h-4" />
                 Filters
               </Button>
+
+              {/* Clear filters button */}
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearDateFilters}
+                  className="text-xs"
+                >
+                  Clear Filters
+                </Button>
+              )}
+
               <div className="relative w-full">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4" />
                 <Input
@@ -190,15 +270,27 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
               </div>
             </div>
 
-            {/* Workout List */}
+            {/* Filter status */}
+            {hasActiveFilters && (
+              <div className="text-sm text-muted-foreground">
+                Showing {filteredCount} of {totalCount} workouts
+                {startDate && endDate && (
+                  <span className="ml-2">
+                    from {format(startDate, "MMM d, yyyy")} to{" "}
+                    {format(endDate, "MMM d, yyyy")}
+                  </span>
+                )}
+              </div>
+            )}
 
+            {/* Workout List */}
             <WorkoutHistoryList
-              workouts={filteredLogs}
+              workouts={filteredLogs} // Pass filtered logs
               onSelectWorkout={handleSelectWorkout}
               isLoading={isLoadingWorkoutLogPagination}
               isFetching={isFetchingWorkoutLogPagination}
               onLoadMore={loadMoreWorkouts}
-              hasMoreData={hasMoreData}
+              hasMoreData={hasMoreData && !hasActiveFilters} // Disable load more when filtering
               isInitialLoad={isInitialLoad}
             />
           </div>

@@ -24,10 +24,10 @@ import {
 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 
+import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
@@ -42,7 +42,15 @@ export function WorkoutDetailView({
   const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
   const router = useRouter();
+
   const [showPrevious, setShowPrevious] = useState(false);
+
+  // Scroll to top when workout detail view is displayed
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  }, []);
 
   // Show skeleton if loading or no workout
   if (isLoading || !workout) {

@@ -30,8 +30,8 @@ import { cn } from "@/lib/utils";
 interface WorkoutFiltersModalProps {
   isOpen: boolean;
   onClose: () => void;
-  setHistoryStartDate: (date: Date) => void;
-  setHistoryEndDate: (date: Date) => void;
+  setHistoryStartDate: (date: Date | undefined) => void;
+  setHistoryEndDate: (date: Date | undefined) => void;
 }
 
 export function WorkoutFiltersModal({
@@ -91,14 +91,8 @@ export function WorkoutFiltersModal({
     setStartDate(undefined);
     setEndDate(undefined);
     setDatePreset("");
-    // Reset parent dates to current week
-    const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay());
-    const weekEnd = new Date(now);
-    weekEnd.setDate(now.getDate() + (6 - now.getDay()));
-    setHistoryStartDate(weekStart);
-    setHistoryEndDate(weekEnd);
+    setHistoryStartDate(undefined);
+    setHistoryEndDate(undefined);
   };
 
   const handleCancel = () => {
