@@ -213,59 +213,6 @@ export default function WorkoutLogManager() {
                     />
                   </CardContent>
                 </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle>Stats</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-sm font-medium text-slate-500">
-                          Total Workouts
-                        </div>
-                        <div className="text-2xl font-bold">
-                          {workoutLogs.length}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-slate-500">
-                          This Month
-                        </div>
-                        <div className="text-2xl font-bold">
-                          {/* {
-                          workoutLogs.filter((log) => {
-                            const logDate = parseISO(log.workoutDate);
-                            return (
-                              logDate.getMonth() === new Date().getMonth() &&
-                              logDate.getFullYear() === new Date().getFullYear()
-                            );
-                          }).length
-                        } */}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-slate-500">
-                          Last Workout
-                        </div>
-                        <div className="text-lg font-medium">
-                          {workoutLogs.length > 0
-                            ? format(
-                                parseISO(
-                                  workoutLogs.sort(
-                                    (a, b) =>
-                                      new Date(b.workoutDate).getTime() -
-                                      new Date(a.workoutDate).getTime()
-                                  )[0].workoutDate
-                                ),
-                                "MMM d, yyyy"
-                              )
-                            : "No workouts yet"}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             )}
           </div>
