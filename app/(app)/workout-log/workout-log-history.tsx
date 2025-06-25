@@ -187,15 +187,27 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     if (workoutLogPaginationData && !isLoadingWorkoutLogPagination) {
       const newData = workoutLogPaginationData.data.workoutLogsData;
 
-      // Pagination load - append data and remove duplicates
+      // Pagination load - merge data, replacing existing logs with updated ones
       setAllWorkoutLogs((prev) => {
-        const existingIds = new Set(
-          prev.map((log: WorkoutLog) => log.workoutLogId)
+        // Use Map to replace existing logs with updated ones
+        const logMap = new Map(
+          prev.map((log: WorkoutLog) => [log.workoutLogId, log])
         );
-        const uniqueNewLogs = newData.filter(
-          (log: WorkoutLog) => !existingIds.has(log.workoutLogId)
+
+        // Add or replace logs from new data
+        newData.forEach((log: WorkoutLog) => {
+          logMap.set(log.workoutLogId, log);
+        });
+
+        // Convert back to array and sort by date (newest first)
+        const updatedLogs = Array.from(logMap.values()).sort(
+          (a: WorkoutLog, b: WorkoutLog) => {
+            const aDate = new Date(a.workoutDate);
+            const bDate = new Date(b.workoutDate);
+            return bDate.getTime() - aDate.getTime();
+          }
         );
-        const updatedLogs = [...prev, ...uniqueNewLogs];
+
         return updatedLogs;
       });
 
@@ -211,20 +223,22 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     }
   }, [workoutLogPaginationData, isLoadingWorkoutLogPagination]);
 
-  // Handle URL parameters for workout persistence
+  // Handle URL parameters for workout persistence and update selectedWorkout with fresh data
   useEffect(() => {
     const workoutId = searchParams.get("workoutId");
     if (workoutId && allWorkoutLogs.length > 0) {
       const workout = allWorkoutLogs.find(
         (log: WorkoutLog) => log.workoutLogId === workoutId
       );
-      if (workout && workout.workoutLogId !== selectedWorkout?.workoutLogId) {
+      if (workout) {
+        // Always update selectedWorkout if we found a matching workout
+        // This ensures we get the latest data after cache invalidation
         setSelectedWorkout(workout);
       }
     } else if (!workoutId && selectedWorkout) {
       setSelectedWorkout(null);
     }
-  }, [allWorkoutLogs, searchParams, selectedWorkout?.workoutLogId]);
+  }, [allWorkoutLogs, searchParams]);
 
   // Infinite scroll callback
   const loadMoreWorkouts = useCallback(() => {
