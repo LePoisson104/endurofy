@@ -137,9 +137,12 @@ export function WorkoutDetailView({
     return 0;
   }, [workout]);
 
-  // Show skeleton if loading or no workout
-  if (isLoading || !workout) {
+  if (isLoading) {
     return <WorkoutDetailSkeleton />;
+  }
+
+  if (!workout) {
+    return;
   }
 
   const handleEditWorkout = () => {

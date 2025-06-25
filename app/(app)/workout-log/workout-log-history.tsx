@@ -48,24 +48,21 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   const [fetchFromBackend, setFetchFromBackend] = useState(false);
   const [limit, setLimit] = useState(localStorage.getItem("limit") || "10");
 
-  const {
-    data: workoutLogsData,
-    isLoading: isLoadingWorkoutLogs,
-    isFetching: isFetchingWorkoutLogs,
-  } = useGetWorkoutLogQuery(
-    {
-      userId: user?.user_id,
-      programId:
-        selectedProgram === "without-program"
-          ? "without-program"
-          : selectedProgram?.programId,
-      startDate: startDate ? format(startDate, "yyyy-MM-dd") : "",
-      endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
-    },
-    {
-      skip: !fetchFromBackend || !startDate || !endDate || !user?.user_id,
-    }
-  );
+  const { data: workoutLogsData, isLoading: isLoadingWorkoutLogs } =
+    useGetWorkoutLogQuery(
+      {
+        userId: user?.user_id,
+        programId:
+          selectedProgram === "without-program"
+            ? "without-program"
+            : selectedProgram?.programId,
+        startDate: startDate ? format(startDate, "yyyy-MM-dd") : "",
+        endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
+      },
+      {
+        skip: !fetchFromBackend || !startDate || !endDate || !user?.user_id,
+      }
+    );
 
   const {
     data: workoutLogPaginationData,
@@ -189,7 +186,17 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
       // Pagination load - merge data, replacing existing logs with updated ones
       setAllWorkoutLogs((prev) => {
-        // Use Map to replace existing logs with updated ones
+        // If this is initial load (offset 0), replace all data
+        // This handles the case where workouts are deleted and no longer exist
+        if (offset === 0) {
+          return [...newData].sort((a: WorkoutLog, b: WorkoutLog) => {
+            const aDate = new Date(a.workoutDate);
+            const bDate = new Date(b.workoutDate);
+            return bDate.getTime() - aDate.getTime();
+          });
+        }
+
+        // For pagination (offset > 0), merge with existing data
         const logMap = new Map(
           prev.map((log: WorkoutLog) => [log.workoutLogId, log])
         );
@@ -231,9 +238,9 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
         (log: WorkoutLog) => log.workoutLogId === workoutId
       );
       if (workout) {
-        // Always update selectedWorkout if we found a matching workout
-        // This ensures we get the latest data after cache invalidation
         setSelectedWorkout(workout);
+      } else {
+        handleBackToList();
       }
     } else if (!workoutId && selectedWorkout) {
       setSelectedWorkout(null);
@@ -393,11 +400,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
             {/* Workout Detail */}
             <WorkoutDetailView
               workout={selectedWorkout}
-              isLoading={
-                isLoadingWorkoutLogs ||
-                isFetchingWorkoutLogs ||
-                !selectedWorkout
-              }
+              isLoading={isLoadingWorkoutLogs || isLoadingWorkoutLogPagination}
             />
           </div>
         )}

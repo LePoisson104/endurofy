@@ -46,6 +46,7 @@ export function WorkoutCalendar({
   const [currentMonth, setCurrentMonth] = useState(
     new Date(selectedDate) || new Date()
   );
+
   const { startDateOfPreviousMonth, endDateOfPreviousMonth } =
     getStartOfPreviousAndEndOfNextMonth({
       currentMonth: new Date(
@@ -105,7 +106,7 @@ export function WorkoutCalendar({
     } else {
       // Original logic for dayOfWeek programs
       const dayOfWeek = day.getDay() || 7; // Convert Sunday (0) to 7
-      return program.workoutDays.some(
+      return program?.workoutDays?.some(
         (workoutDay: WorkoutDay) => workoutDay.dayNumber === dayOfWeek
       );
     }
