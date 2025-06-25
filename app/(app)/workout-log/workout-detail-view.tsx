@@ -21,11 +21,20 @@ import {
   EyeOff,
   Edit,
   Play,
+  Save,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import {
+  useDeleteWorkoutSetMutation,
+  useUpdateWorkoutSetMutation,
+} from "@/api/workout-log/workout-log-api-slice";
+import ErrorAlert from "@/components/alerts/error-alert";
 
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
@@ -44,6 +53,21 @@ export function WorkoutDetailView({
   const router = useRouter();
 
   const [showPrevious, setShowPrevious] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
+  const [successSetId, setSuccessSetId] = useState<string | null>(null);
+  const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
+  const [originalValues, setOriginalValues] = useState<{
+    [setId: string]: any;
+  }>({});
+  const [editedValues, setEditedValues] = useState<{
+    [setId: string]: any;
+  }>({});
+
+  const [deleteWorkoutSet, { isLoading: isDeleting }] =
+    useDeleteWorkoutSetMutation();
+  const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
 
   // Scroll to top when workout detail view is displayed
   useEffect(() => {
@@ -51,6 +75,40 @@ export function WorkoutDetailView({
       top: 0,
     });
   }, []);
+
+  // Store original values when workout is loaded
+  useEffect(() => {
+    if (workout && workout.workoutExercises) {
+      const originals: { [setId: string]: any } = {};
+      const edited: { [setId: string]: any } = {};
+
+      workout.workoutExercises.forEach((exercise) => {
+        exercise.workoutSets.forEach((set) => {
+          const setId = set.workoutSetId;
+          originals[setId] = { ...set };
+          edited[setId] = { ...set };
+        });
+      });
+
+      setOriginalValues(originals);
+      setEditedValues(edited);
+    }
+  }, [workout]);
+
+  // Reset unsaved changes when exiting edit mode
+  useEffect(() => {
+    if (!isEditing && modifiedSets.size > 0) {
+      // Reset edited values back to original values
+      const resetValues = { ...editedValues };
+      modifiedSets.forEach((setId) => {
+        if (originalValues[setId]) {
+          resetValues[setId] = { ...originalValues[setId] };
+        }
+      });
+      setEditedValues(resetValues);
+      setModifiedSets(new Set());
+    }
+  }, [isEditing, modifiedSets, originalValues, editedValues]);
 
   const calculateTotalVolume = useMemo(() => {
     if (workout) {
@@ -94,8 +152,127 @@ export function WorkoutDetailView({
     router.push(`/workout-log?date=${formattedDate}&tab=log`);
   };
 
+  // Check if current values differ from original values
+  const hasActualChanges = (setId: string): boolean => {
+    if (!originalValues[setId] || !editedValues[setId]) {
+      return false;
+    }
+
+    const original = originalValues[setId];
+    const edited = editedValues[setId];
+
+    return (
+      String(edited.weight || "") !== String(original.weight || "") ||
+      String(edited.repsLeft || "") !== String(original.repsLeft || "") ||
+      String(edited.repsRight || "") !== String(original.repsRight || "")
+    );
+  };
+
+  // Handle input changes
+  const handleInputChange = (
+    setId: string,
+    field: "weight" | "repsLeft" | "repsRight",
+    value: string
+  ) => {
+    setEditedValues((prev) => ({
+      ...prev,
+      [setId]: {
+        ...prev[setId],
+        [field]: value === "" ? 0 : Number(value),
+      },
+    }));
+
+    setModifiedSets((prev) => new Set(prev).add(setId));
+  };
+
+  // Handle save changes
+  const handleSaveSetChanges = async (setId: string, exercise: any) => {
+    if (!editedValues[setId]) return;
+
+    setUpdatingSetId(setId);
+    setSuccessSetId(null);
+
+    const editedSet = editedValues[setId];
+    let workoutSetPayload = {};
+
+    if (exercise.laterality === "bilateral") {
+      workoutSetPayload = {
+        weight: editedSet.weight,
+        weightUnit: editedSet.weightUnit || "lb",
+        leftReps: Number(editedSet.repsLeft),
+        rightReps: Number(editedSet.repsLeft), // For bilateral, both sides are the same
+      };
+    } else {
+      workoutSetPayload = {
+        weight: editedSet.weight,
+        weightUnit: editedSet.weightUnit || "lb",
+        leftReps: editedSet.repsLeft,
+        rightReps: editedSet.repsRight,
+      };
+    }
+
+    try {
+      await updateWorkoutSet({
+        workoutSetId: editedSet.workoutSetId,
+        workoutExerciseId: editedSet.workoutExerciseId,
+        workoutSetPayload: workoutSetPayload,
+      }).unwrap();
+
+      // Show success state
+      setSuccessSetId(setId);
+
+      // Update original values with the new saved values
+      setOriginalValues((prev) => ({
+        ...prev,
+        [setId]: { ...editedSet },
+      }));
+
+      // Remove from modified sets after successful save
+      setModifiedSets((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(setId);
+        return newSet;
+      });
+
+      // Clear success state after 2 seconds
+      setTimeout(() => {
+        setSuccessSetId(null);
+      }, 2000);
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else {
+        setError(error.data?.message);
+      }
+    } finally {
+      setUpdatingSetId(null);
+    }
+  };
+
+  // Handle delete set
+  const handleDeleteSet = async (
+    workoutSetId: string,
+    workoutExerciseId: string,
+    workoutLogId: string
+  ) => {
+    try {
+      await deleteWorkoutSet({
+        workoutSetId,
+        workoutExerciseId,
+        workoutLogId,
+      }).unwrap();
+    } catch (error: any) {
+      if (!error.status) {
+        setError("No Server Response");
+      } else {
+        setError(error.data?.message);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
+      <ErrorAlert error={error} setError={setError} />
       {/* Workout Overview */}
       <Card>
         <CardContent>
@@ -127,21 +304,48 @@ export function WorkoutDetailView({
                 {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleEditWorkout}
-              className="flex items-center gap-2 w-fit"
-            >
-              {workout.status === "completed" ? (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+                className="flex items-center gap-2 w-fit"
+              >
                 <Edit className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              {workout.status === "completed"
-                ? "Edit Workout"
-                : "Complete Workout"}
-            </Button>
+                {isEditing ? "Done" : "Edit"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEditWorkout}
+                className="flex items-center gap-2 w-fit arrow-button"
+              >
+                {workout.status === "completed"
+                  ? "Go To Workout"
+                  : "Complete Workout"}
+                <svg
+                  className="arrow-icon transform rotate-360"
+                  viewBox="0 -3.5 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    className="arrow-icon__tip"
+                    d="M8 15L14 8.5L8 2"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <line
+                    className="arrow-icon__line"
+                    x1="13"
+                    y1="8.5"
+                    y2="8.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
@@ -246,6 +450,11 @@ export function WorkoutDetailView({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
+                        {isEditing && (
+                          <TableHead className="w-[80px] text-center">
+                            Actions
+                          </TableHead>
+                        )}
                         <TableHead className="w-[60px] text-center">
                           Set #
                         </TableHead>
@@ -294,44 +503,186 @@ export function WorkoutDetailView({
                     </TableHeader>
                     <TableBody>
                       {exercise.workoutSets.map((set, setIndex) => {
+                        const setId = set.workoutSetId;
+                        const currentSet = editedValues[setId] || set;
+                        const isModified = setId
+                          ? modifiedSets.has(setId) && hasActualChanges(setId)
+                          : false;
+
                         const volume =
                           exercise.laterality === "unilateral"
-                            ? (set.weight || 0) *
-                              ((set.repsLeft || 0) + (set.repsRight || 0))
-                            : (set.weight || 0) * (set.repsLeft || 0);
+                            ? (currentSet.weight || 0) *
+                              ((currentSet.repsLeft || 0) +
+                                (currentSet.repsRight || 0))
+                            : (currentSet.weight || 0) *
+                              (currentSet.repsLeft || 0);
 
                         return (
                           <TableRow key={setIndex}>
+                            {isEditing && (
+                              <TableCell className="text-center">
+                                <div className="flex justify-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() =>
+                                      handleSaveSetChanges(setId, exercise)
+                                    }
+                                    disabled={
+                                      !isModified || updatingSetId === setId
+                                    }
+                                    title={
+                                      !isModified
+                                        ? "No changes to save"
+                                        : updatingSetId === setId
+                                        ? "Saving..."
+                                        : "Save changes to this set"
+                                    }
+                                  >
+                                    {updatingSetId === setId ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : successSetId === setId ? (
+                                      <Check className="h-4 w-4" />
+                                    ) : (
+                                      <Save className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 hover:bg-destructive"
+                                    disabled={isDeleting}
+                                    onClick={() =>
+                                      handleDeleteSet(
+                                        set.workoutSetId,
+                                        set.workoutExerciseId,
+                                        workout.workoutLogId
+                                      )
+                                    }
+                                  >
+                                    {isDeleting ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            )}
                             <TableCell className="font-medium text-center">
                               {setIndex + 1}
                             </TableCell>
                             <TableCell className="text-center">
-                              <div className={`${isMobile ? "text-sm" : ""}`}>
-                                {set.weight || 0}
-                              </div>
+                              {isEditing ? (
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="2.5"
+                                  value={
+                                    currentSet.weight === 0
+                                      ? ""
+                                      : currentSet.weight
+                                  }
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      setId,
+                                      "weight",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                              ) : (
+                                <div className={`${isMobile ? "text-sm" : ""}`}>
+                                  {currentSet.weight || 0}
+                                </div>
+                              )}
                             </TableCell>
                             {exercise.laterality === "unilateral" ? (
                               <>
                                 <TableCell className="text-center">
-                                  <div
-                                    className={`${isMobile ? "text-sm" : ""}`}
-                                  >
-                                    {set.repsLeft || 0}
-                                  </div>
+                                  {isEditing ? (
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      value={
+                                        currentSet.repsLeft === 0
+                                          ? ""
+                                          : currentSet.repsLeft
+                                      }
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          setId,
+                                          "repsLeft",
+                                          e.target.value
+                                        )
+                                      }
+                                      className="w-16 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    />
+                                  ) : (
+                                    <div
+                                      className={`${isMobile ? "text-sm" : ""}`}
+                                    >
+                                      {currentSet.repsLeft || 0}
+                                    </div>
+                                  )}
                                 </TableCell>
                                 <TableCell className="text-center">
-                                  <div
-                                    className={`${isMobile ? "text-sm" : ""}`}
-                                  >
-                                    {set.repsRight || 0}
-                                  </div>
+                                  {isEditing ? (
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      value={
+                                        currentSet.repsRight === 0
+                                          ? ""
+                                          : currentSet.repsRight
+                                      }
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          setId,
+                                          "repsRight",
+                                          e.target.value
+                                        )
+                                      }
+                                      className="w-16 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    />
+                                  ) : (
+                                    <div
+                                      className={`${isMobile ? "text-sm" : ""}`}
+                                    >
+                                      {currentSet.repsRight || 0}
+                                    </div>
+                                  )}
                                 </TableCell>
                               </>
                             ) : (
                               <TableCell className="text-center">
-                                <div className={`${isMobile ? "text-sm" : ""}`}>
-                                  {set.repsLeft || 0}
-                                </div>
+                                {isEditing ? (
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    value={
+                                      currentSet.repsLeft === 0
+                                        ? ""
+                                        : currentSet.repsLeft
+                                    }
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        setId,
+                                        "repsLeft",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-16 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  />
+                                ) : (
+                                  <div
+                                    className={`${isMobile ? "text-sm" : ""}`}
+                                  >
+                                    {currentSet.repsLeft || 0}
+                                  </div>
+                                )}
                               </TableCell>
                             )}
                             {(!isMobile || showPrevious) && (

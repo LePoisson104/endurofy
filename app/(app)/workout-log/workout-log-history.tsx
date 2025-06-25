@@ -21,7 +21,7 @@ import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 
 interface WorkoutLogHistoryProps {
-  selectedProgram: WorkoutProgram | null;
+  selectedProgram: WorkoutProgram | "without-program";
 }
 
 export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
@@ -55,7 +55,10 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   } = useGetWorkoutLogQuery(
     {
       userId: user?.user_id,
-      programId: selectedProgram?.programId,
+      programId:
+        selectedProgram === "without-program"
+          ? "without-program"
+          : selectedProgram?.programId,
       startDate: startDate ? format(startDate, "yyyy-MM-dd") : "",
       endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
     },
@@ -71,12 +74,15 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   } = useGetWokroutLogPaginationQuery(
     {
       userId: user?.user_id,
-      programId: selectedProgram?.programId,
+      programId:
+        selectedProgram === "without-program"
+          ? "without-program"
+          : selectedProgram?.programId,
       offset: offset,
       limit: limit,
     },
     {
-      skip: !selectedProgram?.programId || !user?.user_id,
+      skip: !selectedProgram || !user?.user_id,
     }
   );
 
@@ -156,7 +162,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     setIsInitialLoad(true);
     setOffset(0);
     localStorage.removeItem("limit");
-  }, [selectedProgram?.programId]); // Only reset on program change
+  }, [selectedProgram]); // Only reset on program change
 
   useEffect(() => {
     if (workoutLogsData?.data.length > 0) {

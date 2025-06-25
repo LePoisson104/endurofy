@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, parseISO } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { WorkoutLogForm } from "./workout-log-form";
 import { WorkoutLogHistory } from "./workout-log-history";
 import { WorkoutCalendar } from "./workout-calendar";
@@ -13,11 +12,15 @@ import { CalendarIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
-import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-program-api-slice";
+import {
+  useSetProgramAsActiveMutation,
+  useSetProgramAsInactiveMutation,
+} from "@/api/workout-program/workout-program-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParams } from "next/navigation";
+import WithoutProgramForm from "./without-program-form";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import type { WorkoutLog as WorkoutLogInterface } from "../../../interfaces/workout-log-interfaces";
@@ -47,6 +50,7 @@ export default function WorkoutLogManager() {
   const [error, setError] = useState<string | null>(null);
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
+  const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
 
   // Load selectedDate from localStorage on component mount
   useEffect(() => {
@@ -81,6 +85,18 @@ export default function WorkoutLogManager() {
 
   const handleSetProgramAsActive = async (programId: string) => {
     if (programId === "without-program") {
+      try {
+        await setProgramAsInactive({
+          programId: selectedProgram?.programId,
+          userId: user?.user_id,
+        }).unwrap();
+      } catch (error: any) {
+        if (error.data.message) {
+          setError(error.data.message);
+        } else {
+          setError("Internal server error. Failed to set program as inactive");
+        }
+      }
       setSelectedProgram(null);
       return;
     }
@@ -144,7 +160,7 @@ export default function WorkoutLogManager() {
         {selectedTab === "log" && (
           <ProgramSelector
             programs={programs as WorkoutProgram[]}
-            selectedProgramId={selectedProgram?.programId}
+            selectedProgramId={selectedProgram?.programId || "without-program"}
             onSelectProgram={handleSetProgramAsActive}
           />
         )}
@@ -188,16 +204,20 @@ export default function WorkoutLogManager() {
               {selectedTab === "log" ? (
                 <Card>
                   <CardContent>
-                    {selectedProgram && (
+                    {selectedProgram ? (
                       <WorkoutLogForm
                         program={selectedProgram}
                         selectedDate={selectedDate}
                       />
+                    ) : (
+                      <WithoutProgramForm selectedDate={selectedDate} />
                     )}
                   </CardContent>
                 </Card>
               ) : (
-                <WorkoutLogHistory selectedProgram={selectedProgram} />
+                <WorkoutLogHistory
+                  selectedProgram={selectedProgram || "without-program"}
+                />
               )}
             </div>
 

@@ -29,7 +29,7 @@ export function ProgramSelector({
 
         {programs && (
           <SelectContent>
-            <SelectItem key="none" value="without-program">
+            <SelectItem key="without-program" value="without-program">
               Without Program
             </SelectItem>
             {programs.map((program) => (
