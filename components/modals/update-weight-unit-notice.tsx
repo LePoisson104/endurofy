@@ -14,6 +14,8 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { convertDateForSubmission } from "@/lib/date-utils";
+
 export default function UpdateWeightUnitNotice({
   isOpen,
   setIsOpen,
@@ -48,9 +50,14 @@ export default function UpdateWeightUnitNotice({
     try {
       if (!editedProfile) return;
 
+      const submissionPayload = {
+        ...editedProfile,
+        birth_date: convertDateForSubmission(editedProfile.birth_date || ""),
+      };
+
       await updateUsersAndConvertWeightLogs({
         userId: user?.user_id || "",
-        payload: editedProfile,
+        payload: submissionPayload,
       }).unwrap();
 
       setSuccessMsg("Profile and weight logs updated successfully");
