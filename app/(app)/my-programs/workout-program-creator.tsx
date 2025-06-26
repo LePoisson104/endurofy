@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ExerciseForm } from "./exercise-form";
+import { ExerciseForm } from "../../../components/form/exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CalendarIcon, Loader2, Plus } from "lucide-react";

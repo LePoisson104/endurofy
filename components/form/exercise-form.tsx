@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import type {
   CreateExercise,
   Exercise,
-} from "../../../interfaces/workout-program-interfaces";
+} from "../../interfaces/workout-program-interfaces";
 import {
   Select,
   SelectTrigger,

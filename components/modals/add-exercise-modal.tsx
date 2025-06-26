@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ExerciseForm } from "@/app/(app)/my-programs/exercise-form";
+import { ExerciseForm } from "@/components/form/exercise-form";
 import type { Exercise } from "@/interfaces/workout-program-interfaces";
 
 export default function AddExerciseModal({
