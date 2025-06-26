@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { WorkoutLogForm } from "./workout-log-form";
+import { ProgramWorkoutLog } from "./program-workout-log";
 import { WorkoutLogHistory } from "./workout-log-history";
 import { WorkoutCalendar } from "./workout-calendar";
 import { ProgramSelector } from "./program-selector";
@@ -20,7 +20,7 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import ErrorAlert from "@/components/alerts/error-alert";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParams } from "next/navigation";
-import WithoutProgramForm from "./without-program-form";
+import WithoutProgramLog from "./without-program-log";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import type { WorkoutLog as WorkoutLogInterface } from "../../../interfaces/workout-log-interfaces";
@@ -205,12 +205,12 @@ export default function WorkoutLogManager() {
                 <Card>
                   <CardContent>
                     {selectedProgram ? (
-                      <WorkoutLogForm
+                      <ProgramWorkoutLog
                         program={selectedProgram}
                         selectedDate={selectedDate}
                       />
                     ) : (
-                      <WithoutProgramForm selectedDate={selectedDate} />
+                      <WithoutProgramLog selectedDate={selectedDate} />
                     )}
                   </CardContent>
                 </Card>

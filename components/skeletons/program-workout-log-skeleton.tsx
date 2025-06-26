@@ -6,13 +6,13 @@ import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SquarePen, History } from "lucide-react";
 
-interface WorkoutLogFormSkeletonProps {
+interface ProgramWorkoutLogSkeletonProps {
   exerciseCount?: number;
 }
 
-export function WorkoutLogFormSkeleton({
+export function ProgramWorkoutLogSkeleton({
   exerciseCount = 2,
-}: WorkoutLogFormSkeletonProps) {
+}: ProgramWorkoutLogSkeletonProps) {
   const isMobile = useIsMobile();
 
   return (

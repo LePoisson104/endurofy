@@ -35,14 +35,17 @@ import {
   useUpdateWorkoutLogStatusMutation,
   useGetPreviousWorkoutLogQuery,
 } from "@/api/workout-log/workout-log-api-slice";
-import { WorkoutLogFormSkeleton } from "@/components/skeletons/workout-log-form-skeleton";
+import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 
-interface WorkoutLogFormProps {
+interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
   selectedDate: Date;
 }
 
-export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
+export function ProgramWorkoutLog({
+  program,
+  selectedDate,
+}: ProgramWorkoutLogProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
@@ -217,7 +220,7 @@ export function WorkoutLogForm({ program, selectedDate }: WorkoutLogFormProps) {
   };
 
   if (isLoadingWorkoutLog || isLoadingPreviousWorkoutLog) {
-    return <WorkoutLogFormSkeleton />;
+    return <ProgramWorkoutLogSkeleton />;
   }
 
   if (!selectedDay) {

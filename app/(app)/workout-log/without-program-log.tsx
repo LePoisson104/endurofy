@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Check, SquarePen, Plus } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import AddExerciseModal from "@/components/modals/add-exercise-modal";
+import ExerciseSelectionModal from "@/components/modals/exercise-selection-modal";
 import { Exercise } from "@/interfaces/workout-program-interfaces";
 
-export default function WithoutProgramForm({
+export default function WithoutProgramLog({
   selectedDate,
 }: {
   selectedDate: Date;
@@ -17,11 +17,13 @@ export default function WithoutProgramForm({
   const isDark = useGetCurrentTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [workoutName, setWorkoutName] = useState("Workout Name");
-  const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [isExerciseSelectionModalOpen, setIsExerciseSelectionModalOpen] =
+    useState(false);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
 
-  const handleAddExercise = (exercise: Exercise) => {
-    console.log(exercise);
+  const handleSelectExercise = (exercise: Exercise) => {
+    console.log("Selected exercise:", exercise);
+    // TODO: Add exercise to workout log
   };
 
   const handleEditWorkoutName = () => {
@@ -82,7 +84,7 @@ export default function WithoutProgramForm({
               variant="outline"
               size="sm"
               className="w-fit"
-              onClick={() => setIsAddExerciseModalOpen(true)}
+              onClick={() => setIsExerciseSelectionModalOpen(true)}
             >
               <Plus className="w-3 h-3" />
               Add Exercise
@@ -93,10 +95,10 @@ export default function WithoutProgramForm({
           </div>
         </main>
       </div>
-      <AddExerciseModal
-        isOpen={isAddExerciseModalOpen}
-        setIsOpen={setIsAddExerciseModalOpen}
-        onAddExercise={handleAddExercise}
+      <ExerciseSelectionModal
+        isOpen={isExerciseSelectionModalOpen}
+        setIsOpen={setIsExerciseSelectionModalOpen}
+        onSelectExercise={handleSelectExercise}
         isAddingExercise={isAddingExercise}
       />
     </div>
