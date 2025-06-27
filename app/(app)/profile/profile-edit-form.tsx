@@ -28,13 +28,12 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { useSelector } from "react-redux";
 import { convertDateForSubmission } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 interface ProfileEditFormProps {
   editedProfile: UpdateUserInfo | null;
   setEditedProfile: React.Dispatch<React.SetStateAction<UpdateUserInfo | null>>;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  setErrMsg: React.Dispatch<React.SetStateAction<string>>;
-  setSuccessMsg: React.Dispatch<React.SetStateAction<string>>;
   setIsUpdateWeightUnitNoticeOpen: React.Dispatch<
     React.SetStateAction<boolean>
   >;
@@ -44,8 +43,6 @@ export default function ProfileEditForm({
   editedProfile,
   setEditedProfile,
   setIsEditing,
-  setErrMsg,
-  setSuccessMsg,
   setIsUpdateWeightUnitNoticeOpen,
 }: ProfileEditFormProps) {
   const user = useSelector(selectCurrentUser);
@@ -75,7 +72,7 @@ export default function ProfileEditForm({
         )
       : false;
     if (!allFieldsFilled) {
-      setErrMsg("All fields are required");
+      toast.error("All fields are required");
       return;
     }
 
@@ -99,14 +96,14 @@ export default function ProfileEditForm({
       }).unwrap();
 
       setIsEditing(false);
-      setSuccessMsg("Profile updated successfully");
+      toast.success("Profile updated successfully");
     } catch (error: any) {
       if (!error.status) {
-        setErrMsg("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };

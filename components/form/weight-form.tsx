@@ -18,6 +18,7 @@ import useBreakpoint from "@/hooks/use-break-point";
 import { getDateRange } from "@/helper/get-day-range";
 import { useGetWeightLogDatesQuery } from "@/api/weight-log/weight-log-api-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { toast } from "sonner";
 
 export interface WeightForm {
   weight: number;
@@ -29,20 +30,16 @@ export interface WeightForm {
 
 export default function WeightForm({
   weightLogData,
-  setError,
   setWeightLogData,
   formData,
   setFormData,
   setModalOpen,
-  setSuccess,
 }: {
   weightLogData: any;
-  setError: (error: string) => void;
   setWeightLogData: (weightLogData: any) => void;
   formData: WeightForm;
   setFormData: React.Dispatch<React.SetStateAction<WeightForm>>;
   setModalOpen: (modalOpen: boolean) => void;
-  setSuccess: (success: string) => void;
 }) {
   const isDark = useGetCurrentTheme();
   const breakpoint = useBreakpoint();
@@ -114,7 +111,7 @@ export default function WeightForm({
             logDate: format(submitData.logDate, "yyyy-MM-dd"),
           },
         }).unwrap();
-        setSuccess("Weight log updated successfully");
+        toast.success("Weight log updated successfully");
         setCalendarDate(null);
         setVisibleMonth(new Date());
       } else {
@@ -127,7 +124,7 @@ export default function WeightForm({
             weightUnit: userInfo?.current_weight_unit,
           },
         }).unwrap();
-        setSuccess("Weight log created successfully");
+        toast.success("Weight log created successfully");
         setCalendarDate(null);
         setVisibleMonth(new Date());
       }
@@ -147,11 +144,11 @@ export default function WeightForm({
       }
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };

@@ -21,7 +21,7 @@ import {
   useUpdateWorkoutSetMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import { useState, useEffect } from "react";
-import ErrorAlert from "@/components/alerts/error-alert";
+import { toast } from "sonner";
 
 interface ExerciseTableProps {
   onSaveExerciseSets: (exercisePayload: ExercisePayload) => void;
@@ -61,7 +61,6 @@ export default function ExerciseTable({
   isMobile,
   showPrevious,
 }: ExerciseTableProps) {
-  const [error, setError] = useState<string | null>(null);
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
   const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
@@ -288,9 +287,9 @@ export default function ExerciseTable({
       }, 2000);
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     } finally {
       setUpdatingSetId(null);
@@ -310,16 +309,15 @@ export default function ExerciseTable({
       }).unwrap();
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
 
   return (
     <>
-      <ErrorAlert error={error} setError={setError} />
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">

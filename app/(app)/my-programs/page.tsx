@@ -17,13 +17,12 @@ import type {
   WorkoutProgram,
   CreateWorkoutProgram,
 } from "../../../interfaces/workout-program-interfaces";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 import {
   selectWorkoutProgram,
   selectIsLoading,
 } from "@/api/workout-program/workout-program-slice";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
@@ -42,9 +41,6 @@ export default function MyPrograms() {
     useCreateWorkoutProgramMutation();
   const [deleteWorkoutProgram, { isLoading: isDeleting }] =
     useDeleteWorkoutProgramMutation();
-
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -127,16 +123,16 @@ export default function MyPrograms() {
         userId: user?.user_id,
         workoutProgram: program,
       }).unwrap();
-      setSuccess("Program created successfully");
+      toast.success("Program created successfully");
       // Switch back to My Programs tab
       handleTabChange("my-programs");
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
@@ -149,14 +145,14 @@ export default function MyPrograms() {
         programId,
       }).unwrap();
       setSelectedProgram(null);
-      setSuccess("Program deleted successfully");
+      toast.success("Program deleted successfully");
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
@@ -183,8 +179,6 @@ export default function MyPrograms() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
-      <ErrorAlert error={error} setError={setError} />
-      <SuccessAlert success={success} setSuccess={setSuccess} />
       <header className="mb-6">
         <PageTitle
           title="Workout Programs"

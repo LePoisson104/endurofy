@@ -12,26 +12,25 @@ import { PasswordInput } from "../ui/password-input";
 import { useDeleteUsersAccountMutation } from "@/api/user/user-api-slice";
 import { useState } from "react";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
-import ErrorAlert from "../alerts/error-alert";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function DeleteAccountModal() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [deleteAccount, { isLoading }] = useDeleteUsersAccountMutation();
   const [logout] = useLogoutMutation();
 
   const handleDeleteAccount = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!password) {
-      setError("Password is required");
+      toast.error("Password is required");
       return;
     }
 
@@ -45,20 +44,19 @@ export default function DeleteAccountModal() {
       router.push("/login");
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else if (error.status === 401 || error.status === 404) {
-        setError("Incorrect password. Try again.");
+        toast.error("Incorrect password. Try again.");
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
 
   return (
     <Dialog>
-      <ErrorAlert error={error} setError={setError} />
       <DialogTrigger asChild>
         <Button variant="destructive">Delete Account</Button>
       </DialogTrigger>

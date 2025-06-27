@@ -17,13 +17,12 @@ import {
   useSetProgramAsInactiveMutation,
 } from "@/api/workout-program/workout-program-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParams } from "next/navigation";
 import WithoutProgramLog from "./without-program-log";
+import { toast } from "sonner";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
-import type { WorkoutLog as WorkoutLogInterface } from "../../../interfaces/workout-log-interfaces";
 
 export interface WorkoutLog {
   id: string;
@@ -44,10 +43,8 @@ export default function WorkoutLogManager() {
     null
   );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [workoutLogs, setWorkoutLogs] = useState<WorkoutLogInterface[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedTab, setSelectedTab] = useState("log");
-  const [error, setError] = useState<string | null>(null);
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
   const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
@@ -92,9 +89,11 @@ export default function WorkoutLogManager() {
         }).unwrap();
       } catch (error: any) {
         if (error.data.message) {
-          setError(error.data.message);
+          toast.error(error.data.message);
         } else {
-          setError("Internal server error. Failed to set program as inactive");
+          toast.error(
+            "Internal server error. Failed to set program as inactive"
+          );
         }
       }
       setSelectedProgram(null);
@@ -107,9 +106,9 @@ export default function WorkoutLogManager() {
       }).unwrap();
     } catch (error: any) {
       if (error.data.message) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to set program as inactive");
+        toast.error("Internal server error. Failed to set program as inactive");
       }
     }
   };
@@ -131,7 +130,6 @@ export default function WorkoutLogManager() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
-      <ErrorAlert error={error} setError={setError} />
       <header>
         <PageTitle title="Workout Log" />
       </header>

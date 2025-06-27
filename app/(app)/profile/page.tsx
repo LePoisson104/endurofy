@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserInfo, calculateAndSetBMR } from "@/api/user/user-slice";
 import { Skeleton } from "@/components/ui/skeleton";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 import UpdateWeightUnitNotice from "@/components/modals/update-weight-unit-notice";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import ProfileHeader from "./profile-header";
@@ -35,8 +33,6 @@ export default function ProfilePage() {
   const dispatch = useDispatch();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
   const [isUpdateWeightUnitNoticeOpen, setIsUpdateWeightUnitNoticeOpen] =
     useState(false);
   const [editedProfile, setEditedProfile] = useState<UpdateUserInfo | null>(
@@ -92,12 +88,8 @@ export default function ProfilePage() {
         isOpen={isUpdateWeightUnitNoticeOpen}
         setIsOpen={setIsUpdateWeightUnitNoticeOpen}
         editedProfile={editedProfile}
-        setErrMsg={setErrMsg}
-        setSuccessMsg={setSuccessMsg}
         setIsEditing={setIsEditing}
       />
-      <ErrorAlert error={errMsg} setError={setErrMsg} />
-      <SuccessAlert success={successMsg} setSuccess={setSuccessMsg} />
 
       <div className="flex flex-col gap-6">
         {/* Profile Header - Always visible */}
@@ -112,8 +104,6 @@ export default function ProfilePage() {
             editedProfile={editedProfile}
             setEditedProfile={setEditedProfile}
             setIsEditing={setIsEditing}
-            setErrMsg={setErrMsg}
-            setSuccessMsg={setSuccessMsg}
             setIsUpdateWeightUnitNoticeOpen={setIsUpdateWeightUnitNoticeOpen}
           />
         ) : (

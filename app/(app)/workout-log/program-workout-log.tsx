@@ -29,13 +29,13 @@ import {
   useCreateWorkoutLogMutation,
   useUpdateExerciseNotesMutation,
 } from "@/api/workout-log/workout-log-api-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { useDebounceCallback } from "@/hooks/use-debounce";
 import {
   useUpdateWorkoutLogStatusMutation,
   useGetPreviousWorkoutLogQuery,
 } from "@/api/workout-log/workout-log-api-slice";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
+import { toast } from "sonner";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -56,7 +56,6 @@ export function ProgramWorkoutLog({
   const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
     {}
   );
-  const [error, setError] = useState<string | null>(null);
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
 
@@ -157,9 +156,9 @@ export function ProgramWorkoutLog({
         }).unwrap();
       } catch (error: any) {
         if (error) {
-          setError(error.data.message);
+          toast.error(error.data.message);
         } else {
-          setError("Internal server error. Failed to save exercise notes");
+          toast.error("Internal server error. Failed to save exercise notes");
         }
       }
     },
@@ -212,9 +211,9 @@ export function ProgramWorkoutLog({
       }).unwrap();
     } catch (error: any) {
       if (error) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to save workout log");
+        toast.error("Internal server error. Failed to save workout log");
       }
     }
   };
@@ -248,7 +247,6 @@ export function ProgramWorkoutLog({
 
   return (
     <div className="space-y-6">
-      <ErrorAlert error={error} setError={setError} />
       <div className="flex flex-col space-y-4">
         <div className="space-y-2 flex justify-between items-center w-full">
           <div className="flex">

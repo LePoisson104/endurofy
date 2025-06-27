@@ -41,6 +41,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { toast } from "sonner";
 
 interface DayScheduleProps {
   exercises: Exercise[];
@@ -48,7 +49,6 @@ interface DayScheduleProps {
   onUpdateExercise: (exercise: Exercise) => void;
   onReorderExercises: (exercises: Exercise[]) => void;
   isEditing?: boolean;
-  setError: (error: string) => void;
 }
 
 function SortableTableRow({
@@ -57,14 +57,12 @@ function SortableTableRow({
   onRemoveExercise,
   onUpdateExercise,
   isDragging,
-  setError,
 }: {
   exercise: Exercise;
   isEditing: boolean;
   onRemoveExercise: (exerciseId: string) => void;
   onUpdateExercise: (exercise: Exercise) => void;
   isDragging: boolean;
-  setError: (error: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: exercise.exerciseId });
@@ -99,7 +97,7 @@ function SortableTableRow({
         editedExercise.minReps <= 0 ||
         editedExercise.maxReps <= 0
       ) {
-        setError("Sets and reps must be greater than 0");
+        toast.error("Sets and reps must be greater than 0");
         return;
       }
 
@@ -315,7 +313,6 @@ export function DaySchedule({
   onUpdateExercise,
   onReorderExercises,
   isEditing = true,
-  setError,
 }: DayScheduleProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -461,7 +458,6 @@ export function DaySchedule({
                     onRemoveExercise={onRemoveExercise}
                     onUpdateExercise={onUpdateExercise}
                     isDragging={activeId === exercise.exerciseId}
-                    setError={setError}
                   />
                 ))}
               </SortableContext>

@@ -26,7 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import ErrorAlert from "@/components/alerts/error-alert";
 import FeetInchesSelect from "../selects/feet-inches-select";
 import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
 import { useSelector } from "react-redux";
@@ -35,6 +34,7 @@ import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DateInput } from "@/components/ui/date-input";
 import { convertDateForSubmission } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 interface UsersProfileModalProps {
   isOpen: boolean;
@@ -71,7 +71,6 @@ export default function UsersProfileModal({
 }: UsersProfileModalProps) {
   const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
-  const [error, setError] = useState<string | null>(null);
   const [updateUserProfile, { isLoading: isUpdatingProfile }] =
     useUpdateUsersProfileMutation();
 
@@ -104,7 +103,7 @@ export default function UsersProfileModal({
       formData.activity_level === "" ||
       formData.goal === ""
     ) {
-      setError("Please fill out all fields");
+      toast.error("Please fill out all fields");
       return;
     }
 
@@ -140,9 +139,9 @@ export default function UsersProfileModal({
       setIsProfileSuccessNoticeOpen(true);
     } catch (err: any) {
       if (err.status === 400) {
-        setError(err.data?.message || "Failed to update profile");
+        toast.error(err.data?.message || "Failed to update profile");
       } else {
-        setError("Failed to update profile");
+        toast.error("Failed to update profile");
       }
     }
   };
@@ -231,7 +230,6 @@ export default function UsersProfileModal({
 
   return (
     <>
-      <ErrorAlert error={error} setError={setError} />
       <Dialog open={isOpen}>
         <DialogContent
           className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto bg-card scroll-bar"

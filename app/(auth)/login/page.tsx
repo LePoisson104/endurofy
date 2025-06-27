@@ -11,22 +11,21 @@ import { useLoginMutation } from "@/api/auth/auth-api-slice";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/api/auth/auth-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { Loader2 } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
+import { toast } from "sonner";
 
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [login, { isLoading }] = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("Please enter an email and password");
+      toast.error("Please enter an email and password");
       return;
     }
     try {
@@ -37,20 +36,19 @@ export default function Login() {
       router.push("/dashboard");
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else if (error.status === 401 || error.status === 404) {
-        setError("Incorrect email or password. Try again.");
+        toast.error("Incorrect email or password. Try again.");
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
-      <ErrorAlert error={error} setError={setError} />
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">

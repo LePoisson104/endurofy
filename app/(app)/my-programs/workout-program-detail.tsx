@@ -51,8 +51,6 @@ import {
   useAddExerciseMutation,
   useReorderWorkoutProgramExerciseMutation,
 } from "@/api/workout-program/workout-program-api-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -63,6 +61,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { toast } from "sonner";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -85,8 +84,6 @@ export function WorkoutProgramDetail({
 
   const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
   const [allDays, setAllDays] = useState<Record<number, AllDays>>({});
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -312,12 +309,12 @@ export function WorkoutProgramDetail({
         dayId: dayId,
         payload: exercise,
       }).unwrap();
-      setSuccess("Exercise added successfully");
+      toast.success("Exercise added successfully");
     } catch (error: any) {
       if (error.status !== 500) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to add exercise");
+        toast.error("Internal server error. Failed to add exercise");
       }
     }
   };
@@ -337,12 +334,12 @@ export function WorkoutProgramDetail({
         programId: programId,
         payload: updatedExercise,
       }).unwrap();
-      setSuccess("Exercise updated successfully");
+      toast.success("Exercise updated successfully");
     } catch (error: any) {
       if (error.status !== 500) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to update exercise");
+        toast.error("Internal server error. Failed to update exercise");
       }
     }
   };
@@ -362,9 +359,9 @@ export function WorkoutProgramDetail({
       }).unwrap();
     } catch (error: any) {
       if (error.status !== 500) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to reorder exercises");
+        toast.error("Internal server error. Failed to reorder exercises");
       }
     }
   };
@@ -380,12 +377,14 @@ export function WorkoutProgramDetail({
         programId: program.programId,
         payload: payload,
       }).unwrap();
-      setSuccess("Program description updated successfully");
+      toast.success("Program description updated successfully");
     } catch (error: any) {
       if (error.status !== 500) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to update program description");
+        toast.error(
+          "Internal server error. Failed to update program description"
+        );
       }
     }
   };
@@ -404,12 +403,14 @@ export function WorkoutProgramDetail({
           programId: program.programId,
           payload: payload,
         }).unwrap();
-        setSuccess("Day added successfully");
+        toast.success("Day added successfully");
       } catch (error: any) {
         if (error.status !== 500) {
-          setError(error.data.message);
+          toast.error(error.data.message);
         } else {
-          setError("Internal server error. Failed to update program day name");
+          toast.error(
+            "Internal server error. Failed to update program day name"
+          );
         }
       }
       return;
@@ -421,12 +422,12 @@ export function WorkoutProgramDetail({
         dayId: dayId,
         payload: payload,
       }).unwrap();
-      setSuccess("Day name updated successfully");
+      toast.success("Day name updated successfully");
     } catch (error: any) {
       if (error.status !== 500) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to update program day name");
+        toast.error("Internal server error. Failed to update program day name");
       }
     }
   };
@@ -438,10 +439,10 @@ export function WorkoutProgramDetail({
         programId: program.programId,
         dayId: getDayId(activeDay as AllDays),
       }).unwrap();
-      setSuccess("Day deleted successfully");
+      toast.success("Day deleted successfully");
     } catch (error: any) {
       if (error.data.message) {
-        setError("Internal server error. Failed to delete program day");
+        toast.error("Internal server error. Failed to delete program day");
       }
     } finally {
       setShowDeleteDialog(false);
@@ -460,12 +461,12 @@ export function WorkoutProgramDetail({
         dayId: dayId,
         exerciseId: exerciseId,
       }).unwrap();
-      setSuccess("Exercise deleted successfully");
+      toast.success("Exercise deleted successfully");
     } catch (error: any) {
       if (error.status !== 500) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to delete exercise");
+        toast.error("Internal server error. Failed to delete exercise");
       }
     }
   };
@@ -509,8 +510,6 @@ export function WorkoutProgramDetail({
 
   return (
     <div className="space-y-6">
-      <ErrorAlert error={error} setError={setError} />
-      <SuccessAlert success={success} setSuccess={setSuccess} />
       <div className="flex justify-between">
         <Button
           variant="ghost"
@@ -1043,7 +1042,6 @@ export function WorkoutProgramDetail({
                         handleReorderExercises(exercises)
                       }
                       isEditing={isEditing}
-                      setError={setError}
                     />
                   </>
                 )}

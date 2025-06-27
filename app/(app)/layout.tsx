@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/global/appsidebar";
 import { TopBar } from "@/components/global/topbar";
 import { cookies } from "next/headers";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export default async function Layout({
   children,

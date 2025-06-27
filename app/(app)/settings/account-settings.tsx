@@ -30,10 +30,9 @@ import {
 } from "@/api/user/user-api-slice";
 
 import { Loader2 } from "lucide-react";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 import VerifyOTPModal from "@/components/modals/verify-otp-modal";
 import { selectUserInfo } from "@/api/user/user-slice";
+import { toast } from "sonner";
 
 export function AccountSettings() {
   const isMobile = useIsMobile();
@@ -47,8 +46,6 @@ export function AccountSettings() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errMsg, setErrMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
 
@@ -65,7 +62,7 @@ export function AccountSettings() {
   const handleUpdateName = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!updateFirstName || !updateLastName) {
-      setErrMsg("Please enter a valid name");
+      toast.error("Please enter a valid name");
       return;
     }
 
@@ -74,14 +71,14 @@ export function AccountSettings() {
         userId: user?.user_id,
         payload: { firstName: updateFirstName, lastName: updateLastName },
       }).unwrap();
-      setSuccessMsg("Name updated successfully");
+      toast.success("Name updated successfully");
     } catch (error: any) {
       if (!error.status) {
-        setErrMsg("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
@@ -89,7 +86,7 @@ export function AccountSettings() {
   const handleUpdatePassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setErrMsg("Make sure new password and confirm password match");
+      toast.error("Make sure new password and confirm password match");
       return;
     }
     try {
@@ -104,22 +101,20 @@ export function AccountSettings() {
       setPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setSuccessMsg("Password updated successfully");
+      toast.success("Password updated successfully");
     } catch (error: any) {
       if (!error.status) {
-        setErrMsg("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
 
   return (
     <div className=" flex flex-col gap-[1rem]">
-      <ErrorAlert error={errMsg} setError={setErrMsg} />
-      <SuccessAlert success={successMsg} setSuccess={setSuccessMsg} />
       {userInfo.email !== "" ? (
         <>
           <div className="mb-4">

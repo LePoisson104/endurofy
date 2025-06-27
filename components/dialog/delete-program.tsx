@@ -29,9 +29,7 @@ export default function DeleteProgramDialog({
   return (
     <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
       <AlertDialogContent
-        className={`bg-card ${
-          isMobile ? "w-[330px]" : "w-[350px]"
-        } border-none`}
+        className={`bg-card ${isMobile ? "w-[330px]" : "w-[350px]"} border`}
       >
         <AlertDialogHeader>
           <AlertDialogTitle className="text-center">

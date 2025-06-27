@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import ErrorAlert from "../alerts/error-alert";
 import { Input } from "../ui/input";
 import { useUpdateUsersEmailMutation } from "@/api/user/user-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import VerifyOTPModal from "./verify-otp-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
+
 export default function UpdateEmailModal({
   isOpen,
   setIsOpen,
@@ -30,7 +31,6 @@ export default function UpdateEmailModal({
   const [newEmail, setNewEmail] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [confirmNewEmail, setConfirmNewEmail] = useState("");
-  const [error, setError] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   const [updateEmail, { isLoading: isUpdatingEmail }] =
@@ -39,7 +39,7 @@ export default function UpdateEmailModal({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newEmail !== confirmNewEmail) {
-      setError("New email and confirm new email do not match");
+      toast.error("New email and confirm new email do not match");
       return;
     }
 
@@ -58,20 +58,19 @@ export default function UpdateEmailModal({
       setShowVerifyModal(true);
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else if (error.status === 401) {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
 
   return (
     <>
-      <ErrorAlert error={error} setError={setError} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="bg-card">
           <DialogHeader className="mb-4">

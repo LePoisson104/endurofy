@@ -31,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -72,7 +71,6 @@ export function WorkoutProgramCreator({
     { id: string; name: string; dayName: string }[]
   >([{ id: "d1", name: "D1", dayName: "" }]);
   const [activeCustomDay, setActiveCustomDay] = useState<string>("d1");
-  const [error, setError] = useState<string>("");
   const daysOfWeek = [
     "monday",
     "tuesday",
@@ -332,7 +330,6 @@ export function WorkoutProgramCreator({
 
   return (
     <div className="space-y-6">
-      <ErrorAlert error={error} setError={setError} />
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Create Workout Program</CardTitle>
@@ -487,7 +484,6 @@ export function WorkoutProgramCreator({
                     onReorderExercises={(newExercises) =>
                       updateExercises(day, newExercises)
                     }
-                    setError={setError}
                   />
 
                   <Card className={`${isMobile ? "border-none" : "border"}`}>
@@ -577,7 +573,6 @@ export function WorkoutProgramCreator({
                       onReorderExercises={(newExercises) =>
                         updateExercises(day.id, newExercises)
                       }
-                      setError={setError}
                     />
 
                     <Card className={`${isMobile ? "border-none" : ""}`}>

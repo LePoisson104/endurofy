@@ -9,11 +9,11 @@ import ContinuteWithGoogleBtn from "@/components/buttons/continue-with-google-bt
 import AppLogo from "@/components/global/app-logo";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState, useEffect } from "react";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { useRouter } from "next/navigation";
 import { useSignupMutation } from "@/api/auth/auth-api-slice";
 import { Loader2 } from "lucide-react";
 import { validatePasswordField } from "@/helper/password-validator";
+import { toast } from "sonner";
 
 interface FormErrors {
   firstName: string;
@@ -30,7 +30,6 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errMsg, setErrMsg] = useState("");
   const [formErrors, setFormErrors] = useState<FormErrors>({
     firstName: "",
     lastName: "",
@@ -162,22 +161,21 @@ export default function Signup() {
       router.push("/verify-otp");
     } catch (error: any) {
       if (!error.status) {
-        setErrMsg("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       } else if (error.status === 404) {
-        setErrMsg("All fields are required.");
+        toast.error("All fields are required.");
       } else if (error.status === 409) {
-        setErrMsg("Email already in use.");
+        toast.error("Email already in use.");
       } else {
-        setErrMsg(error.data?.message || "An error occurred during signup.");
+        toast.error(error.data?.message || "An error occurred during signup.");
       }
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
-      <ErrorAlert error={errMsg} setError={setErrMsg} />
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">

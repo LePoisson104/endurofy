@@ -27,7 +27,7 @@ import {
 } from "@/api/workout-program/workout-program-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
+import { toast } from "sonner";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
@@ -46,7 +46,6 @@ export default function WorkoutProgramList({
 }: WorkoutProgramListProps) {
   const user = useSelector(selectCurrentUser);
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
@@ -86,9 +85,9 @@ export default function WorkoutProgramList({
       }).unwrap();
     } catch (error: any) {
       if (error.data.message) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to set program as inactive");
+        toast.error("Internal server error. Failed to set program as inactive");
       }
     }
   };
@@ -101,9 +100,9 @@ export default function WorkoutProgramList({
       }).unwrap();
     } catch (error: any) {
       if (error.data.message) {
-        setError(error.data.message);
+        toast.error(error.data.message);
       } else {
-        setError("Internal server error. Failed to set program as inactive");
+        toast.error("Internal server error. Failed to set program as inactive");
       }
     }
   };
@@ -118,7 +117,6 @@ export default function WorkoutProgramList({
 
   return (
     <div className="space-y-6">
-      <ErrorAlert error={error} setError={setError} />
       {programs.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
           <h3 className="text-lg font-medium">No workout programs found</h3>

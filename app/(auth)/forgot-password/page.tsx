@@ -7,32 +7,27 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import AppLogo from "@/components/global/app-logo";
 import { useForgotPasswordMutation } from "@/api/auth/auth-api-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ForgotPassword() {
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await forgotPassword({ email }).unwrap();
       setEmail("");
-      setSuccess("Reset password email sent successfully");
+      toast.success("Reset password email sent successfully");
     } catch (error: any) {
       console.log(error);
-      setError(error.data?.message);
+      toast.error(error.data?.message);
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
-      <ErrorAlert error={error} setError={setError} />
-      <SuccessAlert success={success} setSuccess={setSuccess} />
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">

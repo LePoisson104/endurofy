@@ -35,16 +35,15 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import WeightForm from "@/components/form/weight-form";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { startOfWeek, endOfWeek } from "date-fns";
 import BMIDialog from "@/components/dialog/bmi-dialog";
 import { getDayRange } from "@/helper/get-day-range";
 import { WeightForm as WeightFormType } from "@/components/form/weight-form";
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
-import SuccessAlert from "@/components/alerts/success-alert";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
+import { toast } from "sonner";
 
 export default function WeightLogPage() {
   const isDark = useGetCurrentTheme();
@@ -54,8 +53,6 @@ export default function WeightLogPage() {
   const userInfo = useSelector(selectUserInfo);
   const weeklyRate = useSelector(selectWeeklyRate);
 
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lineChartOptions, setLineChartOptions] = useState("current-week");
   const [historyOptions, setHistoryOptions] = useState("current-week");
@@ -170,8 +167,6 @@ export default function WeightLogPage() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem] relative">
-      <ErrorAlert error={error} setError={setError} />
-      <SuccessAlert success={success} setSuccess={setSuccess} />
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}
@@ -378,13 +373,11 @@ export default function WeightLogPage() {
                   </CardHeader>
                   <CardContent>
                     <WeightForm
-                      setError={setError}
                       weightLogData={weightLogData}
                       setWeightLogData={setWeightLogData}
                       formData={weightFormData}
                       setFormData={setWeightFormData}
                       setModalOpen={setIsModalOpen}
-                      setSuccess={setSuccess}
                     />
                   </CardContent>
                 </Card>
@@ -403,13 +396,11 @@ export default function WeightLogPage() {
             <DialogTitle>Add Weight Entry</DialogTitle>
           </DialogHeader>
           <WeightForm
-            setError={setError}
             weightLogData={weightLogData}
             setWeightLogData={setWeightLogData}
             formData={weightFormData}
             setFormData={setWeightFormData}
             setModalOpen={setIsModalOpen}
-            setSuccess={setSuccess}
           />
         </DialogContent>
       </Dialog>

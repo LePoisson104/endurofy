@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function ExerciseForm({
   onAddExercise,
@@ -37,7 +37,6 @@ export function ExerciseForm({
   const [minReps, setMinReps] = useState<number | null>(null);
   const [maxReps, setMaxReps] = useState<number | null>(null);
   const [exerciseOrder, setExerciseOrder] = useState<number>(1);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,13 +50,13 @@ export function ExerciseForm({
       !minReps ||
       !maxReps
     ) {
-      setError("All fields are required");
+      toast.error("All fields are required");
       return;
     }
 
     // Validate min and max reps
     if (minReps > maxReps) {
-      setError("Minimum reps cannot be greater than maximum reps");
+      toast.error("Minimum reps cannot be greater than maximum reps");
       return;
     }
 
@@ -82,13 +81,11 @@ export function ExerciseForm({
     setSets(null);
     setMinReps(null);
     setMaxReps(null);
-    setError(null);
     setExerciseOrder(1);
   };
 
   return (
     <>
-      <ErrorAlert error={error} setError={setError} />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="exercise-name">Exercise Name</Label>

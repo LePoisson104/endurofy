@@ -8,8 +8,6 @@ import AppLogo from "@/components/global/app-logo";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import { useResetPasswordMutation } from "@/api/auth/auth-api-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -17,6 +15,7 @@ import {
   PasswordFormErrors,
   usePasswordValidation,
 } from "@/helper/password-validator";
+import { toast } from "sonner";
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -24,8 +23,6 @@ export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [formErrors, setFormErrors] = useState<PasswordFormErrors>({
     password: "",
     confirmPassword: "",
@@ -80,7 +77,7 @@ export default function ResetPassword() {
     e.preventDefault();
 
     if (!email || !otp) {
-      setError("No parameters found");
+      toast.error("No parameters found");
       return;
     }
     console.log(email, otp);
@@ -101,8 +98,8 @@ export default function ResetPassword() {
     }
 
     try {
-      const response = await resetPassword({ email, otp, password }).unwrap();
-      setSuccess("Password reset successfully, redirecting to login...");
+      await resetPassword({ email, otp, password }).unwrap();
+      toast.success("Password reset successfully, redirecting to login...");
 
       setPassword("");
       setConfirmPassword("");
@@ -113,9 +110,9 @@ export default function ResetPassword() {
       }, 3000);
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else {
-        setError(
+        toast.error(
           error.data?.message || "An error occurred during password reset."
         );
       }
@@ -124,8 +121,6 @@ export default function ResetPassword() {
 
   return (
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
-      <ErrorAlert error={error} setError={setError} />
-      <SuccessAlert success={success} setSuccess={setSuccess} />
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           <Link href="/">

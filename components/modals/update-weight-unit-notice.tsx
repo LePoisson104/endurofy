@@ -15,20 +15,17 @@ import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { convertDateForSubmission } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 export default function UpdateWeightUnitNotice({
   isOpen,
   setIsOpen,
   editedProfile,
-  setErrMsg,
-  setSuccessMsg,
   setIsEditing,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   editedProfile: UpdateUserInfo | null;
-  setErrMsg: (errMsg: string) => void;
-  setSuccessMsg: (successMsg: string) => void;
   setIsEditing: (isEditing: boolean) => void;
 }) {
   const user = useSelector(selectCurrentUser);
@@ -43,7 +40,7 @@ export default function UpdateWeightUnitNotice({
         )
       : false;
     if (!allFieldsFilled) {
-      setErrMsg("All fields are required");
+      toast.error("All fields are required");
       return;
     }
 
@@ -60,16 +57,16 @@ export default function UpdateWeightUnitNotice({
         payload: submissionPayload,
       }).unwrap();
 
-      setSuccessMsg("Profile and weight logs updated successfully");
+      toast.success("Profile and weight logs updated successfully");
       setIsEditing(false);
       setIsOpen(false);
     } catch (error: any) {
       if (!error.status) {
-        setErrMsg("No Server Response");
+        toast.error("No Server Response");
       } else if (error.status === 400) {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       } else {
-        setErrMsg(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };

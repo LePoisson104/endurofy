@@ -18,8 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import AppLogo from "@/components/global/app-logo";
-import ErrorAlert from "@/components/alerts/error-alert";
-import SuccessAlert from "@/components/alerts/success-alert";
+import { toast } from "sonner";
 import { useVerifyOTPMutation } from "@/api/auth/auth-api-slice";
 import { useResendOTPMutation } from "@/api/auth/auth-api-slice";
 
@@ -36,8 +35,6 @@ export default function VerifyOTP() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(900);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation();
@@ -72,11 +69,11 @@ export default function VerifyOTP() {
   // Handle OTP verification
   const handleVerify = async () => {
     if (!userId || !email) {
-      setError("Missing user information. Please try signing up again.");
+      toast.error("Missing user information. Please try signing up again.");
       return;
     }
     if (otp.length !== 6) {
-      setError("Please enter a valid 6-digit code");
+      toast.error("Please enter a valid 6-digit code");
       return;
     }
 
@@ -86,7 +83,7 @@ export default function VerifyOTP() {
         email: email,
         otp: otp,
       }).unwrap();
-      setSuccess("User created successfully, redirecting to login...");
+      toast.success("User created successfully, redirecting to login...");
       setOtp("");
       sessionStorage.clear();
       setTimeLeft(900);
@@ -95,13 +92,15 @@ export default function VerifyOTP() {
       }, 3000);
     } catch (err: any) {
       if (!err.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (err.status === 400) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else if (err.status === 404) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else {
-        setError(err.data?.message || "An error occurred during verification.");
+        toast.error(
+          err.data?.message || "An error occurred during verification."
+        );
       }
     }
   };
@@ -109,7 +108,7 @@ export default function VerifyOTP() {
   // Handle resend code
   const handleResend = async () => {
     if (!userId || !email) {
-      setError("Missing user information. Please try signing up again.");
+      toast.error("Missing user information. Please try signing up again.");
       return;
     }
     try {
@@ -118,19 +117,19 @@ export default function VerifyOTP() {
         email: email,
       }).unwrap();
 
-      setSuccess(response?.message);
+      toast.success(response?.message);
       setOtp("");
       // Reset timer
       setTimeLeft(900);
     } catch (err: any) {
       if (!err.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (err.status === 400) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else if (err.status === 404) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else {
-        setError(err.data?.message || "An error occurred during resending.");
+        toast.error(err.data?.message || "An error occurred during resending.");
       }
     }
   };
@@ -138,7 +137,6 @@ export default function VerifyOTP() {
   // Handle OTP complete
   const handleComplete = useCallback((value: string) => {
     setOtp(value);
-    setError(null);
   }, []);
 
   return (
@@ -158,9 +156,6 @@ export default function VerifyOTP() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ErrorAlert error={error} setError={setError} />
-            <SuccessAlert success={success} setSuccess={setSuccess} />
-
             <div className="flex flex-col items-center justify-center space-y-6">
               <InputOTP
                 maxLength={6}

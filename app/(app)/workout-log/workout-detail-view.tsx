@@ -34,8 +34,7 @@ import {
   useDeleteWorkoutSetMutation,
   useUpdateWorkoutSetMutation,
 } from "@/api/workout-log/workout-log-api-slice";
-import ErrorAlert from "@/components/alerts/error-alert";
-
+import { toast } from "sonner";
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -54,7 +53,6 @@ export function WorkoutDetailView({
 
   const [showPrevious, setShowPrevious] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
   const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
@@ -243,9 +241,9 @@ export function WorkoutDetailView({
       }, 2000);
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     } finally {
       setUpdatingSetId(null);
@@ -266,16 +264,15 @@ export function WorkoutDetailView({
       }).unwrap();
     } catch (error: any) {
       if (!error.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else {
-        setError(error.data?.message);
+        toast.error(error.data?.message);
       }
     }
   };
 
   return (
     <div className="space-y-6">
-      <ErrorAlert error={error} setError={setError} />
       {/* Workout Overview */}
       <Card>
         <CardContent>

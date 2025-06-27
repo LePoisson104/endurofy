@@ -14,11 +14,10 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Loader2 } from "lucide-react";
-import ErrorAlert from "@/components/alerts/error-alert";
 import { useResendOTPMutation } from "@/api/auth/auth-api-slice";
 import { useVerifyUpdateEmailMutation } from "@/api/user/user-api-slice";
 import LogoutNotice from "@/components/modals/logout-notice";
-import SuccessAlert from "../alerts/success-alert";
+import { toast } from "sonner";
 
 interface VerifyOTPModalProps {
   pendingEmail: string;
@@ -44,8 +43,6 @@ export default function VerifyOTPModal({
 }: VerifyOTPModalProps) {
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(900);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const [verifyEmailChange, { isLoading: isVerifying }] =
     useVerifyUpdateEmailMutation();
@@ -55,7 +52,6 @@ export default function VerifyOTPModal({
   useEffect(() => {
     setOtp("");
     setTimeLeft(900);
-    setError(null);
   }, [pendingEmail, userId]);
 
   useEffect(() => {
@@ -79,11 +75,11 @@ export default function VerifyOTPModal({
 
   const handleVerify = async () => {
     if (!userId || !pendingEmail) {
-      setError("Missing user information. Please try signing up again.");
+      toast.error("Missing user information. Please try signing up again.");
       return;
     }
     if (otp.length !== 6) {
-      setError("Please enter a valid 6-digit code");
+      toast.error("Please enter a valid 6-digit code");
       return;
     }
 
@@ -98,20 +94,22 @@ export default function VerifyOTPModal({
       setIsOpen(false);
     } catch (err: any) {
       if (!err.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (err.status === 400) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else if (err.status === 404) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else {
-        setError(err.data?.message || "An error occurred during verification.");
+        toast.error(
+          err.data?.message || "An error occurred during verification."
+        );
       }
     }
   };
 
   const handleResend = async () => {
     if (!userId || !pendingEmail) {
-      setError("Missing user information. Please try signing up again.");
+      toast.error("Missing user information. Please try signing up again.");
       return;
     }
     try {
@@ -119,31 +117,28 @@ export default function VerifyOTPModal({
         user_id: userId,
         email: pendingEmail,
       }).unwrap();
-      setSuccess("Verification code resent successfully.");
+      toast.success("Verification code resent successfully.");
       setOtp("");
       setTimeLeft(900);
     } catch (err: any) {
       if (!err.status) {
-        setError("No Server Response");
+        toast.error("No Server Response");
       } else if (err.status === 400) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else if (err.status === 404) {
-        setError(err.data?.message);
+        toast.error(err.data?.message);
       } else {
-        setError(err.data?.message || "An error occurred during resending.");
+        toast.error(err.data?.message || "An error occurred during resending.");
       }
     }
   };
 
   const handleComplete = useCallback((value: string) => {
     setOtp(value);
-    setError(null);
   }, []);
 
   return (
     <>
-      <ErrorAlert error={error} setError={setError} />
-      <SuccessAlert success={success} setSuccess={setSuccess} />
       <LogoutNotice isOpen={openLogoutNotice} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-md bg-card">
