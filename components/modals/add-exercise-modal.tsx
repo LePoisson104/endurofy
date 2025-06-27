@@ -12,17 +12,19 @@ export default function AddExerciseModal({
   setIsOpen,
   onAddExercise,
   isAddingExercise,
+  title,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onAddExercise?: (exercise: Exercise) => void;
   isAddingExercise: boolean;
+  title?: string;
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-card">
         <DialogHeader className="mb-4">
-          <DialogTitle>Add Exercise</DialogTitle>
+          <DialogTitle>{title || "Add Exercise"}</DialogTitle>
         </DialogHeader>
         <ExerciseForm
           onAddExercise={(exercise) => {

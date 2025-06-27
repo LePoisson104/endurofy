@@ -224,7 +224,9 @@ export function AppSidebar() {
             <SidebarGroupLabel>
               {activeProgram?.programType === "dayOfWeek"
                 ? "Weekly Progress"
-                : "Rotation Progress"}
+                : activeProgram?.programType === "custom"
+                ? "Rotation Progress"
+                : "Progress"}
             </SidebarGroupLabel>
             {workoutPrograms ? (
               <SidebarGroupContent>
@@ -265,7 +267,15 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel className="flex justify-between items-center">
               {workoutPrograms ? (
-                <span>My Programs ({workoutPrograms.length}/3)</span>
+                <span>
+                  My Programs (
+                  {
+                    workoutPrograms.filter(
+                      (program) => program.programType !== "manual"
+                    ).length
+                  }
+                  /3)
+                </span>
               ) : (
                 <Skeleton className="h-4 w-30" />
               )}
@@ -280,39 +290,41 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {workoutPrograms ? (
-                  workoutPrograms.map((program: any) => (
-                    <SidebarMenuItem
-                      key={program.programId}
-                      onClick={handleCloseSidebarOnMobile}
-                    >
-                      <SidebarMenuButton
-                        asChild
-                        isActive={
-                          pathname ===
-                          `/my-programs?programId=${program.programId}`
-                        }
-                        tooltip={program.programName}
+                  workoutPrograms
+                    .filter((program) => program.programType !== "manual")
+                    .map((program: any) => (
+                      <SidebarMenuItem
+                        key={program.programId}
+                        onClick={handleCloseSidebarOnMobile}
                       >
-                        <Link
-                          href={`/my-programs?programId=${program.programId}`}
-                          className="truncate"
+                        <SidebarMenuButton
+                          asChild
+                          isActive={
+                            pathname ===
+                            `/my-programs?programId=${program.programId}`
+                          }
+                          tooltip={program.programName}
                         >
-                          <ListTodo />
-                          <span className="truncate">
-                            {program.programName}
-                          </span>
-                          {program.isActive === 1 && (
-                            <Badge
-                              variant="outline"
-                              className="ml-auto text-[10px] h-5 shrink-0"
-                            >
-                              Active
-                            </Badge>
-                          )}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))
+                          <Link
+                            href={`/my-programs?programId=${program.programId}`}
+                            className="truncate"
+                          >
+                            <ListTodo />
+                            <span className="truncate">
+                              {program.programName}
+                            </span>
+                            {program.isActive === 1 && (
+                              <Badge
+                                variant="outline"
+                                className="ml-auto text-[10px] h-5 shrink-0"
+                              >
+                                Active
+                              </Badge>
+                            )}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))
                 ) : (
                   <Skeleton className="h-15 w-full" />
                 )}

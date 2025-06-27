@@ -32,11 +32,13 @@ export function ProgramSelector({
             <SelectItem key="without-program" value="without-program">
               Without Program
             </SelectItem>
-            {programs.map((program) => (
-              <SelectItem key={program?.programId} value={program?.programId}>
-                {program?.programName}
-              </SelectItem>
-            ))}
+            {programs
+              .filter((program) => program.programType !== "manual")
+              .map((program) => (
+                <SelectItem key={program?.programId} value={program?.programId}>
+                  {program?.programName}
+                </SelectItem>
+              ))}
           </SelectContent>
         )}
       </Select>

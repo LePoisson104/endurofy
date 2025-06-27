@@ -123,88 +123,92 @@ export default function WorkoutProgramList({
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program) => (
-            <Card
-              key={program.programId}
-              className="overflow-hidden flex flex-col h-[280px] shadow-sm"
-            >
-              <CardHeader className="pb-3">
-                <div className="flex justify-between">
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle>{program.programName}</CardTitle>
-                      {program.isActive === 1 && (
-                        <Badge className="bg-blue-500 text-white border-none">
-                          Active
-                        </Badge>
-                      )}
-                    </div>
+          {programs
+            .filter((program) => program.programType !== "manual")
+            .map((program) => (
+              <Card
+                key={program.programId}
+                className="overflow-hidden flex flex-col h-[280px] shadow-sm"
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between">
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle>{program.programName}</CardTitle>
+                        {program.isActive === 1 && (
+                          <Badge className="bg-blue-500 text-white border-none">
+                            Active
+                          </Badge>
+                        )}
+                      </div>
 
-                    <CardDescription className="line-clamp-2 h-10">
-                      {program.description || "No description"}
-                    </CardDescription>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {program.isActive === 1 ? (
+                      <CardDescription className="line-clamp-2 h-10">
+                        {program.description || "No description"}
+                      </CardDescription>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {program.isActive === 1 ? (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleSetProgramAsInactive(program.programId)
+                            }
+                          >
+                            Set as inactive
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleSetProgramAsActive(program.programId)
+                            }
+                          >
+                            Set as active
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleSetProgramAsInactive(program.programId)
-                          }
+                          onClick={() => onSelectProgram(program)}
                         >
-                          Set as inactive
+                          View details
                         </DropdownMenuItem>
-                      ) : (
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleSetProgramAsActive(program.programId)
-                          }
+                          variant="destructive"
+                          onClick={() => setProgramToDelete(program.programId)}
                         >
-                          Set as active
+                          Delete program
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem
-                        onClick={() => onSelectProgram(program)}
-                      >
-                        View details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setProgramToDelete(program.programId)}
-                      >
-                        Delete program
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-slate-500" />
-                    <span>Created {formatCreatedDate(program.createdAt)}</span>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Badge>{countActiveDays(program)} days</Badge>
-                  <Badge>{countTotalExercises(program)} exercises</Badge>
-                </div>
-                <Button
-                  className="mt-auto w-full"
-                  variant="outline"
-                  onClick={() => onSelectProgram(program)}
-                >
-                  View Program
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-slate-500" />
+                      <span>
+                        Created {formatCreatedDate(program.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Badge>{countActiveDays(program)} days</Badge>
+                    <Badge>{countTotalExercises(program)} exercises</Badge>
+                  </div>
+                  <Button
+                    className="mt-auto w-full"
+                    variant="outline"
+                    onClick={() => onSelectProgram(program)}
+                  >
+                    View Program
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
         </div>
       )}
 

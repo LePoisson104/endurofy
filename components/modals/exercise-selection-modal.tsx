@@ -19,6 +19,7 @@ import { Plus, Search } from "lucide-react";
 import AddExerciseModal from "./add-exercise-modal";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import AddExerciseConfirmDialog from "@/components/dialog/add-exercise-confim";
 
 import type { Exercise } from "@/interfaces/workout-program-interfaces";
 
@@ -41,6 +42,10 @@ export default function ExerciseSelectionModal({
 }: ExerciseSelectionModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [showAddExerciseConfirmDialog, setShowAddExerciseConfirmDialog] =
+    useState(false);
+
+  const [exerciseName, setExerciseName] = useState("");
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
   const isDark = useGetCurrentTheme();
@@ -78,7 +83,9 @@ export default function ExerciseSelectionModal({
   const filteredExercises = getAllExercises().filter(
     (exercise) =>
       exercise.exerciseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      exercise.bodyPart.toLowerCase().includes(searchTerm.toLowerCase())
+      exercise.bodyPart.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exercise.programName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exercise.laterality.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddNewExercise = (exercise: Exercise) => {
@@ -88,8 +95,8 @@ export default function ExerciseSelectionModal({
   };
 
   const handleSelectExercise = (exercise: Exercise) => {
-    onSelectExercise(exercise);
-    setIsOpen(false);
+    setExerciseName(exercise.exerciseName);
+    setShowAddExerciseConfirmDialog(true);
   };
 
   return (
@@ -210,6 +217,12 @@ export default function ExerciseSelectionModal({
         setIsOpen={setIsAddExerciseModalOpen}
         onAddExercise={handleAddNewExercise}
         isAddingExercise={isAddingExercise}
+        title="Create Exercise"
+      />
+      <AddExerciseConfirmDialog
+        showDeleteDialog={showAddExerciseConfirmDialog}
+        setShowDeleteDialog={setShowAddExerciseConfirmDialog}
+        exerciseName={exerciseName}
       />
     </>
   );
