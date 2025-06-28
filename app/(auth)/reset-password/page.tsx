@@ -99,15 +99,13 @@ export default function ResetPassword() {
 
     try {
       await resetPassword({ email, otp, password }).unwrap();
-      toast.success("Password reset successfully, redirecting to login...");
+      toast.success("Password reset successfully");
 
       setPassword("");
       setConfirmPassword("");
       setFormErrors({ password: "", confirmPassword: "" });
       setTouched({ password: false, confirmPassword: false });
-      setTimeout(() => {
-        router.push("/login");
-      }, 3000);
+      router.push("/login");
     } catch (error: any) {
       if (!error.status) {
         toast.error("No Server Response");

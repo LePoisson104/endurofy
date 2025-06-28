@@ -83,13 +83,11 @@ export default function VerifyOTP() {
         email: email,
         otp: otp,
       }).unwrap();
-      toast.success("User created successfully, redirecting to login...");
+      toast.success("User created successfully");
       setOtp("");
       sessionStorage.clear();
       setTimeLeft(900);
-      setTimeout(() => {
-        router.push("/login");
-      }, 3000);
+      router.push("/login");
     } catch (err: any) {
       if (!err.status) {
         toast.error("No Server Response");
