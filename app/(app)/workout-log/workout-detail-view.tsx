@@ -36,6 +36,8 @@ import {
 } from "@/api/workout-log/workout-log-api-slice";
 import { toast } from "sonner";
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
+import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
+
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
@@ -56,6 +58,8 @@ export function WorkoutDetailView({
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
   const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
+  const [workoutLogName, setWorkoutLogName] = useState(workout?.title || "");
+
   const [originalValues, setOriginalValues] = useState<{
     [setId: string]: any;
   }>({});
@@ -66,6 +70,8 @@ export function WorkoutDetailView({
   const [deleteWorkoutSet, { isLoading: isDeleting }] =
     useDeleteWorkoutSetMutation();
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
+  const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
+    useUpdateWorkoutLogNameMutation();
 
   // Scroll to top when workout detail view is displayed
   useEffect(() => {
@@ -90,6 +96,7 @@ export function WorkoutDetailView({
 
       setOriginalValues(originals);
       setEditedValues(edited);
+      setWorkoutLogName(workout.title);
     }
   }, [workout]);
 
@@ -271,6 +278,27 @@ export function WorkoutDetailView({
     }
   };
 
+  const handleUpdateWorkoutLogName = async () => {
+    if (workoutLogName.trim() === "") {
+      setWorkoutLogName(workout.title);
+      return;
+    }
+
+    try {
+      await updateWorkoutLogName({
+        workoutLogId: workout.workoutLogId,
+        title: workoutLogName,
+      }).unwrap();
+      toast.success("Workout log name updated");
+    } catch (error: any) {
+      if (error) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to update workout log name");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Workout Overview */}
@@ -285,7 +313,33 @@ export function WorkoutDetailView({
           >
             <div className="flex flex-col">
               <div className="flex items-center gap-4">
-                <CardTitle>{workout.title}</CardTitle>
+                {isEditing ? (
+                  <>
+                    <Input
+                      value={workoutLogName}
+                      onChange={(e) => setWorkoutLogName(e.target.value)}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleUpdateWorkoutLogName}
+                      disabled={
+                        workoutLogName.trim() === "" ||
+                        isUpdatingWorkoutLogName ||
+                        workoutLogName === workout.title
+                      }
+                    >
+                      {isUpdatingWorkoutLogName ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <CardTitle>{workout.title}</CardTitle>
+                )}
+
                 {workout.status === "completed" && (
                   <Badge className="bg-green-600 text-white">
                     <Check className="h-2 w-2" />

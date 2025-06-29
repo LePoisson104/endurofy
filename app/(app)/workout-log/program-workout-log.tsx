@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Check, History, SquarePen } from "lucide-react";
+import { AlertCircle, Check, History, Loader2, SquarePen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -36,6 +36,8 @@ import {
 } from "@/api/workout-log/workout-log-api-slice";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -56,9 +58,11 @@ export function ProgramWorkoutLog({
   const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
     {}
   );
+  const [workoutLogName, setWorkoutLogName] = useState("");
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
-
+  const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
+    useUpdateWorkoutLogNameMutation();
   const { data: workoutLog, isLoading: isLoadingWorkoutLog } =
     useGetWorkoutLogQuery({
       userId: user?.user_id,
@@ -140,6 +144,7 @@ export function ProgramWorkoutLog({
           ...initialNotes,
         }));
       }
+      setWorkoutLogName(workoutLog.data[0].title);
     }
   }, [selectedDay, workoutLog]); // Remove function dependencies
 
@@ -174,6 +179,27 @@ export function ProgramWorkoutLog({
 
     // Save to API with debounce
     debouncedSaveNote(workoutExerciseId, notes);
+  };
+
+  const handleUpdateWorkoutLogName = async () => {
+    if (workoutLogName.trim() === "") {
+      setWorkoutLogName(workoutLog?.data[0].title);
+      return;
+    }
+
+    try {
+      await updateWorkoutLogName({
+        workoutLogId: workoutLog?.data[0].workoutLogId,
+        title: workoutLogName,
+      }).unwrap();
+      toast.success("Workout log name updated");
+    } catch (error: any) {
+      if (error) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to update workout log name");
+      }
+    }
   };
 
   // Get the current value for a textarea (local state takes precedence over saved notes)
@@ -251,7 +277,38 @@ export function ProgramWorkoutLog({
         <div className="space-y-2 flex justify-between items-center w-full">
           <div className="flex">
             <div>
-              <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
+              {workoutLog?.data?.length > 0 ? (
+                isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={workoutLogName}
+                      onChange={(e) => setWorkoutLogName(e.target.value)}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleUpdateWorkoutLogName}
+                      disabled={
+                        workoutLogName.trim() === "" ||
+                        isUpdatingWorkoutLogName ||
+                        workoutLogName === workoutLog?.data[0].title
+                      }
+                    >
+                      {isUpdatingWorkoutLogName ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <h2 className="text-xl font-bold">
+                    {workoutLog.data[0].title}
+                  </h2>
+                )
+              ) : (
+                <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
+              )}
               <div className="text-sm text-slate-500">
                 {format(selectedDate, "MMMM d, yyyy")}
               </div>

@@ -94,6 +94,14 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
+    updateWorkoutLogName: builder.mutation({
+      query: ({ workoutLogId, title }) => ({
+        url: `/api/v1/workout-log/update-workout-log-name/${workoutLogId}`,
+        method: "PATCH",
+        body: { title },
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
     updateExerciseNotes: builder.mutation({
       query: ({ workoutExerciseId, exerciseNotes }) => ({
         url: `/api/v1/workout-log/update-exercise-notes/${workoutExerciseId}`,
@@ -131,4 +139,5 @@ export const {
   useGetCompletedWorkoutLogsQuery,
   useGetPreviousWorkoutLogQuery,
   useGetWokroutLogPaginationQuery,
+  useUpdateWorkoutLogNameMutation,
 } = workoutLogApiSlice;
