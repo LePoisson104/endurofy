@@ -41,38 +41,9 @@ export default function WithoutProgramLog({
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
         <header className="flex flex-col">
-          <div className="flex gap-1 items-center">
-            {isEditing ? (
-              <Input
-                value={workoutName}
-                placeholder="Workout Name"
-                onChange={(e) => setWorkoutName(e.target.value)}
-                className="w-fit"
-              />
-            ) : (
-              <h2 className="text-xl font-bold">{workoutName}</h2>
-            )}
-            {isEditing ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleEditWorkoutName}
-              >
-                <Check className="w-3 h-3" />
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsEditing(true)}
-              >
-                <SquarePen className="w-3 h-3" />
-              </Button>
-            )}
-          </div>
           <span
             className={`text-sm ${
-              isDark ? "text-slate-500" : "text-slate-400"
+              isDark ? "text-slate-400" : "text-slate-500"
             }`}
           >
             {format(selectedDate, "MMMM d, yyyy")}

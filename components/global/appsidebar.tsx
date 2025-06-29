@@ -300,8 +300,8 @@ export function AppSidebar() {
                         <SidebarMenuButton
                           asChild
                           isActive={
-                            pathname ===
-                            `/my-programs?programId=${program.programId}`
+                            pathname === `/my-programs` &&
+                            searchParams?.get("programId") === program.programId
                           }
                           tooltip={program.programName}
                         >
