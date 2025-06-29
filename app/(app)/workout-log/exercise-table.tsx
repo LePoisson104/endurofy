@@ -481,7 +481,9 @@ export default function ExerciseTable({
                     }
                     disabled={setData.isLogged && !isEditing}
                     className={`${
-                      isMobile ? "w-16" : "w-20"
+                      isMobile && exercise.laterality === "unilateral"
+                        ? "w-16"
+                        : "w-20"
                     } mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                       setData.isLogged
                         ? "bg-muted/50"

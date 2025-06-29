@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ExerciseSelectionModal from "@/components/modals/exercise-selection-modal";
 import { Exercise } from "@/interfaces/workout-program-interfaces";
+import CreateManualWorkoutLogModal from "@/components/modals/create-manual-workout-log-modal";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -16,7 +17,7 @@ export default function WithoutProgramLog({
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const [isEditing, setIsEditing] = useState(false);
-  const [workoutName, setWorkoutName] = useState("Workout Name");
+  const [workoutName, setWorkoutName] = useState("");
   const [isExerciseSelectionModalOpen, setIsExerciseSelectionModalOpen] =
     useState(false);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
@@ -51,7 +52,13 @@ export default function WithoutProgramLog({
         </header>
         <main className="space-y-4">
           <div className="flex justify-end">
-            <Button
+            <CreateManualWorkoutLogModal
+              logName={workoutName}
+              setLogName={setWorkoutName}
+              isLoading={false}
+              setIsOpen={() => {}}
+            />
+            {/* <Button
               variant="outline"
               size="sm"
               className="w-fit"
@@ -59,7 +66,7 @@ export default function WithoutProgramLog({
             >
               <Plus className="w-3 h-3" />
               Add Exercise
-            </Button>
+            </Button> */}
           </div>
           <div className="flex justify-center items-center border border-dashed border-slate-300 rounded-lg h-[200px]">
             No workout yet
