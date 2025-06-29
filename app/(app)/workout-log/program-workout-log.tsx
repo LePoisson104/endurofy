@@ -144,7 +144,7 @@ export function ProgramWorkoutLog({
           ...initialNotes,
         }));
       }
-      setWorkoutLogName(workoutLog.data[0].title);
+      setWorkoutLogName(workoutLog.data[0]?.title || "");
     }
   }, [selectedDay, workoutLog]); // Remove function dependencies
 
