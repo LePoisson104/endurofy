@@ -68,6 +68,22 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         { type: "WorkoutLog", id: "LIST" },
       ],
     }),
+    createManualWorkoutLog: builder.mutation({
+      query: ({ userId, programId, dayId, payload }) => ({
+        url: `/api/v1/workout-log/create-manual-workout-log/${userId}/${programId}/${dayId}`,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
+    addManualWorkoutExercise: builder.mutation({
+      query: ({ workoutLogId, programExerciseId, payload }) => ({
+        url: `/api/v1/workout-log/add-manual-workout-exercise/${workoutLogId}/${programExerciseId}`,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
     createWorkoutLog: builder.mutation({
       query: ({
         userId,
@@ -140,4 +156,6 @@ export const {
   useGetPreviousWorkoutLogQuery,
   useGetWokroutLogPaginationQuery,
   useUpdateWorkoutLogNameMutation,
+  useCreateManualWorkoutLogMutation,
+  useAddManualWorkoutExerciseMutation,
 } = workoutLogApiSlice;
