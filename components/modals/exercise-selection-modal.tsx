@@ -99,6 +99,17 @@ export default function ExerciseSelectionModal({
     setShowAddExerciseConfirmDialog(true);
   };
 
+  const handleConfirmAddExercise = () => {
+    const selectedExercise = filteredExercises.find(
+      (exercise) => exercise.exerciseName === exerciseName
+    );
+    if (selectedExercise) {
+      onSelectExercise(selectedExercise);
+      setShowAddExerciseConfirmDialog(false);
+      setIsOpen(false);
+    }
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -223,6 +234,7 @@ export default function ExerciseSelectionModal({
         showDeleteDialog={showAddExerciseConfirmDialog}
         setShowDeleteDialog={setShowAddExerciseConfirmDialog}
         exerciseName={exerciseName}
+        setIsAddingExercise={handleConfirmAddExercise}
       />
     </>
   );

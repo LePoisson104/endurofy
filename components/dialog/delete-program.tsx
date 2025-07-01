@@ -36,8 +36,8 @@ export default function DeleteProgramDialog({
             Delete Workout {context}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center">
-            Are you sure you want to delete this workout {context}? This action
-            cannot be undone.
+            Are you sure you want to delete this workout {context.toLowerCase()}
+            ? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-row justify-between gap-2">

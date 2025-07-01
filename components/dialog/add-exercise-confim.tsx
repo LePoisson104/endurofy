@@ -16,10 +16,12 @@ export default function AddExerciseConfirmDialog({
   showDeleteDialog,
   setShowDeleteDialog,
   exerciseName,
+  setIsAddingExercise,
 }: {
   showDeleteDialog: boolean;
   setShowDeleteDialog: (show: boolean) => void;
   exerciseName: string;
+  setIsAddingExercise: () => void;
 }) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
@@ -49,7 +51,10 @@ export default function AddExerciseConfirmDialog({
           <AlertDialogCancel className="w-1/2 border-none bg-foreground/20">
             Cancel
           </AlertDialogCancel>
-          <Button className={`${isMobile ? "w-full" : "w-[100px]"} w-1/2`}>
+          <Button
+            className={`${isMobile ? "w-full" : "w-[100px]"} w-1/2`}
+            onClick={setIsAddingExercise}
+          >
             Add Exercise
           </Button>
         </AlertDialogFooter>
