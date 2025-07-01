@@ -54,9 +54,7 @@ export default function Login() {
           <Link href="/">
             <AppLogo />
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Welcome to Endurofy
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
           <p className="text-sm text-muted-foreground text-center">
             Don&apos;t have an account?{" "}
             <Link
