@@ -25,6 +25,7 @@ import DeleteProgramDialog from "@/components/dialog/delete-program";
 import ExerciseTable from "./exercise-table";
 import { useManualExerciseSets } from "@/hooks/use-manual-exercise-sets";
 import ExerciseNotes from "./exercise-notes";
+import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 
 import type {
   WorkoutProgram,
@@ -80,11 +81,12 @@ export default function WithoutProgramLog({
 
   const [addWorkoutSet] = useAddWorkoutSetMutation();
 
-  const { data: workoutLog } = useGetManualWorkoutLogWithPreviousQuery({
-    userId: user?.user_id,
-    programId: manualProgram?.programId,
-    workoutDate: format(selectedDate, "yyyy-MM-dd"),
-  });
+  const { data: workoutLog, isLoading: isLoadingWorkoutLog } =
+    useGetManualWorkoutLogWithPreviousQuery({
+      userId: user?.user_id,
+      programId: manualProgram?.programId,
+      workoutDate: format(selectedDate, "yyyy-MM-dd"),
+    });
 
   // Use manual exercise sets hook for managing exercise data
   const {
@@ -240,6 +242,10 @@ export default function WithoutProgramLog({
       }
     }
   };
+
+  if (isLoadingWorkoutLog) {
+    return <ProgramWorkoutLogSkeleton />;
+  }
 
   return (
     <div className="space-y-6">

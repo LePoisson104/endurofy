@@ -90,30 +90,63 @@ export function ProgramWorkoutLogSkeleton({
             {/* Exercise Table Skeleton */}
             <div className="space-y-3">
               {/* Table Header */}
-              <div className="grid grid-cols-6 gap-2 text-sm font-medium p-2 bg-muted/50 rounded">
-                <Skeleton className="h-4 w-8" />
-                <Skeleton className="h-4 w-12" />
-                <Skeleton className="h-4 w-8" />
-                <Skeleton className="h-4 w-8" />
+              <div
+                className={`grid gap-2 md:gap-4 text-sm font-medium p-2 bg-muted/50 rounded ${
+                  isMobile ? "grid-cols-4" : "grid-cols-6"
+                }`}
+              >
+                <div className="flex justify-center">
+                  <Skeleton className="h-4 w-8 md:w-12 lg:w-16" />
+                </div>
+                <div className="flex justify-center">
+                  <Skeleton className="h-4 w-6 md:w-8 lg:w-10" />
+                </div>
+                <div className="flex justify-center">
+                  <Skeleton className="h-4 w-12 md:w-16 lg:w-20" />
+                </div>
+                <div className="flex justify-center">
+                  <Skeleton className="h-4 w-8 md:w-12 lg:w-16" />
+                </div>
                 {!isMobile && (
                   <>
-                    <Skeleton className="h-4 w-12" />
-                    <Skeleton className="h-4 w-8" />
+                    <div className="flex justify-center">
+                      <Skeleton className="h-4 w-12 md:w-16 lg:w-20" />
+                    </div>
+                    <div className="flex justify-center">
+                      <Skeleton className="h-4 w-10 md:w-14 lg:w-16" />
+                    </div>
                   </>
                 )}
               </div>
 
               {/* Table Rows */}
               {Array.from({ length: 4 }).map((_, rowIndex) => (
-                <div key={rowIndex} className="grid grid-cols-6 gap-2 p-2">
-                  <Skeleton className="h-8 w-8" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
+                <div
+                  key={rowIndex}
+                  className={`grid gap-2 md:gap-4 p-2 ${
+                    isMobile ? "grid-cols-4" : "grid-cols-6"
+                  }`}
+                >
+                  <div className="flex justify-center">
+                    <Skeleton className="h-8 w-4 md:w-6 lg:w-8" />
+                  </div>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-8 w-4 md:w-6 lg:w-8" />
+                  </div>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-8 w-12 md:w-16 lg:w-20" />
+                  </div>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-8 w-12 md:w-16 lg:w-20" />
+                  </div>
                   {!isMobile && (
                     <>
-                      <Skeleton className="h-8 w-full" />
-                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <div className="flex justify-center">
+                        <Skeleton className="h-8 w-6 md:w-8 lg:w-10" />
+                      </div>
+                      <div className="flex justify-center">
+                        <Skeleton className="h-8 w-6 md:w-8 lg:w-10" />
+                      </div>
                     </>
                   )}
                 </div>
