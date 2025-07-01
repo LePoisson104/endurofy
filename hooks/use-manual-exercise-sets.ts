@@ -1,11 +1,14 @@
 "use client";
-import { SetData } from "@/interfaces/workout-log-interfaces";
+import {
+  SetData,
+  WorkoutLog,
+  WorkoutLogResponse,
+} from "@/interfaces/workout-log-interfaces";
 import { useEffect, useState } from "react";
 import { Exercise } from "@/interfaces/workout-program-interfaces";
 
 export const useManualExerciseSets = (
-  workoutLog: any,
-  previousLog: any,
+  workoutLogResponse: WorkoutLogResponse | undefined,
   workoutPrograms: any[] = []
 ) => {
   const [exerciseSets, setExerciseSets] = useState<Record<string, SetData[]>>(
@@ -15,6 +18,9 @@ export const useManualExerciseSets = (
   const [validationAttempts, setValidationAttempts] = useState<
     Record<string, boolean[]>
   >({});
+
+  // Extract workoutLog from the response
+  const workoutLog = workoutLogResponse?.data;
 
   // Helper function to group workout log entries by exercise
   const groupWorkoutLogByExercise = (workoutLogData: any[]) => {
@@ -52,6 +58,29 @@ export const useManualExerciseSets = (
     return null;
   };
 
+  // Helper function to validate if set data is actually logged (has weight and reps)
+  const isSetDataValid = (setData: any, laterality: string): boolean => {
+    if (!setData) return false;
+
+    // Check weight (must be greater than 0)
+    if (!setData.weight || setData.weight <= 0) return false;
+
+    // Check reps based on exercise laterality
+    if (laterality === "unilateral") {
+      return !!(
+        setData.repsLeft &&
+        setData.repsLeft > 0 &&
+        setData.repsRight &&
+        setData.repsRight > 0
+      );
+    } else {
+      return !!(
+        (setData.repsLeft && setData.repsLeft > 0) ||
+        (setData.repsRight && setData.repsRight > 0)
+      );
+    }
+  };
+
   // Convert workout exercise to exercise format for compatibility
   const convertWorkoutExerciseToExercise = (workoutExercise: any): Exercise => {
     // First try to find original exercise data from workout programs
@@ -80,24 +109,18 @@ export const useManualExerciseSets = (
 
   // Initialize sets when workoutLog changes
   useEffect(() => {
-    if (workoutLog?.data[0]?.workoutExercises) {
+    if (workoutLog?.[0]?.workoutExercises) {
       const initialSets: Record<string, SetData[]> = {};
       const initialValidationAttempts: Record<string, boolean[]> = {};
 
       // Group workout log data by exercise
-      const loggedExercises = workoutLog.data[0].workoutExercises
-        ? groupWorkoutLogByExercise(workoutLog.data[0].workoutExercises)
+      const loggedExercises = workoutLog?.[0]?.workoutExercises
+        ? groupWorkoutLogByExercise(workoutLog?.[0]?.workoutExercises)
         : {};
 
-      const previousLoggedExercises = previousLog?.data
-        ? groupWorkoutLogByExercise(previousLog.data)
-        : {};
-
-      workoutLog.data[0].workoutExercises.forEach((workoutExercise: any) => {
+      workoutLog?.[0]?.workoutExercises.forEach((workoutExercise: any) => {
         const exerciseId = workoutExercise.programExerciseId;
         const loggedExercise = loggedExercises[exerciseId] || [];
-        const previousLoggedExercise =
-          previousLoggedExercises[exerciseId] || [];
 
         // Determine sets count - use original exercise sets count, fallback to logged sets or default
         const originalExercise = findOriginalExercise(exerciseId);
@@ -118,32 +141,26 @@ export const useManualExerciseSets = (
               )
             );
 
-            const previousLoggedSet = previousLoggedExercise.find(
-              (previousExerciseData: any) =>
-                previousExerciseData.previousWorkoutSets?.some(
-                  (set: any) => set.setNumber === index + 1
-                )
-            );
-
             // If we found a matching exercise, get the specific set data
             const setData = loggedSet?.workoutSets?.find(
               (set: any) => set.setNumber === index + 1
             );
 
-            const previousSetData =
-              previousLoggedSet?.previousWorkoutSets?.find(
-                (set: any) => set.setNumber === index + 1
+            // Use data from workout log if setData exists, otherwise return empty set
+            if (setData) {
+              // Only mark as logged if the set has valid weight and reps data
+              const isValidSet = isSetDataValid(
+                setData,
+                workoutExercise.laterality
               );
 
-            if (setData) {
-              // Use data from workout log
               return {
-                workoutLogId: loggedExercise[0]?.workoutLogId,
-                setNumber: setData.setNumber,
-                workoutSetId: setData.workoutSetId,
-                workoutExerciseId: setData.workoutExerciseId,
+                workoutLogId: loggedExercise[0]?.workoutLogId || null,
+                setNumber: setData.setNumber || index + 1,
+                workoutSetId: setData.workoutSetId || null,
+                workoutExerciseId: setData.workoutExerciseId || null,
                 weight: setData.weight || 0,
-                weightUnit: loggedSet.weightUnit || "lb",
+                weightUnit: setData.weightUnit || "lb",
                 reps:
                   setData.repsLeft && setData.repsRight
                     ? (setData.repsLeft + setData.repsRight) / 2
@@ -153,24 +170,24 @@ export const useManualExerciseSets = (
                 previousLeftReps: setData.previousLeftReps || null,
                 previousRightReps: setData.previousRightReps || null,
                 previousWeight: setData.previousWeight || null,
-                isLogged: true, // Already logged
+                isLogged: isValidSet, // Only logged if has valid weight and reps
               };
             } else {
-              // Empty set for unlogged exercises
+              // Return empty set for new sets
               return {
-                workoutLogId: null,
+                workoutLogId: loggedExercise[0]?.workoutLogId || null,
                 setNumber: index + 1,
+                workoutSetId: null,
+                workoutExerciseId: null,
                 weight: 0,
                 weightUnit: "lb",
                 reps: 0,
                 leftReps: 0,
                 rightReps: 0,
-                previousLeftReps: previousSetData?.leftReps || null,
-                previousRightReps: previousSetData?.rightReps || null,
-                previousWeight: previousSetData?.weight || null,
+                previousLeftReps: null,
+                previousRightReps: null,
+                previousWeight: null,
                 isLogged: false,
-                workoutSetId: null,
-                workoutExerciseId: null,
               };
             }
           }
@@ -185,7 +202,7 @@ export const useManualExerciseSets = (
       setExerciseSets(initialSets);
       setValidationAttempts(initialValidationAttempts);
     }
-  }, [workoutLog, previousLog, workoutPrograms]);
+  }, [workoutLogResponse, workoutPrograms]);
 
   const updateSetData = (
     exerciseId: string,
@@ -240,7 +257,11 @@ export const useManualExerciseSets = (
         currentSet.rightReps > 0
       );
     } else {
-      return !!(currentSet.reps && currentSet.reps > 0);
+      return !!(
+        (currentSet.leftReps && currentSet.leftReps > 0) ||
+        (currentSet.rightReps && currentSet.rightReps > 0) ||
+        (currentSet.reps && currentSet.reps > 0)
+      );
     }
   };
 
@@ -308,13 +329,14 @@ export const useManualExerciseSets = (
 
   const getWorkoutExerciseId = (exerciseId: string): string => {
     return (
-      exerciseSets[exerciseId]?.find((set) => set.isLogged)
-        ?.workoutExerciseId || ""
+      workoutLog?.[0]?.workoutExercises.find(
+        (exercise: any) => exercise.programExerciseId === exerciseId
+      )?.workoutExerciseId || ""
     );
   };
 
   const getExerciseNotes = (workoutExerciseId: string): string => {
-    const notes = workoutLog?.data[0]?.workoutExercises.find(
+    const notes = workoutLog?.[0]?.workoutExercises.find(
       (exercise: any) => exercise.workoutExerciseId === workoutExerciseId
     )?.notes;
     return notes || "";
@@ -322,9 +344,9 @@ export const useManualExerciseSets = (
 
   // Get exercises in the format expected by ExerciseTable
   const getExercises = (): Exercise[] => {
-    if (!workoutLog?.data[0]?.workoutExercises) return [];
+    if (!workoutLog?.[0]?.workoutExercises) return [];
 
-    return workoutLog.data[0].workoutExercises.map((workoutExercise: any) =>
+    return workoutLog?.[0]?.workoutExercises.map((workoutExercise: any) =>
       convertWorkoutExerciseToExercise(workoutExercise)
     );
   };

@@ -20,8 +20,10 @@ import AddExerciseModal from "./add-exercise-modal";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import AddExerciseConfirmDialog from "@/components/dialog/add-exercise-confim";
+import { useCreateManualWorkoutExerciseMutation } from "@/api/workout-program/workout-program-api-slice";
 
 import type { Exercise } from "@/interfaces/workout-program-interfaces";
+import { toast } from "sonner";
 
 interface ExerciseWithProgram extends Exercise {
   programName: string;
@@ -32,6 +34,7 @@ interface ExerciseSelectionModalProps {
   setIsOpen: (isOpen: boolean) => void;
   onSelectExercise: (exercise: Exercise) => void;
   isAddingExercise?: boolean;
+  dayId: string;
 }
 
 export default function ExerciseSelectionModal({
@@ -39,6 +42,7 @@ export default function ExerciseSelectionModal({
   setIsOpen,
   onSelectExercise,
   isAddingExercise = false,
+  dayId,
 }: ExerciseSelectionModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
@@ -49,6 +53,11 @@ export default function ExerciseSelectionModal({
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
   const isDark = useGetCurrentTheme();
+
+  const [
+    createManualWorkoutExercise,
+    { isLoading: isCreatingManualWorkoutExercise },
+  ] = useCreateManualWorkoutExerciseMutation();
 
   // Extract all unique exercises from workout programs
   const getAllExercises = useCallback((): ExerciseWithProgram[] => {
@@ -88,10 +97,30 @@ export default function ExerciseSelectionModal({
       exercise.laterality.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddNewExercise = (exercise: Exercise) => {
-    onSelectExercise(exercise);
-    setIsAddExerciseModalOpen(false);
-    setIsOpen(false);
+  const handleAddNewExercise = async (exercise: Exercise) => {
+    try {
+      await createManualWorkoutExercise({
+        dayId: dayId,
+        payload: {
+          exerciseName: exercise.exerciseName,
+          bodyPart: exercise.bodyPart,
+          sets: exercise.sets,
+          minReps: exercise.minReps,
+          maxReps: exercise.maxReps,
+          laterality: exercise.laterality,
+          exerciseOrder: 1,
+        },
+      }).unwrap();
+      toast.success("Exercise added to exercise selection");
+      setIsAddExerciseModalOpen(false);
+      setSearchTerm(exercise.exerciseName);
+    } catch (error: any) {
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Failed to create exercise. Please try again.");
+      }
+    }
   };
 
   const handleSelectExercise = (exercise: Exercise) => {
@@ -222,12 +251,12 @@ export default function ExerciseSelectionModal({
         </DialogContent>
       </Dialog>
 
-      {/* Add Exercise Modal */}
+      {/* create Exercise Modal */}
       <AddExerciseModal
         isOpen={isAddExerciseModalOpen}
         setIsOpen={setIsAddExerciseModalOpen}
         onAddExercise={handleAddNewExercise}
-        isAddingExercise={isAddingExercise}
+        isAddingExercise={isCreatingManualWorkoutExercise}
         title="Create Exercise"
       />
       <AddExerciseConfirmDialog

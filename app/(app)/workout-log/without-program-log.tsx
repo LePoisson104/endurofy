@@ -11,10 +11,11 @@ import CreateManualWorkoutLogModal from "@/components/modals/create-manual-worko
 import {
   useAddManualWorkoutExerciseMutation,
   useCreateManualWorkoutLogMutation,
-  useGetWorkoutLogQuery,
   useUpdateWorkoutLogNameMutation,
   useDeleteWorkoutLogMutation,
-  useGetPreviousWorkoutLogQuery,
+  useAddWorkoutSetMutation,
+  useDeleteWorkoutExerciseMutation,
+  useGetManualWorkoutLogWithPreviousQuery,
 } from "@/api/workout-log/workout-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
@@ -23,14 +24,16 @@ import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slic
 import DeleteProgramDialog from "@/components/dialog/delete-program";
 import ExerciseTable from "./exercise-table";
 import { useManualExerciseSets } from "@/hooks/use-manual-exercise-sets";
+import ExerciseNotes from "./exercise-notes";
 
 import type {
   WorkoutProgram,
   Exercise,
 } from "@/interfaces/workout-program-interfaces";
-import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import type {
+  ExercisePayload,
+  WorkoutLog,
+} from "@/interfaces/workout-log-interfaces";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -51,6 +54,13 @@ export default function WithoutProgramLog({
     useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
+    {}
+  );
+  const [context, setContext] = useState("");
+  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
+    null
+  );
 
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
@@ -66,18 +76,14 @@ export default function WithoutProgramLog({
   const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
     useDeleteWorkoutLogMutation();
 
-  const { data: workoutLog } = useGetWorkoutLogQuery({
-    userId: user?.user_id,
-    programId: manualProgram?.programId,
-    startDate: format(selectedDate, "yyyy-MM-dd"),
-    endDate: format(selectedDate, "yyyy-MM-dd"),
-  });
+  const [deleteWorkoutExercise] = useDeleteWorkoutExerciseMutation();
 
-  const { data: previousWorkoutLog } = useGetPreviousWorkoutLogQuery({
+  const [addWorkoutSet] = useAddWorkoutSetMutation();
+
+  const { data: workoutLog } = useGetManualWorkoutLogWithPreviousQuery({
     userId: user?.user_id,
     programId: manualProgram?.programId,
-    dayId: manualProgram?.workoutDays?.[0]?.dayId,
-    currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
+    workoutDate: format(selectedDate, "yyyy-MM-dd"),
   });
 
   // Use manual exercise sets hook for managing exercise data
@@ -91,7 +97,7 @@ export default function WithoutProgramLog({
     getWorkoutExerciseId,
     getExerciseNotes,
     getExercises,
-  } = useManualExerciseSets(workoutLog, previousWorkoutLog, programs || []);
+  } = useManualExerciseSets(workoutLog, programs || []);
 
   useEffect(() => {
     setManualProgram(
@@ -160,10 +166,17 @@ export default function WithoutProgramLog({
 
   const handleDelete = async () => {
     try {
-      await deleteWorkoutLog({
-        workoutLogId: workoutLog?.data[0].workoutLogId,
-      }).unwrap();
-      toast.success("Workout log deleted");
+      if (context === "Exercise") {
+        await deleteWorkoutExercise({
+          workoutExerciseId: deletingExerciseId,
+        }).unwrap();
+        toast.success("Exercise deleted");
+      } else if (context === "Log") {
+        await deleteWorkoutLog({
+          workoutLogId: workoutLog?.data[0].workoutLogId,
+        }).unwrap();
+        toast.success("Workout log deleted");
+      }
       setIsEditing(false);
       setShowDeleteDialog(false);
       setWorkoutLogName("");
@@ -212,18 +225,36 @@ export default function WithoutProgramLog({
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
-    console.log("exercisePayload", exercisePayload);
+    try {
+      await addWorkoutSet({
+        workoutExerciseId: getWorkoutExerciseId(
+          exercisePayload.programExerciseId
+        ),
+        payload: exercisePayload,
+      }).unwrap();
+    } catch (err: any) {
+      if (err?.data?.message) {
+        toast.error(err.data.message);
+      } else {
+        toast.error("Failed to save workout log. Please try again.");
+      }
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <header className="flex justify-between items-center">
+        <header
+          className={`flex ${
+            isMobile ? "flex-col gap-2" : "justify-between items-center"
+          }`}
+        >
           <div>
             {workoutLog?.data.length > 0 &&
               (isEditing ? (
                 <div className="flex items-center gap-2">
                   <Input
+                    className="w-fit"
                     value={workoutLogName}
                     onChange={(e) => setWorkoutLogName(e.target.value)}
                   />
@@ -264,7 +295,10 @@ export default function WithoutProgramLog({
                   variant="destructive"
                   size="sm"
                   className="gap-1"
-                  onClick={() => setShowDeleteDialog(true)}
+                  onClick={() => {
+                    setContext("Log");
+                    setShowDeleteDialog(true);
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
@@ -319,7 +353,11 @@ export default function WithoutProgramLog({
                       isMobile ? "p-0 border-none" : "p-4 border"
                     }`}
                   >
-                    <div className="flex justify-between items-start">
+                    <div
+                      className={`flex justify-between ${
+                        isMobile ? "items-center" : ""
+                      }`}
+                    >
                       <div className="flex flex-col flex-1 ">
                         <div
                           className={`flex items-center gap-3 ${
@@ -355,6 +393,22 @@ export default function WithoutProgramLog({
                           {exercise.maxReps} reps
                         </div>
                       </div>
+                      {isEditing && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-fit text-destructive hover:text-destructive/80"
+                          onClick={() => {
+                            setContext("Exercise");
+                            setShowDeleteDialog(true);
+                            setDeletingExerciseId(
+                              getWorkoutExerciseId(exercise.exerciseId)
+                            );
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                     <ExerciseTable
                       exercise={exercise}
@@ -367,41 +421,16 @@ export default function WithoutProgramLog({
                       hasLoggedSets={hasLoggedSets(exercise.exerciseId)}
                       isMobile={isMobile}
                       showPrevious={false}
+                      logType="manual"
                     />
-                    <div className="space-y-2">
-                      <Label htmlFor="workout-notes">
-                        Exercise Notes
-                        {/* <span className="text-sm text-slate-500">
-                          {isUpdatingExerciseNotes
-                            ? "(Saving...)"
-                            : getExerciseNotes(
-                                getWorkoutExerciseId(exercise.exerciseId)
-                              ) !== ""
-                            ? "(Saved)"
-                            : "(Optional)"}
-                        </span> */}
-                      </Label>
-                      <Textarea
-                        id="workout-notes"
-                        // placeholder={
-                        //   hasAnyLoggedSets
-                        //     ? "Add notes about this exercise... (max 200 characters)"
-                        //     : "No sets logged yet"
-                        // }
-                        maxLength={200}
-                        className="min-h-[80px]"
-                        // value={getCurrentNoteValue(
-                        //   getWorkoutExerciseId(exercise.exerciseId)
-                        // )}
-                        // onChange={(e) =>
-                        //   handleNotesChange(
-                        //     getWorkoutExerciseId(exercise.exerciseId),
-                        //     e.target.value
-                        //   )
-                        // }
-                        // disabled={!hasAnyLoggedSets}
-                      />
-                    </div>
+                    <ExerciseNotes
+                      exerciseNotes={exerciseNotes}
+                      setExerciseNotes={setExerciseNotes}
+                      getExerciseNotes={getExerciseNotes}
+                      getWorkoutExerciseId={getWorkoutExerciseId}
+                      hasAnyLoggedSets={hasLoggedSets(exercise.exerciseId)}
+                      exercise={exercise}
+                    />
                   </div>
                 ))
               )}
@@ -414,6 +443,7 @@ export default function WithoutProgramLog({
         </main>
       </div>
       <ExerciseSelectionModal
+        dayId={manualProgram?.workoutDays?.[0]?.dayId || ""}
         isOpen={isExerciseSelectionModalOpen}
         setIsOpen={setIsExerciseSelectionModalOpen}
         onSelectExercise={handleAddExercise}
@@ -424,7 +454,7 @@ export default function WithoutProgramLog({
         setShowDeleteDialog={setShowDeleteDialog}
         handleDelete={handleDelete}
         isDeleting={isDeletingWorkoutLog}
-        context="Log"
+        context={context}
       />
     </div>
   );

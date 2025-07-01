@@ -31,7 +31,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import {
-  useDeleteWorkoutSetMutation,
+  useDeleteWorkoutSetWithCascadeMutation,
   useUpdateWorkoutSetMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import { toast } from "sonner";
@@ -67,8 +67,8 @@ export function WorkoutDetailView({
     [setId: string]: any;
   }>({});
 
-  const [deleteWorkoutSet, { isLoading: isDeleting }] =
-    useDeleteWorkoutSetMutation();
+  const [deleteWorkoutSetWithCascade, { isLoading: isDeleting }] =
+    useDeleteWorkoutSetWithCascadeMutation();
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
@@ -264,7 +264,7 @@ export function WorkoutDetailView({
     workoutLogId: string
   ) => {
     try {
-      await deleteWorkoutSet({
+      await deleteWorkoutSetWithCascade({
         workoutSetId,
         workoutExerciseId,
         workoutLogId,

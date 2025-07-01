@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Check, History, Loader2, SquarePen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -27,9 +25,7 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import {
   useGetWorkoutLogQuery,
   useCreateWorkoutLogMutation,
-  useUpdateExerciseNotesMutation,
 } from "@/api/workout-log/workout-log-api-slice";
-import { useDebounceCallback } from "@/hooks/use-debounce";
 import {
   useUpdateWorkoutLogStatusMutation,
   useGetPreviousWorkoutLogQuery,
@@ -38,6 +34,7 @@ import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workou
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
+import ExerciseNotes from "./exercise-notes";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -78,8 +75,6 @@ export function ProgramWorkoutLog({
       currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
     });
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
-  const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
-    useUpdateExerciseNotesMutation();
 
   const {
     exerciseSets,
@@ -148,39 +143,6 @@ export function ProgramWorkoutLog({
     }
   }, [selectedDay, workoutLog]); // Remove function dependencies
 
-  const debouncedSaveNote = useDebounceCallback(
-    async (workoutExerciseId: string, notes: string) => {
-      if (!workoutExerciseId && notes.trim() === "") {
-        return;
-      }
-
-      try {
-        await updateExerciseNotes({
-          workoutExerciseId: workoutExerciseId,
-          exerciseNotes: notes.trim(),
-        }).unwrap();
-      } catch (error: any) {
-        if (error) {
-          toast.error(error.data.message);
-        } else {
-          toast.error("Internal server error. Failed to save exercise notes");
-        }
-      }
-    },
-    2000
-  );
-
-  const handleNotesChange = (workoutExerciseId: string, notes: string) => {
-    // Update UI immediately
-    setExerciseNotes((prev) => ({
-      ...prev,
-      [workoutExerciseId]: notes,
-    }));
-
-    // Save to API with debounce
-    debouncedSaveNote(workoutExerciseId, notes);
-  };
-
   const handleUpdateWorkoutLogName = async () => {
     if (workoutLogName.trim() === "") {
       setWorkoutLogName(workoutLog?.data[0].title);
@@ -200,17 +162,6 @@ export function ProgramWorkoutLog({
         toast.error("Internal server error. Failed to update workout log name");
       }
     }
-  };
-
-  // Get the current value for a textarea (local state takes precedence over saved notes)
-  const getCurrentNoteValue = (workoutExerciseId: string): string => {
-    // If we have local changes, use those
-    if (exerciseNotes[workoutExerciseId] !== undefined) {
-      return exerciseNotes[workoutExerciseId];
-    }
-
-    // Otherwise, use the saved notes from the database
-    return getExerciseNotes(workoutExerciseId) || "";
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
@@ -401,40 +352,14 @@ export function ProgramWorkoutLog({
                     isMobile={isMobile}
                     showPrevious={showPrevious}
                   />
-                  <div className="space-y-2">
-                    <Label htmlFor="workout-notes">
-                      Exercise Notes
-                      <span className="text-sm text-slate-500">
-                        {isUpdatingExerciseNotes
-                          ? "(Saving...)"
-                          : getExerciseNotes(
-                              getWorkoutExerciseId(exercise.exerciseId)
-                            ) !== ""
-                          ? "(Saved)"
-                          : "(Optional)"}
-                      </span>
-                    </Label>
-                    <Textarea
-                      id="workout-notes"
-                      placeholder={
-                        hasAnyLoggedSets
-                          ? "Add notes about this exercise... (max 200 characters)"
-                          : "No sets logged yet"
-                      }
-                      maxLength={200}
-                      className="min-h-[80px]"
-                      value={getCurrentNoteValue(
-                        getWorkoutExerciseId(exercise.exerciseId)
-                      )}
-                      onChange={(e) =>
-                        handleNotesChange(
-                          getWorkoutExerciseId(exercise.exerciseId),
-                          e.target.value
-                        )
-                      }
-                      disabled={!hasAnyLoggedSets}
-                    />
-                  </div>
+                  <ExerciseNotes
+                    exerciseNotes={exerciseNotes}
+                    setExerciseNotes={setExerciseNotes}
+                    getExerciseNotes={getExerciseNotes}
+                    getWorkoutExerciseId={getWorkoutExerciseId}
+                    hasAnyLoggedSets={hasAnyLoggedSets}
+                    exercise={exercise}
+                  />
                 </div>
               );
             })}

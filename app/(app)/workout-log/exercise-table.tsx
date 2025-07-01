@@ -17,8 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Save, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  useDeleteWorkoutSetMutation,
+  useDeleteWorkoutSetWithCascadeMutation,
   useUpdateWorkoutSetMutation,
+  useDeleteWorkoutSetMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -30,7 +31,7 @@ interface ExerciseTableProps {
   updateSetData: (
     exerciseId: string,
     setIndex: number,
-    field: "weight" | "reps" | "leftReps" | "rightReps",
+    field: "weight" | "reps" | "leftReps" | "rightReps" | "weightUnit",
     value: string
   ) => void;
   toggleSetLogged: (
@@ -47,6 +48,7 @@ interface ExerciseTableProps {
   hasLoggedSets: boolean;
   isMobile: boolean;
   showPrevious: boolean;
+  logType?: "program" | "manual";
 }
 
 export default function ExerciseTable({
@@ -60,6 +62,7 @@ export default function ExerciseTable({
   hasLoggedSets,
   isMobile,
   showPrevious,
+  logType = "program",
 }: ExerciseTableProps) {
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
@@ -68,8 +71,9 @@ export default function ExerciseTable({
     [setId: string]: SetData;
   }>({});
 
-  const [deleteWorkoutSet, { isLoading: isDeleting }] =
-    useDeleteWorkoutSetMutation();
+  const [deleteWorkoutSetWithCascade, { isLoading: isDeleting }] =
+    useDeleteWorkoutSetWithCascadeMutation();
+  const [deleteWorkoutSet] = useDeleteWorkoutSetMutation();
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
 
   // Store original values when sets are first loaded
@@ -170,7 +174,7 @@ export default function ExerciseTable({
   const handleUpdateSetData = (
     exerciseId: string,
     setIndex: number,
-    field: "weight" | "reps" | "leftReps" | "rightReps",
+    field: "weight" | "reps" | "leftReps" | "rightReps" | "weightUnit",
     value: string
   ) => {
     // First update the data
@@ -302,11 +306,17 @@ export default function ExerciseTable({
     workoutLogId: string | null
   ) => {
     try {
-      await deleteWorkoutSet({
-        workoutSetId,
-        workoutExerciseId,
-        workoutLogId,
-      }).unwrap();
+      if (logType === "program") {
+        await deleteWorkoutSetWithCascade({
+          workoutSetId,
+          workoutExerciseId,
+          workoutLogId,
+        }).unwrap();
+      } else if (logType === "manual") {
+        await deleteWorkoutSet({
+          workoutSetId,
+        }).unwrap();
+      }
     } catch (error: any) {
       if (!error.status) {
         toast.error("No Server Response");

@@ -79,3 +79,7 @@ export interface WorkoutLogPagination {
   nextOffset: number;
   workoutLogsData: WorkoutLog[];
 }
+
+export interface WorkoutLogResponse {
+  data: WorkoutLog[];
+}
