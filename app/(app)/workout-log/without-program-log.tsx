@@ -24,7 +24,6 @@ import { toast } from "sonner";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import DeleteProgramDialog from "@/components/dialog/delete-program";
 import ExerciseTable from "./exercise-table";
-import { useManualExerciseSets } from "@/hooks/use-manual-exercise-sets";
 import ExerciseNotes from "./exercise-notes";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 
@@ -36,6 +35,7 @@ import type {
   ExercisePayload,
   WorkoutLog,
 } from "@/interfaces/workout-log-interfaces";
+import { useExerciseSets } from "@/hooks/use-exercise-sets";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -99,10 +99,10 @@ export default function WithoutProgramLog({
     isFieldInvalid,
     isExerciseFullyLogged,
     hasLoggedSets,
-    getWorkoutExerciseId,
     getExerciseNotes,
     getExercises,
-  } = useManualExerciseSets(workoutLog, programs || []);
+    getManualWorkoutExerciseId,
+  } = useExerciseSets(workoutLog, programs || []);
 
   useEffect(() => {
     setManualProgram(
@@ -113,10 +113,6 @@ export default function WithoutProgramLog({
 
   // Calculate completion status using proper validation
   const isWorkoutComplete = useMemo(() => {
-    if (!manualProgram?.workoutDays?.[0] || !workoutLog?.data[0]) return false;
-    if (manualProgram?.workoutDays?.[0]?.dayId !== workoutLog.data[0].dayId)
-      return false;
-
     const exercises = getExercises();
     if (exercises.length === 0) return false;
 
@@ -124,11 +120,16 @@ export default function WithoutProgramLog({
     return exercises.every((exercise) =>
       isExerciseFullyLogged(exercise.exerciseId)
     );
-  }, [manualProgram, workoutLog, getExercises, isExerciseFullyLogged]);
+  }, [getExercises, isExerciseFullyLogged]);
 
   // Update workout status when completion state changes
   useEffect(() => {
-    if (!workoutLog?.data[0]) return;
+    if (!workoutLog?.data[0] || !selectedDate) return;
+    if (
+      selectedDate.toISOString().split("T")[0] !==
+      workoutLog.data[0].workoutDate.split("T")[0]
+    )
+      return;
 
     const currentWorkout = workoutLog.data[0];
     const shouldBeCompleted = isWorkoutComplete;
@@ -162,6 +163,7 @@ export default function WithoutProgramLog({
     workoutLog?.data[0]?.status,
     workoutLog?.data[0]?.workoutLogId,
     updateWorkoutLogStatus,
+    selectedDate,
   ]);
 
   useEffect(() => {
@@ -283,6 +285,7 @@ export default function WithoutProgramLog({
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
+    console.log(exercisePayload);
     if (
       exercisePayload.weight === 0 &&
       exercisePayload.repsLeft === 0 &&
@@ -293,7 +296,7 @@ export default function WithoutProgramLog({
 
     try {
       await addWorkoutSet({
-        workoutExerciseId: getWorkoutExerciseId(
+        workoutExerciseId: getManualWorkoutExerciseId(
           exercisePayload.programExerciseId
         ),
         payload: exercisePayload,
@@ -472,7 +475,7 @@ export default function WithoutProgramLog({
                             setContext("Exercise");
                             setShowDeleteDialog(true);
                             setDeletingExerciseId(
-                              getWorkoutExerciseId(exercise.exerciseId)
+                              getManualWorkoutExerciseId(exercise.exerciseId)
                             );
                           }}
                         >
@@ -497,7 +500,7 @@ export default function WithoutProgramLog({
                       exerciseNotes={exerciseNotes}
                       setExerciseNotes={setExerciseNotes}
                       getExerciseNotes={getExerciseNotes}
-                      getWorkoutExerciseId={getWorkoutExerciseId}
+                      getWorkoutExerciseId={getManualWorkoutExerciseId}
                       hasAnyLoggedSets={hasLoggedSets(exercise.exerciseId)}
                       exercise={exercise}
                     />

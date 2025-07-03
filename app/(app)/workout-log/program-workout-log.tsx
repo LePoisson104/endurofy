@@ -85,7 +85,7 @@ export function ProgramWorkoutLog({
     hasLoggedSets,
     getWorkoutExerciseId,
     getExerciseNotes,
-  } = useExerciseSets(selectedDay, workoutLog, previousWorkoutLog);
+  } = useExerciseSets(workoutLog, [program], selectedDay, previousWorkoutLog);
 
   useEffect(() => {
     if (!selectedDay || !workoutLog?.data[0]) return;
@@ -165,6 +165,7 @@ export function ProgramWorkoutLog({
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
+    console.log(exercisePayload);
     const workoutLogPayload: WorkoutLogPayload = {
       workoutName: selectedDay?.dayName || "",
       workoutDate: format(selectedDate, "yyyy-MM-dd"),

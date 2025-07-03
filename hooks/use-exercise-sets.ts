@@ -1,12 +1,13 @@
 "use client";
 import { SetData } from "@/interfaces/workout-log-interfaces";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { WorkoutDay, Exercise } from "@/interfaces/workout-program-interfaces";
 
 export const useExerciseSets = (
-  selectedDay: WorkoutDay | null,
   workoutLog: any,
-  previousLog: any
+  workoutPrograms: any[],
+  selectedDay?: WorkoutDay | null,
+  previousLog?: any
 ) => {
   const [exerciseSets, setExerciseSets] = useState<Record<string, SetData[]>>(
     {}
@@ -33,8 +34,57 @@ export const useExerciseSets = (
     return grouped;
   };
 
+  // Helper function to validate if set data is actually logged (has weight and reps)
+  const isSetDataValid = useCallback(
+    (setData: any, laterality: string): boolean => {
+      if (!setData) return false;
+
+      // Check weight (must be greater than 0)
+      if (!setData.weight || setData.weight <= 0) return false;
+
+      // Check reps based on exercise laterality
+      if (laterality === "unilateral") {
+        return !!(
+          setData.repsLeft &&
+          setData.repsLeft > 0 &&
+          setData.repsRight &&
+          setData.repsRight > 0
+        );
+      } else {
+        return !!(
+          (setData.repsLeft && setData.repsLeft > 0) ||
+          (setData.repsRight && setData.repsRight > 0)
+        );
+      }
+    },
+    []
+  );
+
+  // Memoize the exercise lookup map to prevent recalculation on every render
+  const exerciseMap = useMemo(() => {
+    const map = new Map<string, Exercise>();
+
+    if (workoutPrograms && Array.isArray(workoutPrograms)) {
+      workoutPrograms.forEach((program) => {
+        if (program.workoutDays && Array.isArray(program.workoutDays)) {
+          program.workoutDays.forEach((day: any) => {
+            if (day.exercises && Array.isArray(day.exercises)) {
+              day.exercises.forEach((exercise: Exercise) => {
+                map.set(exercise.exerciseId, exercise);
+              });
+            }
+          });
+        }
+      });
+    }
+
+    return map;
+  }, [workoutPrograms]);
+
   // Initialize sets when selectedDay or workoutLog changes
   useEffect(() => {
+    if (workoutPrograms?.[0]?.programType === "manual") return;
+
     if (selectedDay) {
       const initialSets: Record<string, SetData[]> = {};
       const initialValidationAttempts: Record<string, boolean[]> = {};
@@ -132,6 +182,101 @@ export const useExerciseSets = (
     }
   }, [selectedDay, workoutLog, previousLog]);
 
+  // Remove the functions from the dependency array
+  useEffect(() => {
+    if (workoutLog?.data?.[0]?.workoutExercises) {
+      const initialSets: Record<string, SetData[]> = {};
+      const initialValidationAttempts: Record<string, boolean[]> = {};
+
+      // Group workout log data by exercise
+      const loggedExercises = workoutLog?.data?.[0]?.workoutExercises
+        ? groupWorkoutLogByExercise(workoutLog?.data?.[0]?.workoutExercises)
+        : {};
+
+      workoutLog?.data?.[0]?.workoutExercises.forEach(
+        (workoutExercise: any) => {
+          const exerciseId = workoutExercise.programExerciseId;
+          const loggedExercise = loggedExercises[exerciseId] || [];
+
+          // Determine sets count - use original exercise sets count, fallback to logged sets or default
+          const originalExercise = findOriginalExercise(exerciseId);
+          const originalSets =
+            originalExercise?.sets ||
+            workoutExercise.sets ||
+            workoutExercise.originalSets;
+          const existingSetsCount = workoutExercise.workoutSets?.length || 0;
+          const setsCount = originalSets || Math.max(existingSetsCount, 3);
+
+          initialSets[exerciseId] = Array.from(
+            { length: setsCount },
+            (_, index) => {
+              // ... rest of your logic remains the same
+              const loggedSet = loggedExercise.find((exerciseData: any) =>
+                exerciseData.workoutSets?.some(
+                  (set: any) => set.setNumber === index + 1
+                )
+              );
+
+              const setData = loggedSet?.workoutSets?.find(
+                (set: any) => set.setNumber === index + 1
+              );
+
+              if (setData) {
+                const isValidSet = isSetDataValid(
+                  setData,
+                  workoutExercise.laterality
+                );
+
+                return {
+                  workoutLogId: loggedExercise[0]?.workoutLogId || null,
+                  setNumber: setData.setNumber || index + 1,
+                  workoutSetId: setData.workoutSetId || null,
+                  workoutExerciseId: setData.workoutExerciseId || null,
+                  weight: setData.weight || 0,
+                  weightUnit: setData.weightUnit || "lb",
+                  reps:
+                    setData.repsLeft && setData.repsRight
+                      ? (setData.repsLeft + setData.repsRight) / 2
+                      : setData.repsLeft || setData.repsRight || 0,
+                  leftReps: setData.repsLeft || 0,
+                  rightReps: setData.repsRight || 0,
+                  previousLeftReps: setData.previousLeftReps || null,
+                  previousRightReps: setData.previousRightReps || null,
+                  previousWeight: setData.previousWeight || null,
+                  isLogged: isValidSet,
+                };
+              } else {
+                return {
+                  workoutLogId: loggedExercise[0]?.workoutLogId || null,
+                  setNumber: index + 1,
+                  workoutSetId: null,
+                  workoutExerciseId: null,
+                  weight: 0,
+                  weightUnit: "lb",
+                  reps: 0,
+                  leftReps: 0,
+                  rightReps: 0,
+                  previousLeftReps: null,
+                  previousRightReps: null,
+                  previousWeight: null,
+                  isLogged: false,
+                };
+              }
+            }
+          );
+
+          initialValidationAttempts[exerciseId] = Array.from(
+            { length: setsCount },
+            () => false
+          );
+        }
+      );
+
+      setExerciseSets(initialSets);
+      setValidationAttempts(initialValidationAttempts);
+    }
+  }, [workoutLog, exerciseMap, workoutPrograms]); // Only include stable dependencies
+
   const updateSetData = (
     exerciseId: string,
     setIndex: number,
@@ -154,11 +299,6 @@ export const useExerciseSets = (
                 updatedSet.rightReps = Number(value);
               }
             }
-
-            // If this set was previously logged and we're editing it,
-            // we need to mark it as needing to be re-saved
-            // For now, we'll keep it as logged but this could be extended
-            // to have a "modified" state if needed
 
             return updatedSet;
           }
@@ -256,12 +396,26 @@ export const useExerciseSets = (
     return sets.some((set) => set.isLogged);
   };
 
-  const getWorkoutExerciseId = (exerciseId: string): string => {
-    return (
-      exerciseSets[exerciseId]?.find((set) => set.isLogged)
-        ?.workoutExerciseId || ""
-    );
-  };
+  const getWorkoutExerciseId = useCallback(
+    (exerciseId: string): string => {
+      return (
+        exerciseSets[exerciseId]?.find((set) => set.isLogged)
+          ?.workoutExerciseId || ""
+      );
+    },
+    [exerciseSets]
+  );
+
+  const getManualWorkoutExerciseId = useCallback(
+    (exerciseId: string): string => {
+      return (
+        workoutLog?.data?.[0]?.workoutExercises.find(
+          (exercise: any) => exercise.programExerciseId === exerciseId
+        )?.workoutExerciseId || ""
+      );
+    },
+    [workoutLog]
+  );
 
   const getExerciseNotes = (workoutExerciseId: string): string => {
     const notes = workoutLog?.data[0]?.workoutExercises.find(
@@ -269,6 +423,52 @@ export const useExerciseSets = (
     )?.notes;
     return notes || "";
   };
+
+  // Helper function to find original exercise data from workout programs
+  const findOriginalExercise = useCallback(
+    (exerciseId: string): Exercise | null => {
+      return exerciseMap.get(exerciseId) || null;
+    },
+    [exerciseMap]
+  );
+
+  // Convert workout exercise to exercise format for compatibility with ExerciseTable
+  const convertWorkoutExerciseToExercise = useCallback(
+    (workoutExercise: any): Exercise => {
+      // First try to find original exercise data from workout programs
+      const originalExercise = findOriginalExercise(
+        workoutExercise.programExerciseId
+      );
+
+      // Use original exercise data if available, otherwise use stored data or defaults
+      const originalSets =
+        originalExercise?.sets ||
+        workoutExercise.sets ||
+        workoutExercise.originalSets ||
+        Math.max(workoutExercise.workoutSets?.length || 0, 3);
+
+      return {
+        exerciseId: workoutExercise.programExerciseId,
+        exerciseName: workoutExercise.exerciseName,
+        bodyPart: workoutExercise.bodyPart,
+        laterality: workoutExercise.laterality,
+        sets: originalSets,
+        minReps: originalExercise?.minReps || workoutExercise.minReps || 8,
+        maxReps: originalExercise?.maxReps || workoutExercise.maxReps || 12,
+        exerciseOrder: workoutExercise.exerciseOrder,
+      };
+    },
+    [findOriginalExercise]
+  );
+
+  // Get exercises in the format expected by ExerciseTable
+  const getExercises = useCallback((): Exercise[] => {
+    if (!workoutLog?.data?.[0]?.workoutExercises) return [];
+
+    return workoutLog?.data?.[0]?.workoutExercises.map((workoutExercise: any) =>
+      convertWorkoutExerciseToExercise(workoutExercise)
+    );
+  }, [workoutLog, convertWorkoutExerciseToExercise]);
 
   return {
     exerciseSets,
@@ -279,5 +479,7 @@ export const useExerciseSets = (
     hasLoggedSets,
     getWorkoutExerciseId,
     getExerciseNotes,
+    getExercises,
+    getManualWorkoutExerciseId,
   };
 };

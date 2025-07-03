@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   format,
   startOfMonth,
@@ -25,6 +25,8 @@ import { getStartOfPreviousAndEndOfNextMonth } from "@/helper/get-day-range";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import type {
   WorkoutProgram,
@@ -43,6 +45,18 @@ export function WorkoutCalendar({
   program,
 }: WorkoutCalendarProps) {
   const user = useSelector(selectCurrentUser);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (selectedDate) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("date");
+      newSearchParams.delete("tab");
+      router.replace(`/workout-log?${newSearchParams.toString()}`);
+    }
+  }, [selectedDate, router, searchParams]);
+
   const [currentMonth, setCurrentMonth] = useState(
     new Date(selectedDate) || new Date()
   );
