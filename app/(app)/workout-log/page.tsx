@@ -47,7 +47,6 @@ export default function WorkoutLogManager() {
   const [selectedTab, setSelectedTab] = useState("log");
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
-  const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
 
   // Load selectedDate from localStorage on component mount
   useEffect(() => {
@@ -81,24 +80,6 @@ export default function WorkoutLogManager() {
   }, [programs]);
 
   const handleSetProgramAsActive = async (programId: string) => {
-    if (programId === "without-program") {
-      try {
-        await setProgramAsInactive({
-          programId: selectedProgram?.programId,
-          userId: user?.user_id,
-        }).unwrap();
-      } catch (error: any) {
-        if (error.data.message) {
-          toast.error(error.data.message);
-        } else {
-          toast.error(
-            "Internal server error. Failed to set program as inactive"
-          );
-        }
-      }
-      setSelectedProgram(null);
-      return;
-    }
     try {
       await setProgramAsActive({
         programId: programId,
@@ -158,7 +139,7 @@ export default function WorkoutLogManager() {
         {selectedTab === "log" && (
           <ProgramSelector
             programs={programs as WorkoutProgram[]}
-            selectedProgramId={selectedProgram?.programId || "without-program"}
+            selectedProgramId={selectedProgram?.programId || ""}
             onSelectProgram={handleSetProgramAsActive}
           />
         )}
@@ -202,7 +183,8 @@ export default function WorkoutLogManager() {
               {selectedTab === "log" ? (
                 <Card>
                   <CardContent>
-                    {selectedProgram ? (
+                    {selectedProgram &&
+                    selectedProgram.programType !== "manual" ? (
                       <ProgramWorkoutLog
                         program={selectedProgram}
                         selectedDate={selectedDate}
@@ -214,7 +196,7 @@ export default function WorkoutLogManager() {
                 </Card>
               ) : (
                 <WorkoutLogHistory
-                  selectedProgram={selectedProgram || "without-program"}
+                  selectedProgram={selectedProgram as WorkoutProgram}
                 />
               )}
             </div>

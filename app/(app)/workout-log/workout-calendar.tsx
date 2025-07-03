@@ -100,6 +100,7 @@ export function WorkoutCalendar({
   // Check if a day has a scheduled workout in the program
   const hasScheduledWorkout = (day: Date) => {
     if (!program) return false;
+    if (program.programType === "manual") return false;
 
     if (program.programType === "custom") {
       return hasScheduledWorkoutCustom(day);
@@ -366,10 +367,12 @@ export function WorkoutCalendar({
           <div className="w-3 h-3 bg-green-400 dark:bg-green-600 rounded-[2px]"></div>
           <span>Logged Workouts</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="border-b border-2 rounded-full border-blue-600 dark:border-blue-400 w-[23px]" />
-          <span>Upcoming Workouts</span>
-        </div>
+        {program?.programType !== "manual" && (
+          <div className="flex items-center gap-2">
+            <div className="border-b border-2 rounded-full border-blue-600 dark:border-blue-400 w-[23px]" />
+            <span>Upcoming Workouts</span>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 dark:bg-blue-500 bg-blue-400 rounded-[2px]" />
           {program?.programType === "custom" ? (

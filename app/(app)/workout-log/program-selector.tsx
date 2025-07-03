@@ -11,7 +11,7 @@ import type { WorkoutProgram } from "../../../interfaces/workout-program-interfa
 
 interface ProgramSelectorProps {
   programs: WorkoutProgram[];
-  selectedProgramId?: string;
+  selectedProgramId: string;
   onSelectProgram: (programId: string) => void;
 }
 
@@ -29,16 +29,13 @@ export function ProgramSelector({
 
         {programs && (
           <SelectContent>
-            <SelectItem key="without-program" value="without-program">
-              Without Program
-            </SelectItem>
-            {programs
-              .filter((program) => program.programType !== "manual")
-              .map((program) => (
-                <SelectItem key={program?.programId} value={program?.programId}>
-                  {program?.programName}
-                </SelectItem>
-              ))}
+            {programs.map((program) => (
+              <SelectItem key={program?.programId} value={program?.programId}>
+                {program?.programType === "manual"
+                  ? "Without Program"
+                  : program?.programName}
+              </SelectItem>
+            ))}
           </SelectContent>
         )}
       </Select>
