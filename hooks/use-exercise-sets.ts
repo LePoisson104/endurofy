@@ -1,11 +1,15 @@
 "use client";
 import { SetData } from "@/interfaces/workout-log-interfaces";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { WorkoutDay, Exercise } from "@/interfaces/workout-program-interfaces";
+import {
+  WorkoutDay,
+  Exercise,
+  WorkoutProgram,
+} from "@/interfaces/workout-program-interfaces";
 
 export const useExerciseSets = (
   workoutLog: any,
-  workoutPrograms: any[],
+  workoutPrograms: WorkoutProgram[],
   selectedDay?: WorkoutDay | null,
   previousLog?: any
 ) => {
@@ -83,7 +87,7 @@ export const useExerciseSets = (
 
   // Initialize sets when selectedDay or workoutLog changes
   useEffect(() => {
-    if (workoutPrograms?.[0]?.programType === "manual") return;
+    if (workoutPrograms.length > 1) return;
 
     if (selectedDay) {
       const initialSets: Record<string, SetData[]> = {};
@@ -184,7 +188,11 @@ export const useExerciseSets = (
 
   // Remove the functions from the dependency array
   useEffect(() => {
-    if (workoutPrograms?.[0]?.programType !== "manual") return;
+    if (
+      workoutPrograms.length === 1 &&
+      workoutPrograms[0].programType !== "manual"
+    )
+      return;
 
     if (workoutLog?.data?.[0]?.workoutExercises) {
       const initialSets: Record<string, SetData[]> = {};

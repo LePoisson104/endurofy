@@ -12,10 +12,7 @@ import { CalendarIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
-import {
-  useSetProgramAsActiveMutation,
-  useSetProgramAsInactiveMutation,
-} from "@/api/workout-program/workout-program-api-slice";
+import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-program-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParams } from "next/navigation";

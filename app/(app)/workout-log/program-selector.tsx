@@ -22,7 +22,10 @@ export function ProgramSelector({
 }: ProgramSelectorProps) {
   return (
     <div className="space-y-2 mb-3">
-      <Select value={selectedProgramId} onValueChange={onSelectProgram}>
+      <Select
+        value={selectedProgramId || "manual"}
+        onValueChange={onSelectProgram}
+      >
         <SelectTrigger id="program-select">
           <SelectValue placeholder="Choose a workout program" />
         </SelectTrigger>
