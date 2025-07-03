@@ -132,6 +132,19 @@ export default function WithoutProgramLog({
       return;
 
     const currentWorkout = workoutLog.data[0];
+    const exercises = currentWorkout.workoutExercises || [];
+    
+    // Check if exerciseSets are properly synced with current workoutLog
+    // by verifying that each exercise has corresponding exerciseSets
+    const isExerciseSetsSynced = exercises.length === 0 || 
+      exercises.every((exercise: any) => 
+        exerciseSets[exercise.programExerciseId] !== undefined
+      );
+
+    if (!isExerciseSetsSynced) {
+      return; // Wait for exerciseSets to be synced with current workoutLog
+    }
+
     const shouldBeCompleted = isWorkoutComplete;
     const currentStatus = currentWorkout.status;
 
@@ -164,6 +177,7 @@ export default function WithoutProgramLog({
     workoutLog?.data[0]?.workoutLogId,
     updateWorkoutLogStatus,
     selectedDate,
+    exerciseSets,
   ]);
 
   useEffect(() => {
