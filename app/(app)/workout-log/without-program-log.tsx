@@ -283,6 +283,14 @@ export default function WithoutProgramLog({
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
+    if (
+      exercisePayload.weight === 0 &&
+      exercisePayload.repsLeft === 0 &&
+      exercisePayload.repsRight === 0
+    ) {
+      return;
+    }
+
     try {
       await addWorkoutSet({
         workoutExerciseId: getWorkoutExerciseId(

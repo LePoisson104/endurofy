@@ -226,7 +226,7 @@ export function AppSidebar() {
                 ? "Weekly Progress"
                 : activeProgram?.programType === "custom"
                 ? "Rotation Progress"
-                : "Progress"}
+                : "Workout Progress"}
             </SidebarGroupLabel>
             {workoutPrograms ? (
               <SidebarGroupContent>
@@ -234,13 +234,18 @@ export function AppSidebar() {
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs text-muted-foreground">
                       {completedWorkoutLogs?.data || 0}/
-                      {activeProgram?.workoutDays.length || 0} workouts
+                      {activeProgram?.programType === "manual"
+                        ? completedWorkoutLogs?.data
+                        : activeProgram?.workoutDays.length || 0}{" "}
+                      workouts
                     </span>
                     <span className="text-xs font-medium">
                       {completedWorkoutLogs?.data
                         ? Math.round(
                             (completedWorkoutLogs?.data /
-                              (activeProgram?.workoutDays.length || 0)) *
+                              (activeProgram?.programType === "manual"
+                                ? completedWorkoutLogs?.data
+                                : activeProgram?.workoutDays.length || 0)) *
                               100
                           )
                         : 0}
@@ -250,7 +255,9 @@ export function AppSidebar() {
                   <Progress
                     value={
                       (completedWorkoutLogs?.data /
-                        (activeProgram?.workoutDays.length || 0)) *
+                        (activeProgram?.programType === "manual"
+                          ? completedWorkoutLogs?.data
+                          : activeProgram?.workoutDays.length || 0)) *
                       100
                     }
                     className="h-2"
