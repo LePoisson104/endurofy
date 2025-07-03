@@ -4,7 +4,7 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, SquarePen, Plus, Trash2, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import ExerciseSelectionModal from "@/components/modals/exercise-selection-modal";
 import CreateManualWorkoutLogModal from "@/components/modals/create-manual-workout-log-modal";
@@ -16,6 +16,7 @@ import {
   useAddWorkoutSetMutation,
   useDeleteWorkoutExerciseMutation,
   useGetManualWorkoutLogWithPreviousQuery,
+  useUpdateWorkoutLogStatusMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
@@ -74,6 +75,8 @@ export default function WithoutProgramLog({
     { isLoading: isAddingExerciseToWorkoutLog },
   ] = useAddManualWorkoutExerciseMutation();
 
+  const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
+
   const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
     useDeleteWorkoutLogMutation();
 
@@ -107,6 +110,59 @@ export default function WithoutProgramLog({
         null
     );
   }, [programs]);
+
+  // Calculate completion status using proper validation
+  const isWorkoutComplete = useMemo(() => {
+    if (!manualProgram?.workoutDays?.[0] || !workoutLog?.data[0]) return false;
+    if (manualProgram?.workoutDays?.[0]?.dayId !== workoutLog.data[0].dayId)
+      return false;
+
+    const exercises = getExercises();
+    if (exercises.length === 0) return false;
+
+    // Check if all exercises are fully logged (with valid weight and reps)
+    return exercises.every((exercise) =>
+      isExerciseFullyLogged(exercise.exerciseId)
+    );
+  }, [manualProgram, workoutLog, getExercises, isExerciseFullyLogged]);
+
+  // Update workout status when completion state changes
+  useEffect(() => {
+    if (!workoutLog?.data[0]) return;
+
+    const currentWorkout = workoutLog.data[0];
+    const shouldBeCompleted = isWorkoutComplete;
+    const currentStatus = currentWorkout.status;
+
+    // Only update if status actually needs to change
+    if (shouldBeCompleted && currentStatus === "incomplete") {
+      updateWorkoutLogStatus({
+        workoutLogId: currentWorkout.workoutLogId,
+        status: "completed",
+      })
+        .unwrap()
+        .catch((error) => {
+          console.error("Failed to update workout status to completed:", error);
+        });
+    } else if (!shouldBeCompleted && currentStatus === "completed") {
+      updateWorkoutLogStatus({
+        workoutLogId: currentWorkout.workoutLogId,
+        status: "incomplete",
+      })
+        .unwrap()
+        .catch((error) => {
+          console.error(
+            "Failed to update workout status to incomplete:",
+            error
+          );
+        });
+    }
+  }, [
+    isWorkoutComplete,
+    workoutLog?.data[0]?.status,
+    workoutLog?.data[0]?.workoutLogId,
+    updateWorkoutLogStatus,
+  ]);
 
   useEffect(() => {
     if (workoutLog?.data.length > 0) {
