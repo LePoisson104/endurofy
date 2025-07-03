@@ -184,6 +184,8 @@ export const useExerciseSets = (
 
   // Remove the functions from the dependency array
   useEffect(() => {
+    if (workoutPrograms?.[0]?.programType !== "manual") return;
+
     if (workoutLog?.data?.[0]?.workoutExercises) {
       const initialSets: Record<string, SetData[]> = {};
       const initialValidationAttempts: Record<string, boolean[]> = {};

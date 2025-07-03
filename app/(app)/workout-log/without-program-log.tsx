@@ -133,12 +133,14 @@ export default function WithoutProgramLog({
 
     const currentWorkout = workoutLog.data[0];
     const exercises = currentWorkout.workoutExercises || [];
-    
+
     // Check if exerciseSets are properly synced with current workoutLog
     // by verifying that each exercise has corresponding exerciseSets
-    const isExerciseSetsSynced = exercises.length === 0 || 
-      exercises.every((exercise: any) => 
-        exerciseSets[exercise.programExerciseId] !== undefined
+    const isExerciseSetsSynced =
+      exercises.length === 0 ||
+      exercises.every(
+        (exercise: any) =>
+          exerciseSets[exercise.programExerciseId] !== undefined
       );
 
     if (!isExerciseSetsSynced) {
@@ -156,7 +158,11 @@ export default function WithoutProgramLog({
       })
         .unwrap()
         .catch((error) => {
-          console.error("Failed to update workout status to completed:", error);
+          if (error?.data?.message) {
+            toast.error(error.data.message);
+          } else {
+            toast.error("Failed to update workout status to completed");
+          }
         });
     } else if (!shouldBeCompleted && currentStatus === "completed") {
       updateWorkoutLogStatus({
@@ -165,10 +171,11 @@ export default function WithoutProgramLog({
       })
         .unwrap()
         .catch((error) => {
-          console.error(
-            "Failed to update workout status to incomplete:",
-            error
-          );
+          if (error?.data?.message) {
+            toast.error(error.data.message);
+          } else {
+            toast.error("Failed to update workout status to incomplete");
+          }
         });
     }
   }, [
