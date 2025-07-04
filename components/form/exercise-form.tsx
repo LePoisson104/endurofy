@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,9 +25,13 @@ import { toast } from "sonner";
 export function ExerciseForm({
   onAddExercise,
   isAddingExercise,
+  initialExercise,
+  isEditing = false,
 }: {
   onAddExercise: (exercise: Exercise) => void;
   isAddingExercise?: boolean;
+  initialExercise?: Partial<Exercise>;
+  isEditing?: boolean;
 }) {
   const isMobile = useIsMobile();
   const [exerciseName, setExerciseName] = useState("");
@@ -37,6 +41,22 @@ export function ExerciseForm({
   const [minReps, setMinReps] = useState<number | null>(null);
   const [maxReps, setMaxReps] = useState<number | null>(null);
   const [exerciseOrder, setExerciseOrder] = useState<number>(1);
+
+  console.log(bodyPart);
+  console.log(initialExercise);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (initialExercise) {
+      setExerciseName(initialExercise.exerciseName || "");
+      setBodyPart(initialExercise.bodyPart?.toLowerCase() || "");
+      setLaterality(initialExercise.laterality || "bilateral");
+      setSets(initialExercise.sets || null);
+      setMinReps(initialExercise.minReps || null);
+      setMaxReps(initialExercise.maxReps || null);
+      setExerciseOrder(initialExercise.exerciseOrder || 1);
+    }
+  }, [initialExercise]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +81,7 @@ export function ExerciseForm({
     }
 
     // Create the exercise object
-    const newExercise: CreateExercise = {
+    const exerciseData: CreateExercise = {
       exerciseName,
       bodyPart,
       laterality: laterality as "bilateral" | "unilateral",
@@ -71,17 +91,28 @@ export function ExerciseForm({
       exerciseOrder: exerciseOrder,
     };
 
-    // Call the onAddExercise callback
-    onAddExercise(newExercise as Exercise);
+    // Include exerciseId if editing
+    const finalExercise =
+      isEditing && initialExercise?.exerciseId
+        ? ({
+            ...exerciseData,
+            exerciseId: initialExercise.exerciseId,
+          } as Exercise)
+        : (exerciseData as Exercise);
 
-    // Reset form
-    setExerciseName("");
-    setBodyPart("");
-    setLaterality("bilateral");
-    setSets(null);
-    setMinReps(null);
-    setMaxReps(null);
-    setExerciseOrder(1);
+    // Call the onAddExercise callback
+    onAddExercise(finalExercise);
+
+    // Reset form only if not editing (editing will close the modal)
+    if (!isEditing) {
+      setExerciseName("");
+      setBodyPart("");
+      setLaterality("bilateral");
+      setSets(null);
+      setMinReps(null);
+      setMaxReps(null);
+      setExerciseOrder(1);
+    }
   };
 
   return (
@@ -100,7 +131,7 @@ export function ExerciseForm({
         <div className="w-full flex flex-col space-y-2">
           <Label htmlFor="exercise-type">Body Part</Label>
           <Select
-            value={bodyPart}
+            value={bodyPart || initialExercise?.bodyPart}
             onValueChange={(value) => setBodyPart(value)}
           >
             <SelectTrigger className="w-full text-sm">
@@ -182,7 +213,7 @@ export function ExerciseForm({
         <div className="flex justify-end">
           <Button
             type="submit"
-            className="mt-4 w-[120px]"
+            className={`mt-4 ${isEditing ? "w-[150px]" : "w-[120px]"}`}
             disabled={
               !exerciseName ||
               !bodyPart ||
@@ -195,6 +226,8 @@ export function ExerciseForm({
           >
             {isAddingExercise ? (
               <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isEditing ? (
+              "Update Exercise"
             ) : (
               "Add Exercise"
             )}

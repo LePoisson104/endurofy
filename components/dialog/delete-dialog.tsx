@@ -11,18 +11,20 @@ import {
 import { Button } from "../ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export default function DeleteProgramDialog({
+export default function DeleteDialog({
   showDeleteDialog,
   setShowDeleteDialog,
   handleDelete,
   isDeleting,
-  context,
+  title,
+  children,
 }: {
   showDeleteDialog: boolean;
   setShowDeleteDialog: (show: boolean) => void;
   handleDelete: () => void;
   isDeleting: boolean;
-  context: string;
+  title: string;
+  children: React.ReactNode;
 }) {
   const isMobile = useIsMobile();
 
@@ -32,12 +34,9 @@ export default function DeleteProgramDialog({
         className={`bg-card ${isMobile ? "w-[330px]" : "w-[350px]"} border`}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-center">
-            Delete Workout {context}
-          </AlertDialogTitle>
+          <AlertDialogTitle className="text-center">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-center">
-            Are you sure you want to delete this workout {context.toLowerCase()}
-            ? This action cannot be undone.
+            {children}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-row justify-between gap-2">

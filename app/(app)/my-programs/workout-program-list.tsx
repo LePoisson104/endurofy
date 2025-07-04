@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
-import DeleteProgramDialog from "@/components/dialog/delete-program";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useSetProgramAsInactiveMutation,
@@ -213,12 +213,13 @@ export default function WorkoutProgramList({
       )}
 
       {/* Delete confirmation dialog */}
-      <DeleteProgramDialog
+      <DeleteDialog
         showDeleteDialog={!!programToDelete}
         setShowDeleteDialog={(open) => !open && setProgramToDelete(null)}
         handleDelete={handleDeleteConfirm}
         isDeleting={isDeleting}
-        context="program"
+        title="Delete Program"
+        children={`Are you sure you want to delete this program? This action cannot be undone.`}
       />
     </div>
   );

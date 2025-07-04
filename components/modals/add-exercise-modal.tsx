@@ -13,12 +13,16 @@ export default function AddExerciseModal({
   onAddExercise,
   isAddingExercise,
   title,
+  initialExercise,
+  isEditing = false,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onAddExercise?: (exercise: Exercise) => void;
   isAddingExercise: boolean;
   title?: string;
+  initialExercise?: Partial<Exercise>;
+  isEditing?: boolean;
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -34,6 +38,8 @@ export default function AddExerciseModal({
             }
           }}
           isAddingExercise={isAddingExercise}
+          initialExercise={initialExercise}
+          isEditing={isEditing}
         />
       </DialogContent>
     </Dialog>

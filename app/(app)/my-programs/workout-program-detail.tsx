@@ -26,7 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DaySchedule } from "./day-scheldule";
-import DeleteProgramDialog from "@/components/dialog/delete-program";
 import type {
   WorkoutProgram,
   AllDays,
@@ -62,6 +61,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { toast } from "sonner";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -1050,12 +1050,13 @@ export function WorkoutProgramDetail({
           </Tabs>
         </CardContent>
       </Card>
-      <DeleteProgramDialog
+      <DeleteDialog
         showDeleteDialog={showDeleteDialog}
         setShowDeleteDialog={setShowDeleteDialog}
         handleDelete={handleDelete}
         isDeleting={isDeleting || isDeletingDay}
-        context={context}
+        title={`Delete ${context.toLowerCase()}`}
+        children={`Are you sure you want to delete this ${context.toLowerCase()}? This action cannot be undone.`}
       />
       <AddExerciseModal
         isOpen={isOpen}

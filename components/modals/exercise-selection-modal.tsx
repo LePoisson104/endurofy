@@ -15,18 +15,39 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Search } from "lucide-react";
+import {
+  Plus,
+  Search,
+  EllipsisVertical,
+  Trash2,
+  Pencil,
+  Loader2,
+} from "lucide-react";
 import AddExerciseModal from "./add-exercise-modal";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import AddExerciseConfirmDialog from "@/components/dialog/add-exercise-confim";
-import { useCreateManualWorkoutExerciseMutation } from "@/api/workout-program/workout-program-api-slice";
+import {
+  useCreateManualWorkoutExerciseMutation,
+  useUpdateWorkoutProgramExerciseMutation,
+  useDeleteWorkoutProgramExerciseMutation,
+} from "@/api/workout-program/workout-program-api-slice";
 
 import type { Exercise } from "@/interfaces/workout-program-interfaces";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import DeleteDialog from "../dialog/delete-dialog";
 
 interface ExerciseWithProgram extends Exercise {
   programName: string;
+  programType: string;
+  programId: string;
+  dayId: string;
 }
 
 interface ExerciseSelectionModalProps {
@@ -46,10 +67,18 @@ export default function ExerciseSelectionModal({
 }: ExerciseSelectionModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [isEditExerciseModalOpen, setIsEditExerciseModalOpen] = useState(false);
   const [showAddExerciseConfirmDialog, setShowAddExerciseConfirmDialog] =
     useState(false);
-
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [exerciseName, setExerciseName] = useState("");
+  const [selectedExercise, setSelectedExercise] =
+    useState<ExerciseWithProgram | null>(null);
+  const [exerciseToEdit, setExerciseToEdit] =
+    useState<ExerciseWithProgram | null>(null);
+  const [exerciseToDelete, setExerciseToDelete] =
+    useState<ExerciseWithProgram | null>(null);
+
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
   const isDark = useGetCurrentTheme();
@@ -58,6 +87,12 @@ export default function ExerciseSelectionModal({
     createManualWorkoutExercise,
     { isLoading: isCreatingManualWorkoutExercise },
   ] = useCreateManualWorkoutExerciseMutation();
+
+  const [updateWorkoutProgramExercise, { isLoading: isUpdatingExercise }] =
+    useUpdateWorkoutProgramExerciseMutation();
+
+  const [deleteWorkoutProgramExercise, { isLoading: isDeletingExercise }] =
+    useDeleteWorkoutProgramExerciseMutation();
 
   // Extract all unique exercises from workout programs
   const getAllExercises = useCallback((): ExerciseWithProgram[] => {
@@ -77,6 +112,9 @@ export default function ExerciseSelectionModal({
             allExercises.push({
               ...exercise,
               programName: program.programName || "Unknown Program",
+              programType: program.programType || "unknown",
+              programId: program.programId || "",
+              dayId: day.dayId || "",
             });
           }
         });
@@ -96,6 +134,11 @@ export default function ExerciseSelectionModal({
       exercise.programName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       exercise.laterality.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Check if exercise is from manual program
+  const isManualExercise = (exercise: ExerciseWithProgram): boolean => {
+    return exercise.programType === "manual";
+  };
 
   const handleAddNewExercise = async (exercise: Exercise) => {
     try {
@@ -125,17 +168,76 @@ export default function ExerciseSelectionModal({
 
   const handleSelectExercise = (exercise: Exercise) => {
     setExerciseName(exercise.exerciseName);
+    setSelectedExercise(exercise as ExerciseWithProgram);
     setShowAddExerciseConfirmDialog(true);
   };
 
   const handleConfirmAddExercise = () => {
-    const selectedExercise = filteredExercises.find(
-      (exercise) => exercise.exerciseName === exerciseName
-    );
     if (selectedExercise) {
       onSelectExercise(selectedExercise);
       setShowAddExerciseConfirmDialog(false);
       setIsOpen(false);
+    }
+  };
+
+  const handleEditExercise = (exercise: ExerciseWithProgram) => {
+    setExerciseToEdit(exercise);
+    setIsEditExerciseModalOpen(true);
+  };
+
+  const handleUpdateExercise = async (updatedExercise: Exercise) => {
+    if (!exerciseToEdit) return;
+
+    try {
+      await updateWorkoutProgramExercise({
+        dayId: exerciseToEdit.dayId,
+        exerciseId: exerciseToEdit.exerciseId,
+        programId: exerciseToEdit.programId,
+        payload: {
+          exerciseName: updatedExercise.exerciseName,
+          bodyPart: updatedExercise.bodyPart,
+          sets: updatedExercise.sets,
+          minReps: updatedExercise.minReps,
+          maxReps: updatedExercise.maxReps,
+          laterality: updatedExercise.laterality,
+          exerciseOrder: updatedExercise.exerciseOrder,
+        },
+      }).unwrap();
+      toast.success("Exercise updated successfully");
+      setIsEditExerciseModalOpen(false);
+      setExerciseToEdit(null);
+    } catch (error: any) {
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Failed to update exercise. Please try again.");
+      }
+    }
+  };
+
+  const handleDeleteExercise = (exercise: ExerciseWithProgram) => {
+    setExerciseToDelete(exercise);
+    setShowDeleteConfirmDialog(true);
+  };
+
+  const handleConfirmDeleteExercise = async () => {
+    if (!exerciseToDelete) return;
+
+    try {
+      await deleteWorkoutProgramExercise({
+        programId: exerciseToDelete.programId,
+        dayId: exerciseToDelete.dayId,
+        exerciseId: exerciseToDelete.exerciseId,
+      }).unwrap();
+      toast.success("Exercise deleted successfully");
+      setShowDeleteConfirmDialog(false);
+      setExerciseToDelete(null);
+    } catch (error: any) {
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Failed to delete exercise. Please try again.");
+      }
     }
   };
 
@@ -198,12 +300,12 @@ export default function ExerciseSelectionModal({
                 <div className="space-y-2">
                   {filteredExercises.map((exercise) => (
                     <Card
-                      key={`${exercise.exerciseName}-${exercise.bodyPart}`}
+                      key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
                       className="cursor-pointer hover:bg-muted/50 transition-colors border-b rounded-none"
                       onClick={() => handleSelectExercise(exercise)}
                     >
-                      <CardContent className="px-4">
-                        <div className="flex justify-between items-start">
+                      <CardContent className="px-4 py-3 flex justify-between items-center">
+                        <div className="flex justify-between items-start flex-1">
                           <div className="space-y-2">
                             <div
                               className={`flex ${
@@ -241,6 +343,43 @@ export default function ExerciseSelectionModal({
                             </div>
                           </div>
                         </div>
+
+                        {/* Show ellipsis menu only for manual exercises */}
+                        {isManualExercise(exercise) && (
+                          <div
+                            className="ml-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <EllipsisVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => handleEditExercise(exercise)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteExercise(exercise)}
+                                  variant="destructive"
+                                  className="flex items-center gap-2"
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -251,7 +390,7 @@ export default function ExerciseSelectionModal({
         </DialogContent>
       </Dialog>
 
-      {/* create Exercise Modal */}
+      {/* Create Exercise Modal */}
       <AddExerciseModal
         isOpen={isAddExerciseModalOpen}
         setIsOpen={setIsAddExerciseModalOpen}
@@ -259,11 +398,58 @@ export default function ExerciseSelectionModal({
         isAddingExercise={isCreatingManualWorkoutExercise}
         title="Create Exercise"
       />
+
+      {/* Edit Exercise Modal */}
+      <AddExerciseModal
+        isOpen={isEditExerciseModalOpen}
+        setIsOpen={setIsEditExerciseModalOpen}
+        onAddExercise={handleUpdateExercise}
+        isAddingExercise={isUpdatingExercise}
+        title="Edit Exercise"
+        initialExercise={
+          exerciseToEdit
+            ? {
+                exerciseId: exerciseToEdit.exerciseId,
+                exerciseName: exerciseToEdit.exerciseName,
+                bodyPart: exerciseToEdit.bodyPart,
+                sets: exerciseToEdit.sets,
+                minReps: exerciseToEdit.minReps,
+                maxReps: exerciseToEdit.maxReps,
+                laterality: exerciseToEdit.laterality,
+                exerciseOrder: exerciseToEdit.exerciseOrder,
+              }
+            : undefined
+        }
+        isEditing={true}
+      />
+
+      {/* Add Exercise Confirmation Dialog */}
       <AddExerciseConfirmDialog
         showDeleteDialog={showAddExerciseConfirmDialog}
         setShowDeleteDialog={setShowAddExerciseConfirmDialog}
         exerciseName={exerciseName}
         setIsAddingExercise={handleConfirmAddExercise}
+      />
+
+      <DeleteDialog
+        showDeleteDialog={showDeleteConfirmDialog}
+        setShowDeleteDialog={setShowDeleteConfirmDialog}
+        handleDelete={handleConfirmDeleteExercise}
+        isDeleting={isDeletingExercise}
+        title="Delete Exercise"
+        children={
+          <>
+            Are you sure you want to delete this{" "}
+            <span
+              className={`${
+                isDark ? "text-blue-400" : "text-blue-500"
+              } font-bold`}
+            >
+              {exerciseToDelete?.exerciseName}?
+            </span>
+            This action cannot be undone.
+          </>
+        }
       />
     </>
   );

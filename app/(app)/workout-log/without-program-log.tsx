@@ -22,7 +22,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
-import DeleteProgramDialog from "@/components/dialog/delete-program";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 import ExerciseTable from "./exercise-table";
 import ExerciseNotes from "./exercise-notes";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
@@ -31,10 +31,7 @@ import type {
   WorkoutProgram,
   Exercise,
 } from "@/interfaces/workout-program-interfaces";
-import type {
-  ExercisePayload,
-  WorkoutLog,
-} from "@/interfaces/workout-log-interfaces";
+import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
 
 export default function WithoutProgramLog({
@@ -256,7 +253,7 @@ export default function WithoutProgramLog({
         await deleteWorkoutExercise({
           workoutExerciseId: deletingExerciseId,
         }).unwrap();
-        toast.success("Exercise deleted");
+        toast.success("Workout exercise deleted");
       } else if (context === "Log") {
         await deleteWorkoutLog({
           workoutLogId: workoutLog?.data[0].workoutLogId,
@@ -548,12 +545,13 @@ export default function WithoutProgramLog({
         onSelectExercise={handleAddExercise}
         isAddingExercise={isAddingExerciseToWorkoutLog}
       />
-      <DeleteProgramDialog
+      <DeleteDialog
         showDeleteDialog={showDeleteDialog}
         setShowDeleteDialog={setShowDeleteDialog}
         handleDelete={handleDelete}
         isDeleting={isDeletingWorkoutLog}
-        context={context}
+        title={`Delete Workout ${context}`}
+        children={`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
       />
     </div>
   );
