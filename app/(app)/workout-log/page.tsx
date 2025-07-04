@@ -72,6 +72,7 @@ export default function WorkoutLogManager() {
   useEffect(() => {
     if (programs) {
       const program = programs.filter((program) => program.isActive === 1);
+
       setSelectedProgram(program[0]);
     }
   }, [programs]);

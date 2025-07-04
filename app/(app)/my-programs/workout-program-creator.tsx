@@ -486,7 +486,11 @@ export function WorkoutProgramCreator({
                     }
                   />
 
-                  <Card className={`${isMobile ? "border-none" : "border"}`}>
+                  <Card
+                    className={`${
+                      isMobile ? "border-none" : "border"
+                    } shadow-none`}
+                  >
                     <CardHeader className={`${isMobile ? "p-0" : ""}`}>
                       <CardTitle className="text-base">Add Exercise</CardTitle>
                     </CardHeader>

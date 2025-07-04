@@ -228,11 +228,7 @@ export default function MyPrograms() {
               <WorkoutProgramCreator
                 onCreateProgram={handleCreateProgram}
                 isLoading={isCreating}
-                onSuccess={() => {
-                  // The form will be reset by the WorkoutProgramCreator component
-                  // We don't need to do anything here as handleCreateProgram
-                  // already handles switching back to the My Programs tab
-                }}
+                onSuccess={() => {}}
               />
             </TabsContent>
           </Tabs>
