@@ -85,11 +85,16 @@ export default function WithoutProgramLog({
   const [addWorkoutSet] = useAddWorkoutSetMutation();
 
   const { data: workoutLog, isLoading: isLoadingWorkoutLog } =
-    useGetManualWorkoutLogWithPreviousQuery({
-      userId: user?.user_id,
-      programId: manualProgram?.programId,
-      workoutDate: format(selectedDate, "yyyy-MM-dd"),
-    });
+    useGetManualWorkoutLogWithPreviousQuery(
+      {
+        userId: user?.user_id,
+        programId: manualProgram?.programId,
+        workoutDate: format(selectedDate, "yyyy-MM-dd"),
+      },
+      {
+        skip: !manualProgram || !selectedDate || !user?.user_id,
+      }
+    );
 
   // Use manual exercise sets hook for managing exercise data
   const {

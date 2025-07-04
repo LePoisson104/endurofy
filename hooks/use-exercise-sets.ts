@@ -87,6 +87,7 @@ export const useExerciseSets = (
 
   // Initialize sets when selectedDay or workoutLog changes
   useEffect(() => {
+    if (workoutPrograms.length === 0) return;
     if (workoutPrograms.length > 1) return;
 
     if (selectedDay) {
@@ -188,6 +189,7 @@ export const useExerciseSets = (
 
   // Remove the functions from the dependency array
   useEffect(() => {
+    if (workoutPrograms.length === 0) return;
     if (
       workoutPrograms.length === 1 &&
       workoutPrograms[0].programType !== "manual"
