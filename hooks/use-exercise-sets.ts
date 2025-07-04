@@ -213,9 +213,7 @@ export const useExerciseSets = (
           // Determine sets count - use original exercise sets count, fallback to logged sets or default
           const originalExercise = findOriginalExercise(exerciseId);
           const originalSets =
-            originalExercise?.sets ||
-            workoutExercise.sets ||
-            workoutExercise.originalSets;
+            originalExercise?.sets || workoutExercise.workoutSets?.length;
           const existingSetsCount = workoutExercise.workoutSets?.length || 0;
           const setsCount = originalSets || Math.max(existingSetsCount, 3);
 
@@ -302,14 +300,14 @@ export const useExerciseSets = (
           if (index === setIndex) {
             const updatedSet = { ...set, [field]: value };
 
-            // If updating reps and leftReps/rightReps are empty or zero, sync them
+            // If updating reps, always sync leftReps and rightReps for bilateral exercises
             if (field === "reps" && value && Number(value) > 0) {
-              if (!updatedSet.leftReps || updatedSet.leftReps <= 0) {
-                updatedSet.leftReps = Number(value);
-              }
-              if (!updatedSet.rightReps || updatedSet.rightReps <= 0) {
-                updatedSet.rightReps = Number(value);
-              }
+              updatedSet.leftReps = Number(value);
+              updatedSet.rightReps = Number(value);
+            }
+
+            if (field === "weight" && value && Number(value) > 0) {
+              updatedSet.weight = Number(value);
             }
 
             return updatedSet;
@@ -454,10 +452,17 @@ export const useExerciseSets = (
 
       // Use original exercise data if available, otherwise use stored data or defaults
       const originalSets =
-        originalExercise?.sets ||
-        workoutExercise.sets ||
-        workoutExercise.originalSets ||
-        Math.max(workoutExercise.workoutSets?.length || 0, 3);
+        originalExercise?.sets || workoutExercise.workoutSets?.length;
+
+      const getMaxReps = workoutExercise.workoutSets?.reduce(
+        (max: number, set: any) => Math.max(max, set.repsRight),
+        0
+      );
+
+      const getMinReps = workoutExercise.workoutSets?.reduce(
+        (min: number, set: any) => Math.min(min, set.repsRight),
+        Infinity
+      );
 
       return {
         exerciseId: workoutExercise.programExerciseId,
@@ -465,8 +470,8 @@ export const useExerciseSets = (
         bodyPart: workoutExercise.bodyPart,
         laterality: workoutExercise.laterality,
         sets: originalSets,
-        minReps: originalExercise?.minReps || workoutExercise.minReps || 8,
-        maxReps: originalExercise?.maxReps || workoutExercise.maxReps || 12,
+        minReps: originalExercise?.minReps || getMinReps,
+        maxReps: originalExercise?.maxReps || getMaxReps,
         exerciseOrder: workoutExercise.exerciseOrder,
       };
     },

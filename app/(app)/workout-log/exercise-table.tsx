@@ -65,13 +65,14 @@ export default function ExerciseTable({
   logType = "program",
 }: ExerciseTableProps) {
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
+  const [deletingSetId, setDeletingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
   const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
   const [originalValues, setOriginalValues] = useState<{
     [setId: string]: SetData;
   }>({});
 
-  const [deleteWorkoutSetWithCascade, { isLoading: isDeleting }] =
+  const [deleteWorkoutSetWithCascade] =
     useDeleteWorkoutSetWithCascadeMutation();
   const [deleteWorkoutSet] = useDeleteWorkoutSetMutation();
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
@@ -305,6 +306,7 @@ export default function ExerciseTable({
     workoutExerciseId: string | null,
     workoutLogId: string | null
   ) => {
+    setDeletingSetId(workoutSetId);
     try {
       if (logType === "program") {
         await deleteWorkoutSetWithCascade({
@@ -317,6 +319,7 @@ export default function ExerciseTable({
           workoutSetId,
         }).unwrap();
       }
+      setDeletingSetId(null);
     } catch (error: any) {
       if (!error.status) {
         toast.error("No Server Response");
@@ -431,7 +434,7 @@ export default function ExerciseTable({
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 hover:bg-destructive"
-                        disabled={isDeleting}
+                        disabled={deletingSetId === setData.workoutSetId}
                         onClick={() =>
                           handleDeleteSet(
                             setData.workoutSetId,
@@ -440,7 +443,7 @@ export default function ExerciseTable({
                           )
                         }
                       >
-                        {isDeleting ? (
+                        {deletingSetId === setData.workoutSetId ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <Trash2 className="h-4 w-4 text-destructive" />

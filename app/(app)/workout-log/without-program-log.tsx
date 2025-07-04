@@ -310,8 +310,8 @@ export default function WithoutProgramLog({
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
     console.log(exercisePayload);
     if (
-      exercisePayload.weight === 0 &&
-      exercisePayload.repsLeft === 0 &&
+      exercisePayload.weight === 0 ||
+      exercisePayload.repsLeft === 0 ||
       exercisePayload.repsRight === 0
     ) {
       return;
@@ -485,8 +485,11 @@ export default function WithoutProgramLog({
                             isDark ? "text-slate-400" : "text-slate-500"
                           }`}
                         >
-                          Target: {exercise.sets} sets × {exercise.minReps}-
-                          {exercise.maxReps} reps
+                          Target: {exercise.sets} sets ×{" "}
+                          {exercise.minReps === exercise.maxReps
+                            ? exercise.minReps
+                            : `${exercise.minReps}-${exercise.maxReps}`}{" "}
+                          reps
                         </div>
                       </div>
                       {isEditing && (
