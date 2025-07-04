@@ -165,7 +165,6 @@ export function ProgramWorkoutLog({
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
-    console.log(exercisePayload);
     const workoutLogPayload: WorkoutLogPayload = {
       workoutName: selectedDay?.dayName || "",
       workoutDate: format(selectedDate, "yyyy-MM-dd"),

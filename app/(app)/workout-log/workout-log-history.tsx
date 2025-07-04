@@ -244,6 +244,9 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       }
     } else if (!workoutId && selectedWorkout) {
       setSelectedWorkout(null);
+    } else {
+      // when all workout logs is []
+      handleBackToList();
     }
   }, [allWorkoutLogs, searchParams]);
 

@@ -56,6 +56,7 @@ export function WorkoutDetailView({
   const [showPrevious, setShowPrevious] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
+  const [deletingSetId, setDeletingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
   const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
   const [workoutLogName, setWorkoutLogName] = useState(workout?.title || "");
@@ -67,7 +68,7 @@ export function WorkoutDetailView({
     [setId: string]: any;
   }>({});
 
-  const [deleteWorkoutSetWithCascade, { isLoading: isDeleting }] =
+  const [deleteWorkoutSetWithCascade] =
     useDeleteWorkoutSetWithCascadeMutation();
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
@@ -242,10 +243,7 @@ export function WorkoutDetailView({
         return newSet;
       });
 
-      // Clear success state after 2 seconds
-      setTimeout(() => {
-        setSuccessSetId(null);
-      }, 2000);
+      setSuccessSetId(null);
     } catch (error: any) {
       if (!error.status) {
         toast.error("No Server Response");
@@ -263,6 +261,7 @@ export function WorkoutDetailView({
     workoutExerciseId: string,
     workoutLogId: string
   ) => {
+    setDeletingSetId(workoutSetId);
     try {
       await deleteWorkoutSetWithCascade({
         workoutSetId,
@@ -606,7 +605,7 @@ export function WorkoutDetailView({
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 hover:bg-destructive"
-                                    disabled={isDeleting}
+                                    disabled={deletingSetId === setId}
                                     onClick={() =>
                                       handleDeleteSet(
                                         set.workoutSetId,
@@ -615,7 +614,7 @@ export function WorkoutDetailView({
                                       )
                                     }
                                   >
-                                    {isDeleting ? (
+                                    {deletingSetId === setId ? (
                                       <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : (
                                       <Trash2 className="h-4 w-4 text-destructive" />

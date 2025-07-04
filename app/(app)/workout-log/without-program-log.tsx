@@ -308,7 +308,6 @@ export default function WithoutProgramLog({
   };
 
   const onSaveExerciseSets = async (exercisePayload: ExercisePayload) => {
-    console.log(exercisePayload);
     if (
       exercisePayload.weight === 0 ||
       exercisePayload.repsLeft === 0 ||

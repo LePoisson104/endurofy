@@ -171,6 +171,7 @@ export function WorkoutCalendar({
     const maxDayNumber = Math.max(
       ...program.workoutDays.map((workoutDay) => workoutDay.dayNumber + 1)
     );
+
     if (maxDayNumber === 0) return false;
 
     // Calculate which rotation today is in
