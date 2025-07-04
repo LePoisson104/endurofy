@@ -370,6 +370,9 @@ export function WorkoutProgramDetail({
     const payload = {
       programName: editedProgram.programName,
       description: editedProgram.description,
+      startingDate: new Date(editedProgram.startingDate)
+        .toISOString()
+        .split("T")[0],
     };
     try {
       await updateWorkoutProgramDescription({

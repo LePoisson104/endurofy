@@ -117,7 +117,7 @@ export default function WorkoutProgramList({
 
   return (
     <div className="space-y-6">
-      {programs.length === 0 ? (
+      {programs.length === 1 ? (
         <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center">
           <h3 className="text-lg font-medium">No workout programs found</h3>
         </div>
