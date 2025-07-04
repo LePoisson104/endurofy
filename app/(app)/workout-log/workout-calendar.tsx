@@ -133,7 +133,7 @@ export function WorkoutCalendar({
 
     const startingDate = parseISO(program.startingDate);
     const daysDifference = Math.floor(
-      (day.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
+      (day.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24) // 1 day
     );
 
     // Get the maximum day number to determine the cycle length (accounts for rest days)
@@ -151,7 +151,10 @@ export function WorkoutCalendar({
       // For days before start date, calculate backwards
       const positiveDays = Math.abs(daysDifference);
       const remainder = positiveDays % maxDayNumber;
-      cycleDay = remainder === 0 ? maxDayNumber : maxDayNumber - remainder + 1;
+      console.log(remainder, day);
+
+      cycleDay = remainder === 0 ? 1 : maxDayNumber + 1 - remainder;
+      // console.log(cycleDay, day);
     }
 
     // Check if there's a workout day with this cycle day number
