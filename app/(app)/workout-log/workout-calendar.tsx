@@ -151,10 +151,7 @@ export function WorkoutCalendar({
       // For days before start date, calculate backwards
       const positiveDays = Math.abs(daysDifference);
       const remainder = positiveDays % maxDayNumber;
-      console.log(remainder, day);
-
       cycleDay = remainder === 0 ? 1 : maxDayNumber + 1 - remainder;
-      // console.log(cycleDay, day);
     }
 
     // Check if there's a workout day with this cycle day number
