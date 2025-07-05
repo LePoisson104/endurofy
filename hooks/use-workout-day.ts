@@ -53,8 +53,7 @@ export const useWorkoutDay = (program: WorkoutProgram, selectedDate: Date) => {
       } else {
         const positiveDays = Math.abs(daysDifference);
         const remainder = positiveDays % maxDayNumber;
-        cycleDay =
-          remainder === 0 ? maxDayNumber : maxDayNumber - remainder + 1;
+        cycleDay = remainder === 0 ? 1 : maxDayNumber + 1 - remainder;
       }
 
       return (
