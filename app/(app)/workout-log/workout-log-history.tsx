@@ -46,7 +46,10 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   const [offset, setOffset] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [fetchFromBackend, setFetchFromBackend] = useState(false);
+  const [fetchFromBackendPagination, setFetchFromBackendPagination] =
+    useState(true);
   const [limit, setLimit] = useState(localStorage.getItem("limit") || "10");
+  const [isClearingFilters, setIsClearingFilters] = useState(false);
 
   const { data: workoutLogsData, isLoading: isLoadingWorkoutLogs } =
     useGetWorkoutLogQuery(
@@ -73,7 +76,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       limit: limit,
     },
     {
-      skip: !selectedProgram || !user?.user_id,
+      skip: !selectedProgram || !user?.user_id || !fetchFromBackendPagination,
     }
   );
 
@@ -98,8 +101,16 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       (log) => log.workoutDate.split("T")[0] === endDateStr
     );
 
+    if (startDateStr === endDateStr && doesStartLogExist && doesEndLogExist) {
+      return allWorkoutLogs.filter((log) => {
+        const logDate = log.workoutDate.split("T")[0];
+        return logDate === startDateStr;
+      });
+    }
+
     if (!doesStartLogExist || !doesEndLogExist) {
       setFetchFromBackend(true);
+      setFetchFromBackendPagination(false);
     }
 
     if (workoutLogsData) {
@@ -110,7 +121,14 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       const logDate = log.workoutDate.split("T")[0];
       return logDate >= startDateStr && logDate <= endDateStr;
     });
-  }, [allWorkoutLogs, fetchFromBackend, workoutLogsData, startDate, endDate]);
+  }, [
+    allWorkoutLogs,
+    fetchFromBackend,
+    fetchFromBackendPagination,
+    workoutLogsData,
+    startDate,
+    endDate,
+  ]);
 
   // Apply search filter to date-filtered logs
   const filteredLogs = useMemo(() => {
@@ -180,9 +198,8 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
       // Pagination load - merge data, replacing existing logs with updated ones
       setAllWorkoutLogs((prev) => {
-        // If this is initial load (offset 0), replace all data
-        // This handles the case where workouts are deleted and no longer exist
-        if (offset === 0) {
+        // If this is initial load (offset 0) or clearing filters, replace all data
+        if (offset === 0 || isClearingFilters) {
           return [...newData].sort((a: WorkoutLog, b: WorkoutLog) => {
             const aDate = new Date(a.workoutDate);
             const bDate = new Date(b.workoutDate);
@@ -221,28 +238,45 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
       setHasMoreData(workoutLogPaginationData.data.hasMore);
       setIsLoadingMore(false);
       setIsInitialLoad(false);
+      setIsClearingFilters(false); // Reset clearing filters state
     }
-  }, [workoutLogPaginationData, isLoadingWorkoutLogPagination]);
+  }, [
+    workoutLogPaginationData,
+    isLoadingWorkoutLogPagination,
+    isClearingFilters,
+  ]);
 
   // Handle URL parameters for workout persistence and update selectedWorkout with fresh data
   useEffect(() => {
     const workoutId = searchParams.get("workoutId");
+
     if (workoutId && allWorkoutLogs.length > 0) {
       const workout = allWorkoutLogs.find(
         (log: WorkoutLog) => log.workoutLogId === workoutId
       );
+
       if (workout) {
         setSelectedWorkout(workout);
       } else {
         handleBackToList();
       }
+    } else if (
+      workoutId &&
+      allWorkoutLogs.length === 0 &&
+      !isInitialLoad &&
+      !isLoadingWorkoutLogPagination
+    ) {
+      // Only call handleBackToList if data has actually been loaded (not initial state)
+      handleBackToList();
     } else if (!workoutId && selectedWorkout) {
       setSelectedWorkout(null);
-    } else {
-      // when all workout logs is []
-      handleBackToList();
     }
-  }, [allWorkoutLogs, searchParams]);
+  }, [
+    allWorkoutLogs,
+    searchParams,
+    isInitialLoad,
+    isLoadingWorkoutLogPagination,
+  ]);
 
   // Infinite scroll callback
   const loadMoreWorkouts = useCallback(() => {
@@ -283,8 +317,19 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
   // Clear filters function
   const clearDateFilters = () => {
+    setIsClearingFilters(true); // Signal that we're clearing filters
     setStartDate(undefined);
     setEndDate(undefined);
+    setFetchFromBackend(false);
+    setFetchFromBackendPagination(true);
+    setOffset(0);
+    setHasMoreData(true);
+    setIsLoadingMore(false);
+    setIsInitialLoad(true);
+    setLimit("10"); // Reset to default limit
+    localStorage.setItem("limit", "10"); // Reset localStorage limit
+
+    // Don't clear allWorkoutLogs immediately - keep existing data until new data arrives
   };
 
   // Check if we should show detail view (either selectedWorkout exists or workoutId in URL)
@@ -353,11 +398,11 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
             <WorkoutHistoryList
               workouts={filteredLogs} // Pass filtered logs
               onSelectWorkout={handleSelectWorkout}
-              isLoading={isLoadingWorkoutLogPagination}
+              isLoading={isLoadingWorkoutLogPagination || isClearingFilters}
               isFetching={isFetchingWorkoutLogPagination}
               onLoadMore={loadMoreWorkouts}
               hasMoreData={hasMoreData && !hasActiveFilters} // Disable load more when filtering
-              isInitialLoad={isInitialLoad}
+              isInitialLoad={isInitialLoad || isClearingFilters}
             />
           </div>
         ) : (
@@ -384,6 +429,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
         onClose={() => setIsFiltersModalOpen(false)}
         setHistoryStartDate={setStartDate}
         setHistoryEndDate={setEndDate}
+        handleClearDateFilters={clearDateFilters}
       />
     </div>
   );

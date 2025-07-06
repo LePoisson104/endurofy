@@ -32,6 +32,7 @@ interface WorkoutFiltersModalProps {
   onClose: () => void;
   setHistoryStartDate: (date: Date | undefined) => void;
   setHistoryEndDate: (date: Date | undefined) => void;
+  handleClearDateFilters: () => void;
 }
 
 export function WorkoutFiltersModal({
@@ -39,6 +40,7 @@ export function WorkoutFiltersModal({
   onClose,
   setHistoryStartDate,
   setHistoryEndDate,
+  handleClearDateFilters,
 }: WorkoutFiltersModalProps) {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -91,8 +93,7 @@ export function WorkoutFiltersModal({
     setStartDate(undefined);
     setEndDate(undefined);
     setDatePreset("");
-    setHistoryStartDate(undefined);
-    setHistoryEndDate(undefined);
+    handleClearDateFilters();
   };
 
   const handleCancel = () => {

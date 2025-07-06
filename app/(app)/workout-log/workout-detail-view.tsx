@@ -312,7 +312,6 @@ export function WorkoutDetailView({
       }
     }
   };
-  console.log(workout);
 
   const handleDelete = async () => {
     try {
