@@ -21,7 +21,7 @@ import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 
 interface WorkoutLogHistoryProps {
-  selectedProgram: WorkoutProgram | "without-program";
+  selectedProgram: WorkoutProgram;
 }
 
 export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
@@ -52,10 +52,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     useGetWorkoutLogQuery(
       {
         userId: user?.user_id,
-        programId:
-          selectedProgram === "without-program"
-            ? "without-program"
-            : selectedProgram?.programId,
+        programId: selectedProgram?.programId,
         startDate: startDate ? format(startDate, "yyyy-MM-dd") : "",
         endDate: endDate ? format(endDate, "yyyy-MM-dd") : "",
       },
@@ -71,10 +68,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   } = useGetWokroutLogPaginationQuery(
     {
       userId: user?.user_id,
-      programId:
-        selectedProgram === "without-program"
-          ? "without-program"
-          : selectedProgram?.programId,
+      programId: selectedProgram?.programId,
       offset: offset,
       limit: limit,
     },
@@ -373,6 +367,9 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
 
             {/* Workout Detail */}
             <WorkoutDetailView
+              workoutLogType={
+                selectedProgram?.programType === "manual" ? "manual" : "program"
+              }
               workout={selectedWorkout}
               isLoading={isLoadingWorkoutLogs || isLoadingWorkoutLogPagination}
               handleBackToList={handleBackToList}

@@ -187,6 +187,8 @@ export function ProgramWorkoutLog({
       if (context === "Exercise") {
         await deleteWorkoutExercise({
           workoutExerciseId: deletingExerciseId,
+          workoutLogId: workoutLog?.data[0].workoutLogId,
+          workoutLogType: "program",
         }).unwrap();
         toast.success("Workout exercise deleted");
       } else if (context === "Log") {

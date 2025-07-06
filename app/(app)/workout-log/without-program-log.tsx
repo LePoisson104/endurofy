@@ -252,6 +252,8 @@ export default function WithoutProgramLog({
       if (context === "Exercise") {
         await deleteWorkoutExercise({
           workoutExerciseId: deletingExerciseId,
+          workoutLogId: workoutLog?.data[0].workoutLogId,
+          workoutLogType: "manual",
         }).unwrap();
         toast.success("Workout exercise deleted");
       } else if (context === "Log") {

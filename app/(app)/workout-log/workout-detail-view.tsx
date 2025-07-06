@@ -45,12 +45,14 @@ import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
   workout: WorkoutLog | null;
+  workoutLogType: string;
   isLoading?: boolean;
   handleBackToList: () => void;
 }
 
 export function WorkoutDetailView({
   workout,
+  workoutLogType,
   isLoading = false,
   handleBackToList,
 }: WorkoutDetailModalProps) {
@@ -310,12 +312,15 @@ export function WorkoutDetailView({
       }
     }
   };
+  console.log(workout);
 
   const handleDelete = async () => {
     try {
       if (context === "Exercise") {
         await deleteWorkoutExercise({
           workoutExerciseId: deletingExerciseId,
+          workoutLogId: workout.workoutLogId,
+          workoutLogType: workoutLogType,
         }).unwrap();
         toast.success("Workout exercise deleted");
       } else if (context === "Log") {
