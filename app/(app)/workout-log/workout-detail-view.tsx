@@ -46,11 +46,13 @@ import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 interface WorkoutDetailModalProps {
   workout: WorkoutLog | null;
   isLoading?: boolean;
+  handleBackToList: () => void;
 }
 
 export function WorkoutDetailView({
   workout,
   isLoading = false,
+  handleBackToList,
 }: WorkoutDetailModalProps) {
   const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
@@ -338,7 +340,62 @@ export function WorkoutDetailView({
 
   return (
     <div className="space-y-6">
-      {/* Workout Overview */}
+      <header className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBackToList}
+          className="gap-1 arrow-button"
+        >
+          <svg
+            className="arrow-icon transform rotate-180 mr-2"
+            viewBox="0 -3.5 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              className="arrow-icon__tip"
+              d="M8 15L14 8.5L8 2"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <line
+              className="arrow-icon__line"
+              x1="13"
+              y1="8.5"
+              y2="8.5"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+          </svg>
+          Back to History
+        </Button>
+        <div className="flex items-center gap-1">
+          {isEditing && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-1"
+              onClick={() => {
+                setContext("Log");
+                setShowDeleteDialog(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(!isEditing)}
+            className="flex items-center gap-2 w-fit"
+          >
+            <Edit className="h-4 w-4" />
+            {isEditing ? "Done" : "Edit"}
+          </Button>
+        </div>
+      </header>
       <Card>
         <CardContent>
           <div
@@ -395,62 +452,38 @@ export function WorkoutDetailView({
                 {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
               </div>
             </div>
-            <div className="flex gap-2">
-              {isEditing && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="gap-1"
-                  onClick={() => {
-                    setContext("Log");
-                    setShowDeleteDialog(true);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center gap-2 w-fit"
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEditWorkout}
+              className="flex items-center gap-2 w-fit arrow-button"
+            >
+              {workout.status === "completed"
+                ? "Go To Workout"
+                : "Complete Workout"}
+              <svg
+                className="arrow-icon transform rotate-360"
+                viewBox="0 -3.5 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <Edit className="h-4 w-4" />
-                {isEditing ? "Done" : "Edit"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleEditWorkout}
-                className="flex items-center gap-2 w-fit arrow-button"
-              >
-                {workout.status === "completed"
-                  ? "Go To Workout"
-                  : "Complete Workout"}
-                <svg
-                  className="arrow-icon transform rotate-360"
-                  viewBox="0 -3.5 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    className="arrow-icon__tip"
-                    d="M8 15L14 8.5L8 2"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <line
-                    className="arrow-icon__line"
-                    x1="13"
-                    y1="8.5"
-                    y2="8.5"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </Button>
-            </div>
+                <path
+                  className="arrow-icon__tip"
+                  d="M8 15L14 8.5L8 2"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <line
+                  className="arrow-icon__line"
+                  x1="13"
+                  y1="8.5"
+                  y2="8.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+            </Button>
           </div>
 
           <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
