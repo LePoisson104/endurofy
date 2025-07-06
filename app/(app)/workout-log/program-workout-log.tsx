@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Check, History, Loader2, SquarePen } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  History,
+  Loader2,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -29,12 +36,15 @@ import {
 import {
   useUpdateWorkoutLogStatusMutation,
   useGetPreviousWorkoutLogQuery,
+  useDeleteWorkoutLogMutation,
+  useDeleteWorkoutExerciseMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import ExerciseNotes from "./exercise-notes";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -56,10 +66,18 @@ export function ProgramWorkoutLog({
     {}
   );
   const [workoutLogName, setWorkoutLogName] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [context, setContext] = useState("");
+  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
+    null
+  );
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
+  const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
+    useDeleteWorkoutLogMutation();
+  const [deleteWorkoutExercise] = useDeleteWorkoutExerciseMutation();
   const { data: workoutLog, isLoading: isLoadingWorkoutLog } =
     useGetWorkoutLogQuery({
       userId: user?.user_id,
@@ -160,6 +178,31 @@ export function ProgramWorkoutLog({
         toast.error(error.data.message);
       } else {
         toast.error("Internal server error. Failed to update workout log name");
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      if (context === "Exercise") {
+        await deleteWorkoutExercise({
+          workoutExerciseId: deletingExerciseId,
+        }).unwrap();
+        toast.success("Workout exercise deleted");
+      } else if (context === "Log") {
+        await deleteWorkoutLog({
+          workoutLogId: workoutLog?.data[0].workoutLogId,
+        }).unwrap();
+        toast.success("Workout log deleted");
+      }
+      setIsEditing(false);
+      setShowDeleteDialog(false);
+      setWorkoutLogName("");
+    } catch (error: any) {
+      if (error) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to delete workout log");
       }
     }
   };
@@ -266,15 +309,31 @@ export function ProgramWorkoutLog({
             </div>
           </div>
           {workoutLog?.data?.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditing(!isEditing)}
-              className="flex items-center gap-2"
-            >
-              <SquarePen className="h-4 w-4" />
-              {isEditing ? "Done" : "Edit"}
-            </Button>
+            <div className="flex items-center gap-2">
+              {isEditing && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => {
+                    setContext("Log");
+                    setShowDeleteDialog(true);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+                className="flex items-center gap-2"
+              >
+                <SquarePen className="h-4 w-4" />
+                {isEditing ? "Done" : "Edit"}
+              </Button>
+            </div>
           )}
         </div>
         {isMobile && (
@@ -306,7 +365,11 @@ export function ProgramWorkoutLog({
                     isMobile ? "p-0 border-none" : "p-4 border"
                   }`}
                 >
-                  <div className="flex justify-between items-start">
+                  <div
+                    className={`flex justify-between ${
+                      isMobile ? "items-center" : ""
+                    }`}
+                  >
                     <div className="flex flex-col flex-1 ">
                       <div
                         className={`flex items-center gap-3 ${
@@ -338,6 +401,22 @@ export function ProgramWorkoutLog({
                         {exercise.maxReps} reps
                       </div>
                     </div>
+                    {isEditing && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-fit text-destructive hover:text-destructive/80"
+                        onClick={() => {
+                          setContext("Exercise");
+                          setShowDeleteDialog(true);
+                          setDeletingExerciseId(
+                            getWorkoutExerciseId(exercise.exerciseId)
+                          );
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
                   <ExerciseTable
@@ -365,6 +444,15 @@ export function ProgramWorkoutLog({
             })}
         </div>
       )}
+
+      <DeleteDialog
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        handleDelete={handleDelete}
+        isDeleting={isDeletingWorkoutLog}
+        title={`Delete Workout ${context}`}
+        children={`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
+      />
     </div>
   );
 }

@@ -33,10 +33,13 @@ import { Input } from "@/components/ui/input";
 import {
   useDeleteWorkoutSetWithCascadeMutation,
   useUpdateWorkoutSetMutation,
+  useDeleteWorkoutLogMutation,
+  useDeleteWorkoutExerciseMutation,
 } from "@/api/workout-log/workout-log-api-slice";
 import { toast } from "sonner";
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -60,6 +63,11 @@ export function WorkoutDetailView({
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
   const [modifiedSets, setModifiedSets] = useState<Set<string>>(new Set());
   const [workoutLogName, setWorkoutLogName] = useState(workout?.title || "");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [context, setContext] = useState("");
+  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
+    null
+  );
 
   const [originalValues, setOriginalValues] = useState<{
     [setId: string]: any;
@@ -73,6 +81,9 @@ export function WorkoutDetailView({
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
+  const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
+    useDeleteWorkoutLogMutation();
+  const [deleteWorkoutExercise] = useDeleteWorkoutExerciseMutation();
 
   // Scroll to top when workout detail view is displayed
   useEffect(() => {
@@ -298,6 +309,33 @@ export function WorkoutDetailView({
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      if (context === "Exercise") {
+        await deleteWorkoutExercise({
+          workoutExerciseId: deletingExerciseId,
+        }).unwrap();
+        toast.success("Workout exercise deleted");
+      } else if (context === "Log") {
+        await deleteWorkoutLog({
+          workoutLogId: workout.workoutLogId,
+        }).unwrap();
+        toast.success("Workout log deleted");
+        // Navigate back to workout-log page after deleting the log
+        router.push("/workout-log");
+      }
+      setIsEditing(false);
+      setShowDeleteDialog(false);
+      setWorkoutLogName("");
+    } catch (error: any) {
+      if (error) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to delete workout log");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Workout Overview */}
@@ -358,6 +396,20 @@ export function WorkoutDetailView({
               </div>
             </div>
             <div className="flex gap-2">
+              {isEditing && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => {
+                    setContext("Log");
+                    setShowDeleteDialog(true);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -473,7 +525,21 @@ export function WorkoutDetailView({
                       : "items-center justify-between"
                   }`}
                 >
-                  <div>
+                  <div className="flex items-center gap-3">
+                    {isEditing && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-fit text-destructive hover:text-destructive/80"
+                        onClick={() => {
+                          setContext("Exercise");
+                          setShowDeleteDialog(true);
+                          setDeletingExerciseId(exercise.workoutExerciseId);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                     <h4 className="font-semibold text-lg">
                       {exercise.exerciseName}
                     </h4>
@@ -790,6 +856,15 @@ export function WorkoutDetailView({
           </div>
         </CardContent>
       </Card>
+
+      <DeleteDialog
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        handleDelete={handleDelete}
+        isDeleting={isDeletingWorkoutLog}
+        title={`Delete Workout ${context}`}
+        children={`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
+      />
     </div>
   );
 }
