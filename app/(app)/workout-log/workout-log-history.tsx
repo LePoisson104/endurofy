@@ -103,7 +103,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     }
 
     if (workoutLogsData) {
-      return allWorkoutLogs;
+      return workoutLogsData.data;
     }
 
     return allWorkoutLogs.filter((log) => {
