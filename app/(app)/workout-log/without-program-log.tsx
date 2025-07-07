@@ -300,7 +300,6 @@ export default function WithoutProgramLog({
       toast.success(`${exercise.exerciseName} added to workout log!`);
       setIsExerciseSelectionModalOpen(false);
     } catch (error: any) {
-      console.error("Error adding exercise:", error);
       if (error?.data?.message) {
         toast.error(error.data.message);
       } else {

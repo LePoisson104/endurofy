@@ -120,7 +120,7 @@ export function ProgramWorkoutLogSkeleton({
               </div>
 
               {/* Table Rows */}
-              {Array.from({ length: 4 }).map((_, rowIndex) => (
+              {Array.from({ length: 2 }).map((_, rowIndex) => (
                 <div
                   key={rowIndex}
                   className={`grid gap-2 md:gap-4 p-2 ${
