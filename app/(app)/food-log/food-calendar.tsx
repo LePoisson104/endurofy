@@ -10,21 +10,12 @@ import {
   isSameMonth,
   startOfWeek,
   endOfWeek,
+  addMonths,
+  subMonths,
 } from "date-fns";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar as CalendarIcon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface FoodCalendarProps {
   selectedDate: Date;
@@ -65,138 +56,153 @@ export default function FoodCalendar({
     end: calendarEnd,
   });
 
-  const previousMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
-    );
+  // Handle month navigation
+  const handlePrevMonth = () => {
+    const newMonth = subMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
   };
 
-  const nextMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
-    );
+  const handleNextMonth = () => {
+    const newMonth = addMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
   };
 
   const getDayData = (date: Date): DayData | undefined => {
     return mockLoggedDays.find((day) => isSameDay(day.date, date));
   };
 
-  const getCaloriesBadgeColor = (calories: number): string => {
-    if (calories < 1500) return "bg-red-100 text-red-800";
-    if (calories > 2500) return "bg-orange-100 text-orange-800";
-    return "bg-green-100 text-green-800";
-  };
+  // Group days by weeks
+  const weeks: Date[][] = [];
+  let currentWeek: Date[] = [];
+
+  // Add all days of the calendar view
+  calendarDays.forEach((day) => {
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+    currentWeek.push(day);
+  });
+
+  // Add the last week if it's not empty
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek);
+  }
 
   return (
-    <Card className="w-full">
-      <CardContent className="space-y-4">
-        {/* Month Navigation */}
-        <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-medium">{format(currentMonth, "MMMM yyyy")}</h3>
+        <div className="flex gap-1">
           <Button
             variant="outline"
-            size="sm"
-            onClick={previousMonth}
-            className="h-8 w-8 p-0"
+            size="icon"
+            onClick={handlePrevMonth}
+            className="h-7 w-7"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h3 className="font-semibold text-lg">
-            {format(currentMonth, "MMMM yyyy")}
-          </h3>
           <Button
             variant="outline"
-            size="sm"
-            onClick={nextMonth}
-            className="h-8 w-8 p-0"
+            size="icon"
+            onClick={handleNextMonth}
+            className="h-7 w-7"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+      </div>
 
-        {/* Calendar Grid */}
-        <div className="space-y-2">
-          {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">
-            <div>Sun</div>
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
+      {/* Day names */}
+      <div className="grid grid-cols-7 text-center text-xs text-primary">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <div key={day} className="py-1">
+            {day}
           </div>
+        ))}
+      </div>
 
-          {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map((day) => {
-              const dayData = getDayData(day);
-              const isSelected = isSameDay(day, selectedDate);
+      {/* Calendar grid */}
+      <div className="space-y-1">
+        {weeks.map((week, weekIndex) => (
+          <div key={weekIndex} className="grid grid-cols-7 gap-1">
+            {week.map((day, dayIndex) => {
               const isToday = isSameDay(day, new Date());
+              const isSelected = isSameDay(day, selectedDate);
+              const dayData = getDayData(day);
+              const dayHasLogs = dayData?.hasLogs;
               const isCurrentMonth = isSameMonth(day, currentMonth);
 
               return (
-                <div key={day.toISOString()} className="relative">
+                <div key={dayIndex} className="relative">
                   <Button
-                    variant={isSelected ? "default" : "ghost"}
+                    variant="ghost"
                     size="sm"
-                    onClick={() => onSelectDate(day)}
-                    className={`h-10 w-full p-0 text-sm relative ${
-                      isToday && !isSelected ? "border-2 border-primary" : ""
-                    } ${
-                      !isCurrentMonth
-                        ? "text-muted-foreground/50 hover:text-muted-foreground"
-                        : ""
-                    }`}
-                  >
-                    {format(day, "d")}
-
-                    {/* Food log indicator */}
-                    {dayData?.hasLogs && (
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                        <div
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            isCurrentMonth ? "bg-primary" : "bg-primary/50"
-                          }`}
-                        />
-                      </div>
+                    className={cn(
+                      "h-10 w-full p-0 font-normal relative",
+                      isSelected &&
+                        `bg-blue-100 dark:bg-blue-900 ring-1 ${
+                          dayHasLogs
+                            ? "dark:ring-green-300 text-primary ring-green-500"
+                            : "dark:ring-blue-500 ring-blue-500 text-blue-600 dark:text-blue-300"
+                        } hover:bg-blue-200/50 dark:hover:bg-blue-800/50`,
+                      isToday &&
+                        !isSelected &&
+                        `border-2 border-blue-600 dark:border-blue-300 ${
+                          dayHasLogs
+                            ? "border-green-600 dark:border-green-300"
+                            : "border-blue-200 dark:border-blue-300"
+                        }`,
+                      !isCurrentMonth && "text-slate-500 dark:text-slate-400",
+                      dayHasLogs &&
+                        "bg-green-200 dark:bg-green-700 hover:bg-green-300 dark:hover:bg-green-600"
                     )}
+                    onClick={() => onSelectDate(day)}
+                  >
+                    <div className="flex flex-col items-center justify-center">
+                      <span>{format(day, "d")}</span>
+                      {dayHasLogs && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1" />
+                      )}
+                    </div>
                   </Button>
                 </div>
               );
             })}
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* Quick Stats */}
-        <div className="border-t pt-4 space-y-3">
-          <h4 className="font-medium text-sm">This Week</h4>
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <div className="text-lg font-semibold text-green-600">5</div>
-              <div className="text-xs text-muted-foreground">Days Logged</div>
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mt-4">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-green-400 dark:bg-green-600 rounded-[2px]"></div>
+          <span>Logged Food</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="border-b border-2 rounded-full border-green-600 dark:border-green-400 w-[23px]" />
+          <span>Has Entries</span>
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="border-t pt-4 space-y-3">
+        <h4 className="font-medium text-sm">This Week</h4>
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <div className="text-lg font-semibold text-green-600">5</div>
+            <div className="text-xs text-slate-600 dark:text-slate-300">
+              Day Streak
             </div>
-            <div>
-              <div className="text-lg font-semibold text-blue-600">1,980</div>
-              <div className="text-xs text-muted-foreground">Avg Calories</div>
+          </div>
+          <div>
+            <div className="text-lg font-semibold text-blue-600">1,980</div>
+            <div className="text-xs text-slate-600 dark:text-slate-300">
+              Avg Calories
             </div>
           </div>
         </div>
-
-        {/* Legend */}
-        <div className="border-t pt-4 space-y-2">
-          <h4 className="font-medium text-sm">Legend</h4>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full" />
-              <span className="text-muted-foreground">Has food logs</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 border-2 border-primary rounded-full" />
-              <span className="text-muted-foreground">Today</span>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

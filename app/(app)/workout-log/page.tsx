@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ProgramWorkoutLog } from "./program-workout-log";
 import { WorkoutLogHistory } from "./workout-log-history";
 import { WorkoutCalendar } from "./workout-calendar";
@@ -40,7 +47,7 @@ export default function WorkoutLogManager() {
     null
   );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("log");
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
@@ -95,11 +102,14 @@ export default function WorkoutLogManager() {
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
     localStorage.setItem("selectedDate", date.toISOString());
-    setShowCalendar(false); // Hide calendar on mobile after selection
   };
 
-  const toggleCalendar = () => {
-    setShowCalendar(!showCalendar);
+  const handleCalendarDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    localStorage.setItem("selectedDate", date.toISOString());
+    if (isMobile) {
+      setIsCalendarModalOpen(false);
+    }
   };
 
   const handleTabChange = (value: string) => {
@@ -110,7 +120,21 @@ export default function WorkoutLogManager() {
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
       <header>
-        <PageTitle title="Workout Log" />
+        <div className="flex justify-between items-center">
+          <div>
+            <PageTitle title="Workout Log" />
+          </div>
+          {isMobile && selectedTab === "log" && (
+            <Button
+              variant="outline"
+              onClick={() => setIsCalendarModalOpen(true)}
+              className="gap-2"
+            >
+              <CalendarIcon className="h-4 w-4" />
+              Show Calendar
+            </Button>
+          )}
+        </div>
       </header>
 
       <main className="flex-1 pt-6">
@@ -142,35 +166,6 @@ export default function WorkoutLogManager() {
           />
         )}
         <div>
-          {/* Mobile Calendar Toggle Button */}
-          {selectedTab === "log" && (
-            <div className="lg:hidden mb-4">
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2"
-                onClick={toggleCalendar}
-              >
-                <CalendarIcon className="h-4 w-4" />
-                {showCalendar ? "Hide Calendar" : "Show Calendar"}
-              </Button>
-            </div>
-          )}
-
-          {/* Mobile Calendar - Shows only when toggle is on */}
-          {showCalendar && (
-            <div className="lg:hidden mb-[1rem]">
-              <Card>
-                <CardContent>
-                  <WorkoutCalendar
-                    selectedDate={selectedDate}
-                    onSelectDate={handleDateSelect}
-                    program={selectedProgram as WorkoutProgram | undefined}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
           <div
             className={`grid grid-cols-1 gap-[1rem] ${
               selectedTab === "log" ? "lg:grid-cols-4" : "lg:grid-cols-1"
@@ -216,6 +211,27 @@ export default function WorkoutLogManager() {
           </div>
         </div>
       </main>
+
+      {/* Calendar Modal for Mobile */}
+      <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
+        <DialogContent
+          className={`bg-card max-h-[80vh] ${
+            isMobile ? "max-w-[95vw] w-[95vw] p-4" : "max-w-2xl"
+          }`}
+        >
+          <DialogHeader>
+            <DialogTitle>Select Date</DialogTitle>
+            <DialogDescription>
+              Choose a date to view your workout log
+            </DialogDescription>
+          </DialogHeader>
+          <WorkoutCalendar
+            selectedDate={selectedDate}
+            onSelectDate={handleCalendarDateSelect}
+            program={selectedProgram as WorkoutProgram | undefined}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

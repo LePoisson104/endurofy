@@ -477,7 +477,11 @@ export default function FoodLogPage() {
 
       {/* Calendar Modal for Mobile */}
       <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent
+          className={`bg-card max-h-[80vh] ${
+            isMobile ? "max-w-[95vw] w-[95vw] p-4" : "max-w-2xl"
+          }`}
+        >
           <DialogHeader>
             <DialogTitle>Select Date</DialogTitle>
             <DialogDescription>
