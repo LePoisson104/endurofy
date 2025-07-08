@@ -201,7 +201,7 @@ export function WorkoutHistoryList({
           )
         )}
       </div>
-      {isFetching && hasMoreData && (
+      {hasMoreData && (
         <div className="flex justify-center items-center h-10 mt-4">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span className="ml-2 text-sm text-muted-foreground">

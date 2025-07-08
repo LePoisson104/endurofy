@@ -326,10 +326,10 @@ export function WorkoutCalendar({
                       className={cn(
                         "h-10 w-full p-0 font-normal relative",
                         isSelected &&
-                          `bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 ring-1 ${
+                          `bg-blue-100 dark:bg-blue-900 ring-1 ${
                             dayHasLoggedWorkout
-                              ? "dark:ring-green-300 ring-green-500"
-                              : "dark:ring-blue-500 ring-blue-500"
+                              ? "dark:ring-green-300 text-primary ring-green-500"
+                              : "dark:ring-blue-500 ring-blue-500 text-blue-600 dark:text-blue-300"
                           } hover:bg-blue-200/50 dark:hover:bg-blue-800/50`,
                         isToday &&
                           !isSelected &&
