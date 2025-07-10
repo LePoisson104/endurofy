@@ -187,7 +187,7 @@ export default function FoodCalendar({
 
       {/* Stats Section */}
       <div className="border-t pt-4 space-y-3">
-        <h4 className="font-medium text-sm">This Week</h4>
+        <h4 className="font-medium text-sm">Stats</h4>
         <div className="grid grid-cols-2 gap-4 text-center">
           <div>
             <div className="text-lg font-semibold text-green-600">5</div>
@@ -196,7 +196,7 @@ export default function FoodCalendar({
             </div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-blue-600">1,980</div>
+            <div className="text-lg font-semibold text-blue-500">1,980</div>
             <div className="text-xs text-slate-600 dark:text-slate-300">
               Avg Calories
             </div>
