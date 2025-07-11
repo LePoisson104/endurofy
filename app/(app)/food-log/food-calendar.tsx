@@ -181,26 +181,7 @@ export default function FoodCalendar({
         </div>
         <div className="flex items-center gap-2">
           <div className="border-b border-2 rounded-full border-green-600 dark:border-green-400 w-[23px]" />
-          <span>Has Entries</span>
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="border-t pt-4 space-y-3">
-        <h4 className="font-medium text-sm">Stats</h4>
-        <div className="grid grid-cols-2 gap-4 text-center">
-          <div>
-            <div className="text-lg font-semibold text-green-600">5</div>
-            <div className="text-xs text-slate-600 dark:text-slate-300">
-              Day Streak
-            </div>
-          </div>
-          <div>
-            <div className="text-lg font-semibold text-blue-500">1,980</div>
-            <div className="text-xs text-slate-600 dark:text-slate-300">
-              Avg Calories
-            </div>
-          </div>
+          <span>Completed Food Log</span>
         </div>
       </div>
     </div>
