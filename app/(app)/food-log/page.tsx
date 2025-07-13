@@ -10,6 +10,8 @@ import {
   Trash2,
   Heart,
   Apple,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,12 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +38,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import FoodSearchModal from "./food-search-modal";
 import FoodCalendar from "./food-calendar";
 import PageTitle from "@/components/global/page-title";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface FoodItem {
   id: string;
@@ -70,11 +67,15 @@ interface MacroTargets {
 }
 
 export default function FoodLogPage() {
+  const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<keyof MealData>("breakfast");
+  const [expandedMeals, setExpandedMeals] = useState<Set<keyof MealData>>(
+    new Set()
+  );
 
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
@@ -171,6 +172,18 @@ export default function FoodLogPage() {
     );
   };
 
+  const toggleMealExpansion = (mealType: keyof MealData) => {
+    setExpandedMeals((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(mealType)) {
+        newSet.delete(mealType);
+      } else {
+        newSet.add(mealType);
+      }
+      return newSet;
+    });
+  };
+
   const MacroProgressBar = ({
     label,
     current,
@@ -248,106 +261,147 @@ export default function FoodLogPage() {
     foods: FoodItem[];
   }) => {
     const mealMacros = getMealMacros(foods);
+    const isExpanded = expandedMeals.has(mealType);
 
     return (
-      <AccordionItem value={mealType}>
-        <AccordionTrigger className="hover:no-underline">
+      <div className="border-b border-border">
+        <div className="flex items-center justify-between">
           <div
-            className={`flex ${
-              isMobile ? "flex-col items-start" : "justify-between items-center"
-            } w-full pr-4`}
+            className="flex items-center gap-3 cursor-pointer flex-1 h-[60px]"
+            onClick={() => toggleMealExpansion(mealType)}
           >
-            <span className="font-medium">{title}</span>
-            <div
-              className={`${
-                isMobile ? "flex gap-4 mt-1 items-center" : "flex-col items-end"
-              } text-sm text-muted-foreground`}
-            >
-              <div className="flex gap-2 text-xs">
-                <span>{Math.round(mealMacros.calories)} kcal</span>
-                <span>•</span>
-                <span>P: {Math.round(mealMacros.protein)}g</span>3<span>•</span>
-                <span>C: {Math.round(mealMacros.carbs)}g</span>
-                <span>•</span>
-                <span>F: {Math.round(mealMacros.fat)}g</span>
-              </div>
-            </div>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="space-y-3">
-            {foods.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center border border-dashed border-slate-300 rounded-lg">
-                No foods added yet
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {foods.map((food) => (
-                  <div
-                    key={food.id}
-                    className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Apple className="h-3 w-3 text-destructive" />
-                        <p className="font-medium text-sm">{food.name}</p>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {food.quantity} {food.unit} •{" "}
-                        {Math.round(food.calories * food.quantity)} cal
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleEditFood(mealType, food.id)}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleRemoveFood(mealType, food.id)}
-                            variant="destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Remove
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleFavoriteFood(mealType, food.id)
-                            }
-                          >
-                            <Heart className="h-4 w-4 mr-2" />
-                            Add to Favorites
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
             <Button
               onClick={() => handleAddFood(mealType)}
-              className="w-full"
-              variant="outline"
+              size="sm"
+              variant="ghost"
+              className="p-0"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Food
+              <Plus className="h-4 w-4" />
             </Button>
+            <div
+              className={`flex ${
+                isMobile
+                  ? "flex-col items-start"
+                  : "justify-between items-center"
+              } w-full`}
+            >
+              <span className="font-medium text-sm">{title}</span>
+              <div
+                className={`${
+                  isMobile
+                    ? "flex gap-4 mt-1 items-center"
+                    : "flex-col items-end"
+                } text-sm text-muted-foreground`}
+              >
+                <div
+                  className={`flex gap-1 ${
+                    isMobile ? "text-[10px]" : "text-xs"
+                  } ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                >
+                  <span>{Math.round(mealMacros.calories)} Kcal</span>
+                  <span>•</span>
+                  <span>P: {Math.round(mealMacros.protein)} g</span>
+                  <span>•</span>
+                  <span>C: {Math.round(mealMacros.carbs)} g</span>
+                  <span>•</span>
+                  <span>F: {Math.round(mealMacros.fat)} g</span>
+                </div>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 ml-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 ml-4" />
+            )}
           </div>
-        </AccordionContent>
-      </AccordionItem>
+        </div>
+
+        {isExpanded && (
+          <div className="pb-4">
+            <div className="space-y-3">
+              {foods.length === 0 ? (
+                <div
+                  className={`text-muted-foreground text-sm py-4 text-center border border-dashed ${
+                    isDark
+                      ? "text-slate-400 border-slate-400"
+                      : "text-slate-500 border-slate-500"
+                  } rounded-lg flex flex-col items-center justify-center gap-2 h-[130px]`}
+                >
+                  <Apple className="h-5 w-5 text-muted-foreground text-red-400" />
+                  <p className="text-sm">No foods added yet</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-fit"
+                    onClick={() => handleAddFood(mealType)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Food
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {foods.map((food) => (
+                    <div
+                      key={food.id}
+                      className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Apple className="h-3 w-3 text-destructive" />
+                          <p className="font-medium text-sm">{food.name}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {food.quantity} {food.unit} •{" "}
+                          {Math.round(food.calories * food.quantity)} cal
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleEditFood(mealType, food.id)}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleRemoveFood(mealType, food.id)
+                              }
+                              variant="destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleFavoriteFood(mealType, food.id)
+                              }
+                            >
+                              <Heart className="h-4 w-4 mr-2" />
+                              Add to Favorites
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -388,7 +442,7 @@ export default function FoodLogPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Accordion type="multiple" defaultValue={[]}>
+                <div className="space-y-0">
                   <MealAccordion
                     mealType="uncategorized"
                     title="Uncategorized"
@@ -414,7 +468,7 @@ export default function FoodLogPage() {
                     title="Snacks"
                     foods={mealData.snacks}
                   />
-                </Accordion>
+                </div>
               </CardContent>
             </Card>
 
@@ -443,7 +497,7 @@ export default function FoodLogPage() {
                     color="red"
                   />
                   <MacroProgressBar
-                    label="Carbohydrates"
+                    label="Carbs"
                     current={currentMacros.carbs}
                     target={macroTargets.carbs}
                     unit="g"
