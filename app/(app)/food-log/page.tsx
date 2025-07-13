@@ -190,30 +190,16 @@ export default function FoodLogPage() {
     target,
     unit,
     color,
+    bgColor,
   }: {
     label: string;
     current: number;
     target: number;
     unit: string;
     color: string;
+    bgColor: string;
   }) => {
     const percentage = Math.min((current / target) * 100, 100);
-
-    // Define color values for each macro
-    const getColorValue = (color: string) => {
-      switch (color) {
-        case "blue":
-          return "#3b82f6"; // blue-500
-        case "red":
-          return "#ef4444"; // red-500
-        case "green":
-          return "#10b981"; // emerald-500
-        case "yellow":
-          return "#f59e0b"; // amber-500
-        default:
-          return "hsl(var(--primary))";
-      }
-    };
 
     return (
       <div
@@ -230,19 +216,22 @@ export default function FoodLogPage() {
         </div>
         <div className={`flex flex-col ${isMobile ? "w-full" : "w-[70%]"}`}>
           <div className="flex justify-between w-full">
-            <span className="text-muted-foreground text-sm">
+            <span className="text-primary text-sm">
               {Math.round(current)}/{target} {unit}
             </span>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-primary">
               {Math.round(percentage)}%
             </div>
           </div>
-          <div className="relative w-full bg-secondary rounded-full h-2">
+          <div
+            className="relative w-full rounded-full h-2.5 bg-secondary"
+            style={{ backgroundColor: current ? bgColor : "" }}
+          >
             <div
-              className="h-2 rounded-full transition-all duration-300 ease-in-out"
+              className="h-2.5 rounded-full transition-all duration-300 ease-in-out"
               style={{
                 width: `${percentage}%`,
-                backgroundColor: getColorValue(color),
+                backgroundColor: `${color}`,
               }}
             />
           </div>
@@ -487,28 +476,32 @@ export default function FoodLogPage() {
                     current={currentMacros.calories}
                     target={macroTargets.calories}
                     unit="kcal"
-                    color="blue"
+                    color="#EF4444"
+                    bgColor="#FECACA"
                   />
                   <MacroProgressBar
                     label="Protein"
                     current={currentMacros.protein}
                     target={macroTargets.protein}
                     unit="g"
-                    color="red"
+                    color="#10B981"
+                    bgColor="#A7F3D0"
                   />
                   <MacroProgressBar
                     label="Carbs"
                     current={currentMacros.carbs}
                     target={macroTargets.carbs}
                     unit="g"
-                    color="green"
+                    color="#3B82F6"
+                    bgColor="#93C5FD"
                   />
                   <MacroProgressBar
                     label="Fat"
                     current={currentMacros.fat}
                     target={macroTargets.fat}
                     unit="g"
-                    color="yellow"
+                    color="#EAB308"
+                    bgColor="#FEF3C7"
                   />
                 </div>
               </CardContent>
