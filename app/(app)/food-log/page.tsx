@@ -2,17 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import {
-  Plus,
-  CalendarIcon,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Heart,
-  Apple,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { CalendarIcon, Beef, Apple, Zap, Droplets, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,17 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import FoodSearchModal from "./food-search-modal";
 import FoodCalendar from "./food-calendar";
+import MealAccordion from "./meal-accordion";
+import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
-import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface FoodItem {
   id: string;
@@ -67,7 +52,6 @@ interface MacroTargets {
 }
 
 export default function FoodLogPage() {
-  const isDark = useGetCurrentTheme();
   const isMobile = useIsMobile();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
@@ -116,7 +100,18 @@ export default function FoodLogPage() {
 
   const currentMacros = calculateCurrentMacros();
 
-  const handleAddFood = (meal: keyof MealData) => {
+  const handleAddFood = (meal: keyof MealData, event?: React.MouseEvent) => {
+    event?.stopPropagation(); // Prevent event bubbling to accordion toggle
+
+    // Ensure the accordion is expanded before opening the modal
+    if (!expandedMeals.has(meal)) {
+      setExpandedMeals((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(meal);
+        return newSet;
+      });
+    }
+
     setSelectedMeal(meal);
     setIsAddFoodModalOpen(true);
   };
@@ -184,216 +179,6 @@ export default function FoodLogPage() {
     });
   };
 
-  const MacroProgressBar = ({
-    label,
-    current,
-    target,
-    unit,
-    color,
-    bgColor,
-  }: {
-    label: string;
-    current: number;
-    target: number;
-    unit: string;
-    color: string;
-    bgColor: string;
-  }) => {
-    const percentage = Math.min((current / target) * 100, 100);
-
-    return (
-      <div
-        className={`space-y-1 ${
-          isMobile ? "flex-col" : "flex"
-        } w-full items-center`}
-      >
-        <div
-          className={`flex justify-between text-sm ${
-            isMobile ? "w-full" : "w-[30%]"
-          }`}
-        >
-          <span className="font-medium">{label}</span>
-        </div>
-        <div className={`flex flex-col ${isMobile ? "w-full" : "w-[70%]"}`}>
-          <div className="flex justify-between w-full">
-            <span className="text-primary text-sm">
-              {Math.round(current)}/{target} {unit}
-            </span>
-            <div className="text-sm text-primary">
-              {Math.round(percentage)}%
-            </div>
-          </div>
-          <div
-            className="relative w-full rounded-full h-2.5 bg-secondary"
-            style={{ backgroundColor: current ? bgColor : "" }}
-          >
-            <div
-              className="h-2.5 rounded-full transition-all duration-300 ease-in-out"
-              style={{
-                width: `${percentage}%`,
-                backgroundColor: `${color}`,
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const MealAccordion = ({
-    mealType,
-    title,
-    foods,
-  }: {
-    mealType: keyof MealData;
-    title: string;
-    foods: FoodItem[];
-  }) => {
-    const mealMacros = getMealMacros(foods);
-    const isExpanded = expandedMeals.has(mealType);
-
-    return (
-      <div className="border-b border-border">
-        <div className="flex items-center justify-between">
-          <div
-            className="flex items-center gap-3 cursor-pointer flex-1 h-[60px]"
-            onClick={() => toggleMealExpansion(mealType)}
-          >
-            <Button
-              onClick={() => handleAddFood(mealType)}
-              size="sm"
-              variant="ghost"
-              className="p-0"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-            <div
-              className={`flex ${
-                isMobile
-                  ? "flex-col items-start"
-                  : "justify-between items-center"
-              } w-full`}
-            >
-              <span className="font-medium text-sm">{title}</span>
-              <div
-                className={`${
-                  isMobile
-                    ? "flex gap-4 mt-1 items-center"
-                    : "flex-col items-end"
-                } text-sm text-muted-foreground`}
-              >
-                <div
-                  className={`flex gap-1 ${
-                    isMobile ? "text-[10px]" : "text-xs"
-                  } ${isDark ? "text-slate-400" : "text-slate-500"}`}
-                >
-                  <span>{Math.round(mealMacros.calories)} Kcal</span>
-                  <span>•</span>
-                  <span>P: {Math.round(mealMacros.protein)} g</span>
-                  <span>•</span>
-                  <span>C: {Math.round(mealMacros.carbs)} g</span>
-                  <span>•</span>
-                  <span>F: {Math.round(mealMacros.fat)} g</span>
-                </div>
-              </div>
-            </div>
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 ml-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 ml-4" />
-            )}
-          </div>
-        </div>
-
-        {isExpanded && (
-          <div className="pb-4">
-            <div className="space-y-3">
-              {foods.length === 0 ? (
-                <div
-                  className={`text-muted-foreground text-sm py-4 text-center border border-dashed ${
-                    isDark
-                      ? "text-slate-400 border-slate-400"
-                      : "text-slate-500 border-slate-500"
-                  } rounded-lg flex flex-col items-center justify-center gap-2 h-[130px]`}
-                >
-                  <Apple className="h-5 w-5 text-muted-foreground text-red-400" />
-                  <p className="text-sm">No foods added yet</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-fit"
-                    onClick={() => handleAddFood(mealType)}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Food
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {foods.map((food) => (
-                    <div
-                      key={food.id}
-                      className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Apple className="h-3 w-3 text-destructive" />
-                          <p className="font-medium text-sm">{food.name}</p>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {food.quantity} {food.unit} •{" "}
-                          {Math.round(food.calories * food.quantity)} cal
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleEditFood(mealType, food.id)}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleRemoveFood(mealType, food.id)
-                              }
-                              variant="destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Remove
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleFavoriteFood(mealType, food.id)
-                              }
-                            >
-                              <Heart className="h-4 w-4 mr-2" />
-                              Add to Favorites
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
       <header>
@@ -436,26 +221,56 @@ export default function FoodLogPage() {
                     mealType="uncategorized"
                     title="Uncategorized"
                     foods={mealData.uncategorized}
+                    isExpanded={expandedMeals.has("uncategorized")}
+                    onToggle={toggleMealExpansion}
+                    onAddFood={handleAddFood}
+                    onEditFood={handleEditFood}
+                    onRemoveFood={handleRemoveFood}
+                    onFavoriteFood={handleFavoriteFood}
                   />
                   <MealAccordion
                     mealType="breakfast"
                     title="Breakfast"
                     foods={mealData.breakfast}
+                    isExpanded={expandedMeals.has("breakfast")}
+                    onToggle={toggleMealExpansion}
+                    onAddFood={handleAddFood}
+                    onEditFood={handleEditFood}
+                    onRemoveFood={handleRemoveFood}
+                    onFavoriteFood={handleFavoriteFood}
                   />
                   <MealAccordion
                     mealType="lunch"
                     title="Lunch"
                     foods={mealData.lunch}
+                    isExpanded={expandedMeals.has("lunch")}
+                    onToggle={toggleMealExpansion}
+                    onAddFood={handleAddFood}
+                    onEditFood={handleEditFood}
+                    onRemoveFood={handleRemoveFood}
+                    onFavoriteFood={handleFavoriteFood}
                   />
                   <MealAccordion
                     mealType="dinner"
                     title="Dinner"
                     foods={mealData.dinner}
+                    isExpanded={expandedMeals.has("dinner")}
+                    onToggle={toggleMealExpansion}
+                    onAddFood={handleAddFood}
+                    onEditFood={handleEditFood}
+                    onRemoveFood={handleRemoveFood}
+                    onFavoriteFood={handleFavoriteFood}
                   />
                   <MealAccordion
                     mealType="snacks"
                     title="Snacks"
                     foods={mealData.snacks}
+                    isExpanded={expandedMeals.has("snacks")}
+                    onToggle={toggleMealExpansion}
+                    onAddFood={handleAddFood}
+                    onEditFood={handleEditFood}
+                    onRemoveFood={handleRemoveFood}
+                    onFavoriteFood={handleFavoriteFood}
                   />
                 </div>
               </CardContent>
@@ -476,32 +291,32 @@ export default function FoodLogPage() {
                     current={currentMacros.calories}
                     target={macroTargets.calories}
                     unit="kcal"
-                    color="#EF4444"
-                    bgColor="#FECACA"
+                    color="oklch(63.7% 0.237 25.331)"
+                    icon={<Flame className="h-4 w-4 text-red-500" />}
                   />
                   <MacroProgressBar
                     label="Protein"
                     current={currentMacros.protein}
                     target={macroTargets.protein}
                     unit="g"
-                    color="#10B981"
-                    bgColor="#A7F3D0"
+                    color="oklch(70.4% 0.191 22.216)"
+                    icon={<Beef className="h-4 w-4 text-red-400" />}
                   />
                   <MacroProgressBar
                     label="Carbs"
                     current={currentMacros.carbs}
                     target={macroTargets.carbs}
                     unit="g"
-                    color="#3B82F6"
-                    bgColor="#93C5FD"
+                    color="oklch(68.1% 0.162 75.834)"
+                    icon={<Zap className="h-4 w-4 text-yellow-600" />}
                   />
                   <MacroProgressBar
                     label="Fat"
                     current={currentMacros.fat}
                     target={macroTargets.fat}
                     unit="g"
-                    color="#EAB308"
-                    bgColor="#FEF3C7"
+                    color="oklch(85.2% 0.199 91.936)"
+                    icon={<Droplets className="h-4 w-4 text-yellow-400" />}
                   />
                 </div>
               </CardContent>
