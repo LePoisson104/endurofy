@@ -183,7 +183,7 @@ export function ExerciseForm({
               placeholder="Enter number of sets"
               value={sets || ""}
               onChange={(e) => setSets(Number.parseInt(e.target.value))}
-              className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+              className="flex-1 placeholder:text-sm text-sm"
             />
           </div>
           <div className="space-y-2 w-full">
@@ -194,7 +194,7 @@ export function ExerciseForm({
               placeholder="Enter min reps"
               value={minReps || ""}
               onChange={(e) => setMinReps(Number.parseInt(e.target.value))}
-              className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+              className="flex-1 placeholder:text-sm text-sm"
             />
           </div>
           <div className="space-y-2 w-full">
@@ -205,7 +205,7 @@ export function ExerciseForm({
               placeholder="Enter max reps"
               value={maxReps || ""}
               onChange={(e) => setMaxReps(Number.parseInt(e.target.value))}
-              className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+              className="flex-1 placeholder:text-sm text-sm"
             />
           </div>
         </div>

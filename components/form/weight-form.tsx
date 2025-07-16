@@ -189,7 +189,7 @@ export default function WeightForm({
           id="weight"
           type="number"
           placeholder="Enter weight"
-          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+          className="flex-1 placeholder:text-sm text-sm"
           value={formData.weight || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);
@@ -208,7 +208,7 @@ export default function WeightForm({
           id="weight"
           type="number"
           placeholder="Enter calories"
-          className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+          className="flex-1 placeholder:text-sm text-sm"
           value={formData.caloriesIntake || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);

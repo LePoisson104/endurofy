@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, MoreVertical } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  MoreVertical,
+  UtensilsCrossed,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -130,7 +135,7 @@ export default function MealAccordion({
                     : "text-slate-500 border-slate-500"
                 } rounded-lg flex flex-col items-center justify-center gap-2 h-[130px]`}
               >
-                <Apple className="h-5 w-5 text-muted-foreground text-red-400" />
+                <UtensilsCrossed className="h-5 w-5 text-primary" />
                 <p className="text-sm">No foods added yet</p>
                 <Button
                   variant="outline"

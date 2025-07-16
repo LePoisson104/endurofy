@@ -173,7 +173,7 @@ export default function ProfileEditForm({
                 }}
                 min={1}
                 max={251}
-                className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="flex-1"
               />
             )}
             <Select
@@ -248,7 +248,7 @@ export default function ProfileEditForm({
                   handleInputChange("weight_goal", value);
                 }
               }}
-              className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
+              className="flex-1 text-sm"
             />
             <Select
               value={editedProfile?.current_weight_unit || "kg"}
@@ -321,7 +321,7 @@ export default function ProfileEditForm({
                   if (value > 1000) value = 1000;
                   handleInputChange("weight_goal", value);
                 }}
-                className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm"
+                className="flex-1 text-sm"
               />
               <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
                 {editedProfile?.starting_weight_unit === "lb" ? "lbs" : "kg"}

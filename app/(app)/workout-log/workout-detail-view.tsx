@@ -747,7 +747,7 @@ export function WorkoutDetailView({
                                       e.target.value
                                     )
                                   }
-                                  className="w-20 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  className="w-20 mx-auto text-center text-sm"
                                 />
                               ) : (
                                 <div className={`${isMobile ? "text-sm" : ""}`}>
@@ -774,7 +774,7 @@ export function WorkoutDetailView({
                                           e.target.value
                                         )
                                       }
-                                      className="w-16 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      className="w-16 mx-auto text-center text-sm"
                                     />
                                   ) : (
                                     <div
@@ -801,7 +801,7 @@ export function WorkoutDetailView({
                                           e.target.value
                                         )
                                       }
-                                      className="w-16 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      className="w-16 mx-auto text-center text-sm"
                                     />
                                   ) : (
                                     <div
@@ -830,7 +830,7 @@ export function WorkoutDetailView({
                                         e.target.value
                                       )
                                     }
-                                    className="w-16 mx-auto text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="w-16 mx-auto text-center text-sm"
                                   />
                                 ) : (
                                   <div

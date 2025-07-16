@@ -158,7 +158,7 @@ function SortableTableRow({
                     e.target.value === "" ? 0 : Number.parseInt(e.target.value),
                 })
               }
-              className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+              className="w-16 text-center flex-1 placeholder:text-sm text-sm"
             />
           </TableCell>
           <TableCell>
@@ -180,7 +180,7 @@ function SortableTableRow({
                         : Number.parseInt(e.target.value),
                   })
                 }
-                className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+                className="w-16 text-center flex-1 placeholder:text-sm text-sm"
               />
               <span>-</span>
               <Label htmlFor="exercise-max-reps" className="sr-only">
@@ -200,7 +200,7 @@ function SortableTableRow({
                         : Number.parseInt(e.target.value),
                   })
                 }
-                className="w-16 text-center flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-sm text-sm"
+                className="w-16 text-center flex-1 placeholder:text-sm text-sm"
               />
             </div>
           </TableCell>

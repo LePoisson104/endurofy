@@ -1,0 +1,278 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Check, X, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import type { FoodSelectionModalProps, FoodItem, ServingUnit } from "./types";
+
+const servingUnits: ServingUnit[] = [
+  "g",
+  "oz",
+  "ml",
+  "cup",
+  "tbsp",
+  "tsp",
+  "piece",
+  "slice",
+  "serving",
+];
+
+export default function FoodSelectionModal({
+  isOpen,
+  onClose,
+  food,
+  onConfirm,
+}: FoodSelectionModalProps) {
+  const [servingSize, setServingSize] = useState("1");
+  const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
+
+  // Reset form when food changes
+  useEffect(() => {
+    if (food) {
+      setServingSize(food.servingSize);
+      setSelectedUnit(food.servingUnit as ServingUnit);
+    }
+  }, [food]);
+
+  if (!food) return null;
+
+  const servingSizeNum = parseFloat(servingSize) || 1;
+  const originalServingSize = parseFloat(food.servingSize) || 1;
+
+  // Calculate multiplier based on serving size ratio
+  const multiplier = servingSizeNum / originalServingSize;
+
+  const calculatedNutrition = {
+    calories: Math.round(food.calories * multiplier),
+    protein: Math.round(food.protein * multiplier * 10) / 10,
+    carbs: Math.round(food.carbs * multiplier * 10) / 10,
+    fat: Math.round(food.fat * multiplier * 10) / 10,
+  };
+
+  // Calculate percentages for the chart
+  const totalMacros =
+    calculatedNutrition.protein * 4 +
+    calculatedNutrition.carbs * 4 +
+    calculatedNutrition.fat * 9;
+  const proteinPercent = Math.round(
+    ((calculatedNutrition.protein * 4) / totalMacros) * 100
+  );
+  const carbsPercent = Math.round(
+    ((calculatedNutrition.carbs * 4) / totalMacros) * 100
+  );
+  const fatPercent = Math.round(
+    ((calculatedNutrition.fat * 9) / totalMacros) * 100
+  );
+
+  // Create SVG path for donut chart
+  const createPath = (
+    startAngle: number,
+    endAngle: number,
+    innerRadius: number,
+    outerRadius: number
+  ) => {
+    const start = polarToCartesian(50, 50, outerRadius, endAngle);
+    const end = polarToCartesian(50, 50, outerRadius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+    return [
+      "M",
+      start.x,
+      start.y,
+      "A",
+      outerRadius,
+      outerRadius,
+      0,
+      largeArcFlag,
+      0,
+      end.x,
+      end.y,
+      "L",
+      polarToCartesian(50, 50, innerRadius, startAngle).x,
+      polarToCartesian(50, 50, innerRadius, startAngle).y,
+      "A",
+      innerRadius,
+      innerRadius,
+      0,
+      largeArcFlag,
+      1,
+      polarToCartesian(50, 50, innerRadius, endAngle).x,
+      polarToCartesian(50, 50, innerRadius, endAngle).y,
+      "Z",
+    ].join(" ");
+  };
+
+  const polarToCartesian = (
+    centerX: number,
+    centerY: number,
+    radius: number,
+    angleInDegrees: number
+  ) => {
+    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+    return {
+      x: centerX + radius * Math.cos(angleInRadians),
+      y: centerY + radius * Math.sin(angleInRadians),
+    };
+  };
+
+  // Calculate angles for each segment
+  let currentAngle = 0;
+  const proteinAngle = currentAngle + (proteinPercent / 100) * 360;
+  const carbsAngle = proteinAngle + (carbsPercent / 100) * 360;
+  const fatAngle = carbsAngle + (fatPercent / 100) * 360;
+
+  const handleConfirm = () => {
+    const foodItem: FoodItem = {
+      id: `${food.id}-${Date.now()}`,
+      name: food.name,
+      calories: calculatedNutrition.calories,
+      protein: calculatedNutrition.protein,
+      carbs: calculatedNutrition.carbs,
+      fat: calculatedNutrition.fat,
+      quantity: servingSizeNum,
+      unit: selectedUnit,
+    };
+
+    onConfirm(foodItem);
+  };
+
+  const handleClose = () => {
+    setServingSize("1");
+    setSelectedUnit("g");
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-lg bg-card">
+        <DialogHeader className="relative border-b pb-4">
+          <DialogTitle className="text-md">
+            {food.brand ? `(${food.brand}) ` : ""}
+            {food.name}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6 pt-4">
+          {/* Nutrition Chart */}
+          <div className="flex items-center justify-center space-y-4">
+            <div className="relative">
+              <svg
+                width="150"
+                height="150"
+                viewBox="0 0 100 100"
+                className="transform -rotate-90"
+              >
+                {/* Protein segment */}
+                <path
+                  d={createPath(currentAngle, proteinAngle, 25, 40)}
+                  fill="#22d3ee"
+                  className="transition-all duration-300"
+                />
+                {/* Carbs segment */}
+                <path
+                  d={createPath(proteinAngle, carbsAngle, 25, 40)}
+                  fill="#fbbf24"
+                  className="transition-all duration-300"
+                />
+                {/* Fat segment */}
+                <path
+                  d={createPath(carbsAngle, fatAngle, 25, 40)}
+                  fill="#fb923c"
+                  className="transition-all duration-300"
+                />
+              </svg>
+
+              {/* Center calories display */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold text-white">
+                  {calculatedNutrition.calories}
+                </span>
+                <span className="text-sm text-gray-400">kcal</span>
+              </div>
+            </div>
+
+            {/* Nutrition Legend */}
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
+                <span className="text-white">
+                  Protein: {calculatedNutrition.protein} g ({proteinPercent}%)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                <span className="text-white">
+                  Carbs: {calculatedNutrition.carbs} g ({carbsPercent}%)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-400"></div>
+                <span className="text-white">
+                  Fat: {calculatedNutrition.fat} g ({fatPercent}%)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Serving Size Section */}
+          <div className="border-t pt-4 flex items-center justify-center">
+            <div className="flex items-center gap-4">
+              <Label className="text-white font-medium">Serving size:</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value={servingSize}
+                  onChange={(e) => setServingSize(e.target.value)}
+                  className="w-20 text-white"
+                />
+                <Select
+                  value={selectedUnit}
+                  onValueChange={(value: ServingUnit) => setSelectedUnit(value)}
+                >
+                  <SelectTrigger className="w-28 bg-slate-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="">
+                    {servingUnits.map((unit) => (
+                      <SelectItem
+                        key={unit}
+                        value={unit}
+                        className="text-white "
+                      >
+                        {unit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-4 justify-end items-center">
+            <Button onClick={handleConfirm}>Add food</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

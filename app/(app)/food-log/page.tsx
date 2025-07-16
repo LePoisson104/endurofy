@@ -19,22 +19,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import FoodSearchModal from "./food-search-modal";
+import { FoodSearchModal, WeekSelector, type FoodItem } from "./";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
-
-interface FoodItem {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  quantity: number;
-  unit: string;
-}
 
 interface MealData {
   uncategorized: FoodItem[];
@@ -197,11 +186,21 @@ export default function FoodLogPage() {
               className="gap-2"
             >
               <CalendarIcon className="h-4 w-4" />
-              Show Calendar
+              Full Calendar
             </Button>
           )}
         </div>
       </header>
+
+      {/* Mobile Week Selector */}
+      {isMobile && (
+        <div className="pt-4">
+          <WeekSelector
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        </div>
+      )}
 
       <main className="flex-1 pt-6">
         <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-4">
