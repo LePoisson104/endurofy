@@ -66,20 +66,15 @@ export default function FoodSelectionModal({
     fat: Math.round(food.fat * multiplier * 10) / 10,
   };
 
-  // Calculate percentages for the chart
-  const totalMacros =
-    calculatedNutrition.protein * 4 +
-    calculatedNutrition.carbs * 4 +
-    calculatedNutrition.fat * 9;
-  const proteinPercent = Math.round(
-    ((calculatedNutrition.protein * 4) / totalMacros) * 100
-  );
-  const carbsPercent = Math.round(
-    ((calculatedNutrition.carbs * 4) / totalMacros) * 100
-  );
-  const fatPercent = Math.round(
-    ((calculatedNutrition.fat * 9) / totalMacros) * 100
-  );
+  // Calculate percentages for the chart and calories from each macro
+  const proteinCalories = Math.round(calculatedNutrition.protein * 4);
+  const carbsCalories = Math.round(calculatedNutrition.carbs * 4);
+  const fatCalories = Math.round(calculatedNutrition.fat * 9);
+
+  const totalMacros = proteinCalories + carbsCalories + fatCalories;
+  const proteinPercent = Math.round((proteinCalories / totalMacros) * 100);
+  const carbsPercent = Math.round((carbsCalories / totalMacros) * 100);
+  const fatPercent = Math.round((fatCalories / totalMacros) * 100);
 
   // Create SVG path for donut chart
   const createPath = (
@@ -225,7 +220,7 @@ export default function FoodSelectionModal({
                     {calculatedNutrition.protein}g
                   </p>
                   <p className="text-muted-foreground text-[11px]">
-                    ({proteinPercent}%)
+                    ({proteinCalories} cal)
                   </p>
                 </div>
               </div>
@@ -242,7 +237,7 @@ export default function FoodSelectionModal({
                     {calculatedNutrition.carbs}g
                   </p>
                   <p className="text-muted-foreground text-[11px]">
-                    ({carbsPercent}%)
+                    ({carbsCalories} cal)
                   </p>
                 </div>
               </div>
@@ -259,7 +254,7 @@ export default function FoodSelectionModal({
                     {calculatedNutrition.fat}g
                   </p>
                   <p className="text-muted-foreground text-[11px]">
-                    ({fatPercent}%)
+                    ({fatCalories} cal)
                   </p>
                 </div>
               </div>

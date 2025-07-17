@@ -96,25 +96,29 @@ export default function MealAccordion({
             } w-full`}
           >
             <span className="font-medium text-sm">{title}</span>
-            <div
-              className={`${
-                isMobile ? "flex gap-4 mt-1 items-center" : "flex-col items-end"
-              } text-sm text-muted-foreground`}
-            >
+            {foods.length > 0 && (
               <div
-                className={`flex gap-1 ${
-                  isMobile ? "text-[10px]" : "text-xs"
-                } ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                className={`${
+                  isMobile
+                    ? "flex gap-4 mt-1 items-center"
+                    : "flex-col items-end"
+                } text-sm text-muted-foreground`}
               >
-                <span>{Math.round(mealMacros.calories)} Kcal</span>
-                <span>•</span>
-                <span>P: {Math.round(mealMacros.protein)} g</span>
-                <span>•</span>
-                <span>C: {Math.round(mealMacros.carbs)} g</span>
-                <span>•</span>
-                <span>F: {Math.round(mealMacros.fat)} g</span>
+                <div
+                  className={`flex gap-1 ${
+                    isMobile ? "text-[10px]" : "text-xs"
+                  } ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                >
+                  <span>{Math.round(mealMacros.calories)} Kcal</span>
+                  <span>•</span>
+                  <span>P: {Math.round(mealMacros.protein)} g</span>
+                  <span>•</span>
+                  <span>C: {Math.round(mealMacros.carbs)} g</span>
+                  <span>•</span>
+                  <span>F: {Math.round(mealMacros.fat)} g</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           {isExpanded ? (
             <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 ml-4" />

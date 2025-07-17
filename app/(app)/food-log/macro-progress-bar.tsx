@@ -20,7 +20,9 @@ export default function MacroProgressBar({
   icon,
 }: MacroProgressBarProps) {
   const isMobile = useIsMobile();
-  const percentage = Math.min((current / target) * 100, 100);
+  const actualPercentage = (current / target) * 100;
+  const displayPercentage = Math.min(actualPercentage, 100);
+  const isOverTarget = actualPercentage > 100;
 
   return (
     <div
@@ -43,14 +45,20 @@ export default function MacroProgressBar({
           <span className="text-primary text-sm">
             {Math.round(current)}/{target} {unit}
           </span>
-          <div className="text-sm text-primary">{Math.round(percentage)}%</div>
+          <div
+            className={`text-sm ${
+              isOverTarget ? "text-red-500 font-medium" : "text-primary"
+            }`}
+          >
+            {Math.round(actualPercentage)}%
+          </div>
         </div>
         <div className="relative w-full rounded-full h-2.5 bg-secondary">
           <div
             className="h-2.5 transition-all duration-300 ease-in-out"
             style={{
-              width: `${percentage}%`,
-              backgroundColor: `${color}`,
+              width: `${displayPercentage}%`,
+              backgroundColor: color,
             }}
           />
         </div>

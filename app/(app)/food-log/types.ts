@@ -16,6 +16,10 @@ export interface FoodItem {
   protein: number;
   carbs: number;
   fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  cholesterol?: number;
   quantity: number;
   unit: string;
 }
@@ -28,6 +32,10 @@ export interface FoodSearchResult {
   protein: number;
   carbs: number;
   fat: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  cholesterol?: number;
   servingSize: string;
   servingUnit: string;
   isFavorite?: boolean;

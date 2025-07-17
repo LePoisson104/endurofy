@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Beef, Apple, Zap, Droplets, Flame } from "lucide-react";
+import {
+  CalendarIcon,
+  Beef,
+  Apple,
+  Zap,
+  Droplets,
+  Flame,
+  Wheat,
+  Candy,
+  Pill,
+  Heart,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,6 +35,7 @@ import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface MealData {
   uncategorized: FoodItem[];
@@ -42,6 +54,7 @@ interface MacroTargets {
 
 export default function FoodLogPage() {
   const isMobile = useIsMobile();
+  const isDark = useGetCurrentTheme();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
@@ -88,6 +101,30 @@ export default function FoodLogPage() {
   };
 
   const currentMacros = calculateCurrentMacros();
+
+  // Calculate additional nutrients
+  const calculateAdditionalNutrients = () => {
+    const allFoods = [
+      ...mealData.uncategorized,
+      ...mealData.breakfast,
+      ...mealData.lunch,
+      ...mealData.dinner,
+      ...mealData.snacks,
+    ];
+
+    return allFoods.reduce(
+      (totals, food) => ({
+        fiber: totals.fiber + (food.fiber || 0) * food.quantity,
+        sugar: totals.sugar + (food.sugar || 0) * food.quantity,
+        sodium: totals.sodium + (food.sodium || 0) * food.quantity,
+        cholesterol:
+          totals.cholesterol + (food.cholesterol || 0) * food.quantity,
+      }),
+      { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 }
+    );
+  };
+
+  const additionalNutrients = calculateAdditionalNutrients();
 
   const handleAddFood = (meal: keyof MealData, event?: React.MouseEvent) => {
     event?.stopPropagation(); // Prevent event bubbling to accordion toggle
@@ -298,25 +335,94 @@ export default function FoodLogPage() {
                     current={currentMacros.protein}
                     target={macroTargets.protein}
                     unit="g"
-                    color="oklch(70.4% 0.191 22.216)"
-                    icon={<Beef className="h-4 w-4 text-red-400" />}
+                    color="#34d399"
+                    icon={
+                      <Beef className="h-4 w-4" style={{ color: "#34d399" }} />
+                    }
                   />
                   <MacroProgressBar
                     label="Carbs"
                     current={currentMacros.carbs}
                     target={macroTargets.carbs}
                     unit="g"
-                    color="oklch(68.1% 0.162 75.834)"
-                    icon={<Zap className="h-4 w-4 text-yellow-600" />}
+                    color="#60a5fa"
+                    icon={
+                      <Zap className="h-4 w-4" style={{ color: "#60a5fa" }} />
+                    }
                   />
                   <MacroProgressBar
                     label="Fat"
                     current={currentMacros.fat}
                     target={macroTargets.fat}
                     unit="g"
-                    color="oklch(85.2% 0.199 91.936)"
-                    icon={<Droplets className="h-4 w-4 text-yellow-400" />}
+                    color="#f87171"
+                    icon={
+                      <Droplets
+                        className="h-4 w-4"
+                        style={{ color: "#f87171" }}
+                      />
+                    }
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Additional Nutrients */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Additional Nutrients</CardTitle>
+                <CardDescription>
+                  Track your fiber, sugar, sodium, and cholesterol intake
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Wheat className="h-4 w-4 text-amber-400" />
+                      <span className="font-medium text-sm">Fiber</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round(additionalNutrients.fiber)} g
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Candy className="h-4 w-4 text-rose-400" />
+                      <span className="font-medium text-sm">Sugar</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round(additionalNutrients.sugar)} g
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      {/* <Pill className="h-4 w-4 text-blue-500" /> */}
+                      <p
+                        className={`${
+                          isDark ? "text-gray-400" : "text-gray-600"
+                        } text-sm`}
+                      >
+                        Na
+                      </p>
+                      <span className="font-medium text-sm">Sodium</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round(additionalNutrients.sodium)} mg
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Heart className="h-4 w-4 text-red-400" />
+                      <span className="font-medium text-sm">Cholesterol</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round(additionalNutrients.cholesterol)} mg
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
