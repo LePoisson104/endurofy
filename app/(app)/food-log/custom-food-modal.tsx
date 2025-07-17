@@ -256,7 +256,12 @@ export default function CustomFoodModal({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="calories">Calories</Label>
+                  <Label htmlFor="calories">
+                    Calories{" "}
+                    <span className="text-xs text-muted-foreground">
+                      (kcal)
+                    </span>
+                  </Label>
                   <Input
                     id="calories"
                     type="number"
@@ -276,7 +281,10 @@ export default function CustomFoodModal({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="protein">Protein (g)</Label>
+                  <Label htmlFor="protein">
+                    Protein{" "}
+                    <span className="text-xs text-muted-foreground">(g)</span>
+                  </Label>
                   <Input
                     id="protein"
                     type="number"
@@ -296,7 +304,10 @@ export default function CustomFoodModal({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="carbs">Carbs (g)</Label>
+                  <Label htmlFor="carbs">
+                    Carbs{" "}
+                    <span className="text-xs text-muted-foreground">(g)</span>
+                  </Label>{" "}
                   <Input
                     id="carbs"
                     type="number"
@@ -316,7 +327,10 @@ export default function CustomFoodModal({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="fat">Fat (g)</Label>
+                  <Label htmlFor="fat">
+                    Fat{" "}
+                    <span className="text-xs text-muted-foreground">(g)</span>
+                  </Label>
                   <Input
                     id="fat"
                     type="number"
@@ -349,7 +363,10 @@ export default function CustomFoodModal({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fiber">Fiber (g)</Label>
+                  <Label htmlFor="fiber">
+                    Fiber{" "}
+                    <span className="text-xs text-muted-foreground">(g)</span>
+                  </Label>
                   <Input
                     id="fiber"
                     type="number"
@@ -365,7 +382,10 @@ export default function CustomFoodModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sugar">Sugar (g)</Label>
+                  <Label htmlFor="sugar">
+                    Sugar{" "}
+                    <span className="text-xs text-muted-foreground">(g)</span>
+                  </Label>
                   <Input
                     id="sugar"
                     type="number"
@@ -381,7 +401,10 @@ export default function CustomFoodModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sodium">Sodium (mg)</Label>
+                  <Label htmlFor="sodium">
+                    Sodium{" "}
+                    <span className="text-xs text-muted-foreground">(mg)</span>
+                  </Label>
                   <Input
                     id="sodium"
                     type="number"
@@ -394,7 +417,10 @@ export default function CustomFoodModal({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="cholesterol">Cholesterol (mg)</Label>
+                  <Label htmlFor="cholesterol">
+                    Cholesterol
+                    <span className="text-xs text-muted-foreground">(mg)</span>
+                  </Label>
                   <Input
                     id="cholesterol"
                     type="number"

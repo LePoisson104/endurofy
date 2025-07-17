@@ -208,7 +208,6 @@ export default function FoodSearchModal({
                 size="sm"
                 onClick={handleCreateCustomFood}
               >
-                <Plus className="h-4 w-4 mr-2" />
                 Create Custom Food
               </Button>
             </div>
@@ -281,7 +280,7 @@ export default function FoodSearchModal({
                         size="sm"
                         onClick={handleCreateCustomFood}
                       >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-4 w-4" />
                         Create Custom Food
                       </Button>
                     </div>
