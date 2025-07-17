@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { FoodSelectionModalProps, FoodItem, ServingUnit } from "./types";
 
 const servingUnits: ServingUnit[] = [
@@ -42,7 +42,7 @@ export default function FoodSelectionModal({
 }: FoodSelectionModalProps) {
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
-
+  const isMobile = useIsMobile();
   // Reset form when food changes
   useEffect(() => {
     if (food) {
@@ -161,7 +161,9 @@ export default function FoodSelectionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg bg-card">
+      <DialogContent
+        className={`bg-card ${isMobile ? "w-[95vw]" : "max-w-lg"}`}
+      >
         <DialogHeader className="relative border-b pb-4">
           <DialogTitle className="text-md">
             {food.brand ? `(${food.brand}) ` : ""}
@@ -172,7 +174,7 @@ export default function FoodSelectionModal({
         <div className="space-y-6 pt-4">
           {/* Nutrition Chart */}
           <div className="flex items-center justify-center space-y-4">
-            <div className="relative">
+            <div className="relative w-1/2 flex items-center justify-center">
               <svg
                 width="150"
                 height="150"
@@ -182,51 +184,84 @@ export default function FoodSelectionModal({
                 {/* Protein segment */}
                 <path
                   d={createPath(currentAngle, proteinAngle, 25, 40)}
-                  fill="#22d3ee"
+                  fill="#34d399"
                   className="transition-all duration-300"
                 />
                 {/* Carbs segment */}
                 <path
                   d={createPath(proteinAngle, carbsAngle, 25, 40)}
-                  fill="#fbbf24"
+                  fill="#60a5fa"
                   className="transition-all duration-300"
                 />
                 {/* Fat segment */}
                 <path
                   d={createPath(carbsAngle, fatAngle, 25, 40)}
-                  fill="#fb923c"
+                  fill="#f87171"
                   className="transition-all duration-300"
                 />
               </svg>
 
               {/* Center calories display */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xl font-bold text-white">
+                <span className="text-xl font-bold">
                   {calculatedNutrition.calories}
                 </span>
-                <span className="text-sm text-gray-400">kcal</span>
+                <span className="text-sm">kcal</span>
               </div>
             </div>
 
             {/* Nutrition Legend */}
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
-                <span className="text-white">
-                  Protein: {calculatedNutrition.protein} g ({proteinPercent}%)
-                </span>
+            <div className="space-y-2 text-sm w-1/2">
+              <div className="flex items-center gap-2 bg-muted/30 py-2 px-4 rounded-md justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: "#34d399" }}
+                  />
+                  <p className="text-foreground font-medium">Protein</p>
+                </div>
+                <div className="flex items-center flex-col gap-0.5">
+                  <p className="text-foreground font-semibold">
+                    {calculatedNutrition.protein}g
+                  </p>
+                  <p className="text-muted-foreground text-[11px]">
+                    ({proteinPercent}%)
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                <span className="text-white">
-                  Carbs: {calculatedNutrition.carbs} g ({carbsPercent}%)
-                </span>
+              <div className="flex items-center gap-2 bg-muted/30 py-2 px-4 rounded-md justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: "#60a5fa" }}
+                  />
+                  <p className="text-foreground font-medium">Carbs</p>
+                </div>
+                <div className="flex items-center flex-col gap-0.5">
+                  <p className="text-foreground font-semibold">
+                    {calculatedNutrition.carbs}g
+                  </p>
+                  <p className="text-muted-foreground text-[11px]">
+                    ({carbsPercent}%)
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-400"></div>
-                <span className="text-white">
-                  Fat: {calculatedNutrition.fat} g ({fatPercent}%)
-                </span>
+              <div className="flex items-center gap-2 bg-muted/30 py-2 px-4 rounded-md justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: "#f87171" }}
+                  />
+                  <p className="text-foreground font-medium">Fat</p>
+                </div>
+                <div className="flex items-center flex-col gap-0.5">
+                  <p className="text-foreground font-semibold">
+                    {calculatedNutrition.fat}g
+                  </p>
+                  <p className="text-muted-foreground text-[11px]">
+                    ({fatPercent}%)
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -234,7 +269,7 @@ export default function FoodSelectionModal({
           {/* Serving Size Section */}
           <div className="border-t pt-4 flex items-center justify-center">
             <div className="flex items-center gap-4">
-              <Label className="text-white font-medium">Serving size:</Label>
+              <Label className="font-medium">Serving size:</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
@@ -242,22 +277,18 @@ export default function FoodSelectionModal({
                   step="0.1"
                   value={servingSize}
                   onChange={(e) => setServingSize(e.target.value)}
-                  className="w-20 text-white"
+                  className="w-20"
                 />
                 <Select
                   value={selectedUnit}
                   onValueChange={(value: ServingUnit) => setSelectedUnit(value)}
                 >
-                  <SelectTrigger className="w-28 bg-slate-700 text-white">
+                  <SelectTrigger className="w-28">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="">
                     {servingUnits.map((unit) => (
-                      <SelectItem
-                        key={unit}
-                        value={unit}
-                        className="text-white "
-                      >
+                      <SelectItem key={unit} value={unit} className="">
                         {unit}
                       </SelectItem>
                     ))}
