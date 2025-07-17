@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -20,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MacrosPieChart } from "@/components/charts/macros-piechart";
+
 import type { FoodSelectionModalProps, FoodItem, ServingUnit } from "./types";
 
 const servingUnits: ServingUnit[] = [
@@ -72,66 +72,47 @@ export default function FoodSelectionModal({
   const fatCalories = Math.round(calculatedNutrition.fat * 9);
 
   const totalMacros = proteinCalories + carbsCalories + fatCalories;
-  const proteinPercent = Math.round((proteinCalories / totalMacros) * 100);
-  const carbsPercent = Math.round((carbsCalories / totalMacros) * 100);
-  const fatPercent = Math.round((fatCalories / totalMacros) * 100);
 
-  // Create SVG path for donut chart
-  const createPath = (
-    startAngle: number,
-    endAngle: number,
-    innerRadius: number,
-    outerRadius: number
-  ) => {
-    const start = polarToCartesian(50, 50, outerRadius, endAngle);
-    const end = polarToCartesian(50, 50, outerRadius, startAngle);
-    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  // Check if there's sufficient macro data
+  const hasInsufficientData =
+    totalMacros <= 0 ||
+    (calculatedNutrition.protein <= 0 &&
+      calculatedNutrition.carbs <= 0 &&
+      calculatedNutrition.fat <= 0);
 
-    return [
-      "M",
-      start.x,
-      start.y,
-      "A",
-      outerRadius,
-      outerRadius,
-      0,
-      largeArcFlag,
-      0,
-      end.x,
-      end.y,
-      "L",
-      polarToCartesian(50, 50, innerRadius, startAngle).x,
-      polarToCartesian(50, 50, innerRadius, startAngle).y,
-      "A",
-      innerRadius,
-      innerRadius,
-      0,
-      largeArcFlag,
-      1,
-      polarToCartesian(50, 50, innerRadius, endAngle).x,
-      polarToCartesian(50, 50, innerRadius, endAngle).y,
-      "Z",
-    ].join(" ");
-  };
+  // Prepare data for recharts PieChart
+  const chartData = hasInsufficientData
+    ? [{ name: "No Data", value: 100, calories: 0, color: "#e5e7eb" }]
+    : [
+        {
+          name: "Protein",
+          value: calculatedNutrition.protein,
+          calories: proteinCalories,
+          color: "#34d399",
+        },
+        {
+          name: "Carbs",
+          value: calculatedNutrition.carbs,
+          calories: carbsCalories,
+          color: "#60a5fa",
+        },
+        {
+          name: "Fat",
+          value: calculatedNutrition.fat,
+          calories: fatCalories,
+          color: "#f87171",
+        },
+      ].filter((item) => item.value > 0); // Only show segments with values > 0
 
-  const polarToCartesian = (
-    centerX: number,
-    centerY: number,
-    radius: number,
-    angleInDegrees: number
-  ) => {
-    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-    return {
-      x: centerX + radius * Math.cos(angleInRadians),
-      y: centerY + radius * Math.sin(angleInRadians),
-    };
-  };
-
-  // Calculate angles for each segment
-  let currentAngle = 0;
-  const proteinAngle = currentAngle + (proteinPercent / 100) * 360;
-  const carbsAngle = proteinAngle + (carbsPercent / 100) * 360;
-  const fatAngle = carbsAngle + (fatPercent / 100) * 360;
+  const proteinPercent = hasInsufficientData
+    ? 0
+    : Math.round((proteinCalories / totalMacros) * 100);
+  const carbsPercent = hasInsufficientData
+    ? 0
+    : Math.round((carbsCalories / totalMacros) * 100);
+  const fatPercent = hasInsufficientData
+    ? 0
+    : Math.round((fatCalories / totalMacros) * 100);
 
   const handleConfirm = () => {
     const foodItem: FoodItem = {
@@ -154,8 +135,14 @@ export default function FoodSelectionModal({
     onClose();
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
         className={`bg-card ${isMobile ? "w-[95vw]" : "max-w-lg"}`}
       >
@@ -166,48 +153,19 @@ export default function FoodSelectionModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 pt-4">
+        <div className="space-y-6 pt-4 ">
           {/* Nutrition Chart */}
           <div className="flex items-center justify-center space-y-4">
             <div className="relative w-1/2 flex items-center justify-center">
-              <svg
-                width="150"
-                height="150"
-                viewBox="0 0 100 100"
-                className="transform -rotate-90"
-              >
-                {/* Protein segment */}
-                <path
-                  d={createPath(currentAngle, proteinAngle, 25, 40)}
-                  fill="#34d399"
-                  className="transition-all duration-300"
-                />
-                {/* Carbs segment */}
-                <path
-                  d={createPath(proteinAngle, carbsAngle, 25, 40)}
-                  fill="#60a5fa"
-                  className="transition-all duration-300"
-                />
-                {/* Fat segment */}
-                <path
-                  d={createPath(carbsAngle, fatAngle, 25, 40)}
-                  fill="#f87171"
-                  className="transition-all duration-300"
-                />
-              </svg>
-
-              {/* Center calories display */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xl font-bold">
-                  {calculatedNutrition.calories}
-                </span>
-                <span className="text-sm">kcal</span>
-              </div>
+              <MacrosPieChart
+                data={chartData}
+                calories={calculatedNutrition.calories}
+              />
             </div>
 
             {/* Nutrition Legend */}
             <div className="space-y-2 text-sm w-1/2">
-              <div className="flex items-center gap-2 bg-muted/30 py-2 px-4 rounded-md justify-between w-full">
+              <div className="flex items-center gap-2 bg-muted/30 py-2 px-3 rounded-md justify-between w-full">
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
@@ -224,7 +182,7 @@ export default function FoodSelectionModal({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 bg-muted/30 py-2 px-4 rounded-md justify-between w-full">
+              <div className="flex items-center gap-2 bg-muted/30 py-2 px-3 rounded-md justify-between w-full">
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
@@ -241,7 +199,7 @@ export default function FoodSelectionModal({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 bg-muted/30 py-2 px-4 rounded-md justify-between w-full">
+              <div className="flex items-center gap-2 bg-muted/30 py-2 px-3 rounded-md justify-between w-full">
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
@@ -269,9 +227,13 @@ export default function FoodSelectionModal({
                 <Input
                   type="number"
                   min="0.1"
+                  max="10000"
                   step="0.1"
                   value={servingSize}
-                  onChange={(e) => setServingSize(e.target.value)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value) || 0;
+                    setServingSize(value > 10000 ? "10000" : e.target.value);
+                  }}
                   className="w-20"
                 />
                 <Select

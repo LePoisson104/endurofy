@@ -167,13 +167,19 @@ export default function FoodSearchModal({
     onClose();
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
+  };
+
   const handleCreateCustomFood = () => {
     setShowCustomFood(true);
   };
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           className={`max-w-2xl h-[80vh] overflow-hidden flex flex-col bg-card ${
             isMobile ? "w-[95vw]" : ""

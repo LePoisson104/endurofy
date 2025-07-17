@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import type {
   CustomFoodModalProps,
   AddCustomFoodPayload,
@@ -44,6 +44,7 @@ export default function CustomFoodModal({
   onClose,
   onFoodCreated,
 }: CustomFoodModalProps) {
+  const isMobile = useIsMobile();
   const [formData, setFormData] = useState<AddCustomFoodPayload>({
     foodName: "",
     foodBrand: "",
@@ -108,6 +109,10 @@ export default function CustomFoodModal({
       newErrors.servingSize = "Serving size must be greater than 0";
     }
 
+    if (formData.servingSize > 10000) {
+      newErrors.servingSize = "Serving size cannot exceed 10000";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -138,21 +143,28 @@ export default function CustomFoodModal({
     onClose();
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={`bg-card max-h-[90vh] overflow-y-auto ${
+          isMobile ? "max-w-[95vw] w-[95vw] px-1 py-6" : "max-w-2xl"
+        }`}
+      >
         <DialogHeader>
           <DialogTitle>Create Custom Food</DialogTitle>
-          <DialogDescription>
-            Add your own food item with complete nutritional information
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Basic Information</CardTitle>
+              <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,7 +184,12 @@ export default function CustomFoodModal({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="food-brand">Brand (Optional)</Label>
+                  <Label htmlFor="food-brand">
+                    Brand{" "}
+                    <span className="text-xs text-muted-foreground">
+                      (Optional)
+                    </span>
+                  </Label>
                   <Input
                     id="food-brand"
                     value={formData.foodBrand}
@@ -191,14 +208,16 @@ export default function CustomFoodModal({
                     id="serving-size"
                     type="number"
                     min="0.1"
+                    max="10000"
                     step="0.1"
                     value={formData.servingSize}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value) || 0;
                       handleInputChange(
                         "servingSize",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
+                        value > 10000 ? 10000 : value
+                      );
+                    }}
                     className={errors.servingSize ? "border-red-500" : ""}
                   />
                   {errors.servingSize && (
@@ -206,7 +225,7 @@ export default function CustomFoodModal({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="serving-unit">Serving Unit</Label>
+                  <Label htmlFor="serving-unit">Serving Unit *</Label>
                   <Select
                     value={formData.servingUnit}
                     onValueChange={(value: ServingUnit) =>
@@ -232,7 +251,7 @@ export default function CustomFoodModal({
           {/* Macronutrients */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Macronutrients</CardTitle>
+              <CardTitle>Macronutrients</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -320,8 +339,11 @@ export default function CustomFoodModal({
           {/* Additional Nutrients */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                Additional Nutrients (Optional)
+              <CardTitle>
+                Additional Nutrients{" "}
+                <span className="text-sm text-muted-foreground">
+                  (Optional)
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -390,57 +412,14 @@ export default function CustomFoodModal({
               </div>
             </CardContent>
           </Card>
-
-          {/* Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm space-y-2">
-                <p>
-                  <strong>{formData.foodName || "Untitled Food"}</strong>
-                </p>
-                {formData.foodBrand && (
-                  <p className="text-muted-foreground">{formData.foodBrand}</p>
-                )}
-                <p className="text-muted-foreground">
-                  Per {formData.servingSize} {formData.servingUnit}
-                </p>
-                <Separator />
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  <div>
-                    <div className="font-medium">{formData.calories}</div>
-                    <div className="text-muted-foreground text-xs">cal</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">{formData.protein}g</div>
-                    <div className="text-muted-foreground text-xs">protein</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">{formData.carbs}g</div>
-                    <div className="text-muted-foreground text-xs">carbs</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">{formData.fat}g</div>
-                    <div className="text-muted-foreground text-xs">fat</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={handleClose}>
-            <X className="h-4 w-4 mr-2" />
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Food
-          </Button>
+          <Button onClick={handleSubmit}>Create Food</Button>
         </div>
       </DialogContent>
     </Dialog>
