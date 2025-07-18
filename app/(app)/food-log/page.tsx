@@ -11,8 +11,12 @@ import {
   Flame,
   Wheat,
   Candy,
-  Pill,
   Heart,
+  EllipsisVertical,
+  CheckCircle,
+  Trash2,
+  Copy,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +27,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { FoodSearchModal, WeekSelector, type FoodItem } from "./";
 import FoodCalendar from "./food-calendar";
@@ -36,6 +54,7 @@ import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import WaterIntake from "./water-intake";
 
 interface MealData {
   uncategorized: FoodItem[];
@@ -62,6 +81,9 @@ export default function FoodLogPage() {
   const [expandedMeals, setExpandedMeals] = useState<Set<keyof MealData>>(
     new Set()
   );
+  const [isLogCompleted, setIsLogCompleted] = useState(false);
+  const [copiedMealData, setCopiedMealData] = useState<MealData | null>(null);
+  const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
 
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
@@ -152,9 +174,15 @@ export default function FoodLogPage() {
 
   const handleCalendarDateSelect = (date: Date) => {
     setSelectedDate(date);
+    setIsLogCompleted(false); // Reset completion status when changing dates
     if (isMobile) {
       setIsCalendarModalOpen(false);
     }
+  };
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    setIsLogCompleted(false); // Reset completion status when changing dates
   };
 
   const handleEditFood = (mealType: keyof MealData, foodId: string) => {
@@ -172,6 +200,53 @@ export default function FoodLogPage() {
   const handleFavoriteFood = (mealType: keyof MealData, foodId: string) => {
     // TODO: Implement favorite functionality
     console.log("Favorite food:", { mealType, foodId });
+  };
+
+  // Dropdown menu handlers
+  const handleMarkDayComplete = () => {
+    setIsLogCompleted(!isLogCompleted);
+    // TODO: Add any backend logic for marking day complete
+    console.log("Day completion status:", !isLogCompleted);
+  };
+
+  const handleClearAll = () => {
+    const confirmClear = window.confirm(
+      "Are you sure you want to clear all meals for this day?"
+    );
+    if (confirmClear) {
+      setMealData({
+        uncategorized: [],
+        breakfast: [],
+        lunch: [],
+        dinner: [],
+        snacks: [],
+      });
+      console.log("All meals cleared");
+    }
+  };
+
+  const handleCopyDay = () => {
+    setCopiedMealData(mealData);
+    // TODO: Could also copy to clipboard as JSON if needed
+    console.log("Day copied to memory");
+    // Optional: Show a toast notification
+  };
+
+  const handleCopyFromPreviousDay = () => {
+    // TODO: Replace with actual logic to fetch previous day's data
+    if (copiedMealData) {
+      setMealData(copiedMealData);
+      console.log("Copied meals from memory");
+    } else {
+      // Mock implementation - you would fetch from backend
+      console.log(
+        "No copied data available. In real app, would fetch from previous day"
+      );
+      // For now, show an alert
+      alert(
+        "No copied day data available. Use 'Copy Day' first or implement backend integration."
+      );
+    }
   };
 
   const getMealCalories = (meal: FoodItem[]) => {
@@ -234,7 +309,7 @@ export default function FoodLogPage() {
         <div className="pt-4">
           <WeekSelector
             selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
+            onSelectDate={handleDateChange}
           />
         </div>
       )}
@@ -245,11 +320,47 @@ export default function FoodLogPage() {
           <div className="lg:col-span-3 space-y-6">
             {/* Meals */}
             <Card>
-              <CardHeader>
-                <CardTitle>Meals</CardTitle>
-                <CardDescription>
-                  Add and track your daily meals
-                </CardDescription>
+              <CardHeader className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Meals</CardTitle>
+                  <CardDescription>
+                    Add and track your daily meals
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <EllipsisVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={handleMarkDayComplete}>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {isLogCompleted
+                          ? "Mark Day Incomplete"
+                          : "Mark Day Complete"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleCopyDay}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy Day
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleCopyFromPreviousDay}>
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Copy from Previous Day
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleClearAll}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-0">
@@ -308,6 +419,79 @@ export default function FoodLogPage() {
                     onRemoveFood={handleRemoveFood}
                     onFavoriteFood={handleFavoriteFood}
                   />
+
+                  {/* Water Intake Accordion - Mobile Only */}
+                  {isMobile && (
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem
+                        value="water-intake"
+                        className="border-none"
+                      >
+                        <AccordionTrigger className="px-0 py-4 hover:no-underline">
+                          <div className="flex items-center justify-between w-full pr-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-blue-100 rounded-lg">
+                                <Droplets className="h-5 w-5 text-blue-600" />
+                              </div>
+                              <div className="text-left">
+                                <h3 className="font-semibold">Water Intake</h3>
+                                <p className="text-sm text-gray-500">
+                                  0ml / 2500ml today
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-bold text-blue-600">
+                                0%
+                              </div>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-0 pb-4">
+                          <div className="space-y-4">
+                            {/* Progress Bar */}
+                            <div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm font-medium">
+                                  Daily Goal
+                                </span>
+                                <span className="text-sm font-semibold">
+                                  0%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div
+                                  className="h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500 ease-out"
+                                  style={{ width: `0%` }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Add Water Button */}
+                            <Dialog
+                              open={isWaterModalOpen}
+                              onOpenChange={setIsWaterModalOpen}
+                            >
+                              <DialogTrigger asChild>
+                                <Button className="w-full" size="lg">
+                                  <Droplets className="h-4 w-4 mr-2" />
+                                  Add Water Intake
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-[95vw] w-[95vw] max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    Water Intake Tracker
+                                  </DialogTitle>
+                                </DialogHeader>
+                                <WaterIntake />
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -434,10 +618,17 @@ export default function FoodLogPage() {
               <CardContent>
                 <FoodCalendar
                   selectedDate={selectedDate}
-                  onSelectDate={setSelectedDate}
+                  onSelectDate={handleDateChange}
                 />
               </CardContent>
             </Card>
+
+            {/* Water Intake - Desktop Only (Mobile is in Meals section) */}
+            {!isMobile && (
+              <div className="bg-card rounded-xl shadow-sm p-6">
+                <WaterIntake />
+              </div>
+            )}
           </div>
         </div>
       </main>
