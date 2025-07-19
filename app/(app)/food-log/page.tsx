@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import {
   CalendarIcon,
   Beef,
-  Apple,
   Zap,
   Droplets,
   Flame,
@@ -430,9 +429,6 @@ export default function FoodLogPage() {
                         <AccordionTrigger className="px-0 py-4 hover:no-underline">
                           <div className="flex items-center justify-between w-full pr-4">
                             <div className="flex items-center space-x-3">
-                              <div className="p-2 bg-blue-100 rounded-lg">
-                                <Droplets className="h-5 w-5 text-blue-600" />
-                              </div>
                               <div className="text-left">
                                 <h3 className="font-semibold">Water Intake</h3>
                                 <p className="text-sm text-gray-500">
@@ -440,11 +436,7 @@ export default function FoodLogPage() {
                                 </p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold text-blue-600">
-                                0%
-                              </div>
-                            </div>
+                            <div className="text-right"></div>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-0 pb-4">
@@ -478,7 +470,7 @@ export default function FoodLogPage() {
                                   Add Water Intake
                                 </Button>
                               </DialogTrigger>
-                              <DialogContent className="max-w-[95vw] w-[95vw] max-h-[90vh] overflow-y-auto">
+                              <DialogContent className="max-w-[95vw] w-[95vw] max-h-[90vh] overflow-y-auto bg-card">
                                 <DialogHeader>
                                   <DialogTitle>
                                     Water Intake Tracker

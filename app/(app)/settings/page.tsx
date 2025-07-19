@@ -6,6 +6,7 @@ import { AccountSettings } from "./account-settings";
 import { NotificationSettings } from "./notification-settings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PrivacySettings from "./privacy-settings";
+import Targets from "./targets";
 
 export default function SettingsPage() {
   // const router = useRouter();
@@ -28,6 +29,9 @@ export default function SettingsPage() {
             <TabsTrigger value="account" className={isMobile ? "py-2" : ""}>
               Account
             </TabsTrigger>
+            <TabsTrigger value="targets" className={isMobile ? "py-2" : ""}>
+              Targets
+            </TabsTrigger>
             <TabsTrigger
               value="notifications"
               className={isMobile ? "py-2" : ""}
@@ -42,6 +46,10 @@ export default function SettingsPage() {
 
         <TabsContent value="account" className="space-y-6">
           <AccountSettings />
+        </TabsContent>
+
+        <TabsContent value="targets" className="space-y-6">
+          <Targets />
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">

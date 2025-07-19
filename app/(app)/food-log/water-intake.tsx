@@ -123,34 +123,34 @@ export default function WaterIntake({
       {/* Quick Add Buttons */}
       <div className="space-y-3">
         <div className="grid grid-cols-3 gap-2">
-          <button
+          <Button
             onClick={() => addWater(250)}
-            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 h-full"
           >
             <Droplets className="h-5 w-5 text-blue-600 mb-1" />
             <span className="text-xs font-medium text-blue-700">+250ml</span>
             <span className="text-xs text-blue-500">1 cup</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => addWater(500)}
-            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 h-full"
           >
             <Droplets className="h-5 w-5 text-blue-600 mb-1" />
             <span className="text-xs font-medium text-blue-700">+500ml</span>
             <span className="text-xs text-blue-500">2 cups</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => addWater(750)}
-            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 h-full"
           >
             <Droplets className="h-5 w-5 text-blue-600 mb-1" />
             <span className="text-xs font-medium text-blue-700">+750ml</span>
             <span className="text-xs text-blue-500">3 cups</span>
-          </button>
+          </Button>
         </div>
 
         {/* Custom Amount Controls */}
-        <div className="flex items-center justify-between p-3 rounded-lg gap-3 bg-foreground/5">
+        <div className="flex items-center justify-between p-3 rounded-lg gap-3 bg-foreground/5 mt-5">
           <Button
             variant="outline"
             onClick={() => removeWater(customAmount)}
@@ -181,35 +181,6 @@ export default function WaterIntake({
           </Button>
         </div>
       </div>
-
-      {/* Water Tips */}
-      {waterIntake >= dailyGoal && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm font-medium text-green-800">
-              Goal achieved!
-            </span>
-          </div>
-          <p className="text-xs text-green-600 mt-1">
-            Great job staying hydrated today!
-          </p>
-        </div>
-      )}
-
-      {waterIntake < dailyGoal * 0.5 && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-            <span className="text-sm font-medium text-amber-800">
-              Stay hydrated
-            </span>
-          </div>
-          <p className="text-xs text-amber-600 mt-1">
-            You're halfway to your daily water goal!
-          </p>
-        </div>
-      )}
     </div>
   );
 }
