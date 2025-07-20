@@ -504,7 +504,7 @@ export default function FoodLogPage() {
                     target={macroTargets.calories}
                     unit="kcal"
                     color="oklch(63.7% 0.237 25.331)"
-                    icon={<Flame className="h-4 w-4 text-red-500" />}
+                    icon={<Flame className="h-4 w-4 text-red-400" />}
                   />
                   <MacroProgressBar
                     label="Protein"
@@ -512,9 +512,7 @@ export default function FoodLogPage() {
                     target={macroTargets.protein}
                     unit="g"
                     color="#34d399"
-                    icon={
-                      <Beef className="h-4 w-4" style={{ color: "#34d399" }} />
-                    }
+                    icon={<Beef className="h-4 w-4 text-green-400" />}
                   />
                   <MacroProgressBar
                     label="Carbs"
@@ -522,9 +520,7 @@ export default function FoodLogPage() {
                     target={macroTargets.carbs}
                     unit="g"
                     color="#60a5fa"
-                    icon={
-                      <Zap className="h-4 w-4" style={{ color: "#60a5fa" }} />
-                    }
+                    icon={<Zap className="h-4 w-4 text-blue-400" />}
                   />
                   <MacroProgressBar
                     label="Fat"
@@ -532,12 +528,7 @@ export default function FoodLogPage() {
                     target={macroTargets.fat}
                     unit="g"
                     color="#f87171"
-                    icon={
-                      <Droplets
-                        className="h-4 w-4"
-                        style={{ color: "#f87171" }}
-                      />
-                    }
+                    icon={<Droplets className="h-4 w-4 text-red-400" />}
                   />
                 </div>
               </CardContent>

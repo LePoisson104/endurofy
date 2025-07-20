@@ -48,8 +48,8 @@ export default function WaterIntake({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Droplets className="h-5 w-5 text-blue-600" />
+          <div className="p-3 bg-foreground/5 rounded-lg">
+            <Droplets className="h-5 w-5 text-blue-400" />
           </div>
           <div>
             <h3 className="font-semibold">Water Intake</h3>
@@ -125,27 +125,27 @@ export default function WaterIntake({
         <div className="grid grid-cols-3 gap-2">
           <Button
             onClick={() => addWater(250)}
-            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 h-full"
+            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
           >
-            <Droplets className="h-5 w-5 text-blue-600 mb-1" />
-            <span className="text-xs font-medium text-blue-700">+250ml</span>
-            <span className="text-xs text-blue-500">1 cup</span>
+            <Droplets className="h-5 w-5 text-blue-400 mb-1" />
+            <span className="text-xs font-medium text-blue-400">+250ml</span>
+            <span className="text-xs text-blue-400">1 cup</span>
           </Button>
           <Button
             onClick={() => addWater(500)}
-            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 h-full"
+            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
           >
-            <Droplets className="h-5 w-5 text-blue-600 mb-1" />
-            <span className="text-xs font-medium text-blue-700">+500ml</span>
-            <span className="text-xs text-blue-500">2 cups</span>
+            <Droplets className="h-5 w-5 text-blue-400 mb-1" />
+            <span className="text-xs font-medium text-blue-400">+500ml</span>
+            <span className="text-xs text-blue-400">2 cups</span>
           </Button>
           <Button
             onClick={() => addWater(750)}
-            className="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 h-full"
+            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
           >
-            <Droplets className="h-5 w-5 text-blue-600 mb-1" />
-            <span className="text-xs font-medium text-blue-700">+750ml</span>
-            <span className="text-xs text-blue-500">3 cups</span>
+            <Droplets className="h-5 w-5 text-blue-400 mb-1" />
+            <span className="text-xs font-medium text-blue-400">+750ml</span>
+            <span className="text-xs text-blue-400">3 cups</span>
           </Button>
         </div>
 
