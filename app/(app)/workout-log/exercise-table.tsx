@@ -433,7 +433,7 @@ export default function ExerciseTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 hover:bg-destructive"
+                        className="h-8 w-8 "
                         disabled={deletingSetId === setData.workoutSetId}
                         onClick={() =>
                           handleDeleteSet(
