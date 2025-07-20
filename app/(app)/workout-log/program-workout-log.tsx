@@ -403,7 +403,7 @@ export function ProgramWorkoutLog({
                         {exercise.maxReps} reps
                       </div>
                     </div>
-                    {isEditing && (
+                    {isEditing && hasLoggedSets(exercise.exerciseId) && (
                       <Button
                         variant="ghost"
                         size="sm"
