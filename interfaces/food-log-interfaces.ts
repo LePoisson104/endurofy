@@ -25,21 +25,26 @@ export interface FoodItem {
 }
 
 export interface FoodSearchResult {
-  id: string;
-  name: string;
-  brand?: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber?: number;
-  sugar?: number;
-  sodium?: number;
-  cholesterol?: number;
-  servingSize: string;
-  servingUnit: string;
-  isFavorite?: boolean;
-  isCustom?: boolean;
+  fdcId: string;
+  brandOwner: string;
+  description: string;
+  foodCategory: string;
+  ingredients: string;
+  servingSize: number;
+  servingSizeUnit: string;
+  nutritions: FoodNutrient[];
+}
+
+export interface FoodNutrient {
+  foodNutrientId: number;
+  indentLevel?: number;
+  rank?: number;
+  nutrientId: number;
+  nutrientLevel: number;
+  nutrientName: string;
+  nutrientNumber: number;
+  unitName: string;
+  value: number;
 }
 
 export interface AddCustomFoodPayload {

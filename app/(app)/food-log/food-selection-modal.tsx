@@ -20,7 +20,13 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MacrosPieChart } from "@/components/charts/macros-piechart";
 
-import type { FoodSelectionModalProps, FoodItem, ServingUnit } from "./types";
+import type {
+  FoodSelectionModalProps,
+  FoodItem,
+  ServingUnit,
+  FoodSearchResult,
+  FoodNutrient,
+} from "../../../interfaces/food-log-interfaces";
 
 const servingUnits: ServingUnit[] = [
   "g",
@@ -34,6 +40,48 @@ const servingUnits: ServingUnit[] = [
   "serving",
 ];
 
+// Helper function to extract nutritional values from nutritions array
+const getNutrientValue = (
+  nutritions: FoodNutrient[] | undefined,
+  nutrientNumbers: number[]
+): number => {
+  if (!nutritions || !Array.isArray(nutritions)) {
+    return 0;
+  }
+  const nutrient = nutritions.find((n) =>
+    nutrientNumbers.includes(n.nutrientNumber)
+  );
+  return nutrient ? nutrient.value : 0;
+};
+
+// Helper function to get nutrition data from food
+const getNutritionData = (food: FoodSearchResult) => {
+  // Fallback to direct properties if nutritions array is not available
+  if (!food.nutritions || !Array.isArray(food.nutritions)) {
+    return {
+      calories: (food as any).calories || 0,
+      protein: (food as any).protein || 0,
+      carbs: (food as any).carbs || 0,
+      fat: (food as any).fat || 0,
+      fiber: (food as any).fiber || 0,
+      sugar: (food as any).sugar || 0,
+      sodium: (food as any).sodium || 0,
+      cholesterol: (food as any).cholesterol || 0,
+    };
+  }
+
+  return {
+    calories: getNutrientValue(food.nutritions, [1008]), // Energy
+    protein: getNutrientValue(food.nutritions, [1003]), // Protein
+    carbs: getNutrientValue(food.nutritions, [1005]), // Carbohydrate, by difference
+    fat: getNutrientValue(food.nutritions, [1004]), // Total lipid (fat)
+    fiber: getNutrientValue(food.nutritions, [1079]), // Fiber, total dietary
+    sugar: getNutrientValue(food.nutritions, [2000]), // Total sugars
+    sodium: getNutrientValue(food.nutritions, [1093]), // Sodium
+    cholesterol: getNutrientValue(food.nutritions, [1006]), // Cholesterol
+  };
+};
+
 export default function FoodSelectionModal({
   isOpen,
   onClose,
@@ -43,27 +91,42 @@ export default function FoodSelectionModal({
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
   const isMobile = useIsMobile();
+
   // Reset form when food changes
   useEffect(() => {
     if (food) {
-      setServingSize(food.servingSize);
-      setSelectedUnit(food.servingUnit as ServingUnit);
+      // Set default serving size and unit from food data
+      const defaultServingSize =
+        food.servingSize?.toString() ||
+        (food as any).servingSize?.toString() ||
+        "100";
+      const defaultUnit =
+        (food.servingSizeUnit as ServingUnit) ||
+        (food as any).servingUnit ||
+        "g";
+
+      setServingSize(defaultServingSize);
+      setSelectedUnit(defaultUnit);
     }
   }, [food]);
 
   if (!food) return null;
 
+  // Get nutrition data from the nutritions array
+  const nutritionData = getNutritionData(food);
+
   const servingSizeNum = parseFloat(servingSize) || 1;
-  const originalServingSize = parseFloat(food.servingSize) || 1;
+  const originalServingSize =
+    food.servingSize || (food as any).servingSize || 100;
 
   // Calculate multiplier based on serving size ratio
   const multiplier = servingSizeNum / originalServingSize;
 
   const calculatedNutrition = {
-    calories: Math.round(food.calories * multiplier),
-    protein: Math.round(food.protein * multiplier * 10) / 10,
-    carbs: Math.round(food.carbs * multiplier * 10) / 10,
-    fat: Math.round(food.fat * multiplier * 10) / 10,
+    calories: Math.round(nutritionData.calories * multiplier),
+    protein: Math.round(nutritionData.protein * multiplier * 10) / 10,
+    carbs: Math.round(nutritionData.carbs * multiplier * 10) / 10,
+    fat: Math.round(nutritionData.fat * multiplier * 10) / 10,
   };
 
   // Calculate percentages for the chart and calories from each macro
@@ -116,12 +179,16 @@ export default function FoodSelectionModal({
 
   const handleConfirm = () => {
     const foodItem: FoodItem = {
-      id: `${food.id}-${Date.now()}`,
-      name: food.name,
+      id: `${food.fdcId}-${Date.now()}`,
+      name: food.description,
       calories: calculatedNutrition.calories,
       protein: calculatedNutrition.protein,
       carbs: calculatedNutrition.carbs,
       fat: calculatedNutrition.fat,
+      fiber: Math.round(nutritionData.fiber * multiplier * 10) / 10,
+      sugar: Math.round(nutritionData.sugar * multiplier * 10) / 10,
+      sodium: Math.round(nutritionData.sodium * multiplier * 10) / 10,
+      cholesterol: Math.round(nutritionData.cholesterol * multiplier * 10) / 10,
       quantity: servingSizeNum,
       unit: selectedUnit,
     };
@@ -148,12 +215,22 @@ export default function FoodSelectionModal({
       >
         <DialogHeader className="relative border-b pb-4">
           <DialogTitle className="text-md">
-            {food.brand ? `(${food.brand}) ` : ""}
-            {food.name}
+            {food.description
+              .split(" ")
+              .map(
+                (word) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+              )
+              .join(" ")}
           </DialogTitle>
+          {food.brandOwner && (
+            <span className="text-sm text-muted-foreground">
+              ({food.brandOwner})
+            </span>
+          )}
         </DialogHeader>
 
-        <div className="space-y-6 pt-4 ">
+        <div className="space-y-6 pt-4">
           {/* Nutrition Chart */}
           <div className="flex items-center justify-center space-y-4">
             <div className="relative w-1/2 flex items-center justify-center">

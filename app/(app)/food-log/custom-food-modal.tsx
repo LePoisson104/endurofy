@@ -25,7 +25,7 @@ import type {
   CustomFoodModalProps,
   AddCustomFoodPayload,
   ServingUnit,
-} from "./types";
+} from "../../../interfaces/food-log-interfaces";
 
 const servingUnits: ServingUnit[] = [
   "g",

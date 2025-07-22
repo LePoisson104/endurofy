@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import PageTitle from "@/components/global/page-title";
 import { useState } from "react";
-import { Beef, Zap, Droplets } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Targets() {
@@ -166,14 +166,14 @@ export default function Targets() {
                   </div>
                 </div>
               </div>
-              <input
-                type="range"
-                value={proteinPercent}
-                onChange={(e) => setProteinPercent(parseInt(e.target.value))}
+              <Slider
+                value={[proteinPercent]}
+                onValueChange={(value) => setProteinPercent(value[0] as number)}
                 max={100}
                 min={5}
                 step={1}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                bgColor="bg-green-400"
+                ringColor="ring-green-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>5%</span>
@@ -198,14 +198,14 @@ export default function Targets() {
                   </div>
                 </div>
               </div>
-              <input
-                type="range"
-                value={carbsPercent}
-                onChange={(e) => setCarbsPercent(parseInt(e.target.value))}
+              <Slider
+                value={[carbsPercent]}
+                onValueChange={(value) => setCarbsPercent(value[0] as number)}
                 max={100}
                 min={5}
                 step={1}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                bgColor="bg-blue-400"
+                ringColor="ring-blue-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>5%</span>
@@ -230,14 +230,14 @@ export default function Targets() {
                   </div>
                 </div>
               </div>
-              <input
-                type="range"
-                value={fatPercent}
-                onChange={(e) => setFatPercent(parseInt(e.target.value))}
+              <Slider
+                value={[fatPercent]}
+                onValueChange={(value) => setFatPercent(value[0] as number)}
                 max={100}
                 min={5}
                 step={1}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                bgColor="bg-red-400"
+                ringColor="ring-red-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>5%</span>

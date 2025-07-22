@@ -6,4 +6,4 @@ export { default as FoodCard } from "./food-card";
 export { default as WeekSelector } from "./week-selector";
 
 // Types
-export * from "./types";
+export * from "../../../interfaces/food-log-interfaces";

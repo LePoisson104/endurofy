@@ -17,7 +17,7 @@ import type {
   FoodSearchResult,
   FoodItem,
   AddCustomFoodPayload,
-} from "./types";
+} from "../../../interfaces/food-log-interfaces";
 import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
 import CustomFoodModal from "./custom-food-modal";
@@ -42,7 +42,7 @@ export default function FoodSearchModal({
   const { data: searchResults, isLoading } = useSearchFoodQuery({
     searchItem: searchQuery,
   });
-  console.log(searchResults);
+
   // const filteredFoods = searchResults?.data?.filter(
   //   (food: FoodSearchResult) => {
   //     const matchesSearch =
@@ -60,9 +60,8 @@ export default function FoodSearchModal({
   //   }
   // );
 
-  console.log(searchResults);
-
   const handleFoodSelect = (food: FoodSearchResult) => {
+    console.log(food);
     setSelectedFood(food);
     setShowFoodSelection(true);
   };
@@ -74,27 +73,7 @@ export default function FoodSearchModal({
     onClose();
   };
 
-  const handleCustomFoodCreated = (customFood: AddCustomFoodPayload) => {
-    // Convert custom food to FoodSearchResult and add to database
-    const newFood: FoodSearchResult = {
-      id: `custom-${Date.now()}`,
-      name: customFood.foodName,
-      brand: customFood.foodBrand,
-      calories: customFood.calories,
-      protein: customFood.protein,
-      carbs: customFood.carbs,
-      fat: customFood.fat,
-      servingSize: customFood.servingSize.toString(),
-      servingUnit: customFood.servingUnit,
-      isCustom: true,
-      isFavorite: false,
-    };
-
-    // Automatically select and add the newly created food
-    setSelectedFood(newFood);
-    setShowCustomFood(false);
-    setShowFoodSelection(true);
-  };
+  const handleCustomFoodCreated = (customFood: AddCustomFoodPayload) => {};
 
   const toggleFavorite = (foodId: string) => {
     // In a real app, this would update the backend
@@ -172,22 +151,22 @@ export default function FoodSearchModal({
 
               <TabsContent value="all" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto thin-scrollbar">
-                  {/* {filteredFoods.length === 0 ? (
+                  {searchResults?.data?.foods?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      {searchQuery
-                        ? "No foods found"
-                        : "Start typing to search for foods"}
+                      No foods found
                     </div>
                   ) : (
-                    filteredFoods.map((food: FoodSearchResult) => (
-                      <FoodCard
-                        key={food.id}
-                        food={food}
-                        onSelect={handleFoodSelect}
-                        onToggleFavorite={toggleFavorite}
-                      />
-                    ))
-                  )} */}
+                    searchResults?.data?.foods?.map(
+                      (food: FoodSearchResult) => (
+                        <FoodCard
+                          key={food.fdcId}
+                          food={food}
+                          onSelect={handleFoodSelect}
+                          onToggleFavorite={toggleFavorite}
+                        />
+                      )
+                    )
+                  )}
                 </div>
               </TabsContent>
 

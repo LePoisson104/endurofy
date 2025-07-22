@@ -3,7 +3,7 @@
 import { Star, StarOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { FoodSearchResult } from "./types";
+import type { FoodSearchResult } from "../../../interfaces/food-log-interfaces";
 
 interface FoodCardProps {
   food: FoodSearchResult;
@@ -18,17 +18,24 @@ export default function FoodCard({
   onSelect,
   onToggleFavorite,
 }: FoodCardProps) {
+  console.log(food);
   return (
     <div
       className={`p-3 border-b rounded-none cursor-pointer transition-colors hover:bg-accent`}
       onClick={() => onSelect(food)}
     >
       <div className="flex justify-between items-center">
-        <div className="flex-1">
-          <h4 className="font-medium text-sm">{food.name}</h4>
-          {food.brand && (
-            <p className="text-xs text-muted-foreground">{food.brand}</p>
-          )}
+        <div className="flex-1 mr-4">
+          <h4 className="font-medium text-sm">
+            {food.description
+              .split(" ")
+              .map(
+                (word) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+              )
+              .join(" ")}
+          </h4>
+          <p className="text-xs text-muted-foreground">{food.brandOwner}</p>
         </div>
         <p className="text-xs text-muted-foreground">USDA</p>
       </div>
