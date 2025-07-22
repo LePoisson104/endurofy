@@ -22,6 +22,7 @@ import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
 import CustomFoodModal from "./custom-food-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSearchFoodQuery } from "@/api/food/food-api-slice";
 
 export default function FoodSearchModal({
   isOpen,
@@ -38,85 +39,28 @@ export default function FoodSearchModal({
   const [showCustomFood, setShowCustomFood] = useState(false);
   const isMobile = useIsMobile();
 
-  // Mock food database - replace with actual API calls
-  const mockFoods: FoodSearchResult[] = [
-    {
-      id: "1",
-      name: "Chicken Breast",
-      brand: "Generic",
-      calories: 165,
-      protein: 31,
-      carbs: 0,
-      fat: 3.6,
-      servingSize: "100",
-      servingUnit: "g",
-      isFavorite: true,
-    },
-    {
-      id: "2",
-      name: "Brown Rice",
-      brand: "Generic",
-      calories: 111,
-      protein: 2.6,
-      carbs: 23,
-      fat: 0.9,
-      servingSize: "100",
-      servingUnit: "g",
-      isFavorite: false,
-    },
-    {
-      id: "3",
-      name: "Banana",
-      brand: "Fresh",
-      calories: 89,
-      protein: 1.1,
-      carbs: 23,
-      fat: 0.3,
-      servingSize: "1",
-      servingUnit: "piece",
-      isFavorite: true,
-    },
-    {
-      id: "4",
-      name: "Greek Yogurt",
-      brand: "Chobani",
-      calories: 100,
-      protein: 17,
-      carbs: 6,
-      fat: 0,
-      servingSize: "170",
-      servingUnit: "g",
-      isFavorite: false,
-    },
-    {
-      id: "5",
-      name: "My Protein Shake",
-      brand: "Custom",
-      calories: 250,
-      protein: 30,
-      carbs: 15,
-      fat: 5,
-      servingSize: "1",
-      servingUnit: "serving",
-      isCustom: true,
-      isFavorite: true,
-    },
-  ];
-
-  const filteredFoods = mockFoods.filter((food) => {
-    const matchesSearch =
-      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (food.brand &&
-        food.brand.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    if (activeTab === "favorites") {
-      return matchesSearch && food.isFavorite;
-    }
-    if (activeTab === "custom") {
-      return matchesSearch && food.isCustom;
-    }
-    return matchesSearch;
+  const { data: searchResults, isLoading } = useSearchFoodQuery({
+    searchItem: searchQuery,
   });
+  console.log(searchResults);
+  // const filteredFoods = searchResults?.data?.filter(
+  //   (food: FoodSearchResult) => {
+  //     const matchesSearch =
+  //       food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //       (food.brand &&
+  //         food.brand.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  //     if (activeTab === "favorites") {
+  //       return matchesSearch && food.isFavorite;
+  //     }
+  //     if (activeTab === "custom") {
+  //       return matchesSearch && food.isCustom;
+  //     }
+  //     return [];
+  //   }
+  // );
+
+  console.log(searchResults);
 
   const handleFoodSelect = (food: FoodSearchResult) => {
     setSelectedFood(food);
@@ -145,9 +89,6 @@ export default function FoodSearchModal({
       isCustom: true,
       isFavorite: false,
     };
-
-    // In a real app, you would save this to your backend
-    console.log("Custom food created:", customFood);
 
     // Automatically select and add the newly created food
     setSelectedFood(newFood);
@@ -231,14 +172,14 @@ export default function FoodSearchModal({
 
               <TabsContent value="all" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto thin-scrollbar">
-                  {filteredFoods.length === 0 ? (
+                  {/* {filteredFoods.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       {searchQuery
                         ? "No foods found"
                         : "Start typing to search for foods"}
                     </div>
                   ) : (
-                    filteredFoods.map((food) => (
+                    filteredFoods.map((food: FoodSearchResult) => (
                       <FoodCard
                         key={food.id}
                         food={food}
@@ -246,18 +187,18 @@ export default function FoodSearchModal({
                         onToggleFavorite={toggleFavorite}
                       />
                     ))
-                  )}
+                  )} */}
                 </div>
               </TabsContent>
 
               <TabsContent value="favorites" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-                  {filteredFoods.length === 0 ? (
+                  {/* {filteredFoods.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       No favorite foods found
                     </div>
                   ) : (
-                    filteredFoods.map((food) => (
+                    filteredFoods.map((food: FoodSearchResult) => (
                       <FoodCard
                         key={food.id}
                         food={food}
@@ -265,13 +206,13 @@ export default function FoodSearchModal({
                         onToggleFavorite={toggleFavorite}
                       />
                     ))
-                  )}
+                  )} */}
                 </div>
               </TabsContent>
 
               <TabsContent value="custom" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-                  {filteredFoods.length === 0 ? (
+                  {/* {filteredFoods.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <p>No custom foods found</p>
                       <Button
@@ -285,7 +226,7 @@ export default function FoodSearchModal({
                       </Button>
                     </div>
                   ) : (
-                    filteredFoods.map((food) => (
+                    filteredFoods.map((food: FoodSearchResult) => (
                       <FoodCard
                         key={food.id}
                         food={food}
@@ -293,7 +234,7 @@ export default function FoodSearchModal({
                         onToggleFavorite={toggleFavorite}
                       />
                     ))
-                  )}
+                  )} */}
                 </div>
               </TabsContent>
             </Tabs>
