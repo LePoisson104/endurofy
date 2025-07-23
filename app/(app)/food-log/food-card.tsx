@@ -1,8 +1,5 @@
 "use client";
 
-import { Star, StarOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { FoodSearchResult } from "../../../interfaces/food-log-interfaces";
 
 interface FoodCardProps {

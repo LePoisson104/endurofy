@@ -1,5 +1,5 @@
 "use client";
-
+import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -328,6 +328,9 @@ export default function FoodSelectionModal({
                     ))}
                   </SelectContent>
                 </Select>
+                <Button variant="ghost" size="icon">
+                  <Heart className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </div>
