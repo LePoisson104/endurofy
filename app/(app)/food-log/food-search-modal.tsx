@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
 import CustomFoodModal from "./custom-food-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useSearchFoodQuery } from "@/api/food/food-api-slice";
 
 export default function FoodSearchModal({
@@ -39,9 +40,18 @@ export default function FoodSearchModal({
   const [showCustomFood, setShowCustomFood] = useState(false);
   const isMobile = useIsMobile();
 
-  const { data: searchResults, isLoading } = useSearchFoodQuery({
-    searchItem: searchQuery,
-  });
+  // Debounce the search query with a 500ms delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Only make API call when debounced query has content and modal is open
+  const { data: searchResults, isLoading } = useSearchFoodQuery(
+    {
+      searchItem: debouncedSearchQuery,
+    },
+    {
+      skip: !debouncedSearchQuery.trim() || !isOpen,
+    }
+  );
 
   // const filteredFoods = searchResults?.data?.filter(
   //   (food: FoodSearchResult) => {
@@ -61,7 +71,6 @@ export default function FoodSearchModal({
   // );
 
   const handleFoodSelect = (food: FoodSearchResult) => {
-    console.log(food);
     setSelectedFood(food);
     setShowFoodSelection(true);
   };

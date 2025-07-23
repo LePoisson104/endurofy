@@ -18,7 +18,6 @@ export default function FoodCard({
   onSelect,
   onToggleFavorite,
 }: FoodCardProps) {
-  console.log(food);
   return (
     <div
       className={`p-3 border-b rounded-none cursor-pointer transition-colors hover:bg-accent`}
