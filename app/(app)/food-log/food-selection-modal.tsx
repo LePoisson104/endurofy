@@ -28,17 +28,22 @@ import type {
   FoodNutrient,
 } from "../../../interfaces/food-log-interfaces";
 
-const servingUnits: ServingUnit[] = [
-  "g",
-  "oz",
-  "ml",
-  "cup",
-  "tbsp",
-  "tsp",
-  "piece",
-  "slice",
-  "serving",
-];
+const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
+
+// Helper function to convert unit codes to standard units
+const convertUnitCode = (unit: string): ServingUnit => {
+  switch (unit?.toUpperCase()) {
+    case "MLT":
+      return "ml";
+    case "GRM":
+      return "g";
+    default:
+      // Return the unit as is if it's already a valid ServingUnit, otherwise default to "g"
+      return servingUnits.includes(unit as ServingUnit)
+        ? (unit as ServingUnit)
+        : "g";
+  }
+};
 
 // Helper function to extract nutritional values from nutritions array
 const getNutrientValue = (
@@ -48,28 +53,15 @@ const getNutrientValue = (
   if (!nutritions || !Array.isArray(nutritions)) {
     return 0;
   }
-  const nutrient = nutritions.find((n) =>
-    nutrientNumbers.includes(n.nutrientNumber)
-  );
+  const nutrient = nutritions.find((n) => {
+    return nutrientNumbers.includes(n.nutrientId);
+  });
+
   return nutrient ? nutrient.value : 0;
 };
 
 // Helper function to get nutrition data from food
 const getNutritionData = (food: FoodSearchResult) => {
-  // Fallback to direct properties if nutritions array is not available
-  if (!food.nutritions || !Array.isArray(food.nutritions)) {
-    return {
-      calories: (food as any).calories || 0,
-      protein: (food as any).protein || 0,
-      carbs: (food as any).carbs || 0,
-      fat: (food as any).fat || 0,
-      fiber: (food as any).fiber || 0,
-      sugar: (food as any).sugar || 0,
-      sodium: (food as any).sodium || 0,
-      cholesterol: (food as any).cholesterol || 0,
-    };
-  }
-
   return {
     calories: getNutrientValue(food.nutritions, [1008]), // Energy
     protein: getNutrientValue(food.nutritions, [1003]), // Protein
@@ -100,10 +92,9 @@ export default function FoodSelectionModal({
         food.servingSize?.toString() ||
         (food as any).servingSize?.toString() ||
         "100";
-      const defaultUnit =
-        (food.servingSizeUnit as ServingUnit) ||
-        (food as any).servingUnit ||
-        "g";
+      const rawUnit =
+        (food.servingSizeUnit as string) || (food as any).servingUnit || "g";
+      const defaultUnit = convertUnitCode(rawUnit);
 
       setServingSize(defaultServingSize);
       setSelectedUnit(defaultUnit);
@@ -112,7 +103,6 @@ export default function FoodSelectionModal({
 
   if (!food) return null;
 
-  // Get nutrition data from the nutritions array
   const nutritionData = getNutritionData(food);
 
   const servingSizeNum = parseFloat(servingSize) || 1;

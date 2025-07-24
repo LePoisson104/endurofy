@@ -1,13 +1,4 @@
-export type ServingUnit =
-  | "g"
-  | "oz"
-  | "ml"
-  | "cup"
-  | "tbsp"
-  | "tsp"
-  | "piece"
-  | "slice"
-  | "serving";
+export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT";
 
 export interface FoodItem {
   id: string;
