@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { useState } from "react";
+import { Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,7 @@ export default function FoodSearchModal({
   // Only make API call when debounced query has content and modal is open
   const { data: searchResults, isFetching } = useSearchFoodQuery(
     {
-      searchItem: debouncedSearchQuery,
+      searchItem: encodeURIComponent(debouncedSearchQuery),
     },
     {
       skip: !debouncedSearchQuery.trim() || !isOpen,
