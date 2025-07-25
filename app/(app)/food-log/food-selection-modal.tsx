@@ -46,6 +46,46 @@ const convertUnitCode = (unit: string): ServingUnit => {
   }
 };
 
+// Helper function to extract number and unit from combined unit (e.g., "112g" -> {amount: 112, unit: "g"})
+const parseCombinedUnit = (
+  combinedUnit: string
+): { amount: number; unit: string } => {
+  const match = combinedUnit.match(/^(\d+(?:\.\d+)?)(.*)/);
+  if (match) {
+    return {
+      amount: parseFloat(match[1]),
+      unit: match[2] || "g",
+    };
+  }
+  return { amount: 1, unit: combinedUnit };
+};
+
+// Helper function to check if a unit is a combined unit (contains numbers)
+const isCombinedUnit = (unit: string): boolean => {
+  return /^\d+(?:\.\d+)?/.test(unit);
+};
+
+// Helper function to get unit conversion factor to grams
+const getUnitConversionFactor = (unit: string): number => {
+  if (isCombinedUnit(unit)) {
+    const { amount, unit: baseUnit } = parseCombinedUnit(unit);
+    const baseConversion = getUnitConversionFactor(baseUnit);
+    return amount * baseConversion;
+  }
+
+  const cleanUnit = unit.replace(/[0-9]/g, ""); // Remove numbers from combined units like "100g"
+  switch (cleanUnit.toLowerCase()) {
+    case "g":
+      return 1;
+    case "oz":
+      return 28.3495; // 1 oz = 28.3495 grams
+    case "ml":
+      return 1; // Assuming density of water (1ml = 1g) for simplicity
+    default:
+      return 1;
+  }
+};
+
 // Helper function to extract nutritional values from nutritions array
 const getNutrientValue = (
   nutritions: FoodNutrient[] | undefined,
@@ -118,22 +158,34 @@ export default function FoodSelectionModal({
 }: FoodSelectionModalProps) {
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
+  const [availableUnits, setAvailableUnits] = useState<string[]>(servingUnits);
   const isMobile = useIsMobile();
 
   // Reset form when food changes
   useEffect(() => {
     if (food) {
-      // Set default serving size and unit from food data
-      const defaultServingSize =
+      // Create combined serving unit from food data
+      const originalServingSize =
         food.servingSize?.toString() ||
         (food as any).servingSize?.toString() ||
         "100";
       const rawUnit =
         (food.servingSizeUnit as string) || (food as any).servingUnit || "g";
-      const defaultUnit = convertUnitCode(rawUnit);
+      const baseUnit = convertUnitCode(rawUnit);
 
-      setServingSize(defaultServingSize);
-      setSelectedUnit(defaultUnit);
+      // Round the serving size for cleaner display
+      const roundedServingSize = Math.round(parseFloat(originalServingSize));
+
+      // Create combined unit (e.g., "112g")
+      const combinedUnit = `${roundedServingSize}${baseUnit}`;
+
+      // Set available units to include the combined unit plus standard units
+      const unitsWithCombined = [combinedUnit, ...servingUnits];
+      setAvailableUnits(unitsWithCombined);
+
+      // Set defaults: serving size = 1, unit = combined unit
+      setServingSize("1");
+      setSelectedUnit(combinedUnit as ServingUnit);
     }
   }, [food]);
 
@@ -145,8 +197,30 @@ export default function FoodSelectionModal({
   const originalServingSize =
     food.servingSize || (food as any).servingSize || 100;
 
-  // Calculate multiplier based on serving size ratio
-  const multiplier = servingSizeNum / originalServingSize;
+  // Get the original unit from the food data
+  const originalUnit = convertUnitCode(
+    (food.servingSizeUnit as string) || (food as any).servingUnit || "g"
+  );
+
+  // Calculate multiplier based on serving size ratio and unit conversion
+  let multiplier: number;
+
+  if (isCombinedUnit(selectedUnit)) {
+    // For combined units (e.g., "112g"), the conversion is straightforward
+    // 1 unit of "112g" = 112g, 2 units = 224g, etc.
+    const { amount: combinedAmount } = parseCombinedUnit(selectedUnit);
+    const selectedTotalGrams = servingSizeNum * combinedAmount;
+    const originalTotalGrams =
+      originalServingSize * getUnitConversionFactor(originalUnit);
+    multiplier = selectedTotalGrams / originalTotalGrams;
+  } else {
+    // For standard units, use the original conversion logic
+    const selectedUnitFactor = getUnitConversionFactor(selectedUnit);
+    const originalUnitFactor = getUnitConversionFactor(originalUnit);
+    const servingSizeInOriginalUnit =
+      servingSizeNum * (selectedUnitFactor / originalUnitFactor);
+    multiplier = servingSizeInOriginalUnit / originalServingSize;
+  }
 
   const calculatedNutrition = {
     calories: Math.round(nutritionData.calories * multiplier),
@@ -325,7 +399,7 @@ export default function FoodSelectionModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="">
-                    {servingUnits.map((unit) => (
+                    {availableUnits.map((unit) => (
                       <SelectItem key={unit} value={unit} className="">
                         {unit}
                       </SelectItem>

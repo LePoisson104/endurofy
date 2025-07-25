@@ -1,4 +1,4 @@
-export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT";
+export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT" | string;
 
 export interface FoodItem {
   id: string;
