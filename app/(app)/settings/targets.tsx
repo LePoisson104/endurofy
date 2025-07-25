@@ -170,14 +170,13 @@ export default function Targets() {
                 value={[proteinPercent]}
                 onValueChange={(value) => setProteinPercent(value[0] as number)}
                 max={100}
-                min={5}
+                min={0}
                 step={1}
                 bgColor="bg-green-400"
                 ringColor="ring-green-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>5%</span>
-                <span>50%</span>
+                <span>0%</span>
                 <span>100%</span>
               </div>
             </div>
@@ -202,14 +201,13 @@ export default function Targets() {
                 value={[carbsPercent]}
                 onValueChange={(value) => setCarbsPercent(value[0] as number)}
                 max={100}
-                min={5}
+                min={0}
                 step={1}
                 bgColor="bg-blue-400"
                 ringColor="ring-blue-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>5%</span>
-                <span>50%</span>
+                <span>0%</span>
                 <span>100%</span>
               </div>
             </div>
@@ -234,14 +232,13 @@ export default function Targets() {
                 value={[fatPercent]}
                 onValueChange={(value) => setFatPercent(value[0] as number)}
                 max={100}
-                min={5}
+                min={0}
                 step={1}
                 bgColor="bg-red-400"
                 ringColor="ring-red-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>5%</span>
-                <span>50%</span>
+                <span>0%</span>
                 <span>100%</span>
               </div>
             </div>
