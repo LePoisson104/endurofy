@@ -212,20 +212,8 @@ export default function FoodSelectionModal({
     onConfirm(foodItem);
   };
 
-  const handleClose = () => {
-    setServingSize("1");
-    setSelectedUnit("g");
-    onClose();
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      handleClose();
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={`bg-card ${isMobile ? "w-[95vw]" : "max-w-lg"}`}
       >

@@ -245,7 +245,6 @@ export default function FoodSearchModal({
         isOpen={showFoodSelection}
         onClose={() => {
           setShowFoodSelection(false);
-          setSelectedFood(null);
         }}
         food={selectedFood}
         onConfirm={handleFoodConfirm}
