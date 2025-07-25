@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import CustomFoodModal from "./custom-food-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useSearchFoodQuery } from "@/api/food/food-api-slice";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FoodSearchModal({
   isOpen,
@@ -41,10 +42,10 @@ export default function FoodSearchModal({
   const isMobile = useIsMobile();
 
   // Debounce the search query with a 500ms delay
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Only make API call when debounced query has content and modal is open
-  const { data: searchResults, isLoading } = useSearchFoodQuery(
+  const { data: searchResults, isFetching } = useSearchFoodQuery(
     {
       searchItem: debouncedSearchQuery,
     },
@@ -160,7 +161,16 @@ export default function FoodSearchModal({
 
               <TabsContent value="all" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto thin-scrollbar">
-                  {searchResults?.data?.foods?.length === 0 ? (
+                  {isFetching ? (
+                    <div className="flex flex-col gap-2">
+                      <Skeleton className="w-full h-[55px]" />
+                      <Skeleton className="w-full h-[55px]" />
+                      <Skeleton className="w-full h-[55px]" />
+                      <Skeleton className="w-full h-[55px]" />
+                      <Skeleton className="w-full h-[55px]" />
+                      <Skeleton className="w-full h-[55px]" />
+                    </div>
+                  ) : searchResults?.data?.foods?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       No foods found
                     </div>

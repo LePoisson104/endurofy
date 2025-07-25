@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MacrosPieChart } from "@/components/charts/macros-piechart";
+import { USDAFoodNutrientID } from "@/helper/constants/nutrients-constants";
 
 import type {
   FoodSelectionModalProps,
@@ -48,7 +49,8 @@ const convertUnitCode = (unit: string): ServingUnit => {
 // Helper function to extract nutritional values from nutritions array
 const getNutrientValue = (
   nutritions: FoodNutrient[] | undefined,
-  nutrientNumbers: number[]
+  nutrientNumbers: number[],
+  servingSize: number
 ): number => {
   if (!nutritions || !Array.isArray(nutritions)) {
     return 0;
@@ -57,20 +59,54 @@ const getNutrientValue = (
     return nutrientNumbers.includes(n.nutrientId);
   });
 
-  return nutrient ? nutrient.value : 0;
+  return nutrient
+    ? Number((nutrient.value * (servingSize / 100)).toFixed(2))
+    : 0;
 };
 
 // Helper function to get nutrition data from food
 const getNutritionData = (food: FoodSearchResult) => {
   return {
-    calories: getNutrientValue(food.nutritions, [1008]), // Energy
-    protein: getNutrientValue(food.nutritions, [1003]), // Protein
-    carbs: getNutrientValue(food.nutritions, [1005]), // Carbohydrate, by difference
-    fat: getNutrientValue(food.nutritions, [1004]), // Total lipid (fat)
-    fiber: getNutrientValue(food.nutritions, [1079]), // Fiber, total dietary
-    sugar: getNutrientValue(food.nutritions, [2000]), // Total sugars
-    sodium: getNutrientValue(food.nutritions, [1093]), // Sodium
-    cholesterol: getNutrientValue(food.nutritions, [1006]), // Cholesterol
+    calories: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.CALORIES],
+      food.servingSize
+    ),
+    protein: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.PROTEIN],
+      food.servingSize
+    ),
+    carbs: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.CARBOHYDRATE],
+      food.servingSize
+    ),
+    fat: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.FAT],
+      food.servingSize
+    ),
+    fiber: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.FIBER],
+      food.servingSize
+    ),
+    sugar: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.TOTAL_SUGARS],
+      food.servingSize
+    ),
+    sodium: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.SODIUM],
+      food.servingSize
+    ),
+    cholesterol: getNutrientValue(
+      food.nutritions,
+      [USDAFoodNutrientID.CHOLESTEROL],
+      food.servingSize
+    ),
   };
 };
 
@@ -156,16 +192,6 @@ export default function FoodSelectionModal({
           color: "#f87171",
         },
       ].filter((item) => item.value > 0); // Only show segments with values > 0
-
-  const proteinPercent = hasInsufficientData
-    ? 0
-    : Math.round((proteinCalories / totalMacros) * 100);
-  const carbsPercent = hasInsufficientData
-    ? 0
-    : Math.round((carbsCalories / totalMacros) * 100);
-  const fatPercent = hasInsufficientData
-    ? 0
-    : Math.round((fatCalories / totalMacros) * 100);
 
   const handleConfirm = () => {
     const foodItem: FoodItem = {
