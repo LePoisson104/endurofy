@@ -302,7 +302,7 @@ export default function FoodSelectionModal({
         USDAFoodNutrientID.CHOLESTEROL,
       ]),
       servingSize: isCombinedUnit(selectedUnit)
-        ? parseCombinedUnit(selectedUnit).amount
+        ? parseCombinedUnit(selectedUnit).amount * servingSizeNum
         : servingSizeNum,
       servingUnit: isCombinedUnit(selectedUnit)
         ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)

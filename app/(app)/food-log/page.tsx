@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { FoodSearchModal, WeekSelector, type AddFoodLogPayload } from "./";
+import { FoodLogs } from "@/interfaces/food-log-interfaces";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
@@ -103,9 +104,7 @@ export default function FoodLogPage() {
   });
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
-
-  console.log(foodLog?.data);
-
+  console.log(foodLog?.data?.data);
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
     uncategorized: [],
@@ -124,20 +123,23 @@ export default function FoodLogPage() {
 
   // Calculate current macros from all meals
   const calculateCurrentMacros = () => {
+    if (!foodLog?.data?.data)
+      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
     const allFoods = [
-      ...mealData.uncategorized,
-      ...mealData.breakfast,
-      ...mealData.lunch,
-      ...mealData.dinner,
-      ...mealData.snacks,
+      ...(foodLog.data.data.uncategorized || []),
+      ...(foodLog.data.data.breakfast || []),
+      ...(foodLog.data.data.lunch || []),
+      ...(foodLog.data.data.dinner || []),
+      ...(foodLog.data.data.snacks || []),
     ];
 
     return allFoods.reduce(
       (totals, food) => ({
-        calories: totals.calories + food.calories * food.servingSize,
-        protein: totals.protein + food.protein * food.servingSize,
-        carbs: totals.carbs + food.carbs * food.servingSize,
-        fat: totals.fat + food.fat * food.servingSize,
+        calories: totals.calories + food.calories * (food.serving_size / 100),
+        protein: totals.protein + food.protein_g * (food.serving_size / 100),
+        carbs: totals.carbs + food.carbs_g * (food.serving_size / 100),
+        fat: totals.fat + food.fat_g * (food.serving_size / 100),
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
@@ -147,21 +149,26 @@ export default function FoodLogPage() {
 
   // Calculate additional nutrients
   const calculateAdditionalNutrients = () => {
+    if (!foodLog?.data?.data)
+      return { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 };
+
     const allFoods = [
-      ...mealData.uncategorized,
-      ...mealData.breakfast,
-      ...mealData.lunch,
-      ...mealData.dinner,
-      ...mealData.snacks,
+      ...(foodLog.data.data.uncategorized || []),
+      ...(foodLog.data.data.breakfast || []),
+      ...(foodLog.data.data.lunch || []),
+      ...(foodLog.data.data.dinner || []),
+      ...(foodLog.data.data.snacks || []),
     ];
 
     return allFoods.reduce(
       (totals, food) => ({
-        fiber: totals.fiber + (food.fiber || 0) * food.servingSize,
-        sugar: totals.sugar + (food.sugar || 0) * food.servingSize,
-        sodium: totals.sodium + (food.sodium || 0) * food.servingSize,
+        fiber: totals.fiber + (food.fiber_g || 0) * (food.serving_size / 100),
+        sugar: totals.sugar + (food.sugar_g || 0) * (food.serving_size / 100),
+        sodium:
+          totals.sodium + (food.sodium_mg || 0) * (food.serving_size / 100),
         cholesterol:
-          totals.cholesterol + (food.cholesterol || 0) * food.servingSize,
+          totals.cholesterol +
+          (food.cholesterol_mg || 0) * (food.serving_size / 100),
       }),
       { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 }
     );
@@ -286,20 +293,20 @@ export default function FoodLogPage() {
     }
   };
 
-  const getMealCalories = (meal: AddFoodLogPayload[]) => {
+  const getMealCalories = (meal: FoodLogs[]) => {
     return meal.reduce(
-      (total, food) => total + food.calories * food.servingSize,
+      (total, food) => total + food.calories * (food.serving_size / 100),
       0
     );
   };
 
-  const getMealMacros = (meal: AddFoodLogPayload[]) => {
+  const getMealMacros = (meal: FoodLogs[]) => {
     return meal.reduce(
       (totals, food) => ({
-        calories: totals.calories + food.calories * food.servingSize,
-        protein: totals.protein + food.protein * food.servingSize,
-        carbs: totals.carbs + food.carbs * food.servingSize,
-        fat: totals.fat + food.fat * food.servingSize,
+        calories: totals.calories + food.calories * (food.serving_size / 100),
+        protein: totals.protein + food.protein_g * (food.serving_size / 100),
+        carbs: totals.carbs + food.carbs_g * (food.serving_size / 100),
+        fat: totals.fat + food.fat_g * (food.serving_size / 100),
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
