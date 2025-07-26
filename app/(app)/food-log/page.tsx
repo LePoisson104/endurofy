@@ -47,24 +47,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FoodSearchModal, WeekSelector, type FoodItem } from "./";
+import { FoodSearchModal, WeekSelector, type AddFoodLogPayload } from "./";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import WaterIntake from "./water-intake";
-import { useAddFoodLogMutation } from "@/api/food/food-log-api-slice";
+import {
+  useAddFoodLogMutation,
+  useGetFoodLogQuery,
+  useDeleteFoodLogMutation,
+} from "@/api/food/food-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
 
 interface MealData {
-  uncategorized: FoodItem[];
-  breakfast: FoodItem[];
-  lunch: FoodItem[];
-  dinner: FoodItem[];
-  snacks: FoodItem[];
+  uncategorized: AddFoodLogPayload[];
+  breakfast: AddFoodLogPayload[];
+  lunch: AddFoodLogPayload[];
+  dinner: AddFoodLogPayload[];
+  snacks: AddFoodLogPayload[];
 }
 
 interface MacroTargets {
@@ -89,7 +93,18 @@ export default function FoodLogPage() {
   const [copiedMealData, setCopiedMealData] = useState<MealData | null>(null);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
 
-  const [addFoodLog, { isLoading: isAddingFoodLog }] = useAddFoodLogMutation();
+  const [
+    addFoodLog,
+    { isLoading: isAddingFoodLog, isSuccess: isFoodLogAdded },
+  ] = useAddFoodLogMutation();
+  const { data: foodLog, isLoading: isLoadingFoodLog } = useGetFoodLogQuery({
+    userId: user?.user_id,
+    date: selectedDate.toISOString().split("T")[0], // Convert Date to YYYY-MM-DD string
+  });
+  const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
+    useDeleteFoodLogMutation();
+
+  console.log(foodLog?.data);
 
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
@@ -170,7 +185,7 @@ export default function FoodLogPage() {
     setIsAddFoodModalOpen(true);
   };
 
-  const handleFoodAdded = async (food: FoodItem) => {
+  const handleFoodAdded = async (food: AddFoodLogPayload) => {
     food.mealType = selectedMeal;
     food.loggedAt = selectedDate;
     try {
@@ -178,14 +193,14 @@ export default function FoodLogPage() {
         userId: user?.user_id,
         payload: food,
       }).unwrap();
-      toast.success("Food log added successfully");
-      setIsAddFoodModalOpen(false);
     } catch (error: any) {
       if (error.status !== 500) {
         toast.error(error.data.message);
       } else {
         toast.error("Internal server error. Failed to add food log");
       }
+      // Re-throw the error so the calling function knows it failed
+      throw error;
     }
   };
 
@@ -207,11 +222,16 @@ export default function FoodLogPage() {
     console.log("Edit food:", { mealType, foodId });
   };
 
-  const handleRemoveFood = (mealType: keyof MealData, foodId: string) => {
-    setMealData((prev) => ({
-      ...prev,
-      [mealType]: prev[mealType].filter((food) => food.foodName !== foodId),
-    }));
+  const handleRemoveFood = async (foodLogId: string) => {
+    try {
+      await deleteFoodLog({ foodLogId }).unwrap();
+    } catch (error: any) {
+      if (error.status !== 500) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to delete food log");
+      }
+    }
   };
 
   const handleFavoriteFood = (mealType: keyof MealData, foodId: string) => {
@@ -266,14 +286,14 @@ export default function FoodLogPage() {
     }
   };
 
-  const getMealCalories = (meal: FoodItem[]) => {
+  const getMealCalories = (meal: AddFoodLogPayload[]) => {
     return meal.reduce(
       (total, food) => total + food.calories * food.servingSize,
       0
     );
   };
 
-  const getMealMacros = (meal: FoodItem[]) => {
+  const getMealMacros = (meal: AddFoodLogPayload[]) => {
     return meal.reduce(
       (totals, food) => ({
         calories: totals.calories + food.calories * food.servingSize,
@@ -384,57 +404,62 @@ export default function FoodLogPage() {
                   <MealAccordion
                     mealType="uncategorized"
                     title="Uncategorized"
-                    foods={mealData.uncategorized}
+                    foods={foodLog?.data?.data?.uncategorized || []}
                     isExpanded={expandedMeals.has("uncategorized")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
                     onFavoriteFood={handleFavoriteFood}
+                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="breakfast"
                     title="Breakfast"
-                    foods={mealData.breakfast}
+                    foods={foodLog?.data?.data?.breakfast || []}
                     isExpanded={expandedMeals.has("breakfast")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
                     onFavoriteFood={handleFavoriteFood}
+                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="lunch"
                     title="Lunch"
-                    foods={mealData.lunch}
+                    foods={foodLog?.data?.data?.lunch || []}
                     isExpanded={expandedMeals.has("lunch")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
                     onFavoriteFood={handleFavoriteFood}
+                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="dinner"
                     title="Dinner"
-                    foods={mealData.dinner}
+                    foods={foodLog?.data?.data?.dinner || []}
                     isExpanded={expandedMeals.has("dinner")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
                     onFavoriteFood={handleFavoriteFood}
+                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="snacks"
                     title="Snacks"
-                    foods={mealData.snacks}
+                    foods={foodLog?.data?.data?.snacks || []}
                     isExpanded={expandedMeals.has("snacks")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
                     onFavoriteFood={handleFavoriteFood}
+                    isDeletingFoodLog={isDeletingFoodLog}
                   />
 
                   {/* Water Intake Accordion - Mobile Only */}
@@ -660,6 +685,7 @@ export default function FoodLogPage() {
         onClose={() => setIsAddFoodModalOpen(false)}
         onFoodAdded={handleFoodAdded}
         mealType={selectedMeal}
+        isAddingFoodLog={isAddingFoodLog}
       />
     </div>
   );

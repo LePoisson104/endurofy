@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   ChevronDown,
   ChevronRight,
+  Loader2,
   MoreVertical,
   UtensilsCrossed,
 } from "lucide-react";
@@ -16,35 +17,36 @@ import {
 import { Apple, Edit, Heart, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-import { FoodItem } from "../../../interfaces/food-log-interfaces";
+import { FoodLogs } from "../../../interfaces/food-log-interfaces";
 
 interface MealData {
-  uncategorized: FoodItem[];
-  breakfast: FoodItem[];
-  lunch: FoodItem[];
-  dinner: FoodItem[];
-  snacks: FoodItem[];
+  uncategorized: FoodLogs[];
+  breakfast: FoodLogs[];
+  lunch: FoodLogs[];
+  dinner: FoodLogs[];
+  snacks: FoodLogs[];
 }
 
 interface MealAccordionProps {
   mealType: keyof MealData;
   title: string;
-  foods: FoodItem[];
+  foods: FoodLogs[];
   isExpanded: boolean;
   onToggle: (mealType: keyof MealData) => void;
   onAddFood: (mealType: keyof MealData, event?: React.MouseEvent) => void;
   onEditFood: (mealType: keyof MealData, foodId: string) => void;
-  onRemoveFood: (mealType: keyof MealData, foodId: string) => void;
+  onRemoveFood: (foodLogId: string) => void;
   onFavoriteFood: (mealType: keyof MealData, foodId: string) => void;
+  isDeletingFoodLog: boolean;
 }
 
-const getMealMacros = (meal: FoodItem[]) => {
+const getMealMacros = (meal: FoodLogs[]) => {
   return meal.reduce(
     (totals, food) => ({
-      calories: totals.calories + food.calories * food.servingSize,
-      protein: totals.protein + food.protein * food.servingSize,
-      carbs: totals.carbs + food.carbs * food.servingSize,
-      fat: totals.fat + food.fat * food.servingSize,
+      calories: totals.calories + food.calories * (food.serving_size / 100),
+      protein: totals.protein + food.protein_g * (food.serving_size / 100),
+      carbs: totals.carbs + food.carbs_g * (food.serving_size / 100),
+      fat: totals.fat + food.fat_g * (food.serving_size / 100),
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
@@ -60,6 +62,7 @@ export default function MealAccordion({
   onEditFood,
   onRemoveFood,
   onFavoriteFood,
+  isDeletingFoodLog,
 }: MealAccordionProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
@@ -145,17 +148,19 @@ export default function MealAccordion({
               <div className="space-y-2">
                 {foods.map((food) => (
                   <div
-                    key={food.fdcId}
+                    key={food.food_log_id}
                     className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
                   >
                     <div>
                       <div className="flex items-center gap-2">
                         <Apple className="h-3 w-3 text-destructive" />
-                        <p className="font-medium text-sm">{food.foodName}</p>
+                        <p className="font-medium text-sm">{food.food_name}</p>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {food.servingSize} {food.servingUnit} •{" "}
-                        {Math.round(food.calories * food.servingSize)} cal
+                        {Math.round(food.serving_size)} {food.serving_size_unit}{" "}
+                        •{" "}
+                        {Math.round(food.calories * (food.serving_size / 100))}
+                        cal
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -171,23 +176,27 @@ export default function MealAccordion({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => onEditFood(mealType, food.foodName)}
+                            onClick={() =>
+                              onEditFood(mealType, food.food_log_id)
+                            }
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() =>
-                              onRemoveFood(mealType, food.foodName)
-                            }
+                            onClick={() => onRemoveFood(food.food_log_id)}
                             variant="destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
+                            {isDeletingFoodLog ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 mr-2" />
+                            )}
                             Remove
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
-                              onFavoriteFood(mealType, food.foodName)
+                              onFavoriteFood(mealType, food.food_log_id)
                             }
                           >
                             <Heart className="h-4 w-4 mr-2" />

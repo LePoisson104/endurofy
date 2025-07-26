@@ -1,7 +1,7 @@
 export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT";
 
-export interface FoodItem {
-  fdcId: string;
+export interface AddFoodLogPayload {
+  foodId: string;
   foodName: string;
   foodBrand?: string;
   foodSource?: "USDA" | "custom";
@@ -17,6 +17,26 @@ export interface FoodItem {
   servingUnit: ServingUnit;
   mealType?: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
   loggedAt?: Date;
+}
+
+export interface FoodLogs {
+  food_log_id: string;
+  food_id: string;
+  food_name: string;
+  brand_name: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g: number;
+  sugar_g: number;
+  sodium_mg: number;
+  cholesterol_mg: number;
+  food_source: "USDA" | "custom";
+  meal_type: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
+  logged_at: string;
+  serving_size: number;
+  serving_size_unit: string;
 }
 
 export interface FoodSearchResult {
@@ -59,10 +79,11 @@ export interface AddCustomFoodPayload {
 }
 
 export interface FoodSelectionModalProps {
+  isAddingFoodLog: boolean;
   isOpen: boolean;
   onClose: () => void;
   food: FoodSearchResult | null;
-  onConfirm: (food: FoodItem) => void;
+  onConfirm: (food: AddFoodLogPayload) => void;
 }
 
 export interface CustomFoodModalProps {
@@ -72,8 +93,9 @@ export interface CustomFoodModalProps {
 }
 
 export interface FoodSearchModalProps {
+  isAddingFoodLog: boolean;
   isOpen: boolean;
   onClose: () => void;
-  onFoodAdded: (food: FoodItem) => void;
+  onFoodAdded: (food: AddFoodLogPayload) => Promise<void>;
   mealType: string;
 }

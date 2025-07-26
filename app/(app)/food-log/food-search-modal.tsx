@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
   FoodSearchModalProps,
   FoodSearchResult,
-  FoodItem,
+  AddFoodLogPayload,
   AddCustomFoodPayload,
 } from "../../../interfaces/food-log-interfaces";
 import FoodCard from "./food-card";
@@ -31,6 +31,7 @@ export default function FoodSearchModal({
   onClose,
   onFoodAdded,
   mealType,
+  isAddingFoodLog,
 }: FoodSearchModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -76,10 +77,16 @@ export default function FoodSearchModal({
     setShowFoodSelection(true);
   };
 
-  const handleFoodConfirm = (foodItem: FoodItem) => {
-    onFoodAdded(foodItem);
-    setShowFoodSelection(false);
-    setSelectedFood(null);
+  const handleFoodConfirm = async (foodItem: AddFoodLogPayload) => {
+    try {
+      await onFoodAdded(foodItem);
+      // Only close the modal after the food has been successfully added
+      setShowFoodSelection(false);
+      setSelectedFood(null);
+    } catch (error) {
+      // If there's an error, the modal will stay open so user can try again
+      console.error("Failed to add food:", error);
+    }
   };
 
   const handleCustomFoodCreated = (customFood: AddCustomFoodPayload) => {};
@@ -247,6 +254,7 @@ export default function FoodSearchModal({
         }}
         food={selectedFood}
         onConfirm={handleFoodConfirm}
+        isAddingFoodLog={isAddingFoodLog}
       />
 
       {/* Custom Food Modal */}

@@ -1,5 +1,5 @@
 "use client";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -23,7 +23,7 @@ import { USDAFoodNutrientID } from "@/helper/constants/nutrients-constants";
 
 import type {
   FoodSelectionModalProps,
-  FoodItem,
+  AddFoodLogPayload,
   ServingUnit,
   FoodSearchResult,
   FoodNutrient,
@@ -164,6 +164,7 @@ export default function FoodSelectionModal({
   onClose,
   food,
   onConfirm,
+  isAddingFoodLog,
 }: FoodSelectionModalProps) {
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
@@ -277,8 +278,8 @@ export default function FoodSelectionModal({
       ].filter((item) => item.value > 0); // Only show segments with values > 0
 
   const handleConfirm = () => {
-    const foodItem: FoodItem = {
-      fdcId: food.fdcId,
+    const foodItem: AddFoodLogPayload = {
+      foodId: food.fdcId.toString(),
       foodName: food.description,
       foodBrand: food.brandOwner,
       foodSource: food.foodSource,
@@ -311,8 +312,16 @@ export default function FoodSelectionModal({
     onConfirm(foodItem);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    // Prevent closing the modal while adding food log
+    if (!open && isAddingFoodLog) {
+      return;
+    }
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
         className={`bg-card ${isMobile ? "w-[95vw]" : "max-w-lg"}`}
       >
@@ -440,7 +449,17 @@ export default function FoodSelectionModal({
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 justify-end items-center">
-            <Button onClick={handleConfirm}>Add food</Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={isAddingFoodLog}
+              className="flex items-center gap-2 w-[100px] text-sm"
+            >
+              {isAddingFoodLog ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Add food"
+              )}
+            </Button>
           </div>
         </div>
       </DialogContent>
