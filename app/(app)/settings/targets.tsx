@@ -156,7 +156,7 @@ export default function Targets() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
                   Protein
                 </Label>
                 <div className="text-right">
@@ -172,8 +172,8 @@ export default function Targets() {
                 max={100}
                 min={0}
                 step={1}
-                bgColor="bg-green-400"
-                ringColor="ring-green-400"
+                bgColor="bg-red-400"
+                ringColor="ring-red-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>0%</span>
@@ -218,7 +218,7 @@ export default function Targets() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400" />
                   Fat
                 </Label>
                 <div className="text-right">
@@ -234,8 +234,8 @@ export default function Targets() {
                 max={100}
                 min={0}
                 step={1}
-                bgColor="bg-red-400"
-                ringColor="ring-red-400"
+                bgColor="bg-amber-400"
+                ringColor="ring-amber-400"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>0%</span>

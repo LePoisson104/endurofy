@@ -54,6 +54,10 @@ import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import WaterIntake from "./water-intake";
+import { useAddFoodLogMutation } from "@/api/food/food-log-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { toast } from "sonner";
 
 interface MealData {
   uncategorized: FoodItem[];
@@ -73,6 +77,7 @@ interface MacroTargets {
 export default function FoodLogPage() {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
+  const user = useSelector(selectCurrentUser);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
@@ -83,6 +88,8 @@ export default function FoodLogPage() {
   const [isLogCompleted, setIsLogCompleted] = useState(false);
   const [copiedMealData, setCopiedMealData] = useState<MealData | null>(null);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
+
+  const [addFoodLog, { isLoading: isAddingFoodLog }] = useAddFoodLogMutation();
 
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
@@ -112,10 +119,10 @@ export default function FoodLogPage() {
 
     return allFoods.reduce(
       (totals, food) => ({
-        calories: totals.calories + food.calories * food.quantity,
-        protein: totals.protein + food.protein * food.quantity,
-        carbs: totals.carbs + food.carbs * food.quantity,
-        fat: totals.fat + food.fat * food.quantity,
+        calories: totals.calories + food.calories * food.servingSize,
+        protein: totals.protein + food.protein * food.servingSize,
+        carbs: totals.carbs + food.carbs * food.servingSize,
+        fat: totals.fat + food.fat * food.servingSize,
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
@@ -135,11 +142,11 @@ export default function FoodLogPage() {
 
     return allFoods.reduce(
       (totals, food) => ({
-        fiber: totals.fiber + (food.fiber || 0) * food.quantity,
-        sugar: totals.sugar + (food.sugar || 0) * food.quantity,
-        sodium: totals.sodium + (food.sodium || 0) * food.quantity,
+        fiber: totals.fiber + (food.fiber || 0) * food.servingSize,
+        sugar: totals.sugar + (food.sugar || 0) * food.servingSize,
+        sodium: totals.sodium + (food.sodium || 0) * food.servingSize,
         cholesterol:
-          totals.cholesterol + (food.cholesterol || 0) * food.quantity,
+          totals.cholesterol + (food.cholesterol || 0) * food.servingSize,
       }),
       { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 }
     );
@@ -163,12 +170,23 @@ export default function FoodLogPage() {
     setIsAddFoodModalOpen(true);
   };
 
-  const handleFoodAdded = (food: FoodItem) => {
-    setMealData((prev) => ({
-      ...prev,
-      [selectedMeal]: [...prev[selectedMeal], food],
-    }));
-    setIsAddFoodModalOpen(false);
+  const handleFoodAdded = async (food: FoodItem) => {
+    food.mealType = selectedMeal;
+    food.loggedAt = selectedDate;
+    try {
+      await addFoodLog({
+        userId: user?.user_id,
+        payload: food,
+      }).unwrap();
+      toast.success("Food log added successfully");
+      setIsAddFoodModalOpen(false);
+    } catch (error: any) {
+      if (error.status !== 500) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to add food log");
+      }
+    }
   };
 
   const handleCalendarDateSelect = (date: Date) => {
@@ -192,7 +210,7 @@ export default function FoodLogPage() {
   const handleRemoveFood = (mealType: keyof MealData, foodId: string) => {
     setMealData((prev) => ({
       ...prev,
-      [mealType]: prev[mealType].filter((food) => food.id !== foodId),
+      [mealType]: prev[mealType].filter((food) => food.foodName !== foodId),
     }));
   };
 
@@ -250,7 +268,7 @@ export default function FoodLogPage() {
 
   const getMealCalories = (meal: FoodItem[]) => {
     return meal.reduce(
-      (total, food) => total + food.calories * food.quantity,
+      (total, food) => total + food.calories * food.servingSize,
       0
     );
   };
@@ -258,10 +276,10 @@ export default function FoodLogPage() {
   const getMealMacros = (meal: FoodItem[]) => {
     return meal.reduce(
       (totals, food) => ({
-        calories: totals.calories + food.calories * food.quantity,
-        protein: totals.protein + food.protein * food.quantity,
-        carbs: totals.carbs + food.carbs * food.quantity,
-        fat: totals.fat + food.fat * food.quantity,
+        calories: totals.calories + food.calories * food.servingSize,
+        protein: totals.protein + food.protein * food.servingSize,
+        carbs: totals.carbs + food.carbs * food.servingSize,
+        fat: totals.fat + food.fat * food.servingSize,
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
@@ -503,16 +521,16 @@ export default function FoodLogPage() {
                     current={currentMacros.calories}
                     target={macroTargets.calories}
                     unit="kcal"
-                    color="oklch(63.7% 0.237 25.331)"
-                    icon={<Flame className="h-4 w-4 text-red-400" />}
+                    color="oklch(70.7% 0.022 261.325)"
+                    icon={<Flame className="h-4 w-4 text-gray-400" />}
                   />
                   <MacroProgressBar
                     label="Protein"
                     current={currentMacros.protein}
                     target={macroTargets.protein}
                     unit="g"
-                    color="#34d399"
-                    icon={<Beef className="h-4 w-4 text-green-400" />}
+                    color="oklch(70.4% 0.191 22.216)"
+                    icon={<Beef className="h-4 w-4 text-red-400" />}
                   />
                   <MacroProgressBar
                     label="Carbs"
@@ -527,8 +545,8 @@ export default function FoodLogPage() {
                     current={currentMacros.fat}
                     target={macroTargets.fat}
                     unit="g"
-                    color="#f87171"
-                    icon={<Droplets className="h-4 w-4 text-red-400" />}
+                    color="oklch(82.8% 0.189 84.429)"
+                    icon={<Droplets className="h-4 w-4 text-amber-400" />}
                   />
                 </div>
               </CardContent>

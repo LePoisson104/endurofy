@@ -80,7 +80,6 @@ export default function FoodSearchModal({
     onFoodAdded(foodItem);
     setShowFoodSelection(false);
     setSelectedFood(null);
-    onClose();
   };
 
   const handleCustomFoodCreated = (customFood: AddCustomFoodPayload) => {};

@@ -49,15 +49,15 @@ const convertUnitCode = (unit: string): ServingUnit => {
 // Helper function to extract number and unit from combined unit (e.g., "112g" -> {amount: 112, unit: "g"})
 const parseCombinedUnit = (
   combinedUnit: string
-): { amount: number; unit: string } => {
+): { amount: number; unit: ServingUnit } => {
   const match = combinedUnit.match(/^(\d+(?:\.\d+)?)(.*)/);
   if (match) {
     return {
       amount: parseFloat(match[1]),
-      unit: match[2] || "g",
+      unit: (match[2] as ServingUnit) || "g",
     };
   }
-  return { amount: 1, unit: combinedUnit };
+  return { amount: 1, unit: combinedUnit as ServingUnit };
 };
 
 // Helper function to check if a unit is a combined unit (contains numbers)
@@ -87,7 +87,7 @@ const getUnitConversionFactor = (unit: string): number => {
 };
 
 // Helper function to extract nutritional values from nutritions array
-const getNutrientValue = (
+const getCalculatedNutrientValue = (
   nutritions: FoodNutrient[] | undefined,
   nutrientNumbers: number[],
   servingSize: number
@@ -104,45 +104,54 @@ const getNutrientValue = (
     : 0;
 };
 
+const getRawNutrientValue = (
+  nutritions: FoodNutrient[] | undefined,
+  nutrientNumbers: number[]
+): number => {
+  return (
+    nutritions?.find((n) => nutrientNumbers.includes(n.nutrientId))?.value || 0
+  );
+};
+
 // Helper function to get nutrition data from food
 const getNutritionData = (food: FoodSearchResult) => {
   return {
-    calories: getNutrientValue(
+    calories: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.CALORIES],
       food.servingSize
     ),
-    protein: getNutrientValue(
+    protein: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.PROTEIN],
       food.servingSize
     ),
-    carbs: getNutrientValue(
+    carbs: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.CARBOHYDRATE],
       food.servingSize
     ),
-    fat: getNutrientValue(
+    fat: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.FAT],
       food.servingSize
     ),
-    fiber: getNutrientValue(
+    fiber: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.FIBER],
       food.servingSize
     ),
-    sugar: getNutrientValue(
+    sugar: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.TOTAL_SUGARS],
       food.servingSize
     ),
-    sodium: getNutrientValue(
+    sodium: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.SODIUM],
       food.servingSize
     ),
-    cholesterol: getNutrientValue(
+    cholesterol: getCalculatedNutrientValue(
       food.nutritions,
       [USDAFoodNutrientID.CHOLESTEROL],
       food.servingSize
@@ -251,36 +260,52 @@ export default function FoodSelectionModal({
           name: "Protein",
           value: calculatedNutrition.protein,
           calories: proteinCalories,
-          color: "#34d399",
+          color: "oklch(70.4% 0.191 22.216)",
         },
         {
           name: "Carbs",
           value: calculatedNutrition.carbs,
           calories: carbsCalories,
-          color: "#60a5fa",
+          color: "oklch(70.7% 0.165 254.624)",
         },
         {
           name: "Fat",
           value: calculatedNutrition.fat,
           calories: fatCalories,
-          color: "#f87171",
+          color: "oklch(82.8% 0.189 84.429)",
         },
       ].filter((item) => item.value > 0); // Only show segments with values > 0
 
   const handleConfirm = () => {
     const foodItem: FoodItem = {
-      id: `${food.fdcId}-${Date.now()}`,
-      name: food.description,
-      calories: calculatedNutrition.calories,
-      protein: calculatedNutrition.protein,
-      carbs: calculatedNutrition.carbs,
-      fat: calculatedNutrition.fat,
-      fiber: Math.round(nutritionData.fiber * multiplier * 10) / 10,
-      sugar: Math.round(nutritionData.sugar * multiplier * 10) / 10,
-      sodium: Math.round(nutritionData.sodium * multiplier * 10) / 10,
-      cholesterol: Math.round(nutritionData.cholesterol * multiplier * 10) / 10,
-      quantity: servingSizeNum,
-      unit: selectedUnit,
+      fdcId: food.fdcId,
+      foodName: food.description,
+      foodBrand: food.brandOwner,
+      foodSource: food.foodSource,
+      calories: getRawNutrientValue(food.nutritions, [
+        USDAFoodNutrientID.CALORIES,
+      ]),
+      protein: getRawNutrientValue(food.nutritions, [
+        USDAFoodNutrientID.PROTEIN,
+      ]),
+      carbs: getRawNutrientValue(food.nutritions, [
+        USDAFoodNutrientID.CARBOHYDRATE,
+      ]),
+      fat: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FAT]),
+      fiber: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FIBER]),
+      sugar: getRawNutrientValue(food.nutritions, [
+        USDAFoodNutrientID.TOTAL_SUGARS,
+      ]),
+      sodium: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.SODIUM]),
+      cholesterol: getRawNutrientValue(food.nutritions, [
+        USDAFoodNutrientID.CHOLESTEROL,
+      ]),
+      servingSize: isCombinedUnit(selectedUnit)
+        ? parseCombinedUnit(selectedUnit).amount
+        : servingSizeNum,
+      servingUnit: isCombinedUnit(selectedUnit)
+        ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)
+        : (selectedUnit as ServingUnit),
     };
 
     onConfirm(foodItem);
@@ -324,7 +349,7 @@ export default function FoodSelectionModal({
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: "#34d399" }}
+                    style={{ backgroundColor: "oklch(70.4% 0.191 22.216)" }}
                   />
                   <p className="text-foreground font-medium">Protein</p>
                 </div>
@@ -341,7 +366,7 @@ export default function FoodSelectionModal({
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: "#60a5fa" }}
+                    style={{ backgroundColor: "oklch(70.7% 0.165 254.624)" }}
                   />
                   <p className="text-foreground font-medium">Carbs</p>
                 </div>
@@ -358,7 +383,7 @@ export default function FoodSelectionModal({
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: "#f87171" }}
+                    style={{ backgroundColor: "oklch(82.8% 0.189 84.429)" }}
                   />
                   <p className="text-foreground font-medium">Fat</p>
                 </div>

@@ -16,17 +16,7 @@ import {
 import { Apple, Edit, Heart, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-
-interface FoodItem {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  quantity: number;
-  unit: string;
-}
+import { FoodItem } from "../../../interfaces/food-log-interfaces";
 
 interface MealData {
   uncategorized: FoodItem[];
@@ -51,10 +41,10 @@ interface MealAccordionProps {
 const getMealMacros = (meal: FoodItem[]) => {
   return meal.reduce(
     (totals, food) => ({
-      calories: totals.calories + food.calories * food.quantity,
-      protein: totals.protein + food.protein * food.quantity,
-      carbs: totals.carbs + food.carbs * food.quantity,
-      fat: totals.fat + food.fat * food.quantity,
+      calories: totals.calories + food.calories * food.servingSize,
+      protein: totals.protein + food.protein * food.servingSize,
+      carbs: totals.carbs + food.carbs * food.servingSize,
+      fat: totals.fat + food.fat * food.servingSize,
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
@@ -155,17 +145,17 @@ export default function MealAccordion({
               <div className="space-y-2">
                 {foods.map((food) => (
                   <div
-                    key={food.id}
+                    key={food.fdcId}
                     className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
                   >
                     <div>
                       <div className="flex items-center gap-2">
                         <Apple className="h-3 w-3 text-destructive" />
-                        <p className="font-medium text-sm">{food.name}</p>
+                        <p className="font-medium text-sm">{food.foodName}</p>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {food.quantity} {food.unit} •{" "}
-                        {Math.round(food.calories * food.quantity)} cal
+                        {food.servingSize} {food.servingUnit} •{" "}
+                        {Math.round(food.calories * food.servingSize)} cal
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -181,20 +171,24 @@ export default function MealAccordion({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => onEditFood(mealType, food.id)}
+                            onClick={() => onEditFood(mealType, food.foodName)}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => onRemoveFood(mealType, food.id)}
+                            onClick={() =>
+                              onRemoveFood(mealType, food.foodName)
+                            }
                             variant="destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Remove
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => onFavoriteFood(mealType, food.id)}
+                            onClick={() =>
+                              onFavoriteFood(mealType, food.foodName)
+                            }
                           >
                             <Heart className="h-4 w-4 mr-2" />
                             Add to Favorites

@@ -1,8 +1,10 @@
-export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT" | string;
+export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT";
 
 export interface FoodItem {
-  id: string;
-  name: string;
+  fdcId: string;
+  foodName: string;
+  foodBrand?: string;
+  foodSource?: "USDA" | "custom";
   calories: number;
   protein: number;
   carbs: number;
@@ -11,14 +13,17 @@ export interface FoodItem {
   sugar?: number;
   sodium?: number;
   cholesterol?: number;
-  quantity: number;
-  unit: string;
+  servingSize: number;
+  servingUnit: ServingUnit;
+  mealType?: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
+  loggedAt?: Date;
 }
 
 export interface FoodSearchResult {
   fdcId: string;
   brandOwner: string;
   description: string;
+  foodSource: "USDA" | "custom";
   foodCategory: string;
   ingredients: string;
   servingSize: number;

@@ -177,7 +177,7 @@ export default function FoodCalendar({
       <div className="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mt-4">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-green-400 dark:bg-green-600 rounded-[2px]"></div>
-          <span>Logged Food</span>
+          <span>Has Logged Food</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="border-b border-2 rounded-full border-green-600 dark:border-green-400 w-[23px]" />
