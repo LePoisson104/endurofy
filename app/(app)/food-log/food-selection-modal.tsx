@@ -173,15 +173,24 @@ export default function FoodSelectionModal({
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
   const [availableUnits, setAvailableUnits] = useState<string[]>(servingUnits);
+  const [initialServingSize, setInitialServingSize] = useState<string>("");
+  const [initialUnit, setInitialUnit] = useState<ServingUnit>("g");
   const isMobile = useIsMobile();
 
   // Reset form when food or editFood changes
   useEffect(() => {
     if (mode === "edit" && editFood) {
       // Edit mode: initialize with existing food log data
-      setServingSize(Math.round(editFood.serving_size).toString());
-      setSelectedUnit(editFood.serving_size_unit as ServingUnit);
+      const roundedSize = Math.round(editFood.serving_size).toString();
+      const unit = editFood.serving_size_unit as ServingUnit;
+
+      setServingSize(roundedSize);
+      setSelectedUnit(unit);
       setAvailableUnits(servingUnits);
+
+      // Store initial values for comparison
+      setInitialServingSize(roundedSize);
+      setInitialUnit(unit);
     } else if (mode === "add" && food) {
       // Add mode: initialize with search result data
       const originalServingSize =
@@ -205,6 +214,10 @@ export default function FoodSelectionModal({
       // Set defaults: serving size = 1, unit = combined unit
       setServingSize("1");
       setSelectedUnit(combinedUnit as ServingUnit);
+
+      // Reset initial values for add mode
+      setInitialServingSize("");
+      setInitialUnit("g");
     }
   }, [food, editFood, mode]);
 
@@ -308,7 +321,13 @@ export default function FoodSelectionModal({
           calories: fatCalories,
           color: "oklch(82.8% 0.189 84.429)",
         },
-      ].filter((item) => item.value > 0); // Only show segments with values > 0
+      ].filter((item) => item.value > 0);
+
+  // Check if values have changed from initial (for edit mode)
+  const hasValuesChanged =
+    mode === "edit"
+      ? servingSize !== initialServingSize || selectedUnit !== initialUnit
+      : true; // Always allow in add mode // Only show segments with values > 0
 
   const handleConfirm = () => {
     if (mode === "edit" && editFood && onUpdate) {
@@ -498,7 +517,7 @@ export default function FoodSelectionModal({
           <div className="flex gap-2 pt-4 justify-end items-center">
             <Button
               onClick={handleConfirm}
-              disabled={isAddingFoodLog}
+              disabled={isAddingFoodLog || !hasValuesChanged}
               className="flex items-center gap-2 w-[100px] text-sm"
             >
               {isAddingFoodLog ? (
