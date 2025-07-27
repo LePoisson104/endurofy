@@ -108,8 +108,9 @@ export default function FoodLogPage() {
   ] = useAddFoodLogMutation();
   const { data: foodLog, isLoading: isLoadingFoodLog } = useGetFoodLogQuery({
     userId: user?.user_id,
-    date: selectedDate.toISOString().split("T")[0], // Convert Date to YYYY-MM-DD string
+    date: selectedDate.toLocaleDateString("en-CA"), // Convert Date to YYYY-MM-DD string
   });
+
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
   const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
