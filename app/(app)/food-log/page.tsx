@@ -47,7 +47,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FoodSearchModal, WeekSelector, type AddFoodLogPayload } from "./";
+import {
+  FoodSearchModal,
+  FoodSelectionModal,
+  WeekSelector,
+  type AddFoodLogPayload,
+} from "./";
 import { FoodLogs } from "@/interfaces/food-log-interfaces";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
@@ -59,6 +64,7 @@ import {
   useAddFoodLogMutation,
   useGetFoodLogQuery,
   useDeleteFoodLogMutation,
+  useUpdateFoodLogMutation,
 } from "@/api/food/food-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
@@ -93,6 +99,8 @@ export default function FoodLogPage() {
   const [isLogCompleted, setIsLogCompleted] = useState(false);
   const [copiedMealData, setCopiedMealData] = useState<MealData | null>(null);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentEditFood, setCurrentEditFood] = useState<FoodLogs | null>(null);
 
   const [
     addFoodLog,
@@ -104,6 +112,8 @@ export default function FoodLogPage() {
   });
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
+  const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
+    useUpdateFoodLogMutation();
   console.log(foodLog?.data?.data);
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
@@ -225,8 +235,24 @@ export default function FoodLogPage() {
   };
 
   const handleEditFood = (mealType: keyof MealData, foodId: string) => {
-    // TODO: Implement edit functionality
-    console.log("Edit food:", { mealType, foodId });
+    // Find the food to edit in the current food log data
+    if (!foodLog?.data?.data) return;
+
+    const allFoods = [
+      ...(foodLog.data.data.uncategorized || []),
+      ...(foodLog.data.data.breakfast || []),
+      ...(foodLog.data.data.lunch || []),
+      ...(foodLog.data.data.dinner || []),
+      ...(foodLog.data.data.snacks || []),
+    ];
+
+    const foodToEdit = allFoods.find((food) => food.food_log_id === foodId);
+
+    if (foodToEdit) {
+      setCurrentEditFood(foodToEdit);
+      setIsEditMode(true);
+      setIsAddFoodModalOpen(true);
+    }
   };
 
   const handleRemoveFood = async (foodLogId: string) => {
@@ -244,6 +270,31 @@ export default function FoodLogPage() {
   const handleFavoriteFood = (mealType: keyof MealData, foodId: string) => {
     // TODO: Implement favorite functionality
     console.log("Favorite food:", { mealType, foodId });
+  };
+
+  const handleUpdateFood = async (updatedFood: Partial<FoodLogs>) => {
+    if (!updatedFood.food_log_id) return;
+
+    try {
+      await updateFoodLog({
+        foodLogId: updatedFood.food_log_id,
+        payload: {
+          serving_size: updatedFood.serving_size,
+          serving_size_unit: updatedFood.serving_size_unit,
+        },
+      }).unwrap();
+
+      setIsAddFoodModalOpen(false);
+      setIsEditMode(false);
+      setCurrentEditFood(null);
+      toast.success("Food updated successfully");
+    } catch (error: any) {
+      if (error.status !== 500) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to update food log");
+      }
+    }
   };
 
   // Dropdown menu handlers
@@ -686,14 +737,31 @@ export default function FoodLogPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Food Modal */}
-      <FoodSearchModal
-        isOpen={isAddFoodModalOpen}
-        onClose={() => setIsAddFoodModalOpen(false)}
-        onFoodAdded={handleFoodAdded}
-        mealType={selectedMeal}
-        isAddingFoodLog={isAddingFoodLog}
-      />
+      {/* Add/Edit Food Modal */}
+      {isEditMode ? (
+        <FoodSelectionModal
+          isOpen={isAddFoodModalOpen}
+          onClose={() => {
+            setIsAddFoodModalOpen(false);
+            setIsEditMode(false);
+            setCurrentEditFood(null);
+          }}
+          food={null}
+          editFood={currentEditFood}
+          mode="edit"
+          onConfirm={() => {}}
+          onUpdate={handleUpdateFood}
+          isAddingFoodLog={isUpdatingFoodLog}
+        />
+      ) : (
+        <FoodSearchModal
+          isOpen={isAddFoodModalOpen}
+          onClose={() => setIsAddFoodModalOpen(false)}
+          onFoodAdded={handleFoodAdded}
+          mealType={selectedMeal}
+          isAddingFoodLog={isAddingFoodLog}
+        />
+      )}
     </div>
   );
 }

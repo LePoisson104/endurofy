@@ -83,7 +83,10 @@ export interface FoodSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   food: FoodSearchResult | null;
+  editFood?: FoodLogs | null;
+  mode?: "add" | "edit";
   onConfirm: (food: AddFoodLogPayload) => void;
+  onUpdate?: (updatedFood: Partial<FoodLogs>) => void;
 }
 
 export interface CustomFoodModalProps {

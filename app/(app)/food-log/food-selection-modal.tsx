@@ -27,6 +27,7 @@ import type {
   ServingUnit,
   FoodSearchResult,
   FoodNutrient,
+  FoodLogs,
 } from "../../../interfaces/food-log-interfaces";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
@@ -163,7 +164,10 @@ export default function FoodSelectionModal({
   isOpen,
   onClose,
   food,
+  editFood,
+  mode = "add",
   onConfirm,
+  onUpdate,
   isAddingFoodLog,
 }: FoodSelectionModalProps) {
   const [servingSize, setServingSize] = useState("1");
@@ -171,10 +175,15 @@ export default function FoodSelectionModal({
   const [availableUnits, setAvailableUnits] = useState<string[]>(servingUnits);
   const isMobile = useIsMobile();
 
-  // Reset form when food changes
+  // Reset form when food or editFood changes
   useEffect(() => {
-    if (food) {
-      // Create combined serving unit from food data
+    if (mode === "edit" && editFood) {
+      // Edit mode: initialize with existing food log data
+      setServingSize(Math.round(editFood.serving_size).toString());
+      setSelectedUnit(editFood.serving_size_unit as ServingUnit);
+      setAvailableUnits(servingUnits);
+    } else if (mode === "add" && food) {
+      // Add mode: initialize with search result data
       const originalServingSize =
         food.servingSize?.toString() ||
         (food as any).servingSize?.toString() ||
@@ -197,20 +206,44 @@ export default function FoodSelectionModal({
       setServingSize("1");
       setSelectedUnit(combinedUnit as ServingUnit);
     }
-  }, [food]);
+  }, [food, editFood, mode]);
 
-  if (!food) return null;
+  if (!food && !editFood) return null;
 
-  const nutritionData = getNutritionData(food);
+  // Get nutrition data based on mode
+  const nutritionData =
+    mode === "edit" && editFood
+      ? {
+          calories: editFood.calories,
+          protein: editFood.protein_g,
+          carbs: editFood.carbs_g,
+          fat: editFood.fat_g,
+          fiber: editFood.fiber_g,
+          sugar: editFood.sugar_g,
+          sodium: editFood.sodium_mg,
+          cholesterol: editFood.cholesterol_mg,
+        }
+      : food
+      ? getNutritionData(food)
+      : null;
 
-  const servingSizeNum = parseFloat(servingSize) || 1;
+  if (!nutritionData) return null;
+
+  const servingSizeNum = parseInt(servingSize) || 1;
+
+  // Get original serving size based on mode
   const originalServingSize =
-    food.servingSize || (food as any).servingSize || 100;
+    mode === "edit" && editFood
+      ? 100 // editFood nutrition values are per 100g
+      : food?.servingSize || (food as any)?.servingSize || 100;
 
   // Get the original unit from the food data
-  const originalUnit = convertUnitCode(
-    (food.servingSizeUnit as string) || (food as any).servingUnit || "g"
-  );
+  const originalUnit =
+    mode === "edit" && editFood
+      ? "g" // editFood nutrition values are per 100g
+      : convertUnitCode(
+          (food?.servingSizeUnit as string) || (food as any)?.servingUnit || "g"
+        );
 
   // Calculate multiplier based on serving size ratio and unit conversion
   let multiplier: number;
@@ -234,9 +267,9 @@ export default function FoodSelectionModal({
 
   const calculatedNutrition = {
     calories: Math.round(nutritionData.calories * multiplier),
-    protein: Math.round(nutritionData.protein * multiplier * 10) / 10,
-    carbs: Math.round(nutritionData.carbs * multiplier * 10) / 10,
-    fat: Math.round(nutritionData.fat * multiplier * 10) / 10,
+    protein: Math.round(nutritionData.protein * multiplier),
+    carbs: Math.round(nutritionData.carbs * multiplier),
+    fat: Math.round(nutritionData.fat * multiplier),
   };
 
   // Calculate percentages for the chart and calories from each macro
@@ -278,38 +311,50 @@ export default function FoodSelectionModal({
       ].filter((item) => item.value > 0); // Only show segments with values > 0
 
   const handleConfirm = () => {
-    const foodItem: AddFoodLogPayload = {
-      foodId: food.fdcId.toString(),
-      foodName: food.description,
-      foodBrand: food.brandOwner,
-      foodSource: food.foodSource,
-      calories: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.CALORIES,
-      ]),
-      protein: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.PROTEIN,
-      ]),
-      carbs: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.CARBOHYDRATE,
-      ]),
-      fat: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FAT]),
-      fiber: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FIBER]),
-      sugar: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.TOTAL_SUGARS,
-      ]),
-      sodium: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.SODIUM]),
-      cholesterol: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.CHOLESTEROL,
-      ]),
-      servingSize: isCombinedUnit(selectedUnit)
-        ? parseCombinedUnit(selectedUnit).amount * servingSizeNum
-        : servingSizeNum,
-      servingUnit: isCombinedUnit(selectedUnit)
-        ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)
-        : (selectedUnit as ServingUnit),
-    };
-
-    onConfirm(foodItem);
+    if (mode === "edit" && editFood && onUpdate) {
+      // Edit mode: update existing food log
+      const updatedFood: Partial<FoodLogs> = {
+        food_log_id: editFood.food_log_id,
+        serving_size: servingSizeNum,
+        serving_size_unit: selectedUnit,
+      };
+      onUpdate(updatedFood);
+    } else if (mode === "add" && food && onConfirm) {
+      // Add mode: create new food log
+      const foodItem: AddFoodLogPayload = {
+        foodId: food.fdcId.toString(),
+        foodName: food.description,
+        foodBrand: food.brandOwner,
+        foodSource: food.foodSource,
+        calories: getRawNutrientValue(food.nutritions, [
+          USDAFoodNutrientID.CALORIES,
+        ]),
+        protein: getRawNutrientValue(food.nutritions, [
+          USDAFoodNutrientID.PROTEIN,
+        ]),
+        carbs: getRawNutrientValue(food.nutritions, [
+          USDAFoodNutrientID.CARBOHYDRATE,
+        ]),
+        fat: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FAT]),
+        fiber: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FIBER]),
+        sugar: getRawNutrientValue(food.nutritions, [
+          USDAFoodNutrientID.TOTAL_SUGARS,
+        ]),
+        sodium: getRawNutrientValue(food.nutritions, [
+          USDAFoodNutrientID.SODIUM,
+        ]),
+        cholesterol: getRawNutrientValue(food.nutritions, [
+          USDAFoodNutrientID.CHOLESTEROL,
+        ]),
+        servingSize: isCombinedUnit(selectedUnit)
+          ? parseCombinedUnit(selectedUnit).amount * servingSizeNum
+          : servingSizeNum,
+        servingUnit: isCombinedUnit(selectedUnit)
+          ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)
+          : (selectedUnit as ServingUnit),
+      };
+      onConfirm(foodItem);
+    }
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -327,15 +372,17 @@ export default function FoodSelectionModal({
       >
         <DialogHeader className="relative border-b pb-4">
           <DialogTitle className="text-md">
-            {food.description
-              .split(" ")
-              .map(
-                (word) =>
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-              )
-              .join(" ")}
+            {mode === "edit" && editFood
+              ? `Edit ${editFood.food_name}`
+              : food?.description
+                  .split(" ")
+                  .map(
+                    (word) =>
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  )
+                  .join(" ")}
           </DialogTitle>
-          {food.brandOwner && (
+          {mode === "add" && food?.brandOwner && (
             <span className="text-sm text-muted-foreground">
               ({food.brandOwner})
             </span>
@@ -415,12 +462,12 @@ export default function FoodSelectionModal({
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
-                  min="0.1"
+                  min="1"
                   max="10000"
-                  step="0.1"
+                  step="1"
                   value={servingSize}
                   onChange={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
+                    const value = parseInt(e.target.value) || 0;
                     setServingSize(value > 10000 ? "10000" : e.target.value);
                   }}
                   className="w-20"
@@ -456,6 +503,8 @@ export default function FoodSelectionModal({
             >
               {isAddingFoodLog ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
+              ) : mode === "edit" ? (
+                "Update"
               ) : (
                 "Add food"
               )}
