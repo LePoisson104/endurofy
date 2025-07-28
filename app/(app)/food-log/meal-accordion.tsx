@@ -154,7 +154,16 @@ export default function MealAccordion({
                     <div>
                       <div className="flex items-center gap-2">
                         <Apple className="h-3 w-3 text-destructive" />
-                        <p className="font-medium text-sm">{food.food_name}</p>
+                        <p className="font-medium text-sm">
+                          {food.food_name
+                            .split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase()
+                            )
+                            .join(" ")}
+                        </p>
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {Math.round(food.serving_size)} {food.serving_size_unit}{" "}
