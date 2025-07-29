@@ -625,8 +625,8 @@ export default function FoodLogPage() {
                     current={currentMacros.protein}
                     target={macroTargets.protein}
                     unit="g"
-                    color="oklch(70.4% 0.191 22.216)"
-                    icon={<Beef className="h-4 w-4 text-red-400" />}
+                    color="oklch(79.2% 0.209 151.711)"
+                    icon={<Beef className="h-4 w-4 text-green-400" />}
                   />
                   <MacroProgressBar
                     label="Carbs"
@@ -641,8 +641,8 @@ export default function FoodLogPage() {
                     current={currentMacros.fat}
                     target={macroTargets.fat}
                     unit="g"
-                    color="oklch(82.8% 0.189 84.429)"
-                    icon={<Droplets className="h-4 w-4 text-amber-400" />}
+                    color="oklch(70.4% 0.191 22.216)"
+                    icon={<Droplets className="h-4 w-4 text-red-400" />}
                   />
                 </div>
               </CardContent>
