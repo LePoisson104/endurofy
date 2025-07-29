@@ -16,15 +16,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { useTheme } from "next-themes";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRouter } from "next/navigation";
 import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 import { ThemeToggle } from "@/components/buttons/theme-toggle";
+import { useScrollDirection } from "@/hooks/use-scroll-direction";
 
 interface TopBarProps {
   className?: string;
+  isVisible?: boolean;
 }
 
 export function TopBar({ className }: TopBarProps) {
@@ -32,6 +33,7 @@ export function TopBar({ className }: TopBarProps) {
   const isMobile = useIsMobile();
   const router = useRouter();
   const [logout, { isSuccess }] = useLogoutMutation();
+  const isVisible = useScrollDirection();
 
   useEffect(() => {
     if (isSuccess) {
@@ -39,10 +41,23 @@ export function TopBar({ className }: TopBarProps) {
     }
   }, [isSuccess, router]);
 
+  // Close mobile search when topbar becomes hidden
+  useEffect(() => {
+    if (!isVisible && isSearchOpen) {
+      setIsSearchOpen(false);
+    }
+  }, [isVisible, isSearchOpen]);
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex h-[65px] w-full items-center border-b bg-background px-4",
+        `sticky top-0 z-50 flex h-[65px] w-full items-center ${
+          isMobile ? "" : "border-b"
+        } bg-background px-4 transition-opacity duration-500 ease-in-out`,
+        {
+          "opacity-0 pointer-events-none": isMobile && !isVisible,
+          "opacity-100 pointer-events-auto": !isMobile || isVisible,
+        },
         className
       )}
     >
@@ -152,7 +167,7 @@ export function TopBar({ className }: TopBarProps) {
 
       {/* Mobile Search Expanded */}
       {isSearchOpen && (
-        <div className="absolute left-0 top-16 w-full bg-background p-4 border-b md:hidden">
+        <div className="absolute left-0 top-16 w-full bg-background p-4 border-b md:hidden transition-transform duration-300 ease-in-out">
           <div className="relative">
             <Input
               type="search"
