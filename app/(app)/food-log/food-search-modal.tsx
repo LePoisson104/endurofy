@@ -80,6 +80,7 @@ export default function FoodSearchModal({
   const handleFoodConfirm = async (foodItem: AddFoodLogPayload) => {
     try {
       await onFoodAdded(foodItem);
+
       // Only close the modal after the food has been successfully added
       setShowFoodSelection(false);
       setSelectedFood(null);

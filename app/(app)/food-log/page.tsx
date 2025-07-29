@@ -124,7 +124,7 @@ export default function FoodLogPage() {
     useDeleteFoodLogMutation();
   const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
     useUpdateFoodLogMutation();
-  console.log(foodLog?.data?.data);
+
   // Mock data - replace with actual data from your backend
   const [mealData, setMealData] = useState<MealData>({
     uncategorized: [],
@@ -215,6 +215,7 @@ export default function FoodLogPage() {
   const handleFoodAdded = async (food: AddFoodLogPayload) => {
     food.mealType = selectedMeal;
     food.loggedAt = selectedDate;
+
     try {
       await addFoodLog({
         userId: user?.user_id,
