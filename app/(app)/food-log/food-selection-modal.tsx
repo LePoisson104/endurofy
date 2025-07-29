@@ -307,7 +307,7 @@ export default function FoodSelectionModal({
           name: "Protein",
           value: calculatedNutrition.protein,
           calories: proteinCalories,
-          color: "oklch(70.4% 0.191 22.216)",
+          color: "oklch(79.2% 0.209 151.711)",
         },
         {
           name: "Carbs",
@@ -319,7 +319,7 @@ export default function FoodSelectionModal({
           name: "Fat",
           value: calculatedNutrition.fat,
           calories: fatCalories,
-          color: "oklch(82.8% 0.189 84.429)",
+          color: "oklch(70.4% 0.191 22.216)",
         },
       ].filter((item) => item.value > 0);
 
@@ -424,7 +424,7 @@ export default function FoodSelectionModal({
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: "oklch(70.4% 0.191 22.216)" }}
+                    style={{ backgroundColor: "oklch(79.2% 0.209 151.711)" }}
                   />
                   <p className="text-foreground font-medium">Protein</p>
                 </div>
@@ -458,7 +458,7 @@ export default function FoodSelectionModal({
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: "oklch(82.8% 0.189 84.429)" }}
+                    style={{ backgroundColor: "oklch(70.4% 0.191 22.216)" }}
                   />
                   <p className="text-foreground font-medium">Fat</p>
                 </div>

@@ -9,6 +9,8 @@ interface MacroProgressBarProps {
   unit: string;
   color: string;
   icon: React.ReactNode;
+  view: "remaining" | "consumed";
+  bgColor: string;
 }
 
 export default function MacroProgressBar({
@@ -16,8 +18,10 @@ export default function MacroProgressBar({
   current,
   target,
   unit,
+  bgColor,
   color,
   icon,
+  view,
 }: MacroProgressBarProps) {
   const isMobile = useIsMobile();
   const actualPercentage = (current / target) * 100;
@@ -43,7 +47,9 @@ export default function MacroProgressBar({
       <div className={`flex flex-col ${isMobile ? "w-full" : "w-[70%]"}`}>
         <div className="flex justify-between w-full">
           <span className="text-primary text-sm">
-            {Math.round(current)}/{target} {unit}
+            {view === "consumed"
+              ? `${Math.round(current)}/${target} ${unit}`
+              : `${target - Math.round(current)} ${unit}`}
           </span>
           <div
             className={`text-sm ${
@@ -53,7 +59,11 @@ export default function MacroProgressBar({
             {Math.round(actualPercentage)}%
           </div>
         </div>
-        <div className="relative w-full rounded-full h-2.5 bg-secondary">
+        <div
+          className={`relative w-full rounded-full h-2.5 ${
+            view === "consumed" ? "bg-secondary" : `${bgColor}`
+          }`}
+        >
           <div
             className="h-2.5 transition-all duration-300 ease-in-out"
             style={{

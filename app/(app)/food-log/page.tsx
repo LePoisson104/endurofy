@@ -4,18 +4,13 @@ import { useState } from "react";
 import { format } from "date-fns";
 import {
   CalendarIcon,
-  Beef,
-  Zap,
   Droplets,
-  Flame,
-  Wheat,
-  Candy,
-  Heart,
   EllipsisVertical,
   CheckCircle,
   Trash2,
   Copy,
   RotateCcw,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,12 +48,21 @@ import {
   WeekSelector,
   type AddFoodLogPayload,
 } from "./";
+import {
+  FiberIcon,
+  SugarIcon,
+  SodiumIcon,
+  CholesterolIcon,
+  AvocadoIcon,
+  ProteinIcon,
+  FlameIcon,
+  CarbsIcon,
+} from "@/components/icons/nutrition-icons";
 import { FoodLogs } from "@/interfaces/food-log-interfaces";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
 import PageTitle from "@/components/global/page-title";
-import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import WaterIntake from "./water-intake";
 import {
   useAddFoodLogMutation,
@@ -87,7 +91,6 @@ interface MacroTargets {
 
 export default function FoodLogPage() {
   const isMobile = useIsMobile();
-  const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     // Initialize with saved date from localStorage or current date
@@ -110,6 +113,7 @@ export default function FoodLogPage() {
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentEditFood, setCurrentEditFood] = useState<FoodLogs | null>(null);
+  const [view, setView] = useState<"consumed" | "remaining">("consumed");
 
   const [
     addFoodLog,
@@ -605,10 +609,30 @@ export default function FoodLogPage() {
             {/* Daily Nutrition */}
             <Card>
               <CardHeader>
-                <CardTitle>Daily Nutrition</CardTitle>
-                <CardDescription>
-                  Track your macronutrients and calories
-                </CardDescription>
+                <div
+                  className={`flex ${
+                    isMobile ? "flex-col gap-2" : "justify-between items-center"
+                  }`}
+                >
+                  <div>
+                    <CardTitle>Daily Nutrition</CardTitle>
+                    <CardDescription>
+                      Track your macronutrients and calories
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      className="w-[130px]"
+                      onClick={() =>
+                        setView(view === "consumed" ? "remaining" : "consumed")
+                      }
+                    >
+                      <ArrowLeftRight className="h-4 w-4" />
+                      {view === "consumed" ? "Remaining" : "Consumed"}
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex flex-col gap-6">
@@ -618,7 +642,9 @@ export default function FoodLogPage() {
                     target={macroTargets.calories}
                     unit="kcal"
                     color="oklch(70.7% 0.022 261.325)"
-                    icon={<Flame className="h-4 w-4 text-gray-400" />}
+                    icon={<FlameIcon />}
+                    view={view}
+                    bgColor="bg-gray-200"
                   />
                   <MacroProgressBar
                     label="Protein"
@@ -626,7 +652,10 @@ export default function FoodLogPage() {
                     target={macroTargets.protein}
                     unit="g"
                     color="oklch(79.2% 0.209 151.711)"
-                    icon={<Beef className="h-4 w-4 text-green-400" />}
+                    // icon={<Beef className="h-4 w-4 text-green-400" />}
+                    icon={<ProteinIcon />}
+                    view={view}
+                    bgColor="bg-green-200"
                   />
                   <MacroProgressBar
                     label="Carbs"
@@ -634,7 +663,9 @@ export default function FoodLogPage() {
                     target={macroTargets.carbs}
                     unit="g"
                     color="#60a5fa"
-                    icon={<Zap className="h-4 w-4 text-blue-400" />}
+                    icon={<CarbsIcon />}
+                    view={view}
+                    bgColor="bg-blue-200"
                   />
                   <MacroProgressBar
                     label="Fat"
@@ -642,7 +673,9 @@ export default function FoodLogPage() {
                     target={macroTargets.fat}
                     unit="g"
                     color="oklch(70.4% 0.191 22.216)"
-                    icon={<Droplets className="h-4 w-4 text-red-400" />}
+                    icon={<AvocadoIcon />}
+                    view={view}
+                    bgColor="bg-red-200"
                   />
                 </div>
               </CardContent>
@@ -656,11 +689,11 @@ export default function FoodLogPage() {
                   Track your fiber, sugar, sodium, and cholesterol intake
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Wheat className="h-4 w-4 text-amber-400" />
+                      <FiberIcon />
                       <span className="font-medium text-sm">Fiber</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
@@ -670,7 +703,7 @@ export default function FoodLogPage() {
 
                   <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Candy className="h-4 w-4 text-rose-400" />
+                      <SugarIcon />
                       <span className="font-medium text-sm">Sugar</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
@@ -680,14 +713,7 @@ export default function FoodLogPage() {
 
                   <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center gap-2">
-                      {/* <Pill className="h-4 w-4 text-blue-500" /> */}
-                      <p
-                        className={`${
-                          isDark ? "text-gray-400" : "text-gray-600"
-                        } text-sm`}
-                      >
-                        Na
-                      </p>
+                      <SodiumIcon />
                       <span className="font-medium text-sm">Sodium</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
@@ -697,7 +723,7 @@ export default function FoodLogPage() {
 
                   <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-red-400" />
+                      <CholesterolIcon />
                       <span className="font-medium text-sm">Cholesterol</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
