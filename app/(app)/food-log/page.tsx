@@ -89,7 +89,16 @@ export default function FoodLogPage() {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    // Initialize with saved date from localStorage or current date
+    if (typeof window !== "undefined") {
+      const savedDate = localStorage.getItem("foodLogSelectedDate");
+      if (savedDate) {
+        return new Date(savedDate);
+      }
+    }
+    return new Date();
+  });
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<keyof MealData>("breakfast");
@@ -224,6 +233,7 @@ export default function FoodLogPage() {
 
   const handleCalendarDateSelect = (date: Date) => {
     setSelectedDate(date);
+    localStorage.setItem("foodLogSelectedDate", date.toISOString());
     setIsLogCompleted(false); // Reset completion status when changing dates
     if (isMobile) {
       setIsCalendarModalOpen(false);
@@ -232,6 +242,7 @@ export default function FoodLogPage() {
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
+    localStorage.setItem("foodLogSelectedDate", date.toISOString());
     setIsLogCompleted(false); // Reset completion status when changing dates
   };
 

@@ -30,7 +30,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     updateFoodLog: builder.mutation({
       query: ({ foodLogId, payload }) => ({
         url: `/api/v1/food-log/food/${foodLogId}`,
-        method: "PUT",
+        method: "PATCH",
         body: payload,
       }),
       invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
