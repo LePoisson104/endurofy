@@ -23,8 +23,14 @@ import FoodSelectionModal from "./food-selection-modal";
 import CustomFoodModal from "./custom-food-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useSearchFoodQuery } from "@/api/food/food-api-slice";
+import {
+  useSearchFoodQuery,
+  useGetCustomFoodsQuery,
+} from "@/api/food/food-api-slice";
 import { Skeleton } from "@/components/ui/skeleton";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { useSelector } from "react-redux";
+import FoodCardSkeleton from "@/components/skeletons/foodcard-skeleton";
 
 export default function FoodSearchModal({
   isOpen,
@@ -33,6 +39,9 @@ export default function FoodSearchModal({
   mealType,
   isAddingFoodLog,
 }: FoodSearchModalProps) {
+  const isMobile = useIsMobile();
+  const user = useSelector(selectCurrentUser);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [selectedFood, setSelectedFood] = useState<FoodSearchResult | null>(
@@ -40,7 +49,6 @@ export default function FoodSearchModal({
   );
   const [showFoodSelection, setShowFoodSelection] = useState(false);
   const [showCustomFood, setShowCustomFood] = useState(false);
-  const isMobile = useIsMobile();
 
   // Debounce the search query with a 500ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -54,6 +62,14 @@ export default function FoodSearchModal({
       skip: !debouncedSearchQuery.trim() || !isOpen,
     }
   );
+
+  const { data: customFoods, isFetching: isFetchingCustomFoods } =
+    useGetCustomFoodsQuery(
+      { userId: user?.user_id },
+      {
+        skip: activeTab !== "custom" || !isOpen,
+      }
+    );
 
   // const filteredFoods = searchResults?.data?.filter(
   //   (food: FoodSearchResult) => {
@@ -169,14 +185,7 @@ export default function FoodSearchModal({
               <TabsContent value="all" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto thin-scrollbar">
                   {isFetching ? (
-                    <div className="flex flex-col gap-2">
-                      <Skeleton className="w-full h-[55px]" />
-                      <Skeleton className="w-full h-[55px]" />
-                      <Skeleton className="w-full h-[55px]" />
-                      <Skeleton className="w-full h-[55px]" />
-                      <Skeleton className="w-full h-[55px]" />
-                      <Skeleton className="w-full h-[55px]" />
-                    </div>
+                    <FoodCardSkeleton />
                   ) : searchResults?.data?.foods?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       No foods found
@@ -217,29 +226,22 @@ export default function FoodSearchModal({
 
               <TabsContent value="custom" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-                  {/* {filteredFoods.length === 0 ? (
+                  {isFetchingCustomFoods ? (
+                    <FoodCardSkeleton />
+                  ) : customFoods?.data?.data?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      <p>No custom foods found</p>
-                      <Button
-                        variant="outline"
-                        className="mt-2"
-                        size="sm"
-                        onClick={handleCreateCustomFood}
-                      >
-                        <Plus className="h-4 w-4" />
-                        Create Custom Food
-                      </Button>
+                      No custom foods found
                     </div>
                   ) : (
-                    filteredFoods.map((food: FoodSearchResult) => (
+                    customFoods?.data?.data?.map((food: FoodSearchResult) => (
                       <FoodCard
-                        key={food.id}
+                        key={food.fdcId}
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
                       />
                     ))
-                  )} */}
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

@@ -392,7 +392,7 @@ export default function FoodSelectionModal({
         <DialogHeader className="relative border-b pb-4">
           <DialogTitle className="text-md">
             {mode === "edit" && editFood
-              ? `Edit ${editFood.food_name}`
+              ? editFood.food_name
               : food?.description
                   .split(" ")
                   .map(

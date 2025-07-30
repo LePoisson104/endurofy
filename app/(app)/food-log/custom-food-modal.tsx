@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -27,17 +25,7 @@ import type {
   ServingUnit,
 } from "../../../interfaces/food-log-interfaces";
 
-const servingUnits: ServingUnit[] = [
-  "g",
-  "oz",
-  "ml",
-  "cup",
-  "tbsp",
-  "tsp",
-  "piece",
-  "slice",
-  "serving",
-];
+const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
 export default function CustomFoodModal({
   isOpen,
@@ -160,7 +148,7 @@ export default function CustomFoodModal({
           <DialogTitle>Create Custom Food</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div>
           {/* Basic Information */}
           <Card>
             <CardHeader>

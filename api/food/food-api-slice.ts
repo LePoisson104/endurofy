@@ -7,12 +7,30 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         url: `/api/v1/food/search/${searchItem}`,
         method: "GET",
       }),
-      providesTags: (result, error, { searchItem }) => [
-        { type: "Food", id: `${searchItem}` },
+    }),
+    getCustomFoods: builder.query({
+      query: ({ userId }) => ({
+        url: `/api/v1/food/${userId}/custom`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { userId }) => [
+        { type: "Food", id: `${userId}` },
         { type: "Food", id: "LIST" },
       ],
+    }),
+    addCustomFood: builder.mutation({
+      query: ({ userId, payload }) => ({
+        url: `/api/v1/food/${userId}/custom`,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "Food", id: "LIST" }],
     }),
   }),
 });
 
-export const { useSearchFoodQuery } = foodApiSlice;
+export const {
+  useSearchFoodQuery,
+  useAddCustomFoodMutation,
+  useGetCustomFoodsQuery,
+} = foodApiSlice;

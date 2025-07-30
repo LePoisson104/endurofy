@@ -113,7 +113,10 @@ export default function FoodLogPage() {
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentEditFood, setCurrentEditFood] = useState<FoodLogs | null>(null);
-  const [view, setView] = useState<"consumed" | "remaining">("consumed");
+  const [view, setView] = useState<"consumed" | "remaining">(
+    (localStorage.getItem("foodLogView") as "consumed" | "remaining") ||
+      "consumed"
+  );
 
   const [
     addFoodLog,
@@ -620,13 +623,17 @@ export default function FoodLogPage() {
                       Track your macronutrients and calories
                     </CardDescription>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-end">
                     <Button
                       variant="secondary"
                       className="w-[130px]"
-                      onClick={() =>
-                        setView(view === "consumed" ? "remaining" : "consumed")
-                      }
+                      onClick={() => {
+                        setView(view === "consumed" ? "remaining" : "consumed");
+                        localStorage.setItem(
+                          "foodLogView",
+                          view === "consumed" ? "remaining" : "consumed"
+                        );
+                      }}
                     >
                       <ArrowLeftRight className="h-4 w-4" />
                       {view === "consumed" ? "Remaining" : "Consumed"}
