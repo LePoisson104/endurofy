@@ -27,33 +27,49 @@ import type {
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
+// Internal form state that allows empty strings for number inputs
+interface FormState {
+  foodName: string;
+  foodBrand: string;
+  calories: string | number;
+  protein: string | number;
+  carbs: string | number;
+  fat: string | number;
+  fiber: string | number;
+  sugar: string | number;
+  sodium: string | number;
+  cholesterol: string | number;
+  servingSize: string | number;
+  servingUnit: ServingUnit;
+}
+
 export default function CustomFoodModal({
   isOpen,
   onClose,
   onFoodCreated,
 }: CustomFoodModalProps) {
   const isMobile = useIsMobile();
-  const [formData, setFormData] = useState<AddCustomFoodPayload>({
+  const [formData, setFormData] = useState<FormState>({
     foodName: "",
     foodBrand: "",
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-    fiber: 0,
-    sugar: 0,
-    sodium: 0,
-    cholesterol: 0,
-    servingSize: 1,
+    calories: "",
+    protein: "",
+    carbs: "",
+    fat: "",
+    fiber: "",
+    sugar: "",
+    sodium: "",
+    cholesterol: "",
+    servingSize: "",
     servingUnit: "g",
   });
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof AddCustomFoodPayload, string>>
+    Partial<Record<keyof FormState, string>>
   >({});
 
   const handleInputChange = (
-    field: keyof AddCustomFoodPayload,
+    field: keyof FormState,
     value: string | number
   ) => {
     setFormData((prev) => ({
@@ -70,44 +86,132 @@ export default function CustomFoodModal({
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof AddCustomFoodPayload, string>> = {};
+  const parseNumberValue = (value: string | number): number => {
+    if (typeof value === "number") return value;
+    if (value === "" || value === null || value === undefined) return 0;
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? 0 : parsed;
+  };
 
+  const parseIntValue = (value: string | number): number => {
+    if (typeof value === "number") return value;
+    if (value === "" || value === null || value === undefined) return 0;
+    const parsed = parseInt(value);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof FormState, string>> = {};
+
+    // Required field: Food name
     if (!formData.foodName.trim()) {
       newErrors.foodName = "Food name is required";
     }
 
-    if (formData.calories < 0) {
-      newErrors.calories = "Calories cannot be negative";
-    }
-
-    if (formData.protein < 0) {
-      newErrors.protein = "Protein cannot be negative";
-    }
-
-    if (formData.carbs < 0) {
-      newErrors.carbs = "Carbs cannot be negative";
-    }
-
-    if (formData.fat < 0) {
-      newErrors.fat = "Fat cannot be negative";
-    }
-
-    if (formData.servingSize <= 0) {
-      newErrors.servingSize = "Serving size must be greater than 0";
-    }
-
-    if (formData.servingSize > 10000) {
+    // Required field: Serving size
+    const servingSize = parseNumberValue(formData.servingSize);
+    if (formData.servingSize === "" || servingSize <= 0) {
+      newErrors.servingSize =
+        "Serving size is required and must be greater than 0";
+    } else if (servingSize > 10000) {
       newErrors.servingSize = "Serving size cannot exceed 10000";
     }
+
+    // Required macronutrients - must be greater than 0
+    const requiredMacros = [
+      {
+        field: "calories" as keyof FormState,
+        name: "Calories",
+        parser: parseIntValue,
+      },
+      {
+        field: "protein" as keyof FormState,
+        name: "Protein",
+        parser: parseNumberValue,
+      },
+      {
+        field: "carbs" as keyof FormState,
+        name: "Carbs",
+        parser: parseNumberValue,
+      },
+      {
+        field: "fat" as keyof FormState,
+        name: "Fat",
+        parser: parseNumberValue,
+      },
+    ];
+
+    requiredMacros.forEach(({ field, name, parser }) => {
+      const value = formData[field];
+      if (value === "" || value === null || value === undefined) {
+        newErrors[field] = `${name} is required`;
+      } else {
+        const numericValue = parser(value);
+        if (numericValue <= 0) {
+          newErrors[field] = `${name} must be greater than 0`;
+        }
+      }
+    });
+
+    // Validate optional numeric fields are not negative (when they have values)
+    const optionalNumericFields = [
+      {
+        field: "fiber" as keyof FormState,
+        name: "Fiber",
+        parser: parseNumberValue,
+      },
+      {
+        field: "sugar" as keyof FormState,
+        name: "Sugar",
+        parser: parseNumberValue,
+      },
+      {
+        field: "sodium" as keyof FormState,
+        name: "Sodium",
+        parser: parseIntValue,
+      },
+      {
+        field: "cholesterol" as keyof FormState,
+        name: "Cholesterol",
+        parser: parseIntValue,
+      },
+    ];
+
+    optionalNumericFields.forEach(({ field, name, parser }) => {
+      const value = formData[field];
+      if (value !== "" && value !== null && value !== undefined) {
+        const numericValue = parser(value);
+        if (numericValue < 0) {
+          newErrors[field] = `${name} cannot be negative`;
+        }
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const prepareSubmissionData = (): AddCustomFoodPayload => {
+    return {
+      foodName: formData.foodName.trim(),
+      foodBrand: formData.foodBrand.trim() || "",
+      calories: parseIntValue(formData.calories),
+      protein: parseNumberValue(formData.protein),
+      carbs: parseNumberValue(formData.carbs),
+      fat: parseNumberValue(formData.fat),
+      fiber: parseNumberValue(formData.fiber),
+      sugar: parseNumberValue(formData.sugar),
+      sodium: parseIntValue(formData.sodium),
+      cholesterol: parseIntValue(formData.cholesterol),
+      servingSize: parseNumberValue(formData.servingSize),
+      servingUnit: formData.servingUnit,
+    };
+  };
+
   const handleSubmit = () => {
     if (validateForm()) {
-      onFoodCreated(formData);
+      const submissionData = prepareSubmissionData();
+      onFoodCreated(submissionData);
       handleClose();
     }
   };
@@ -116,15 +220,15 @@ export default function CustomFoodModal({
     setFormData({
       foodName: "",
       foodBrand: "",
-      calories: 0,
-      protein: 0,
-      carbs: 0,
-      fat: 0,
-      fiber: 0,
-      sugar: 0,
-      sodium: 0,
-      cholesterol: 0,
-      servingSize: 1,
+      calories: "",
+      protein: "",
+      carbs: "",
+      fat: "",
+      fiber: "",
+      sugar: "",
+      sodium: "",
+      cholesterol: "",
+      servingSize: "",
       servingUnit: "g",
     });
     setErrors({});
@@ -134,6 +238,24 @@ export default function CustomFoodModal({
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       handleClose();
+    }
+  };
+
+  const handleNumberInputChange = (
+    field: keyof FormState,
+    value: string,
+    max?: number
+  ) => {
+    // Allow empty string or valid numbers
+    if (value === "") {
+      handleInputChange(field, "");
+      return;
+    }
+
+    const numericValue = parseFloat(value);
+    if (!isNaN(numericValue)) {
+      const finalValue = max && numericValue > max ? max : numericValue;
+      handleInputChange(field, finalValue);
     }
   };
 
@@ -164,7 +286,7 @@ export default function CustomFoodModal({
                     onChange={(e) =>
                       handleInputChange("foodName", e.target.value)
                     }
-                    placeholder="e.g., Homemade Protein Smoothie"
+                    placeholder="e.g., Greek Yogurt"
                     className={errors.foodName ? "border-red-500" : ""}
                   />
                   {errors.foodName && (
@@ -184,7 +306,7 @@ export default function CustomFoodModal({
                     onChange={(e) =>
                       handleInputChange("foodBrand", e.target.value)
                     }
-                    placeholder="e.g., Homemade, Brand Name"
+                    placeholder="e.g., Chobani"
                   />
                 </div>
               </div>
@@ -199,13 +321,14 @@ export default function CustomFoodModal({
                     max="10000"
                     step="0.1"
                     value={formData.servingSize}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value) || 0;
-                      handleInputChange(
+                    onChange={(e) =>
+                      handleNumberInputChange(
                         "servingSize",
-                        value > 10000 ? 10000 : value
-                      );
-                    }}
+                        e.target.value,
+                        10000
+                      )
+                    }
+                    placeholder="e.g., 100"
                     className={errors.servingSize ? "border-red-500" : ""}
                   />
                   {errors.servingSize && (
@@ -245,7 +368,7 @@ export default function CustomFoodModal({
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="calories">
-                    Calories{" "}
+                    Calories *{" "}
                     <span className="text-xs text-muted-foreground">
                       (kcal)
                     </span>
@@ -257,11 +380,9 @@ export default function CustomFoodModal({
                     step="1"
                     value={formData.calories}
                     onChange={(e) =>
-                      handleInputChange(
-                        "calories",
-                        parseInt(e.target.value) || 0
-                      )
+                      handleNumberInputChange("calories", e.target.value)
                     }
+                    placeholder="0"
                     className={errors.calories ? "border-red-500" : ""}
                   />
                   {errors.calories && (
@@ -270,7 +391,7 @@ export default function CustomFoodModal({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="protein">
-                    Protein{" "}
+                    Protein *{" "}
                     <span className="text-xs text-muted-foreground">(g)</span>
                   </Label>
                   <Input
@@ -280,11 +401,9 @@ export default function CustomFoodModal({
                     step="0.1"
                     value={formData.protein}
                     onChange={(e) =>
-                      handleInputChange(
-                        "protein",
-                        parseFloat(e.target.value) || 0
-                      )
+                      handleNumberInputChange("protein", e.target.value)
                     }
+                    placeholder="0"
                     className={errors.protein ? "border-red-500" : ""}
                   />
                   {errors.protein && (
@@ -293,7 +412,7 @@ export default function CustomFoodModal({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="carbs">
-                    Carbs{" "}
+                    Carbs *{" "}
                     <span className="text-xs text-muted-foreground">(g)</span>
                   </Label>{" "}
                   <Input
@@ -303,11 +422,9 @@ export default function CustomFoodModal({
                     step="0.1"
                     value={formData.carbs}
                     onChange={(e) =>
-                      handleInputChange(
-                        "carbs",
-                        parseFloat(e.target.value) || 0
-                      )
+                      handleNumberInputChange("carbs", e.target.value)
                     }
+                    placeholder="0"
                     className={errors.carbs ? "border-red-500" : ""}
                   />
                   {errors.carbs && (
@@ -316,7 +433,7 @@ export default function CustomFoodModal({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="fat">
-                    Fat{" "}
+                    Fat *{" "}
                     <span className="text-xs text-muted-foreground">(g)</span>
                   </Label>
                   <Input
@@ -326,8 +443,9 @@ export default function CustomFoodModal({
                     step="0.1"
                     value={formData.fat}
                     onChange={(e) =>
-                      handleInputChange("fat", parseFloat(e.target.value) || 0)
+                      handleNumberInputChange("fat", e.target.value)
                     }
+                    placeholder="0"
                     className={errors.fat ? "border-red-500" : ""}
                   />
                   {errors.fat && (
@@ -362,12 +480,14 @@ export default function CustomFoodModal({
                     step="0.1"
                     value={formData.fiber}
                     onChange={(e) =>
-                      handleInputChange(
-                        "fiber",
-                        parseFloat(e.target.value) || 0
-                      )
+                      handleNumberInputChange("fiber", e.target.value)
                     }
+                    placeholder="0"
+                    className={errors.fiber ? "border-red-500" : ""}
                   />
+                  {errors.fiber && (
+                    <p className="text-sm text-red-500">{errors.fiber}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sugar">
@@ -381,12 +501,14 @@ export default function CustomFoodModal({
                     step="0.1"
                     value={formData.sugar}
                     onChange={(e) =>
-                      handleInputChange(
-                        "sugar",
-                        parseFloat(e.target.value) || 0
-                      )
+                      handleNumberInputChange("sugar", e.target.value)
                     }
+                    placeholder="0"
+                    className={errors.sugar ? "border-red-500" : ""}
                   />
+                  {errors.sugar && (
+                    <p className="text-sm text-red-500">{errors.sugar}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sodium">
@@ -400,9 +522,14 @@ export default function CustomFoodModal({
                     step="1"
                     value={formData.sodium}
                     onChange={(e) =>
-                      handleInputChange("sodium", parseInt(e.target.value) || 0)
+                      handleNumberInputChange("sodium", e.target.value)
                     }
+                    placeholder="0"
+                    className={errors.sodium ? "border-red-500" : ""}
                   />
+                  {errors.sodium && (
+                    <p className="text-sm text-red-500">{errors.sodium}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cholesterol">
@@ -416,12 +543,14 @@ export default function CustomFoodModal({
                     step="1"
                     value={formData.cholesterol}
                     onChange={(e) =>
-                      handleInputChange(
-                        "cholesterol",
-                        parseInt(e.target.value) || 0
-                      )
+                      handleNumberInputChange("cholesterol", e.target.value)
                     }
+                    placeholder="0"
+                    className={errors.cholesterol ? "border-red-500" : ""}
                   />
+                  {errors.cholesterol && (
+                    <p className="text-sm text-red-500">{errors.cholesterol}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
