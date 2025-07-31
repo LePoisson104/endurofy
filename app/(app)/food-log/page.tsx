@@ -148,6 +148,20 @@ export default function FoodLogPage() {
     fat: 67,
   };
 
+  // Helper function to convert serving units to grams
+  const getUnitConversionFactor = (unit: string): number => {
+    switch (unit?.toLowerCase()) {
+      case "g":
+        return 1;
+      case "oz":
+        return 28.3495; // 1 oz = 28.3495 grams
+      case "ml":
+        return 1; // Assuming density of water (1ml = 1g) for simplicity
+      default:
+        return 1;
+    }
+  };
+
   // Calculate current macros from all meals
   const calculateCurrentMacros = () => {
     if (!foodLog?.data?.data)
@@ -162,12 +176,19 @@ export default function FoodLogPage() {
     ];
 
     return allFoods.reduce(
-      (totals, food) => ({
-        calories: totals.calories + food.calories * (food.serving_size / 100),
-        protein: totals.protein + food.protein_g * (food.serving_size / 100),
-        carbs: totals.carbs + food.carbs_g * (food.serving_size / 100),
-        fat: totals.fat + food.fat_g * (food.serving_size / 100),
-      }),
+      (totals, food) => {
+        // Convert serving size to grams first
+        const servingSizeInGrams =
+          food.serving_size * getUnitConversionFactor(food.serving_size_unit);
+        const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
+
+        return {
+          calories: totals.calories + food.calories * servingRatio,
+          protein: totals.protein + food.protein_g * servingRatio,
+          carbs: totals.carbs + food.carbs_g * servingRatio,
+          fat: totals.fat + food.fat_g * servingRatio,
+        };
+      },
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
   };
@@ -188,15 +209,20 @@ export default function FoodLogPage() {
     ];
 
     return allFoods.reduce(
-      (totals, food) => ({
-        fiber: totals.fiber + (food.fiber_g || 0) * (food.serving_size / 100),
-        sugar: totals.sugar + (food.sugar_g || 0) * (food.serving_size / 100),
-        sodium:
-          totals.sodium + (food.sodium_mg || 0) * (food.serving_size / 100),
-        cholesterol:
-          totals.cholesterol +
-          (food.cholesterol_mg || 0) * (food.serving_size / 100),
-      }),
+      (totals, food) => {
+        // Convert serving size to grams first
+        const servingSizeInGrams =
+          food.serving_size * getUnitConversionFactor(food.serving_size_unit);
+        const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
+
+        return {
+          fiber: totals.fiber + (food.fiber_g || 0) * servingRatio,
+          sugar: totals.sugar + (food.sugar_g || 0) * servingRatio,
+          sodium: totals.sodium + (food.sodium_mg || 0) * servingRatio,
+          cholesterol:
+            totals.cholesterol + (food.cholesterol_mg || 0) * servingRatio,
+        };
+      },
       { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 }
     );
   };
@@ -362,25 +388,6 @@ export default function FoodLogPage() {
         "No copied day data available. Use 'Copy Day' first or implement backend integration."
       );
     }
-  };
-
-  const getMealCalories = (meal: FoodLogs[]) => {
-    return meal.reduce(
-      (total, food) => total + food.calories * (food.serving_size / 100),
-      0
-    );
-  };
-
-  const getMealMacros = (meal: FoodLogs[]) => {
-    return meal.reduce(
-      (totals, food) => ({
-        calories: totals.calories + food.calories * (food.serving_size / 100),
-        protein: totals.protein + food.protein_g * (food.serving_size / 100),
-        carbs: totals.carbs + food.carbs_g * (food.serving_size / 100),
-        fat: totals.fat + food.fat_g * (food.serving_size / 100),
-      }),
-      { calories: 0, protein: 0, carbs: 0, fat: 0 }
-    );
   };
 
   const toggleMealExpansion = (mealType: keyof MealData) => {

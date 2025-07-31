@@ -40,14 +40,35 @@ interface MealAccordionProps {
   isDeletingFoodLog: boolean;
 }
 
+// Helper function to convert serving units to grams
+const getUnitConversionFactor = (unit: string): number => {
+  switch (unit?.toLowerCase()) {
+    case "g":
+      return 1;
+    case "oz":
+      return 28.3495; // 1 oz = 28.3495 grams
+    case "ml":
+      return 1; // Assuming density of water (1ml = 1g) for simplicity
+    default:
+      return 1;
+  }
+};
+
 const getMealMacros = (meal: FoodLogs[]) => {
   return meal.reduce(
-    (totals, food) => ({
-      calories: totals.calories + food.calories * (food.serving_size / 100),
-      protein: totals.protein + food.protein_g * (food.serving_size / 100),
-      carbs: totals.carbs + food.carbs_g * (food.serving_size / 100),
-      fat: totals.fat + food.fat_g * (food.serving_size / 100),
-    }),
+    (totals, food) => {
+      // Convert serving size to grams first
+      const servingSizeInGrams =
+        food.serving_size * getUnitConversionFactor(food.serving_size_unit);
+      const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
+
+      return {
+        calories: totals.calories + food.calories * servingRatio,
+        protein: totals.protein + food.protein_g * servingRatio,
+        carbs: totals.carbs + food.carbs_g * servingRatio,
+        fat: totals.fat + food.fat_g * servingRatio,
+      };
+    },
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
 };
@@ -168,7 +189,12 @@ export default function MealAccordion({
                       <p className="text-xs text-muted-foreground">
                         {Math.round(food.serving_size)} {food.serving_size_unit}{" "}
                         •{" "}
-                        {Math.round(food.calories * (food.serving_size / 100))}
+                        {Math.round(
+                          food.calories *
+                            ((food.serving_size *
+                              getUnitConversionFactor(food.serving_size_unit)) /
+                              100)
+                        )}
                         cal
                       </p>
                     </div>

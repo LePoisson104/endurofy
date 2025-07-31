@@ -24,6 +24,10 @@ import type {
   AddCustomFoodPayload,
   ServingUnit,
 } from "../../../interfaces/food-log-interfaces";
+import { useAddCustomFoodMutation } from "@/api/food/food-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { toast } from "sonner";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
@@ -46,9 +50,12 @@ interface FormState {
 export default function CustomFoodModal({
   isOpen,
   onClose,
-  onFoodCreated,
 }: CustomFoodModalProps) {
   const isMobile = useIsMobile();
+  const user = useSelector(selectCurrentUser);
+  const [addCustomFood, { isLoading: isAddingCustomFood }] =
+    useAddCustomFoodMutation();
+
   const [formData, setFormData] = useState<FormState>({
     foodName: "",
     foodBrand: "",
@@ -117,13 +124,23 @@ export default function CustomFoodModal({
       newErrors.servingSize = "Serving size cannot exceed 10000";
     }
 
-    // Required macronutrients - must be greater than 0
-    const requiredMacros = [
-      {
-        field: "calories" as keyof FormState,
-        name: "Calories",
-        parser: parseIntValue,
-      },
+    // Calories - must be greater than 0
+    const caloriesValue = formData.calories;
+    if (
+      caloriesValue === "" ||
+      caloriesValue === null ||
+      caloriesValue === undefined
+    ) {
+      newErrors.calories = "Calories is required";
+    } else {
+      const numericCalories = parseIntValue(caloriesValue);
+      if (numericCalories <= 0) {
+        newErrors.calories = "Calories must be greater than 0";
+      }
+    }
+
+    // Required macronutrients - can be 0 but not empty
+    const requiredMacrosCanBeZero = [
       {
         field: "protein" as keyof FormState,
         name: "Protein",
@@ -141,14 +158,14 @@ export default function CustomFoodModal({
       },
     ];
 
-    requiredMacros.forEach(({ field, name, parser }) => {
+    requiredMacrosCanBeZero.forEach(({ field, name, parser }) => {
       const value = formData[field];
       if (value === "" || value === null || value === undefined) {
         newErrors[field] = `${name} is required`;
       } else {
         const numericValue = parser(value);
-        if (numericValue <= 0) {
-          newErrors[field] = `${name} must be greater than 0`;
+        if (numericValue < 0) {
+          newErrors[field] = `${name} cannot be negative`;
         }
       }
     });
@@ -208,11 +225,23 @@ export default function CustomFoodModal({
     };
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
       const submissionData = prepareSubmissionData();
-      onFoodCreated(submissionData);
-      handleClose();
+      try {
+        const response = await addCustomFood({
+          userId: user?.user_id,
+          payload: submissionData,
+        });
+        toast.success(response.data.data.message);
+        handleClose();
+      } catch (error: any) {
+        if (error.data.message) {
+          toast.error(error.data.message);
+        } else {
+          toast.error("Internal server error. Failed to add custom food");
+        }
+      }
     }
   };
 
@@ -343,7 +372,7 @@ export default function CustomFoodModal({
                       handleInputChange("servingUnit", value)
                     }
                   >
-                    <SelectTrigger id="serving-unit">
+                    <SelectTrigger id="serving-unit" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -365,7 +394,7 @@ export default function CustomFoodModal({
               <CardTitle>Macronutrients</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="calories">
                     Calories *{" "}
@@ -467,7 +496,7 @@ export default function CustomFoodModal({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fiber">
                     Fiber{" "}

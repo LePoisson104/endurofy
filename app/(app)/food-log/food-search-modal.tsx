@@ -16,7 +16,6 @@ import type {
   FoodSearchModalProps,
   FoodSearchResult,
   AddFoodLogPayload,
-  AddCustomFoodPayload,
 } from "../../../interfaces/food-log-interfaces";
 import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
@@ -27,10 +26,10 @@ import {
   useSearchFoodQuery,
   useGetCustomFoodsQuery,
 } from "@/api/food/food-api-slice";
-import { Skeleton } from "@/components/ui/skeleton";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import FoodCardSkeleton from "@/components/skeletons/foodcard-skeleton";
+import { CustomFood } from "../../../interfaces/food-log-interfaces";
 
 export default function FoodSearchModal({
   isOpen,
@@ -44,9 +43,9 @@ export default function FoodSearchModal({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedFood, setSelectedFood] = useState<FoodSearchResult | null>(
-    null
-  );
+  const [selectedFood, setSelectedFood] = useState<
+    FoodSearchResult | CustomFood | null
+  >(null);
   const [showFoodSelection, setShowFoodSelection] = useState(false);
   const [showCustomFood, setShowCustomFood] = useState(false);
 
@@ -88,7 +87,7 @@ export default function FoodSearchModal({
   //   }
   // );
 
-  const handleFoodSelect = (food: FoodSearchResult) => {
+  const handleFoodSelect = (food: FoodSearchResult | CustomFood) => {
     setSelectedFood(food);
     setShowFoodSelection(true);
   };
@@ -105,8 +104,6 @@ export default function FoodSearchModal({
       console.error("Failed to add food:", error);
     }
   };
-
-  const handleCustomFoodCreated = (customFood: AddCustomFoodPayload) => {};
 
   const toggleFavorite = (foodId: string) => {
     // In a real app, this would update the backend
@@ -179,7 +176,7 @@ export default function FoodSearchModal({
 
               <div className="flex justify-between items-center text-sm font-medium mt-4 border-b border-solid pb-2 px-2">
                 <p>Description</p>
-                <p>Source</p>
+                {activeTab === "custom" ? <p>Actions</p> : <p>Source</p>}
               </div>
 
               <TabsContent value="all" className="flex-1 overflow-hidden">
@@ -191,16 +188,15 @@ export default function FoodSearchModal({
                       No foods found
                     </div>
                   ) : (
-                    searchResults?.data?.foods?.map(
-                      (food: FoodSearchResult) => (
-                        <FoodCard
-                          key={food.fdcId}
-                          food={food}
-                          onSelect={handleFoodSelect}
-                          onToggleFavorite={toggleFavorite}
-                        />
-                      )
-                    )
+                    searchResults?.data?.foods?.map((food: any) => (
+                      <FoodCard
+                        key={food.fdcId}
+                        food={food}
+                        onSelect={handleFoodSelect}
+                        onToggleFavorite={toggleFavorite}
+                        foodSource="USDA"
+                      />
+                    ))
                   )}
                 </div>
               </TabsContent>
@@ -233,12 +229,13 @@ export default function FoodSearchModal({
                       No custom foods found
                     </div>
                   ) : (
-                    customFoods?.data?.data?.map((food: FoodSearchResult) => (
+                    customFoods?.data?.data?.map((food: CustomFood) => (
                       <FoodCard
-                        key={food.fdcId}
+                        key={food.customFoodId}
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
+                        foodSource="Custom"
                       />
                     ))
                   )}
@@ -264,7 +261,6 @@ export default function FoodSearchModal({
       <CustomFoodModal
         isOpen={showCustomFood}
         onClose={() => setShowCustomFood(false)}
-        onFoodCreated={handleCustomFoodCreated}
       />
     </>
   );

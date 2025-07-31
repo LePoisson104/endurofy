@@ -78,11 +78,27 @@ export interface AddCustomFoodPayload {
   servingUnit: ServingUnit;
 }
 
+export interface CustomFood {
+  customFoodId: string;
+  description: string;
+  brandOwner: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+  servingSize: number;
+  servingSizeUnit: ServingUnit;
+}
+
 export interface FoodSelectionModalProps {
   isAddingFoodLog: boolean;
   isOpen: boolean;
   onClose: () => void;
-  food: FoodSearchResult | null;
+  food: FoodSearchResult | CustomFood | null;
   editFood?: FoodLogs | null;
   mode?: "add" | "edit";
   onConfirm: (food: AddFoodLogPayload) => void;
@@ -92,7 +108,6 @@ export interface FoodSelectionModalProps {
 export interface CustomFoodModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onFoodCreated: (food: AddCustomFoodPayload) => void;
 }
 
 export interface FoodSearchModalProps {
