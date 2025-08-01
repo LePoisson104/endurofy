@@ -1,18 +1,18 @@
-"use client";
-
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useSelector } from "react-redux";
-import { selectUserInfo } from "@/api/user/user-slice";
 import { convertDateFormat } from "@/helper/convert-date-format";
 import {
   convertHeight,
   getHeightInFeetAndMeters,
 } from "@/helper/weight-height-converter";
+import { UserInfo } from "@/interfaces/user-interfaces";
 
-export default function PersonalInfoCard() {
-  const userInfo = useSelector(selectUserInfo);
+interface PersonalInfoCardProps {
+  userInfo: UserInfo;
+}
+
+export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
   const age =
     new Date().getFullYear() -
     new Date(userInfo?.birth_date || "").getFullYear();

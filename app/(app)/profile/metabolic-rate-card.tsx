@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback } from "react";
 import {
   Card,
@@ -9,13 +7,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useSelector } from "react-redux";
-import { selectUserInfo } from "@/api/user/user-slice";
 import { getActivityMultiplier } from "@/helper/constants/activity-level-contants";
+import { UserInfo } from "@/interfaces/user-interfaces";
 
-export default function MetabolicRateCard() {
-  const userInfo = useSelector(selectUserInfo);
+interface MetabolicRateCardProps {
+  userInfo: UserInfo;
+}
 
+export default function MetabolicRateCard({
+  userInfo,
+}: MetabolicRateCardProps) {
   // Calculate TDEE (Total Daily Energy Expenditure)
   const calculateTDEE = useCallback(
     (bmr: number) => {

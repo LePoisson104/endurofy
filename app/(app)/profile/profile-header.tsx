@@ -1,15 +1,13 @@
-"use client";
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, User } from "lucide-react";
+import { User } from "lucide-react";
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
 import {
   convertHeight,
   getHeightInFeetAndMeters,
 } from "@/helper/weight-height-converter";
+import EditProfileBtn from "./edit-profile-btn";
 
 interface ProfileHeaderProps {
   onEdit: () => void;
@@ -74,17 +72,7 @@ export default function ProfileHeader({
             </div>
           </div>
 
-          {!isEditing && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={onEdit}
-            >
-              <Edit className="h-4 w-4" />
-              Edit Profile
-            </Button>
-          )}
+          {!isEditing && <EditProfileBtn onEdit={onEdit} />}
         </div>
       </CardContent>
     </Card>

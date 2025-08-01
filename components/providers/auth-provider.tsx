@@ -9,7 +9,7 @@ import UsersProfileModal from "@/components/modals/users-profile-modal";
 import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
 import ProfileSuccessNotice from "@/components/modals/profile-success-notice";
 import { useDispatch } from "react-redux";
-import { setUserInfo } from "@/api/user/user-slice";
+import { calculateAndSetBMR, setUserInfo } from "@/api/user/user-slice";
 import { calculateBMI } from "@/helper/calculate-bmi";
 import { useGetWorkoutProgramQuery } from "@/api/workout-program/workout-program-api-slice";
 import {
@@ -98,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (userInfo?.data) {
       const bmiResults = calculateBMI(userInfo);
       dispatch(setUserInfo({ ...userInfo.data, ...bmiResults }));
+      dispatch(calculateAndSetBMR());
     }
   }, [userInfo, dispatch]);
 

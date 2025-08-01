@@ -1,15 +1,14 @@
-"use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useSelector } from "react-redux";
-import { selectUserInfo } from "@/api/user/user-slice";
 import { convertWeight } from "@/helper/weight-height-converter";
 import BMIIndicator from "@/components/global/bmi-indicator";
+import { UserInfo } from "@/interfaces/user-interfaces";
 
-export default function WeightBMICard() {
-  const userInfo = useSelector(selectUserInfo);
+interface WeightBMICardProps {
+  userInfo: UserInfo;
+}
 
+export default function WeightBMICard({ userInfo }: WeightBMICardProps) {
   return (
     <Card>
       <CardHeader>

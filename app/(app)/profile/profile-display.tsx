@@ -1,15 +1,18 @@
-"use client";
-
 import PersonalInfoCard from "./personal-info-card";
 import WeightBMICard from "./weight-bmi-card";
 import MetabolicRateCard from "./metabolic-rate-card";
+import { UserInfo } from "@/interfaces/user-interfaces";
 
-export default function ProfileDisplay() {
+interface ProfileDisplayProps {
+  userInfo: UserInfo;
+}
+
+export default function ProfileDisplay({ userInfo }: ProfileDisplayProps) {
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <PersonalInfoCard />
-      <WeightBMICard />
-      <MetabolicRateCard />
+      <PersonalInfoCard userInfo={userInfo} />
+      <WeightBMICard userInfo={userInfo} />
+      <MetabolicRateCard userInfo={userInfo} />
     </div>
   );
 }
