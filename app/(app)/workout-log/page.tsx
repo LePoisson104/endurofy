@@ -138,26 +138,14 @@ export default function WorkoutLogManager() {
       </header>
 
       <main className="flex-1 pt-6">
-        <Tabs
-          className="mb-4"
-          value={selectedTab}
-          onValueChange={handleTabChange}
-        >
-          <TabsList className={`${isMobile ? "w-full" : ""}`}>
-            <TabsTrigger
-              value="log"
-              className={`${isMobile ? "w-full" : "w-[150px]"}`}
-            >
-              Log
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className={`${isMobile ? "w-full" : "w-[150px]"}`}
-            >
-              History
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="w-full border-b mb-4">
+          <Tabs value={selectedTab} onValueChange={handleTabChange}>
+            <TabsList className="flex gap-4">
+              <TabsTrigger value="log">Workout Log</TabsTrigger>
+              <TabsTrigger value="history">Workout History</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         {selectedTab === "log" && (
           <ProgramSelector
             programs={programs as WorkoutProgram[]}

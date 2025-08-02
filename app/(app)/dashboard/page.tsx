@@ -135,19 +135,19 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-sm font-medium">
                     Weight Progression
                   </CardTitle>
                   <Activity className="h-4 w-4 text-teal-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between">
-                    <p className="text-2xl font-bold mb-2">
+                  <div className="flex flex-col gap-1 mb-2">
+                    <p className="text-2xl font-bold">
                       Goal: {goalWeight}{" "}
                       {userInfo?.weight_goal_unit === "lb" ? "lbs" : "kg"}
                     </p>
-                    <p className="text-xs text-green-500 flex mt-2">
+                    <p className="text-xs text-green-500 flex mb-2">
                       {handleRateChangeColor(
                         weeklyRate,
                         userInfo?.goal || "",
