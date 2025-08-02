@@ -49,9 +49,11 @@ import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { startOfWeek, endOfWeek } from "date-fns";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const isDark = useGetCurrentTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { open, openMobile, setOpenMobile } = useSidebar();
@@ -130,7 +132,11 @@ export function AppSidebar() {
       )}
 
       <Sidebar collapsible="icon" className="overflow-x-hidden">
-        <SidebarContent className="overflow-x-hidden bg-card">
+        <SidebarContent
+          className={`overflow-x-hidden bg-card ${
+            isDark ? "border-none" : "border-r"
+          }`}
+        >
           <SidebarHeader className="pb-0">
             <div className="flex items-center justify-between gap-2 px-3 py-2">
               <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0 flex items-center">
