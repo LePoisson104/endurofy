@@ -134,7 +134,7 @@ export function AppSidebar() {
       <Sidebar collapsible="icon" className="overflow-x-hidden">
         <SidebarContent
           className={`overflow-x-hidden bg-card ${
-            isDark ? "border-none" : "border-r"
+            isDark ? "border-r" : "border-none"
           }`}
         >
           <SidebarHeader className="pb-0">
@@ -329,7 +329,7 @@ export function AppSidebar() {
                             {program.isActive === 1 && (
                               <Badge
                                 variant="outline"
-                                className="ml-auto text-[10px] h-5 shrink-0"
+                                className="ml-auto text-[10px] h-5 shrink-0 border-muted-foreground/70"
                               >
                                 Active
                               </Badge>

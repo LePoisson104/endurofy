@@ -8,6 +8,7 @@ import { Dumbbell, Calendar, Eye, Loader2 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
 import { useRef, useCallback, useMemo } from "react";
+import CustomBadge from "@/components/badges/custom-badge";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -95,12 +96,10 @@ function WorkoutHistoryCard({
             <div className="mb-3">
               <div className="flex flex-wrap gap-2">
                 {workout.workoutExercises.slice(0, 3).map((exercise) => (
-                  <Badge
+                  <CustomBadge
                     key={exercise.workoutExerciseId}
-                    className="text-xs font-medium bg-blue-500 text-white"
-                  >
-                    {exercise.exerciseName}
-                  </Badge>
+                    title={exercise.exerciseName}
+                  />
                 ))}
                 {workout.workoutExercises.length > 3 && (
                   <Badge variant="secondary" className="text-xs font-medium">

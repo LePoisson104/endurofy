@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Check, SquarePen, Plus, Trash2, Loader2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
@@ -26,6 +25,9 @@ import DeleteDialog from "@/components/dialog/delete-dialog";
 import ExerciseTable from "./exercise-table";
 import ExerciseNotes from "./exercise-notes";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
+import CompletedBadge from "@/components/badges/status-badges";
+import BodyPartBadge from "@/components/badges/bodypart-badge";
+import CustomBadge from "@/components/badges/custom-badge";
 
 import type {
   WorkoutProgram,
@@ -464,21 +466,12 @@ export default function WithoutProgramLog({
                             {exercise.exerciseName}
                           </h4>
                           {isExerciseFullyLogged(exercise.exerciseId) && (
-                            <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                              <Badge className="bg-green-600 text-white">
-                                <Check className="h-2 w-2" />
-                                Completed
-                              </Badge>
-                            </div>
+                            <CompletedBadge />
                           )}
                         </div>
                         <div className="flex items-center gap-2 my-1">
-                          <Badge className="text-xs">
-                            {exercise.laterality}
-                          </Badge>
-                          <Badge className="text-xs bg-blue-500 text-white">
-                            {exercise.bodyPart}
-                          </Badge>
+                          <CustomBadge title={exercise.laterality} />
+                          <BodyPartBadge bodyPart={exercise.bodyPart} />
                         </div>
                         <div
                           className={`text-sm ${

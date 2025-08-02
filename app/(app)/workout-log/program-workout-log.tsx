@@ -26,7 +26,6 @@ import {
 import ExerciseTable from "./exercise-table";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
 import { useWorkoutDay } from "@/hooks/use-workout-day";
-import { Badge } from "@/components/ui/badge";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import {
@@ -45,6 +44,9 @@ import { Input } from "@/components/ui/input";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import ExerciseNotes from "./exercise-notes";
 import DeleteDialog from "@/components/dialog/delete-dialog";
+import CompletedBadge from "@/components/badges/status-badges";
+import BodyPartBadge from "@/components/badges/bodypart-badge";
+import CustomBadge from "@/components/badges/custom-badge";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -381,18 +383,13 @@ export function ProgramWorkoutLog({
                         <h4 className="font-medium">{exercise.exerciseName}</h4>
                         {isFullyLogged && (
                           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <Badge className="bg-green-600 text-white">
-                              <Check className="h-2 w-2" />
-                              Completed
-                            </Badge>
+                            <CompletedBadge />
                           </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2 my-1">
-                        <Badge className="text-xs">{exercise.laterality}</Badge>
-                        <Badge className="text-xs bg-blue-500 text-white">
-                          {exercise.bodyPart}
-                        </Badge>
+                        <CustomBadge title={exercise.laterality} />
+                        <BodyPartBadge bodyPart={exercise.bodyPart} />
                       </div>
                       <div
                         className={`text-sm ${

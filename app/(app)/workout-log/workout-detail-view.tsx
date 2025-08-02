@@ -1,7 +1,6 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -20,7 +19,6 @@ import {
   Eye,
   EyeOff,
   Edit,
-  Play,
   Save,
   Trash2,
   Loader2,
@@ -40,6 +38,7 @@ import { toast } from "sonner";
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import DeleteDialog from "@/components/dialog/delete-dialog";
+import CompletedBadge from "@/components/badges/status-badges";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -438,12 +437,7 @@ export function WorkoutDetailView({
                   <CardTitle>{workout.title}</CardTitle>
                 )}
 
-                {workout.status === "completed" && (
-                  <Badge className="bg-green-600 text-white">
-                    <Check className="h-2 w-2" />
-                    Completed
-                  </Badge>
-                )}
+                {workout.status === "completed" && <CompletedBadge />}
               </div>
               <div
                 className={`text-xs ${

@@ -194,10 +194,12 @@ export default function MyPrograms() {
             onValueChange={handleTabChange}
             className="space-y-6"
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="my-programs">My Programs</TabsTrigger>
-              <TabsTrigger value="create-program">Create Program</TabsTrigger>
-            </TabsList>
+            <div className="w-full border-b mb-2">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="my-programs">My Programs</TabsTrigger>
+                <TabsTrigger value="create-program">Create Program</TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="my-programs" className="space-y-6">
               {selectedProgram ? (

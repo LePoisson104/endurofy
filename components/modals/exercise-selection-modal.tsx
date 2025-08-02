@@ -11,18 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
-  Plus,
-  Search,
-  EllipsisVertical,
-  Trash2,
-  Pencil,
-  Loader2,
-} from "lucide-react";
+import { Plus, Search, EllipsisVertical, Trash2, Pencil } from "lucide-react";
 import AddExerciseModal from "./add-exercise-modal";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -42,6 +34,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import DeleteDialog from "../dialog/delete-dialog";
+import CustomBadge from "../badges/custom-badge";
+import BodyPartBadge from "../badges/bodypart-badge";
 
 interface ExerciseWithProgram extends Exercise {
   programName: string;
@@ -326,12 +320,8 @@ export default function ExerciseSelectionModal({
                               </h3>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge className="text-xs">
-                                {exercise.laterality}
-                              </Badge>
-                              <Badge className="text-xs bg-blue-500 text-white">
-                                {exercise.bodyPart}
-                              </Badge>
+                              <CustomBadge title={exercise.laterality} />
+                              <BodyPartBadge bodyPart={exercise.bodyPart} />
                             </div>
                             <div
                               className={`text-sm ${
