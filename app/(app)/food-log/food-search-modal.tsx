@@ -168,11 +168,13 @@ export default function FoodSearchModal({
               onValueChange={setActiveTab}
               className="flex flex-col flex-1 overflow-hidden"
             >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="favorites">Favorites</TabsTrigger>
-                <TabsTrigger value="custom">Custom</TabsTrigger>
-              </TabsList>
+              <div className="border-b">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="favorites">Favorites</TabsTrigger>
+                  <TabsTrigger value="custom">Custom</TabsTrigger>
+                </TabsList>
+              </div>
 
               <div className="flex justify-between items-center text-sm font-medium mt-4 border-b border-solid pb-2 px-2">
                 <p>Description</p>

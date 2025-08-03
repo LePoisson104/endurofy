@@ -548,7 +548,7 @@ function UserProfileMenu() {
           <div className="border-t"></div>
           <div className="p-1">
             <button
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm text-destructive hover:bg-destructive/10"
+              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
               onClick={() => {
                 setIsOpen(false);
                 logout();
