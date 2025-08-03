@@ -28,6 +28,7 @@ import {
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
+import CustomBadge from "@/components/badges/custom-badge";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
@@ -136,9 +137,7 @@ export default function WorkoutProgramList({
                       <div className="flex items-center gap-2">
                         <CardTitle>{program.programName}</CardTitle>
                         {program.isActive === 1 && (
-                          <Badge className="bg-blue-500 text-white border-none">
-                            Active
-                          </Badge>
+                          <CustomBadge title="Active" />
                         )}
                       </div>
 

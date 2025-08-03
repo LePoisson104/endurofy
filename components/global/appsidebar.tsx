@@ -18,7 +18,6 @@ import {
   Apple,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Sidebar,
@@ -50,6 +49,7 @@ import { startOfWeek, endOfWeek } from "date-fns";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import CustomBadge from "../badges/custom-badge";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -327,12 +327,7 @@ export function AppSidebar() {
                               {program.programName}
                             </span>
                             {program.isActive === 1 && (
-                              <Badge
-                                variant="outline"
-                                className="ml-auto text-[10px] h-5 shrink-0 border-muted-foreground/70"
-                              >
-                                Active
-                              </Badge>
+                              <CustomBadge title="Active" />
                             )}
                           </Link>
                         </SidebarMenuButton>
