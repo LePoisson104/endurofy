@@ -18,6 +18,8 @@ import {
 } from "@/api/workout-program/workout-program-slice";
 import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
 import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
+import { useGetSettingsQuery } from "@/api/settings/settings-api-slice";
+import { setSettings } from "@/api/settings/settings-slice";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -30,6 +32,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [manualProfileClose, setManualProfileClose] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
+  const { data: settings } = useGetSettingsQuery({
+    userId: user?.user_id,
+  });
 
   const [refresh, { isLoading, isSuccess, isError }] = useRefreshMutation();
 
@@ -45,6 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
     userId: user?.user_id,
   });
+
+  useEffect(() => {
+    if (settings) {
+      dispatch(setSettings(settings.data.settings?.[0]));
+    }
+  }, [settings, dispatch]);
 
   const verifyRefreshToken = async () => {
     try {

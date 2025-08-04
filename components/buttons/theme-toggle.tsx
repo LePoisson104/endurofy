@@ -11,9 +11,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { selectSettings } from "@/api/settings/settings-slice";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const settings = useSelector(selectSettings);
+
+  useEffect(() => {
+    setTheme(settings.theme);
+  }, [settings.theme]);
 
   return (
     <DropdownMenu>
