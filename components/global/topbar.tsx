@@ -110,7 +110,7 @@ export function TopBar({ className }: TopBarProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <ThemeToggle />
+                <ThemeToggle onClose={() => {}} />
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Notifications */}

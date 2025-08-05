@@ -5,26 +5,20 @@ import { Moon, Sun, Laptop } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { selectSettings } from "@/api/settings/settings-slice";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import { toast } from "sonner";
 import { useToggleThemeMutation } from "@/api/settings/settings-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 
-export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const settings = useSelector(selectSettings);
+export function ThemeToggle({ onClose }: { onClose: () => void }) {
+  const { theme } = useTheme();
   const [toggleTheme] = useToggleThemeMutation();
   const user = useSelector(selectCurrentUser);
-
-  useEffect(() => {
-    setTheme(settings.theme);
-  }, [settings.theme]);
 
   const handleThemeToggle = async ({ theme }: { theme: string }) => {
     try {
       await toggleTheme({ userId: user?.user_id, theme });
+      onClose();
     } catch (error: any) {
       if (error.message) {
         toast.error(error.message);

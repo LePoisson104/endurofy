@@ -19,12 +19,13 @@ import {
 import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
 import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
 import { useGetSettingsQuery } from "@/api/settings/settings-api-slice";
-import { setSettings } from "@/api/settings/settings-slice";
+import { useTheme } from "next-themes";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector(selectCurrentUser);
+  const { setTheme } = useTheme();
 
   // open profile modal when user is not complete
   const [isOpen, setIsOpen] = useState(false);
@@ -53,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (settings) {
-      dispatch(setSettings(settings.data.settings?.[0]));
+      setTheme(settings.data.settings?.[0].theme);
     }
   }, [settings, dispatch]);
 

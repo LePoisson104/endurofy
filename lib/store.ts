@@ -5,7 +5,6 @@ import authReducer from "../api/auth/auth-slice";
 import userReducer from "../api/user/user-slice";
 import workoutProgramReducer from "../api/workout-program/workout-program-slice";
 import weightLogReducer from "../api/weight-log/weight-log-slice";
-import settingsReducer from "../api/settings/settings-slice";
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +13,6 @@ export const store = configureStore({
     user: userReducer,
     workoutProgram: workoutProgramReducer,
     weightLog: weightLogReducer,
-    settings: settingsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),
