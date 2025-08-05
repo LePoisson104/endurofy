@@ -47,8 +47,6 @@ export default function FoodCalendar({
     endDate: endDateOfPreviousMonth,
   });
 
-  console.log(foodLogs?.data?.data);
-
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
 

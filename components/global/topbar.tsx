@@ -30,6 +30,7 @@ interface TopBarProps {
 
 export function TopBar({ className }: TopBarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isThemeOpen, setIsThemeOpen] = useState(false);
   const isMobile = useIsMobile();
   const router = useRouter();
   const [logout, { isSuccess }] = useLogoutMutation();
@@ -103,14 +104,14 @@ export function TopBar({ className }: TopBarProps) {
 
           <div className="flex items-center gap-1">
             {/* Theme Toggle */}
-            <DropdownMenu>
+            <DropdownMenu open={isThemeOpen} onOpenChange={setIsThemeOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Sun className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <ThemeToggle onClose={() => {}} />
+                <ThemeToggle onClose={() => setIsThemeOpen(false)} />
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Notifications */}

@@ -8,13 +8,16 @@ import {
   addWeeks,
   subWeeks,
   isSameDay,
-  isToday,
+  isSameMonth,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useState } from "react";
+import { useGetFoddLogsDateQuery } from "@/api/food/food-log-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { getStartOfPreviousAndEndOfNextMonth } from "@/helper/get-day-range";
 
 interface WeekSelectorProps {
   selectedDate: Date;
@@ -25,11 +28,33 @@ export default function WeekSelector({
   selectedDate,
   onSelectDate,
 }: WeekSelectorProps) {
-  const isDark = useGetCurrentTheme();
+  const user = useSelector(selectCurrentUser);
   const [currentDay, setCurrentDay] = useState(new Date());
   const weekStart = startOfWeek(currentDay, { weekStartsOn: 0 }); // Sunday
   const weekEnd = endOfWeek(currentDay, { weekStartsOn: 0 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  const { startDateOfPreviousMonth, endDateOfPreviousMonth } =
+    getStartOfPreviousAndEndOfNextMonth({ currentMonth: currentDay });
+
+  const { data: foodLogs } = useGetFoddLogsDateQuery({
+    userId: user?.user_id,
+    startDate: startDateOfPreviousMonth,
+    endDate: endDateOfPreviousMonth,
+  });
+
+  const hasLogDay = (date: Date): boolean => {
+    return foodLogs?.data?.data.find((day: any) =>
+      isSameDay(day.log_date, date)
+    );
+  };
+
+  const hasCompletedLogDay = (date: Date): boolean => {
+    return (
+      foodLogs?.data?.data.find((day: any) => isSameDay(day.log_date, date))
+        ?.status === "completed"
+    );
+  };
 
   const handlePreviousWeek = () => {
     const previousWeek = subWeeks(currentDay, 1);
@@ -85,34 +110,47 @@ export default function WeekSelector({
         ))}
 
         {/* Date Buttons */}
-        {weekDays.map((day) => {
+        {weekDays.map((day, dayIndex) => {
           const isSelected = isSameDay(day, selectedDate);
-          const isCurrentDay = isToday(day);
+          const isToday = isSameDay(day, new Date());
+          const dayHasLogs = hasLogDay(day);
+          const dayCompleted = hasCompletedLogDay(day);
+          const isCurrentMonth = isSameMonth(day, currentDay);
 
           return (
-            <Button
-              key={day.toISOString()}
-              variant="ghost"
-              onClick={() => handleDaySelect(day)}
-              className={cn(
-                "h-10 w-full p-0 text-sm font-medium transition-all duration-200 rounded-md",
-                "hover:bg-muted/50",
-                isSelected && [
-                  `shadow-sm ${
-                    isDark
-                      ? "bg-blue-500 text-blue-200"
-                      : "bg-blue-200 text-blue-700 ring-1 ring-blue-500"
-                  }`,
-                  "hover:bg-blue-600 hover:text-white",
-                ],
-                isCurrentDay &&
-                  !isSelected && [
-                    `text-blue-700 ${isDark ? "bg-blue-200" : "bg-blue-100"}`,
-                  ]
-              )}
-            >
-              <span className="text-sm">{format(day, "dd")}</span>
-            </Button>
+            <div key={dayIndex} className="relative m-[1px]">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-10 w-full p-0 font-normal relative",
+                  isSelected &&
+                    `bg-blue-100 dark:bg-blue-900 ring-1 ${
+                      dayHasLogs
+                        ? "dark:ring-green-300 text-primary ring-green-500"
+                        : "dark:ring-blue-500 ring-blue-500 text-blue-600 dark:text-blue-300"
+                    } hover:bg-blue-200/50 dark:hover:bg-blue-800/50`,
+                  isToday &&
+                    !isSelected &&
+                    `border-2 border-blue-600 dark:border-blue-300 ${
+                      dayHasLogs
+                        ? "border-green-600 dark:border-green-300"
+                        : "border-blue-200 dark:border-blue-300"
+                    }`,
+                  !isCurrentMonth && "text-slate-500 dark:text-slate-400",
+                  dayHasLogs &&
+                    "bg-green-200 dark:bg-green-700 hover:bg-green-300 dark:hover:bg-green-600"
+                )}
+                onClick={() => onSelectDate(day)}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <span>{format(day, "d")}</span>
+                  {dayCompleted && (
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1" />
+                  )}
+                </div>
+              </Button>
+            </div>
           );
         })}
       </div>
