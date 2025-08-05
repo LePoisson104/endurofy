@@ -299,7 +299,7 @@ export default function CustomFoodModal({
           <DialogTitle>Create Custom Food</DialogTitle>
         </DialogHeader>
 
-        <div>
+        <div className="space-y-4">
           {/* Basic Information */}
           <Card>
             <CardHeader>
