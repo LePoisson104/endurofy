@@ -13,8 +13,6 @@ import {
   Menu,
   EllipsisVertical,
   LogOut,
-  Moon,
-  Sun,
   Apple,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,7 +34,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useTheme } from "next-themes";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,6 +47,7 @@ import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-a
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import CustomBadge from "../badges/custom-badge";
+import { ThemeToggle } from "../buttons/theme-toggle";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -384,7 +382,6 @@ function UserProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const { setTheme, theme } = useTheme();
   const isMobile = useIsMobile();
   const [logout] = useLogoutMutation();
 
@@ -487,7 +484,7 @@ function UserProfileMenu() {
                 handleCloseSidebarOnMobile();
               }}
             >
-              <User className="mr-2 h-4 w-4" />
+              <User className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Profile</span>
             </Link>
             <Link
@@ -500,51 +497,14 @@ function UserProfileMenu() {
                 handleCloseSidebarOnMobile();
               }}
             >
-              <Settings className="mr-2 h-4 w-4" />
+              <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Settings</span>
             </Link>
           </div>
 
           <div className="border-t"></div>
           <div className="p-2 text-sm font-medium border-b">Theme</div>
-          <div className="p-1">
-            <button
-              className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
-                theme === "light" ? "bg-accent font-medium" : "hover:bg-accent"
-              }`}
-              onClick={() => {
-                setTheme("light");
-                setIsOpen(false);
-              }}
-            >
-              <Sun className="mr-2 h-4 w-4" />
-              <span>Light</span>
-            </button>
-            <button
-              className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
-                theme === "dark" ? "bg-accent font-medium" : "hover:bg-accent"
-              }`}
-              onClick={() => {
-                setTheme("dark");
-                setIsOpen(false);
-              }}
-            >
-              <Moon className="mr-2 h-4 w-4" />
-              <span>Dark</span>
-            </button>
-            <button
-              className={`flex items-center w-full text-left h-9 px-2 rounded-sm ${
-                theme === "system" ? "bg-accent font-medium" : "hover:bg-accent"
-              }`}
-              onClick={() => {
-                setTheme("system");
-                setIsOpen(false);
-              }}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              <span>System</span>
-            </button>
-          </div>
+          <ThemeToggle />
           <div className="border-t"></div>
           <div className="p-1">
             <button
@@ -554,7 +514,7 @@ function UserProfileMenu() {
                 logout();
               }}
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Log out</span>
             </button>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, Search, X, LogOut, Settings, User } from "lucide-react";
+import { Bell, Search, X, LogOut, Settings, User, Sun } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -103,7 +103,16 @@ export function TopBar({ className }: TopBarProps) {
 
           <div className="flex items-center gap-1">
             {/* Theme Toggle */}
-            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Sun className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <ThemeToggle />
+              </DropdownMenuContent>
+            </DropdownMenu>
             {/* Notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
