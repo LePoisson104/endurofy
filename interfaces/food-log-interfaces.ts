@@ -1,7 +1,7 @@
 export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT";
 
 export interface AddFoodLogPayload {
-  foodId: string;
+  foodSourceId: string;
   foodName: string;
   foodBrand?: string;
   foodSource?: "USDA" | "custom";
@@ -18,10 +18,23 @@ export interface AddFoodLogPayload {
   mealType?: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
   loggedAt?: Date;
 }
-
 export interface FoodLogs {
   food_log_id: string;
+  status: "completed" | "incomplete";
+  log_date: string;
+  foods: {
+    breakfast: Foods[];
+    lunch: Foods[];
+    dinner: Foods[];
+    snacks: Foods[];
+    uncategorized: Foods[];
+  };
+}
+
+export interface Foods {
   food_id: string;
+  food_log_id: string;
+  food_source_id: string;
   food_name: string;
   brand_name: string;
   calories: number;
@@ -99,10 +112,10 @@ export interface FoodSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   food: FoodSearchResult | CustomFood | null;
-  editFood?: FoodLogs | null;
+  editFood?: Foods | null;
   mode?: "add" | "edit";
   onConfirm: (food: AddFoodLogPayload) => void;
-  onUpdate?: (updatedFood: Partial<FoodLogs>) => void;
+  onUpdate?: (updatedFood: Partial<Foods>) => void;
 }
 
 export interface CustomFoodModalProps {

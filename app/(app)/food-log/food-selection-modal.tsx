@@ -28,7 +28,7 @@ import type {
   FoodSearchResult,
   CustomFood,
   FoodNutrient,
-  FoodLogs,
+  Foods,
 } from "../../../interfaces/food-log-interfaces";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
@@ -397,8 +397,8 @@ export default function FoodSelectionModal({
   const handleConfirm = () => {
     if (mode === "edit" && editFood && onUpdate) {
       // Edit mode: update existing food log
-      const updatedFood: Partial<FoodLogs> = {
-        food_log_id: editFood.food_log_id,
+      const updatedFood: Partial<Foods> = {
+        food_id: editFood.food_id,
         serving_size: servingSizeNum,
         serving_size_unit: selectedUnit,
       };
@@ -409,7 +409,9 @@ export default function FoodSelectionModal({
       const rawNutrients = getRawNutrientValuesPer100g(food);
 
       const foodItem: AddFoodLogPayload = {
-        foodId: isCustomFood(food) ? food.customFoodId : food.fdcId.toString(),
+        foodSourceId: isCustomFood(food)
+          ? food.customFoodId
+          : food.fdcId.toString(),
         foodName: food.description,
         foodBrand: food.brandOwner,
         foodSource: isCustomFood(food) ? "custom" : food.foodSource,

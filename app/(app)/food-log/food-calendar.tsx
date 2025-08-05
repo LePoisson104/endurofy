@@ -16,6 +16,10 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useGetFoddLogsDateQuery } from "@/api/food/food-log-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { getStartOfPreviousAndEndOfNextMonth } from "@/helper/get-day-range";
 
 interface FoodCalendarProps {
   selectedDate: Date;
@@ -33,15 +37,17 @@ export default function FoodCalendar({
   onSelectDate,
 }: FoodCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
+  const user = useSelector(selectCurrentUser);
+  const { startDateOfPreviousMonth, endDateOfPreviousMonth } =
+    getStartOfPreviousAndEndOfNextMonth({ currentMonth });
 
-  // Mock data for days with food logs - replace with actual data
-  const mockLoggedDays: DayData[] = [
-    { date: new Date(2024, 0, 15), calories: 1850, hasLogs: true },
-    { date: new Date(2024, 0, 16), calories: 2100, hasLogs: true },
-    { date: new Date(2024, 0, 17), calories: 1950, hasLogs: true },
-    { date: new Date(2024, 0, 18), calories: 2200, hasLogs: true },
-    { date: new Date(2024, 0, 19), calories: 1800, hasLogs: true },
-  ];
+  const { data: foodLogs } = useGetFoddLogsDateQuery({
+    userId: user?.user_id,
+    startDate: startDateOfPreviousMonth,
+    endDate: endDateOfPreviousMonth,
+  });
+
+  console.log(foodLogs?.data?.data);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -67,8 +73,17 @@ export default function FoodCalendar({
     setCurrentMonth(newMonth);
   };
 
-  const getDayData = (date: Date): DayData | undefined => {
-    return mockLoggedDays.find((day) => isSameDay(day.date, date));
+  const hasFoodLog = (date: Date): DayData | undefined => {
+    return foodLogs?.data?.data.find((day: any) =>
+      isSameDay(day.log_date, date)
+    );
+  };
+
+  const hasCompletedFoodLog = (date: Date): boolean => {
+    return (
+      foodLogs?.data?.data.find((day: any) => isSameDay(day.log_date, date))
+        ?.status === "completed"
+    );
   };
 
   // Group days by weeks
@@ -129,8 +144,8 @@ export default function FoodCalendar({
             {week.map((day, dayIndex) => {
               const isToday = isSameDay(day, new Date());
               const isSelected = isSameDay(day, selectedDate);
-              const dayData = getDayData(day);
-              const dayHasLogs = dayData?.hasLogs;
+              const dayHasLogs = hasFoodLog(day);
+              const dayCompleted = hasCompletedFoodLog(day);
               const isCurrentMonth = isSameMonth(day, currentMonth);
 
               return (
@@ -161,7 +176,7 @@ export default function FoodCalendar({
                   >
                     <div className="flex flex-col items-center justify-center">
                       <span>{format(day, "d")}</span>
-                      {dayHasLogs && (
+                      {dayCompleted && (
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-500 dark:bg-green-400 rounded-full mx-1" />
                       )}
                     </div>

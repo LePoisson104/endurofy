@@ -12,6 +12,16 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         { type: "FoodLog", id: "LIST" },
       ],
     }),
+    getFoddLogsDate: builder.query({
+      query: ({ userId, startDate, endDate }) => ({
+        url: `/api/v1/food-log/${userId}/dates/${startDate}/${endDate}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { userId, startDate, endDate }) => [
+        { type: "FoodLog", id: `${userId}/${startDate}/${endDate}` },
+        { type: "FoodLog", id: "LIST" },
+      ],
+    }),
     addFoodLog: builder.mutation({
       query: ({ userId, payload }) => ({
         url: `/api/v1/food-log/${userId}`,
@@ -21,15 +31,15 @@ export const foodApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
     }),
     deleteFoodLog: builder.mutation({
-      query: ({ foodLogId }) => ({
-        url: `/api/v1/food-log/food/${foodLogId}`,
+      query: ({ foodId, foodLogId }) => ({
+        url: `/api/v1/food-log/food/${foodId}/${foodLogId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
     }),
     updateFoodLog: builder.mutation({
-      query: ({ foodLogId, payload }) => ({
-        url: `/api/v1/food-log/food/${foodLogId}`,
+      query: ({ foodId, payload }) => ({
+        url: `/api/v1/food-log/food/${foodId}`,
         method: "PATCH",
         body: payload,
       }),
@@ -43,4 +53,5 @@ export const {
   useGetFoodLogQuery,
   useDeleteFoodLogMutation,
   useUpdateFoodLogMutation,
+  useGetFoddLogsDateQuery,
 } = foodApiSlice;
