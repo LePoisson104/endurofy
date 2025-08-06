@@ -171,14 +171,14 @@ const getNutritionData = (food: FoodSearchResult | CustomFood) => {
     const conversionFactor = 100 / servingSize;
 
     return {
-      calories: Math.round(food.calories * conversionFactor),
-      protein: Number((food.protein * conversionFactor).toFixed(2)),
-      carbs: Number((food.carbs * conversionFactor).toFixed(2)),
-      fat: Number((food.fat * conversionFactor).toFixed(2)),
-      fiber: Number((food.fiber * conversionFactor).toFixed(2)),
-      sugar: Number((food.sugar * conversionFactor).toFixed(2)),
-      sodium: Math.round(food.sodium * conversionFactor),
-      cholesterol: Math.round(food.cholesterol * conversionFactor),
+      calories: food.calories * conversionFactor,
+      protein: food.protein * conversionFactor,
+      carbs: food.carbs * conversionFactor,
+      fat: food.fat * conversionFactor,
+      fiber: food.fiber * conversionFactor,
+      sugar: food.sugar * conversionFactor,
+      sodium: food.sodium * conversionFactor,
+      cholesterol: food.cholesterol * conversionFactor,
     };
   } else {
     // For FoodSearchResult, extract from nutritions array (already per 100g)
@@ -345,9 +345,9 @@ export default function FoodSelectionModal({
 
   const calculatedNutrition = {
     calories: Math.round(nutritionData.calories * multiplier),
-    protein: Math.round(nutritionData.protein * multiplier),
-    carbs: Math.round(nutritionData.carbs * multiplier),
-    fat: Math.round(nutritionData.fat * multiplier),
+    protein: Number((nutritionData.protein * multiplier).toFixed(2)),
+    carbs: Number((nutritionData.carbs * multiplier).toFixed(2)),
+    fat: Number((nutritionData.fat * multiplier).toFixed(2)),
   };
 
   // Calculate percentages for the chart and calories from each macro

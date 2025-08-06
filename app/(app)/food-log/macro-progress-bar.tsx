@@ -1,6 +1,7 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { formatNumberForDisplay } from "@/helper/display-number-format";
 
 interface MacroProgressBarProps {
   label: string;
@@ -48,8 +49,14 @@ export default function MacroProgressBar({
         <div className="flex justify-between w-full">
           <span className="text-primary text-sm">
             {view === "consumed"
-              ? `${Math.round(current)}/${target} ${unit}`
-              : `${target - Math.round(current)} ${unit}`}
+              ? unit === "kcal"
+                ? `${formatNumberForDisplay(
+                    Math.round(current).toFixed(2)
+                  )}/${target} ${unit}`
+                : `${formatNumberForDisplay(
+                    Number(current).toFixed(2)
+                  )}/${target} ${unit}`
+              : `${target - Number(current)} ${unit}`}
           </span>
           <div
             className={`text-sm ${

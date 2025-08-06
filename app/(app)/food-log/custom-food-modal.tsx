@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
@@ -24,10 +24,15 @@ import type {
   AddCustomFoodPayload,
   ServingUnit,
 } from "../../../interfaces/food-log-interfaces";
-import { useAddCustomFoodMutation } from "@/api/food/food-api-slice";
+import {
+  useAddCustomFoodMutation,
+  useUpdateCustomFoodMutation,
+} from "@/api/food/food-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { formatNumberForDisplay } from "@/helper/display-number-format";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
@@ -50,11 +55,15 @@ interface FormState {
 export default function CustomFoodModal({
   isOpen,
   onClose,
+  editFood = null,
+  mode = "add",
 }: CustomFoodModalProps) {
   const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [addCustomFood, { isLoading: isAddingCustomFood }] =
     useAddCustomFoodMutation();
+  const [updateCustomFood, { isLoading: isUpdatingCustomFood }] =
+    useUpdateCustomFoodMutation();
 
   const [formData, setFormData] = useState<FormState>({
     foodName: "",
@@ -74,6 +83,43 @@ export default function CustomFoodModal({
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormState, string>>
   >({});
+
+  // Initialize form data when editing
+  useEffect(() => {
+    if (mode === "edit" && editFood) {
+      setFormData({
+        foodName: editFood.description || "",
+        foodBrand: editFood.brandOwner || "",
+        calories: formatNumberForDisplay(editFood.calories || 0),
+        protein: formatNumberForDisplay(editFood.protein || 0),
+        carbs: formatNumberForDisplay(editFood.carbs || 0),
+        fat: formatNumberForDisplay(editFood.fat || 0),
+        fiber: formatNumberForDisplay(editFood.fiber || 0),
+        sugar: formatNumberForDisplay(editFood.sugar || 0),
+        sodium: formatNumberForDisplay(editFood.sodium || 0),
+        cholesterol: formatNumberForDisplay(editFood.cholesterol || 0),
+        servingSize: formatNumberForDisplay(editFood.servingSize || 0),
+        servingUnit: editFood.servingSizeUnit || "g",
+      });
+    } else {
+      // Reset form for add mode
+      setFormData({
+        foodName: "",
+        foodBrand: "",
+        calories: "",
+        protein: "",
+        carbs: "",
+        fat: "",
+        fiber: "",
+        sugar: "",
+        sodium: "",
+        cholesterol: "",
+        servingSize: "",
+        servingUnit: "g",
+      });
+    }
+    setErrors({});
+  }, [mode, editFood, isOpen]);
 
   const handleInputChange = (
     field: keyof FormState,
@@ -228,18 +274,33 @@ export default function CustomFoodModal({
   const handleSubmit = async () => {
     if (validateForm()) {
       const submissionData = prepareSubmissionData();
+      console.log(submissionData);
       try {
-        const response = await addCustomFood({
-          userId: user?.user_id,
-          payload: submissionData,
-        });
-        toast.success(response.data.data.message);
+        if (mode === "edit" && editFood) {
+          const response = await updateCustomFood({
+            customFoodId: editFood.customFoodId,
+            payload: submissionData,
+          });
+          toast.success(
+            response.data.data.message || "Food updated successfully"
+          );
+        } else {
+          const response = await addCustomFood({
+            userId: user?.user_id,
+            payload: submissionData,
+          });
+          toast.success(response.data.data.message);
+        }
         handleClose();
       } catch (error: any) {
-        if (error.data.message) {
+        if (error.data?.message) {
           toast.error(error.data.message);
         } else {
-          toast.error("Internal server error. Failed to add custom food");
+          toast.error(
+            mode === "edit"
+              ? "Internal server error. Failed to update custom food"
+              : "Internal server error. Failed to add custom food"
+          );
         }
       }
     }
@@ -284,9 +345,13 @@ export default function CustomFoodModal({
     const numericValue = parseFloat(value);
     if (!isNaN(numericValue)) {
       const finalValue = max && numericValue > max ? max : numericValue;
-      handleInputChange(field, finalValue);
+      // Format the value to remove .00 but keep meaningful decimals
+      const formattedValue = formatNumberForDisplay(finalValue);
+      handleInputChange(field, formattedValue);
     }
   };
+
+  const isLoading = isAddingCustomFood || isUpdatingCustomFood;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -296,7 +361,9 @@ export default function CustomFoodModal({
         }`}
       >
         <DialogHeader>
-          <DialogTitle>Create Custom Food</DialogTitle>
+          <DialogTitle>
+            {mode === "edit" ? "Edit Custom Food" : "Create Custom Food"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -588,10 +655,22 @@ export default function CustomFoodModal({
 
         {/* Footer */}
         <div className="flex justify-end gap-2 pt-4">
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Create Food</Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="w-[120px]"
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : mode === "edit" ? (
+              "Update Food"
+            ) : (
+              "Create Food"
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

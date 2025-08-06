@@ -36,8 +36,10 @@ export default function FoodCard({
     e.stopPropagation(); // Prevent triggering the card's onClick
   };
 
-  const handleEdit = () => {
-    if (foodSource === "Custom" && food) {
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card's onClick
+    if (foodSource === "Custom" && food && onEdit) {
+      onEdit(food);
     }
   };
 

@@ -26,6 +26,21 @@ export const foodApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Food", id: "LIST" }],
     }),
+    updateCustomFood: builder.mutation({
+      query: ({ customFoodId, payload }) => ({
+        url: `/api/v1/food/custom/${customFoodId}`,
+        method: "PUT",
+        body: payload,
+      }),
+      invalidatesTags: [{ type: "Food", id: "LIST" }],
+    }),
+    deleteCustomFood: builder.mutation({
+      query: ({ customFoodId }) => ({
+        url: `/api/v1/food/custom/${customFoodId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Food", id: "LIST" }],
+    }),
   }),
 });
 
@@ -33,4 +48,6 @@ export const {
   useSearchFoodQuery,
   useAddCustomFoodMutation,
   useGetCustomFoodsQuery,
+  useUpdateCustomFoodMutation,
+  useDeleteCustomFoodMutation,
 } = foodApiSlice;

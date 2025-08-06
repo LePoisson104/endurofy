@@ -121,6 +121,8 @@ export interface FoodSelectionModalProps {
 export interface CustomFoodModalProps {
   isOpen: boolean;
   onClose: () => void;
+  editFood?: CustomFood | null;
+  mode?: "add" | "edit";
 }
 
 export interface FoodSearchModalProps {

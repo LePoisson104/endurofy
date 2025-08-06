@@ -20,16 +20,19 @@ import type {
 import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
 import CustomFoodModal from "./custom-food-modal";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   useSearchFoodQuery,
   useGetCustomFoodsQuery,
+  useDeleteCustomFoodMutation,
 } from "@/api/food/food-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import FoodCardSkeleton from "@/components/skeletons/foodcard-skeleton";
 import { CustomFood } from "../../../interfaces/food-log-interfaces";
+import { toast } from "sonner";
 
 export default function FoodSearchModal({
   isOpen,
@@ -48,6 +51,10 @@ export default function FoodSearchModal({
   >(null);
   const [showFoodSelection, setShowFoodSelection] = useState(false);
   const [showCustomFood, setShowCustomFood] = useState(false);
+  const [editingFood, setEditingFood] = useState<CustomFood | null>(null);
+  const [customFoodMode, setCustomFoodMode] = useState<"add" | "edit">("add");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [foodToDelete, setFoodToDelete] = useState<CustomFood | null>(null);
 
   // Debounce the search query with a 500ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -69,6 +76,9 @@ export default function FoodSearchModal({
         skip: activeTab !== "custom" || !isOpen,
       }
     );
+
+  const [deleteCustomFood, { isLoading: isDeletingFood }] =
+    useDeleteCustomFoodMutation();
 
   // const filteredFoods = searchResults?.data?.filter(
   //   (food: FoodSearchResult) => {
@@ -114,6 +124,10 @@ export default function FoodSearchModal({
     setSearchQuery("");
     setSelectedFood(null);
     setActiveTab("all");
+    setEditingFood(null);
+    setCustomFoodMode("add");
+    setShowDeleteDialog(false);
+    setFoodToDelete(null);
     onClose();
   };
 
@@ -124,7 +138,51 @@ export default function FoodSearchModal({
   };
 
   const handleCreateCustomFood = () => {
+    setCustomFoodMode("add");
+    setEditingFood(null);
     setShowCustomFood(true);
+  };
+
+  const handleEditFood = (food: FoodSearchResult | CustomFood) => {
+    if ("customFoodId" in food) {
+      setEditingFood(food);
+      setCustomFoodMode("edit");
+      setShowCustomFood(true);
+    }
+  };
+
+  const handleDeleteFood = (food: FoodSearchResult | CustomFood) => {
+    if ("customFoodId" in food) {
+      setFoodToDelete(food);
+      setShowDeleteDialog(true);
+    }
+  };
+
+  const confirmDeleteFood = async () => {
+    if (foodToDelete) {
+      try {
+        const response = await deleteCustomFood({
+          customFoodId: foodToDelete.customFoodId,
+        });
+        toast.success(
+          response.data.data.message || "Food deleted successfully"
+        );
+        setShowDeleteDialog(false);
+        setFoodToDelete(null);
+      } catch (error: any) {
+        if (error.data?.message) {
+          toast.error(error.data.message);
+        } else {
+          toast.error("Failed to delete custom food");
+        }
+      }
+    }
+  };
+
+  const handleCustomFoodModalClose = () => {
+    setShowCustomFood(false);
+    setEditingFood(null);
+    setCustomFoodMode("add");
   };
 
   return (
@@ -237,6 +295,8 @@ export default function FoodSearchModal({
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
+                        onEdit={handleEditFood}
+                        onDelete={handleDeleteFood}
                         foodSource="Custom"
                       />
                     ))
@@ -262,8 +322,22 @@ export default function FoodSearchModal({
       {/* Custom Food Modal */}
       <CustomFoodModal
         isOpen={showCustomFood}
-        onClose={() => setShowCustomFood(false)}
+        onClose={handleCustomFoodModalClose}
+        editFood={editingFood}
+        mode={customFoodMode}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        handleDelete={confirmDeleteFood}
+        isDeleting={isDeletingFood}
+        title="Delete Custom Food"
+      >
+        Are you sure you want to delete "{foodToDelete?.description}"? This
+        action cannot be undone.
+      </DeleteDialog>
     </>
   );
 }

@@ -18,6 +18,7 @@ import { Apple, Edit, Heart, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { FoodLogs, Foods } from "../../../interfaces/food-log-interfaces";
+import { formatNumberForDisplay } from "@/helper/display-number-format";
 
 interface MealData {
   uncategorized: FoodLogs[];
@@ -125,11 +126,27 @@ export default function MealAccordion({
                 >
                   <span>{Math.round(mealMacros.calories)} Kcal</span>
                   <span>•</span>
-                  <span>P: {Math.round(mealMacros.protein)} g</span>
+                  <span>
+                    P:{" "}
+                    {formatNumberForDisplay(
+                      Number(mealMacros.protein).toFixed(2)
+                    )}{" "}
+                    g
+                  </span>
                   <span>•</span>
-                  <span>C: {Math.round(mealMacros.carbs)} g</span>
+                  <span>
+                    C:{" "}
+                    {formatNumberForDisplay(
+                      Number(mealMacros.carbs).toFixed(2)
+                    )}{" "}
+                    g
+                  </span>
                   <span>•</span>
-                  <span>F: {Math.round(mealMacros.fat)} g</span>
+                  <span>
+                    F:{" "}
+                    {formatNumberForDisplay(Number(mealMacros.fat).toFixed(2))}{" "}
+                    g
+                  </span>
                 </div>
               </div>
             )}
