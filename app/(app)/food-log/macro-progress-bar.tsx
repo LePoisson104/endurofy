@@ -14,6 +14,37 @@ interface MacroProgressBarProps {
   bgColor: string;
 }
 
+// Helper function to format numbers based on unit type
+const formatValue = (value: number, unit: string): string => {
+  if (unit === "kcal") {
+    return formatNumberForDisplay(Math.round(value).toFixed(2));
+  }
+  return formatNumberForDisplay(Number(value).toFixed(2));
+};
+
+// Helper function to get display text based on view mode
+const getDisplayText = (
+  view: "remaining" | "consumed",
+  current: number,
+  target: number,
+  unit: string
+): string => {
+  if (view === "consumed") {
+    const formattedCurrent = formatValue(current, unit);
+    return `${formattedCurrent}/${target} ${unit}`;
+  } else {
+    const remaining = target - current;
+    const formattedRemaining = formatValue(Math.abs(remaining), unit);
+
+    // If remaining is negative (over target), show with plus sign
+    if (remaining < 0) {
+      return `+${formattedRemaining} ${unit}`;
+    }
+
+    return `${formattedRemaining} ${unit}`;
+  }
+};
+
 export default function MacroProgressBar({
   label,
   current,
@@ -28,6 +59,8 @@ export default function MacroProgressBar({
   const actualPercentage = (current / target) * 100;
   const displayPercentage = Math.min(actualPercentage, 100);
   const isOverTarget = actualPercentage > 100;
+
+  const displayText = getDisplayText(view, current, target, unit);
 
   return (
     <div
@@ -47,23 +80,7 @@ export default function MacroProgressBar({
       </div>
       <div className={`flex flex-col ${isMobile ? "w-full" : "w-[70%]"}`}>
         <div className="flex justify-between w-full">
-          <span className="text-primary text-sm">
-            {view === "consumed"
-              ? unit === "kcal"
-                ? `${formatNumberForDisplay(
-                    Math.round(current).toFixed(2)
-                  )}/${target} ${unit}`
-                : `${formatNumberForDisplay(
-                    Number(current).toFixed(2)
-                  )}/${target} ${unit}`
-              : unit === "kcal"
-              ? `${formatNumberForDisplay(
-                  Math.round(target - Number(current)).toFixed(2)
-                )} ${unit}`
-              : `${formatNumberForDisplay(
-                  Number(target - Number(current)).toFixed(2)
-                )} ${unit}`}
-          </span>
+          <span className="text-primary text-sm">{displayText}</span>
           <div
             className={`text-sm ${
               isOverTarget ? "text-red-500 font-medium" : "text-primary"
