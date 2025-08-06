@@ -56,7 +56,13 @@ export default function MacroProgressBar({
                 : `${formatNumberForDisplay(
                     Number(current).toFixed(2)
                   )}/${target} ${unit}`
-              : `${target - Number(current)} ${unit}`}
+              : unit === "kcal"
+              ? `${formatNumberForDisplay(
+                  Math.round(target - Number(current)).toFixed(2)
+                )} ${unit}`
+              : `${formatNumberForDisplay(
+                  Number(target - Number(current)).toFixed(2)
+                )} ${unit}`}
           </span>
           <div
             className={`text-sm ${
