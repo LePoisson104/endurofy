@@ -131,6 +131,7 @@ export interface AddFavoriteFoodPayload {
 export interface FavoriteFood {
   favoriteFoodId: string;
   foodId: string;
+  isFavorite: boolean;
   foodSource: "USDA" | "custom";
   description: string;
   brandOwner: string;
