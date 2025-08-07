@@ -1,16 +1,31 @@
 import { apiSlice } from "../api-slice";
+import { AddFavoriteFoodPayload } from "../../interfaces/food-log-interfaces";
 
 export const foodApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     searchFood: builder.query({
-      query: ({ searchItem }) => ({
-        url: `/api/v1/food/search/${searchItem}`,
+      query: ({ userId, searchItem }) => ({
+        url: `/api/v1/food/${userId}/search/${searchItem}`,
         method: "GET",
       }),
+      providesTags: (result, error, { userId, searchItem }) => [
+        { type: "Food", id: `${userId}/${searchItem}` },
+        { type: "Food", id: "LIST" },
+      ],
     }),
     getCustomFoods: builder.query({
       query: ({ userId }) => ({
         url: `/api/v1/food/${userId}/custom`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { userId }) => [
+        { type: "Food", id: `${userId}` },
+        { type: "Food", id: "LIST" },
+      ],
+    }),
+    getFavoriteFoods: builder.query({
+      query: ({ userId }) => ({
+        url: `/api/v1/food/${userId}/favorites`,
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [
@@ -34,6 +49,33 @@ export const foodApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Food", id: "LIST" }],
     }),
+    addFavoriteFood: builder.mutation({
+      query: ({
+        userId,
+        payload,
+      }: {
+        userId: string;
+        payload: AddFavoriteFoodPayload;
+      }) => ({
+        url: `/api/v1/food/${userId}/favorites`,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, { userId, payload }) => [
+        { type: "Food", id: `${userId}/${payload.foodId}` },
+        { type: "Food", id: "LIST" },
+      ],
+    }),
+    removeFavoriteFood: builder.mutation({
+      query: ({ userId, favFoodId }) => ({
+        url: `/api/v1/food/favorites/${favFoodId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, { favFoodId }) => [
+        { type: "Food", id: `${favFoodId}` },
+        { type: "Food", id: "LIST" },
+      ],
+    }),
     deleteCustomFood: builder.mutation({
       query: ({ customFoodId }) => ({
         url: `/api/v1/food/custom/${customFoodId}`,
@@ -50,4 +92,7 @@ export const {
   useGetCustomFoodsQuery,
   useUpdateCustomFoodMutation,
   useDeleteCustomFoodMutation,
+  useAddFavoriteFoodMutation,
+  useRemoveFavoriteFoodMutation,
+  useGetFavoriteFoodsQuery,
 } = foodApiSlice;

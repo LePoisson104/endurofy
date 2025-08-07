@@ -16,6 +16,7 @@ import type {
   FoodSearchModalProps,
   FoodSearchResult,
   AddFoodLogPayload,
+  FavoriteFood,
 } from "../../../interfaces/food-log-interfaces";
 import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
@@ -27,6 +28,7 @@ import {
   useSearchFoodQuery,
   useGetCustomFoodsQuery,
   useDeleteCustomFoodMutation,
+  useGetFavoriteFoodsQuery,
 } from "@/api/food/food-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
@@ -47,7 +49,7 @@ export default function FoodSearchModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [selectedFood, setSelectedFood] = useState<
-    FoodSearchResult | CustomFood | null
+    FoodSearchResult | CustomFood | FavoriteFood | null
   >(null);
   const [showFoodSelection, setShowFoodSelection] = useState(false);
   const [showCustomFood, setShowCustomFood] = useState(false);
@@ -62,6 +64,7 @@ export default function FoodSearchModal({
   // Only make API call when debounced query has content and modal is open
   const { data: searchResults, isFetching } = useSearchFoodQuery(
     {
+      userId: user?.user_id,
       searchItem: encodeURIComponent(debouncedSearchQuery),
     },
     {
@@ -74,6 +77,14 @@ export default function FoodSearchModal({
       { userId: user?.user_id },
       {
         skip: activeTab !== "custom" || !isOpen,
+      }
+    );
+
+  const { data: favoriteFoods, isFetching: isFetchingFavoriteFoods } =
+    useGetFavoriteFoodsQuery(
+      { userId: user?.user_id },
+      {
+        skip: activeTab !== "favorites" || !isOpen,
       }
     );
 
@@ -97,7 +108,9 @@ export default function FoodSearchModal({
   //   }
   // );
 
-  const handleFoodSelect = (food: FoodSearchResult | CustomFood) => {
+  const handleFoodSelect = (
+    food: FoodSearchResult | CustomFood | FavoriteFood
+  ) => {
     setSelectedFood(food);
     setShowFoodSelection(true);
   };
@@ -263,20 +276,25 @@ export default function FoodSearchModal({
 
               <TabsContent value="favorites" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-                  {/* {filteredFoods.length === 0 ? (
+                  {isFetchingFavoriteFoods ? (
+                    <FoodCardSkeleton />
+                  ) : favoriteFoods?.data?.data?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       No favorite foods found
                     </div>
                   ) : (
-                    filteredFoods.map((food: FoodSearchResult) => (
+                    favoriteFoods?.data?.data?.map((food: FavoriteFood) => (
                       <FoodCard
-                        key={food.id}
+                        key={food.favoriteFoodId}
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
+                        onEdit={handleEditFood}
+                        onDelete={handleDeleteFood}
+                        foodSource="Favorite"
                       />
                     ))
-                  )} */}
+                  )}
                 </div>
               </TabsContent>
 

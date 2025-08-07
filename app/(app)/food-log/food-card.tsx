@@ -11,16 +11,17 @@ import {
 import type {
   CustomFood,
   FoodSearchResult,
+  FavoriteFood,
 } from "../../../interfaces/food-log-interfaces";
 
 interface FoodCardProps {
-  food: FoodSearchResult | CustomFood;
+  food: FoodSearchResult | CustomFood | FavoriteFood;
   isSelected?: boolean;
-  onSelect: (food: FoodSearchResult | CustomFood) => void;
+  onSelect: (food: FoodSearchResult | CustomFood | FavoriteFood) => void;
   onToggleFavorite: (foodId: string) => void;
   onEdit?: (food: FoodSearchResult | CustomFood) => void;
   onDelete?: (food: FoodSearchResult | CustomFood) => void;
-  foodSource: "USDA" | "Custom";
+  foodSource: "USDA" | "Custom" | "Favorite";
 }
 
 export default function FoodCard({
@@ -39,13 +40,13 @@ export default function FoodCard({
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card's onClick
     if (foodSource === "Custom" && food && onEdit) {
-      onEdit(food);
+      onEdit(food as CustomFood);
     }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete?.(food);
+    onDelete?.(food as CustomFood);
   };
 
   return (
@@ -89,7 +90,11 @@ export default function FoodCard({
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <p className="text-xs text-muted-foreground">{foodSource}</p>
+          <p className="text-xs text-muted-foreground">
+            {foodSource === "Favorite"
+              ? (food as FavoriteFood).foodSource
+              : foodSource}
+          </p>
         )}
       </div>
     </div>

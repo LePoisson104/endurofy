@@ -20,6 +20,12 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MacrosPieChart } from "@/components/charts/macros-piechart";
 import { USDAFoodNutrientID } from "@/helper/constants/nutrients-constants";
+import {
+  useAddFavoriteFoodMutation,
+  useRemoveFavoriteFoodMutation,
+} from "@/api/food/food-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 
 import type {
   FoodSelectionModalProps,
@@ -29,13 +35,17 @@ import type {
   CustomFood,
   FoodNutrient,
   Foods,
+  FavoriteFood,
 } from "../../../interfaces/food-log-interfaces";
+import { toast } from "sonner";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
 // Type guard to check if food is CustomFood
-function isCustomFood(food: FoodSearchResult | CustomFood): food is CustomFood {
-  return "customFoodId" in food;
+function isCustomFood(
+  food: FoodSearchResult | CustomFood | FavoriteFood
+): food is CustomFood {
+  return "customFoodId" in food || food.foodSource === "custom";
 }
 
 // Helper function to convert unit codes to standard units
@@ -243,6 +253,9 @@ export default function FoodSelectionModal({
   const [initialServingSize, setInitialServingSize] = useState<string>("");
   const [initialUnit, setInitialUnit] = useState<ServingUnit>("g");
   const isMobile = useIsMobile();
+  const user = useSelector(selectCurrentUser);
+  const [addFavoriteFood] = useAddFavoriteFoodMutation();
+  const [removeFavoriteFood] = useRemoveFavoriteFoodMutation();
 
   // Reset form when food or editFood changes
   useEffect(() => {
@@ -300,7 +313,7 @@ export default function FoodSelectionModal({
           cholesterol: editFood.cholesterol_mg,
         }
       : food
-      ? getNutritionData(food)
+      ? getNutritionData(food as FoodSearchResult | CustomFood)
       : null;
 
   if (!nutritionData) return null;
@@ -406,12 +419,14 @@ export default function FoodSelectionModal({
     } else if (mode === "add" && food && onConfirm) {
       // Add mode: create new food log
       // Get normalized nutritional values per 100g for backend
-      const rawNutrients = getRawNutrientValuesPer100g(food);
+      const rawNutrients = getRawNutrientValuesPer100g(
+        food as FoodSearchResult | CustomFood
+      );
 
       const foodItem: AddFoodLogPayload = {
         foodSourceId: isCustomFood(food)
           ? food.customFoodId
-          : food.fdcId.toString(),
+          : (food as FoodSearchResult).fdcId.toString(),
         foodName: food.description,
         foodBrand: food.brandOwner,
         foodSource: isCustomFood(food) ? "custom" : food.foodSource,
@@ -442,6 +457,54 @@ export default function FoodSelectionModal({
       return;
     }
     onClose();
+  };
+
+  const handleFavorite = async () => {
+    if (!food || !user?.user_id) return; // Add null check
+    const foodId = isCustomFood(food)
+      ? food.customFoodId.toString()
+      : (food as FoodSearchResult).fdcId.toString();
+    const rawNutrients = getRawNutrientValuesPer100g(
+      food as FoodSearchResult | CustomFood
+    );
+
+    try {
+      if ((food as CustomFood | FoodSearchResult)?.isFavorite === true) {
+        await removeFavoriteFood({
+          favFoodId: food?.favoriteFoodId?.toString(),
+        });
+      } else {
+        await addFavoriteFood({
+          userId: user?.user_id,
+          payload: {
+            foodId: foodId,
+            foodName: food.description,
+            foodBrand: food.brandOwner,
+            foodSource: isCustomFood(food) ? "custom" : food.foodSource,
+            calories: rawNutrients.calories,
+            protein: rawNutrients.protein,
+            carbs: rawNutrients.carbs,
+            fat: rawNutrients.fat,
+            fiber: rawNutrients.fiber,
+            sugar: rawNutrients.sugar,
+            sodium: rawNutrients.sodium,
+            cholesterol: rawNutrients.cholesterol,
+            servingSize: isCombinedUnit(selectedUnit)
+              ? parseCombinedUnit(selectedUnit).amount * servingSizeNum
+              : servingSizeNum,
+            servingUnit: isCombinedUnit(selectedUnit)
+              ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)
+              : (selectedUnit as ServingUnit),
+          },
+        });
+      }
+    } catch (error: any) {
+      if (error) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Error adding/removing favorite food");
+      }
+    }
   };
 
   return (
@@ -566,8 +629,19 @@ export default function FoodSelectionModal({
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="ghost" size="icon">
-                  <Heart className="w-4 h-4" />
+                <Button variant="ghost" size="icon" onClick={handleFavorite}>
+                  <Heart
+                    className={`w-4 h-4 ${
+                      (food as CustomFood | FoodSearchResult)?.isFavorite
+                        ? "text-rose-500"
+                        : "none"
+                    }`}
+                    fill={
+                      (food as CustomFood | FoodSearchResult)?.isFavorite
+                        ? "oklch(71.2% 0.194 13.428)"
+                        : "none"
+                    }
+                  />
                 </Button>
               </div>
             </div>

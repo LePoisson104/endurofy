@@ -794,41 +794,45 @@ export function WorkoutProgramDetail({
             onValueChange={(value) => setActiveDay(value as AllDays)}
             className="space-y-4"
           >
-            <TabsList
-              className={`grid w-full grid-cols-7 ${
-                program.programType === "custom" &&
-                (program.workoutDays.length > 7 || numberOfDays > 7)
-                  ? "mb-10"
-                  : ""
-              }`}
-            >
-              {Object.values(allDays)
-                .slice(0, numberOfDays)
-                .map((day) => {
-                  const dayData = editedProgram.workoutDays.find((d) => {
-                    return allDays[d.dayNumber as keyof typeof allDays] === day;
-                  });
-                  const exerciseCount = dayData?.exercises.length || 0;
+            <div className="border-b">
+              <TabsList
+                className={`grid w-full grid-cols-7 ${
+                  program.programType === "custom" &&
+                  (program.workoutDays.length > 7 || numberOfDays > 7)
+                    ? "mb-10"
+                    : ""
+                }`}
+              >
+                {Object.values(allDays)
+                  .slice(0, numberOfDays)
+                  .map((day) => {
+                    const dayData = editedProgram.workoutDays.find((d) => {
+                      return (
+                        allDays[d.dayNumber as keyof typeof allDays] === day
+                      );
+                    });
+                    const exerciseCount = dayData?.exercises.length || 0;
 
-                  return (
-                    <TabsTrigger
-                      key={day}
-                      value={day}
-                      className="relative"
-                      ref={day === activeDay ? currentDayRef : null}
-                    >
-                      {formatDayName(day as AllDays).slice(0, 3)}
-                      {exerciseCount >= 0 &&
-                        getDayId(day as AllDays) !== "" &&
-                        !getDayId(day as AllDays).includes("temp-") && (
-                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                            {exerciseCount}
-                          </span>
-                        )}
-                    </TabsTrigger>
-                  );
-                })}
-            </TabsList>
+                    return (
+                      <TabsTrigger
+                        key={day}
+                        value={day}
+                        className="relative"
+                        ref={day === activeDay ? currentDayRef : null}
+                      >
+                        {formatDayName(day as AllDays).slice(0, 3)}
+                        {exerciseCount >= 0 &&
+                          getDayId(day as AllDays) !== "" &&
+                          !getDayId(day as AllDays).includes("temp-") && (
+                            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                              {exerciseCount}
+                            </span>
+                          )}
+                      </TabsTrigger>
+                    );
+                  })}
+              </TabsList>
+            </div>
 
             {Object.values(allDays).map((day) => (
               <TabsContent key={day} value={day} className="space-y-4">

@@ -274,7 +274,7 @@ export default function CustomFoodModal({
   const handleSubmit = async () => {
     if (validateForm()) {
       const submissionData = prepareSubmissionData();
-      console.log(submissionData);
+
       try {
         if (mode === "edit" && editFood) {
           const response = await updateCustomFood({

@@ -62,6 +62,8 @@ export interface FoodSearchResult {
   servingSize: number;
   servingSizeUnit: string;
   nutritions: FoodNutrient[];
+  favoriteFoodId: string | null;
+  isFavorite: boolean;
 }
 
 export interface FoodNutrient {
@@ -105,13 +107,50 @@ export interface CustomFood {
   cholesterol: number;
   servingSize: number;
   servingSizeUnit: ServingUnit;
+  favoriteFoodId: string | null;
+  isFavorite: boolean;
+}
+
+export interface AddFavoriteFoodPayload {
+  foodId: string;
+  foodName: string;
+  foodBrand?: string;
+  foodSource: "USDA" | "custom";
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+  servingSize: number;
+  servingUnit: ServingUnit;
+}
+
+export interface FavoriteFood {
+  favoriteFoodId: string;
+  foodId: string;
+  foodSource: "USDA" | "custom";
+  description: string;
+  brandOwner: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+  servingSize: number;
+  servingSizeUnit: ServingUnit;
 }
 
 export interface FoodSelectionModalProps {
   isAddingFoodLog: boolean;
   isOpen: boolean;
   onClose: () => void;
-  food: FoodSearchResult | CustomFood | null;
+  food: FoodSearchResult | CustomFood | FavoriteFood | null;
   editFood?: Foods | null;
   mode?: "add" | "edit";
   onConfirm: (food: AddFoodLogPayload) => void;
