@@ -207,7 +207,7 @@ export default function FoodSearchModal({
           }`}
         >
           <DialogHeader>
-            <DialogTitle>Add Food to {mealType}</DialogTitle>
+            <DialogTitle>Add food to {mealType}</DialogTitle>
             <DialogDescription>
               Search for foods and add them to your meal
             </DialogDescription>
