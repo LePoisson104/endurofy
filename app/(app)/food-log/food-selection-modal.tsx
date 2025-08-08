@@ -364,8 +364,6 @@ export default function FoodSelectionModal({
       ? getNutritionData(food)
       : null;
 
-  console.log(nutritionData);
-
   if (!nutritionData) return null;
 
   const servingSizeNum = parseInt(servingSize) || 1;
@@ -554,7 +552,7 @@ export default function FoodSelectionModal({
       }
     }
   };
-
+  console.log(food);
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent

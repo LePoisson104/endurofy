@@ -387,7 +387,7 @@ export default function WeightLogHistory({
                 </div>
               </div>
             ) : (
-              <p className="text-center text-sm text-muted-foreground py-6">
+              <p className="text-center text-sm text-muted-foreground w-full h-[150px] flex items-center justify-center border-dashed border-1 border-muted-foreground rounded-lg">
                 No weight history found
               </p>
             )}

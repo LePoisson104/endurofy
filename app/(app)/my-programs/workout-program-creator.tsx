@@ -446,18 +446,20 @@ export function WorkoutProgramCreator({
               value={activeDay}
               onValueChange={(value) => setActiveDay(value as AllDays)}
             >
-              <TabsList className="mb-4 grid w-full grid-cols-7">
-                {daysOfWeek.map((day) => (
-                  <TabsTrigger key={day} value={day} className="relative">
-                    {formatDayName(day as AllDays).slice(0, 3)}
-                    {exercises[day] && exercises[day].length > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                        {exercises[day].length}
-                      </span>
-                    )}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <div className="border-b mb-4">
+                <TabsList className="grid w-full grid-cols-7">
+                  {daysOfWeek.map((day) => (
+                    <TabsTrigger key={day} value={day} className="relative">
+                      {formatDayName(day as AllDays).slice(0, 3)}
+                      {exercises[day] && exercises[day].length > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                          {exercises[day].length}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
 
               {daysOfWeek.map((day) => (
                 <TabsContent key={day} value={day} className="space-y-4">
