@@ -5,7 +5,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWorkoutLog: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-log/get-workout-log/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-workout-log/${userId}/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -18,7 +18,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getManualWorkoutLogWithPrevious: builder.query({
       query: ({ userId, programId, workoutDate }) => ({
-        url: `/api/v1/workout-log/get-manual-workout-log-with-previous/${userId}/${programId}/${workoutDate}`,
+        url: `/api/v1/workout-logs/get-manual-workout-log-with-previous/${userId}/${programId}/${workoutDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -31,7 +31,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getWokroutLogPagination: builder.query({
       query: ({ userId, programId, offset, limit }) => ({
-        url: `/api/v1/workout-log/get-workout-log-pagination/${userId}/${programId}/${offset}/${limit}`,
+        url: `/api/v1/workout-logs/get-workout-log-pagination/${userId}/${programId}/${offset}/${limit}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -44,7 +44,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getPreviousWorkoutLog: builder.query({
       query: ({ userId, programId, dayId, currentWorkoutDate }) => ({
-        url: `/api/v1/workout-log/get-previous-workout-log/${userId}/${programId}/${dayId}/${currentWorkoutDate}`,
+        url: `/api/v1/workout-logs/get-previous-workout-log/${userId}/${programId}/${dayId}/${currentWorkoutDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -57,7 +57,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getCompletedWorkoutLogs: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-log/get-completed-workout-logs/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-completed-workout-logs/${userId}/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -70,7 +70,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getWorkoutLogDates: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-log/get-workout-log-dates/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-workout-log-dates/${userId}/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -83,7 +83,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     createManualWorkoutLog: builder.mutation({
       query: ({ userId, programId, dayId, payload }) => ({
-        url: `/api/v1/workout-log/create-manual-workout-log/${userId}/${programId}/${dayId}`,
+        url: `/api/v1/workout-logs/create-manual-workout-log/${userId}/${programId}/${dayId}`,
         method: "POST",
         body: payload,
       }),
@@ -91,7 +91,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     addManualWorkoutExercise: builder.mutation({
       query: ({ workoutLogId, programExerciseId, payload }) => ({
-        url: `/api/v1/workout-log/add-manual-workout-exercise/${workoutLogId}/${programExerciseId}`,
+        url: `/api/v1/workout-logs/add-manual-workout-exercise/${workoutLogId}/${programExerciseId}`,
         method: "POST",
         body: payload,
       }),
@@ -99,7 +99,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     addWorkoutSet: builder.mutation({
       query: ({ workoutExerciseId, payload }) => ({
-        url: `/api/v1/workout-log/add-workout-set/${workoutExerciseId}`,
+        url: `/api/v1/workout-logs/add-workout-set/${workoutExerciseId}`,
         method: "POST",
         body: payload,
       }),
@@ -117,7 +117,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         dayId: string;
         workoutLog: WorkoutLogPayload;
       }) => ({
-        url: `/api/v1/workout-log/create-workout-log/${userId}/${programId}/${dayId}`,
+        url: `/api/v1/workout-logs/create-workout-log/${userId}/${programId}/${dayId}`,
         method: "POST",
         body: workoutLog,
       }),
@@ -125,7 +125,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     updateWorkoutLogStatus: builder.mutation({
       query: ({ workoutLogId, status }) => ({
-        url: `/api/v1/workout-log/update-workout-log-status/${workoutLogId}`,
+        url: `/api/v1/workout-logs/update-workout-log-status/${workoutLogId}`,
         method: "PATCH",
         body: { status },
       }),
@@ -133,7 +133,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     updateWorkoutLogName: builder.mutation({
       query: ({ workoutLogId, title }) => ({
-        url: `/api/v1/workout-log/update-workout-log-name/${workoutLogId}`,
+        url: `/api/v1/workout-logs/update-workout-log-name/${workoutLogId}`,
         method: "PATCH",
         body: { title },
       }),
@@ -141,7 +141,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     updateExerciseNotes: builder.mutation({
       query: ({ workoutExerciseId, exerciseNotes }) => ({
-        url: `/api/v1/workout-log/update-exercise-notes/${workoutExerciseId}`,
+        url: `/api/v1/workout-logs/update-exercise-notes/${workoutExerciseId}`,
         method: "PATCH",
         body: { exerciseNotes },
       }),
@@ -149,7 +149,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     updateWorkoutSet: builder.mutation({
       query: ({ workoutSetId, workoutExerciseId, workoutSetPayload }) => ({
-        url: `/api/v1/workout-log/update-workout-set/${workoutSetId}/${workoutExerciseId}`,
+        url: `/api/v1/workout-logs/update-workout-set/${workoutSetId}/${workoutExerciseId}`,
         method: "PATCH",
         body: workoutSetPayload,
       }),
@@ -157,28 +157,28 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     deleteWorkoutSetWithCascade: builder.mutation({
       query: ({ workoutSetId, workoutExerciseId, workoutLogId }) => ({
-        url: `/api/v1/workout-log/delete-workout-set-with-cascade/${workoutSetId}/${workoutExerciseId}/${workoutLogId}`,
+        url: `/api/v1/workout-logs/delete-workout-set-with-cascade/${workoutSetId}/${workoutExerciseId}/${workoutLogId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
     deleteWorkoutLog: builder.mutation({
       query: ({ workoutLogId }) => ({
-        url: `/api/v1/workout-log/delete-workout-log/${workoutLogId}`,
+        url: `/api/v1/workout-logs/delete-workout-log/${workoutLogId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
     deleteWorkoutExercise: builder.mutation({
       query: ({ workoutExerciseId, workoutLogId, workoutLogType }) => ({
-        url: `/api/v1/workout-log/delete-workout-exercise/${workoutExerciseId}/${workoutLogId}/${workoutLogType}`,
+        url: `/api/v1/workout-logs/delete-workout-exercise/${workoutExerciseId}/${workoutLogId}/${workoutLogType}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
     deleteWorkoutSet: builder.mutation({
       query: ({ workoutSetId }) => ({
-        url: `/api/v1/workout-log/delete-workout-set/${workoutSetId}`,
+        url: `/api/v1/workout-logs/delete-workout-set/${workoutSetId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],

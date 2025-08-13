@@ -4,7 +4,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWeightLogByDate: builder.query({
       query: ({ userId, startDate, endDate, options, withRates }) => ({
-        url: `/api/v1/weight-log/get-weight-log-by-date/${userId}?startDate=${startDate}&endDate=${endDate}&options=${options}&withRates=${withRates}`,
+        url: `/api/v1/weight-logs/get-weight-log-by-date/${userId}?startDate=${startDate}&endDate=${endDate}&options=${options}&withRates=${withRates}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId, startDate, endDate }) => [
@@ -14,7 +14,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     getWeeklyWeightDifference: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/weight-log/get-weekly-weight-difference/${userId}`,
+        url: `/api/v1/weight-logs/get-weekly-weight-difference/${userId}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [
@@ -24,7 +24,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     getWeightLogDates: builder.query({
       query: ({ userId, startDate, endDate }) => ({
-        url: `/api/v1/weight-log/get-weight-log-dates-by-range/${userId}?startDate=${startDate}&endDate=${endDate}`,
+        url: `/api/v1/weight-logs/get-weight-log-dates-by-range/${userId}?startDate=${startDate}&endDate=${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId, startDate, endDate }) => [
@@ -34,7 +34,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     createWeightLog: builder.mutation({
       query: ({ userId, weightLogPayload }) => ({
-        url: `/api/v1/weight-log/create-weight-log/${userId}`,
+        url: `/api/v1/weight-logs/create-weight-log/${userId}`,
         method: "POST",
         body: weightLogPayload,
       }),
@@ -46,7 +46,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     updateWeightLog: builder.mutation({
       query: ({ userId, weightLogId, weightLogPayload }) => ({
-        url: `/api/v1/weight-log/update-weight-log/${userId}/${weightLogId}`,
+        url: `/api/v1/weight-logs/update-weight-log/${userId}/${weightLogId}`,
         method: "PATCH",
         body: weightLogPayload,
       }),
@@ -58,7 +58,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     deleteWeightLog: builder.mutation({
       query: ({ userId, weightLogId }) => ({
-        url: `/api/v1/weight-log/delete-weight-log/${userId}/${weightLogId}`,
+        url: `/api/v1/weight-logs/delete-weight-log/${userId}/${weightLogId}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, arg) => [

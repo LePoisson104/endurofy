@@ -5,7 +5,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     searchFood: builder.query({
       query: ({ userId, searchItem }) => ({
-        url: `/api/v1/food/${userId}/search/${searchItem}`,
+        url: `/api/v1/foods/${userId}/search/${searchItem}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId, searchItem }) => [
@@ -15,7 +15,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     getCustomFoods: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/food/${userId}/custom`,
+        url: `/api/v1/foods/${userId}/custom`,
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [
@@ -25,7 +25,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     getFavoriteFoods: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/food/${userId}/favorites`,
+        url: `/api/v1/foods/${userId}/favorites`,
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [
@@ -35,7 +35,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     addCustomFood: builder.mutation({
       query: ({ userId, payload }) => ({
-        url: `/api/v1/food/${userId}/custom`,
+        url: `/api/v1/foods/${userId}/custom`,
         method: "POST",
         body: payload,
       }),
@@ -43,7 +43,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     updateCustomFood: builder.mutation({
       query: ({ customFoodId, payload }) => ({
-        url: `/api/v1/food/custom/${customFoodId}`,
+        url: `/api/v1/foods/custom/${customFoodId}`,
         method: "PUT",
         body: payload,
       }),
@@ -57,7 +57,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         userId: string;
         payload: AddFavoriteFoodPayload;
       }) => ({
-        url: `/api/v1/food/${userId}/favorites`,
+        url: `/api/v1/foods/${userId}/favorites`,
         method: "POST",
         body: payload,
       }),
@@ -68,7 +68,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     removeFavoriteFood: builder.mutation({
       query: ({ userId, favFoodId }) => ({
-        url: `/api/v1/food/favorites/${favFoodId}`,
+        url: `/api/v1/foods/favorites/${favFoodId}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, { favFoodId }) => [
@@ -78,7 +78,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     deleteCustomFood: builder.mutation({
       query: ({ customFoodId }) => ({
-        url: `/api/v1/food/custom/${customFoodId}`,
+        url: `/api/v1/foods/custom/${customFoodId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Food", id: "LIST" }],
