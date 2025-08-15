@@ -124,6 +124,8 @@ export default function FoodLogPage() {
     date: selectedDate.toLocaleDateString("en-CA"), // Convert Date to YYYY-MM-DD string
   });
 
+  console.log(foodLog);
+
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
   const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
@@ -165,11 +167,11 @@ export default function FoodLogPage() {
       return { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
     const allFoods = [
-      ...(foodLog.data.data.foods.uncategorized || []),
-      ...(foodLog.data.data.foods.breakfast || []),
-      ...(foodLog.data.data.foods.lunch || []),
-      ...(foodLog.data.data.foods.dinner || []),
-      ...(foodLog.data.data.foods.snacks || []),
+      ...(foodLog.data.foodLog.foods.uncategorized || []),
+      ...(foodLog.data.foodLog.foods.breakfast || []),
+      ...(foodLog.data.foodLog.foods.lunch || []),
+      ...(foodLog.data.foodLog.foods.dinner || []),
+      ...(foodLog.data.foodLog.foods.snacks || []),
     ];
 
     return allFoods.reduce(
@@ -198,11 +200,11 @@ export default function FoodLogPage() {
       return { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 };
 
     const allFoods = [
-      ...(foodLog.data.data.foods.uncategorized || []),
-      ...(foodLog.data.data.foods.breakfast || []),
-      ...(foodLog.data.data.foods.lunch || []),
-      ...(foodLog.data.data.foods.dinner || []),
-      ...(foodLog.data.data.foods.snacks || []),
+      ...(foodLog.data.foodLog.foods.uncategorized || []),
+      ...(foodLog.data.foodLog.foods.breakfast || []),
+      ...(foodLog.data.foodLog.foods.lunch || []),
+      ...(foodLog.data.foodLog.foods.dinner || []),
+      ...(foodLog.data.foodLog.foods.snacks || []),
     ];
 
     return allFoods.reduce(
@@ -246,8 +248,6 @@ export default function FoodLogPage() {
     food.mealType = selectedMeal;
     food.loggedAt = selectedDate;
 
-    console.log(food);
-
     try {
       await addFoodLog({
         userId: user?.user_id,
@@ -284,11 +284,11 @@ export default function FoodLogPage() {
     if (!foodLog?.data?.data) return;
 
     const allFoods = [
-      ...(foodLog.data.data.foods.uncategorized || []),
-      ...(foodLog.data.data.foods.breakfast || []),
-      ...(foodLog.data.data.foods.lunch || []),
-      ...(foodLog.data.data.foods.dinner || []),
-      ...(foodLog.data.data.foods.snacks || []),
+      ...(foodLog.data.foodLog.foods.uncategorized || []),
+      ...(foodLog.data.foodLog.foods.breakfast || []),
+      ...(foodLog.data.foodLog.foods.lunch || []),
+      ...(foodLog.data.foodLog.foods.dinner || []),
+      ...(foodLog.data.foodLog.foods.snacks || []),
     ];
 
     const foodToEdit = allFoods.find((food) => food.food_id === foodId);
@@ -488,7 +488,7 @@ export default function FoodLogPage() {
                   <MealAccordion
                     mealType="uncategorized"
                     title="Uncategorized"
-                    foods={foodLog?.data?.data.foods.uncategorized || []}
+                    foods={foodLog?.data?.foodLog.foods.uncategorized || []}
                     isExpanded={expandedMeals.has("uncategorized")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
@@ -500,7 +500,7 @@ export default function FoodLogPage() {
                   <MealAccordion
                     mealType="breakfast"
                     title="Breakfast"
-                    foods={foodLog?.data?.data.foods.breakfast || []}
+                    foods={foodLog?.data?.foodLog.foods.breakfast || []}
                     isExpanded={expandedMeals.has("breakfast")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
@@ -512,7 +512,7 @@ export default function FoodLogPage() {
                   <MealAccordion
                     mealType="lunch"
                     title="Lunch"
-                    foods={foodLog?.data?.data.foods.lunch || []}
+                    foods={foodLog?.data?.foodLog.foods.lunch || []}
                     isExpanded={expandedMeals.has("lunch")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
@@ -524,7 +524,7 @@ export default function FoodLogPage() {
                   <MealAccordion
                     mealType="dinner"
                     title="Dinner"
-                    foods={foodLog?.data?.data.foods.dinner || []}
+                    foods={foodLog?.data?.foodLog.foods.dinner || []}
                     isExpanded={expandedMeals.has("dinner")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}
@@ -536,7 +536,7 @@ export default function FoodLogPage() {
                   <MealAccordion
                     mealType="snacks"
                     title="Snacks"
-                    foods={foodLog?.data?.data.foods.snacks || []}
+                    foods={foodLog?.data?.foodLog.foods.snacks || []}
                     isExpanded={expandedMeals.has("snacks")}
                     onToggle={toggleMealExpansion}
                     onAddFood={handleAddFood}

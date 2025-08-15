@@ -72,6 +72,8 @@ export default function FoodSearchModal({
     }
   );
 
+  console.log(searchResults);
+
   const { data: customFoods, isFetching: isFetchingCustomFoods } =
     useGetCustomFoodsQuery(
       { userId: user?.user_id },
@@ -263,7 +265,7 @@ export default function FoodSearchModal({
                   ) : (
                     searchResults?.data?.foods?.map((food: any) => (
                       <FoodCard
-                        key={food.fdcId}
+                        key={food.foodId}
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}

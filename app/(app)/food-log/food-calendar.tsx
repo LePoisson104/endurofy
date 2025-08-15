@@ -72,14 +72,14 @@ export default function FoodCalendar({
   };
 
   const hasFoodLog = (date: Date): DayData | undefined => {
-    return foodLogs?.data?.data.find((day: any) =>
+    return foodLogs?.data?.logs.find((day: any) =>
       isSameDay(day.log_date, date)
     );
   };
 
   const hasCompletedFoodLog = (date: Date): boolean => {
     return (
-      foodLogs?.data?.data.find((day: any) => isSameDay(day.log_date, date))
+      foodLogs?.data?.logs.find((day: any) => isSameDay(day.log_date, date))
         ?.status === "completed"
     );
   };
