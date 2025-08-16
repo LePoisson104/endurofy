@@ -14,9 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
   FoodSearchModalProps,
-  FoodSearchResult,
   AddFoodLogPayload,
-  FavoriteFood,
+  BaseFood,
 } from "../../../interfaces/food-log-interfaces";
 import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
@@ -33,7 +32,6 @@ import {
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import FoodCardSkeleton from "@/components/skeletons/foodcard-skeleton";
-import { CustomFood } from "../../../interfaces/food-log-interfaces";
 import { toast } from "sonner";
 
 export default function FoodSearchModal({
@@ -48,15 +46,13 @@ export default function FoodSearchModal({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedFood, setSelectedFood] = useState<
-    FoodSearchResult | CustomFood | FavoriteFood | null
-  >(null);
+  const [selectedFood, setSelectedFood] = useState<BaseFood | null>(null);
   const [showFoodSelection, setShowFoodSelection] = useState(false);
   const [showCustomFood, setShowCustomFood] = useState(false);
-  const [editingFood, setEditingFood] = useState<CustomFood | null>(null);
+  const [editingFood, setEditingFood] = useState<BaseFood | null>(null);
   const [customFoodMode, setCustomFoodMode] = useState<"add" | "edit">("add");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [foodToDelete, setFoodToDelete] = useState<CustomFood | null>(null);
+  const [foodToDelete, setFoodToDelete] = useState<BaseFood | null>(null);
 
   // Debounce the search query with a 500ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -71,8 +67,6 @@ export default function FoodSearchModal({
       skip: !debouncedSearchQuery.trim() || !isOpen,
     }
   );
-
-  console.log(searchResults);
 
   const { data: customFoods, isFetching: isFetchingCustomFoods } =
     useGetCustomFoodsQuery(
@@ -110,9 +104,7 @@ export default function FoodSearchModal({
   //   }
   // );
 
-  const handleFoodSelect = (
-    food: FoodSearchResult | CustomFood | FavoriteFood
-  ) => {
+  const handleFoodSelect = (food: BaseFood) => {
     setSelectedFood(food);
     setShowFoodSelection(true);
   };
@@ -158,7 +150,7 @@ export default function FoodSearchModal({
     setShowCustomFood(true);
   };
 
-  const handleEditFood = (food: FoodSearchResult | CustomFood) => {
+  const handleEditFood = (food: BaseFood) => {
     if ("customFoodId" in food) {
       setEditingFood(food);
       setCustomFoodMode("edit");
@@ -166,7 +158,7 @@ export default function FoodSearchModal({
     }
   };
 
-  const handleDeleteFood = (food: FoodSearchResult | CustomFood) => {
+  const handleDeleteFood = (food: BaseFood) => {
     if ("customFoodId" in food) {
       setFoodToDelete(food);
       setShowDeleteDialog(true);
@@ -177,7 +169,7 @@ export default function FoodSearchModal({
     if (foodToDelete) {
       try {
         const response = await deleteCustomFood({
-          customFoodId: foodToDelete.customFoodId,
+          customFoodId: foodToDelete.foodId,
         });
         toast.success(
           response.data.data.message || "Food deleted successfully"
@@ -280,14 +272,14 @@ export default function FoodSearchModal({
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
                   {isFetchingFavoriteFoods ? (
                     <FoodCardSkeleton />
-                  ) : favoriteFoods?.data?.data?.length === 0 ? (
+                  ) : favoriteFoods?.data?.favoriteFood?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       No favorite foods found
                     </div>
                   ) : (
-                    favoriteFoods?.data?.data?.map((food: FavoriteFood) => (
+                    favoriteFoods?.data?.favoriteFood?.map((food: BaseFood) => (
                       <FoodCard
-                        key={food.favoriteFoodId}
+                        key={food.foodId}
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
@@ -304,14 +296,14 @@ export default function FoodSearchModal({
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
                   {isFetchingCustomFoods ? (
                     <FoodCardSkeleton />
-                  ) : customFoods?.data?.data?.length === 0 ? (
+                  ) : customFoods?.data?.customFood?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       No custom foods found
                     </div>
                   ) : (
-                    customFoods?.data?.data?.map((food: CustomFood) => (
+                    customFoods?.data?.customFood?.map((food: BaseFood) => (
                       <FoodCard
-                        key={food.customFoodId}
+                        key={food.foodId}
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
@@ -355,8 +347,8 @@ export default function FoodSearchModal({
         isDeleting={isDeletingFood}
         title="Delete Custom Food"
       >
-        Are you sure you want to delete "{foodToDelete?.description}"? This
-        action cannot be undone.
+        Are you sure you want to delete "{foodToDelete?.foodName}"? This action
+        cannot be undone.
       </DeleteDialog>
     </>
   );

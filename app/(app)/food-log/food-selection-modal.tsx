@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MacrosPieChart } from "@/components/charts/macros-piechart";
-import { USDAFoodNutrientID } from "@/helper/constants/nutrients-constants";
 import {
   useAddFavoriteFoodMutation,
   useRemoveFavoriteFoodMutation,
@@ -31,33 +30,16 @@ import type {
   FoodSelectionModalProps,
   AddFoodLogPayload,
   ServingUnit,
-  FoodSearchResult,
-  CustomFood,
-  FoodNutrient,
   Foods,
-  FavoriteFood,
+  BaseFood,
 } from "../../../interfaces/food-log-interfaces";
 import { toast } from "sonner";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
 // Type guard to check if food is CustomFood
-function isCustomFood(
-  food: FoodSearchResult | CustomFood | FavoriteFood
-): food is CustomFood {
-  return "customFoodId" in food || food.foodSource === "custom";
-}
-
-function isFavoriteFood(
-  food: FavoriteFood | FoodSearchResult | CustomFood
-): food is FavoriteFood {
-  return "favoriteFoodId" in food;
-}
-
-function isFoodSearchResult(
-  food: FoodSearchResult | CustomFood | FavoriteFood
-): food is FoodSearchResult {
-  return "fdcId" in food;
+function isCustomFood(food: BaseFood): boolean {
+  return food.foodSource === "custom";
 }
 
 // Helper function to convert unit codes to standard units
@@ -115,172 +97,67 @@ const getUnitConversionFactor = (unit: string): number => {
   }
 };
 
-// Helper function to extract nutritional values from nutritions array
-const getCalculatedNutrientValue = (
-  nutritions: FoodNutrient[] | undefined,
-  nutrientNumbers: number[],
-  servingSize: number
-): number => {
-  if (!nutritions || !Array.isArray(nutritions)) {
-    return 0;
-  }
-  const nutrient = nutritions.find((n) => {
-    return nutrientNumbers.includes(n.nutrientId);
-  });
-
-  return nutrient
-    ? Number((nutrient.value * (servingSize / 100)).toFixed(2))
-    : 0;
-};
-
-const getRawNutrientValue = (
-  nutritions: FoodNutrient[] | undefined,
-  nutrientNumbers: number[]
-): number => {
-  return (
-    nutritions?.find((n) => nutrientNumbers.includes(n.nutrientId))?.value || 0
-  );
-};
-
 // Helper function to get raw nutrient values per 100g for both food types
-const getRawNutrientValuesPer100g = (
-  food: FoodSearchResult | CustomFood | FavoriteFood
-) => {
+const getRawNutrientValuesPer100g = (food: BaseFood) => {
   if (isCustomFood(food)) {
     // For CustomFood, normalize to per 100g
     const servingSize = food.servingSize || 100;
-    const conversionFactor = 100 / servingSize;
+    const conversionFactor = servingSize > 0 ? 100 / servingSize : 1;
 
     return {
-      calories: Math.round(food.calories * conversionFactor),
-      protein: Number((food.protein * conversionFactor).toFixed(2)),
-      carbs: Number((food.carbs * conversionFactor).toFixed(2)),
-      fat: Number((food.fat * conversionFactor).toFixed(2)),
-      fiber: Number((food.fiber * conversionFactor).toFixed(2)),
-      sugar: Number((food.sugar * conversionFactor).toFixed(2)),
-      sodium: Math.round(food.sodium * conversionFactor),
-      cholesterol: Math.round(food.cholesterol * conversionFactor),
+      calories: Math.round((food.calories || 0) * conversionFactor),
+      protein: Number(((food.protein || 0) * conversionFactor).toFixed(2)),
+      carbs: Number(((food.carbs || 0) * conversionFactor).toFixed(2)),
+      fat: Number(((food.fat || 0) * conversionFactor).toFixed(2)),
+      fiber: Number(((food.fiber || 0) * conversionFactor).toFixed(2)),
+      sugar: Number(((food.sugar || 0) * conversionFactor).toFixed(2)),
+      sodium: Math.round((food.sodium || 0) * conversionFactor),
+      cholesterol: Math.round((food.cholesterol || 0) * conversionFactor),
     };
-  } else if (
-    isFavoriteFood(food) &&
-    food.foodSource !== "custom" &&
-    !isFoodSearchResult(food)
-  ) {
+  } else {
+    // For USDA foods, values are already per 100g or per serving
     return {
-      calories: food.calories,
-      protein: food.protein,
-      carbs: food.carbs,
-      fat: food.fat,
-      fiber: food.fiber,
-      sugar: food.sugar,
-      sodium: food.sodium,
-      cholesterol: food.cholesterol,
-    };
-  } else if (isFoodSearchResult(food)) {
-    // For FoodSearchResult, get raw values (already per 100g)
-    return {
-      calories: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.CALORIES,
-      ]),
-      protein: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.PROTEIN,
-      ]),
-      carbs: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.CARBOHYDRATE,
-      ]),
-      fat: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FAT]),
-      fiber: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.FIBER]),
-      sugar: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.TOTAL_SUGARS,
-      ]),
-      sodium: getRawNutrientValue(food.nutritions, [USDAFoodNutrientID.SODIUM]),
-      cholesterol: getRawNutrientValue(food.nutritions, [
-        USDAFoodNutrientID.CHOLESTEROL,
-      ]),
+      calories: food.calories || 0,
+      protein: food.protein || 0,
+      carbs: food.carbs || 0,
+      fat: food.fat || 0,
+      fiber: food.fiber || 0,
+      sugar: food.sugar || 0,
+      sodium: food.sodium || 0,
+      cholesterol: food.cholesterol || 0,
     };
   }
 };
 
 // Helper function to get nutrition data from food (handles both FoodSearchResult and CustomFood)
-const getNutritionData = (
-  food: FoodSearchResult | CustomFood | FavoriteFood
-) => {
+const getNutritionData = (food: BaseFood) => {
   if (isCustomFood(food)) {
     // For CustomFood, convert from per-serving-size to per-100g
     // CustomFood nutritional values are stored per the specified serving size
     const servingSize = food.servingSize || 100;
-    const conversionFactor = 100 / servingSize;
+    const conversionFactor = servingSize > 0 ? 100 / servingSize : 1;
 
     return {
-      calories: food.calories * conversionFactor,
-      protein: food.protein * conversionFactor,
-      carbs: food.carbs * conversionFactor,
-      fat: food.fat * conversionFactor,
-      fiber: food.fiber * conversionFactor,
-      sugar: food.sugar * conversionFactor,
-      sodium: food.sodium * conversionFactor,
-      cholesterol: food.cholesterol * conversionFactor,
+      calories: (food.calories || 0) * conversionFactor,
+      protein: (food.protein || 0) * conversionFactor,
+      carbs: (food.carbs || 0) * conversionFactor,
+      fat: (food.fat || 0) * conversionFactor,
+      fiber: (food.fiber || 0) * conversionFactor,
+      sugar: (food.sugar || 0) * conversionFactor,
+      sodium: (food.sodium || 0) * conversionFactor,
+      cholesterol: (food.cholesterol || 0) * conversionFactor,
     };
-  } else if (
-    isFavoriteFood(food) &&
-    food.foodSource !== "custom" &&
-    !isFoodSearchResult(food)
-  ) {
+  } else {
+    // For USDA foods, use values as they are (already normalized)
     return {
-      calories: Number((food.calories * (food.servingSize / 100)).toFixed(2)),
-      protein: Number((food.protein * (food.servingSize / 100)).toFixed(2)),
-      carbs: Number((food.carbs * (food.servingSize / 100)).toFixed(2)),
-      fat: Number((food.fat * (food.servingSize / 100)).toFixed(2)),
-      fiber: Number((food.fiber * (food.servingSize / 100)).toFixed(2)),
-      sugar: Number((food.sugar * (food.servingSize / 100)).toFixed(2)),
-      sodium: Number((food.sodium * (food.servingSize / 100)).toFixed(2)),
-      cholesterol: Number(
-        (food.cholesterol * (food.servingSize / 100)).toFixed(2)
-      ),
-    };
-  } else if (isFoodSearchResult(food)) {
-    // For FoodSearchResult, extract from nutritions array (already per 100g)
-    return {
-      calories: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.CALORIES],
-        food.servingSize
-      ),
-      protein: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.PROTEIN],
-        food.servingSize
-      ),
-      carbs: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.CARBOHYDRATE],
-        food.servingSize
-      ),
-      fat: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.FAT],
-        food.servingSize
-      ),
-      fiber: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.FIBER],
-        food.servingSize
-      ),
-      sugar: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.TOTAL_SUGARS],
-        food.servingSize
-      ),
-      sodium: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.SODIUM],
-        food.servingSize
-      ),
-      cholesterol: getCalculatedNutrientValue(
-        food.nutritions,
-        [USDAFoodNutrientID.CHOLESTEROL],
-        food.servingSize
-      ),
+      calories: food.calories || 0,
+      protein: food.protein || 0,
+      carbs: food.carbs || 0,
+      fat: food.fat || 0,
+      fiber: food.fiber || 0,
+      sugar: food.sugar || 0,
+      sodium: food.sodium || 0,
+      cholesterol: food.cholesterol || 0,
     };
   }
 };
@@ -470,13 +347,9 @@ export default function FoodSelectionModal({
       const rawNutrients = getRawNutrientValuesPer100g(food);
 
       const foodItem: AddFoodLogPayload = {
-        foodSourceId: isCustomFood(food)
-          ? food.customFoodId
-          : isFavoriteFood(food)
-          ? food.foodId
-          : (food as FoodSearchResult).fdcId.toString(),
-        foodName: food.description,
-        foodBrand: food.brandOwner,
+        foodSourceId: isCustomFood(food) ? food.foodId : food.foodId,
+        foodName: food.foodName,
+        foodBrand: food.foodBrand,
         foodSource: isCustomFood(food) ? "custom" : food.foodSource,
         // All nutritional values are normalized to per 100g for backend storage
         calories: rawNutrients?.calories || 0,
@@ -509,23 +382,21 @@ export default function FoodSelectionModal({
 
   const handleFavorite = async () => {
     if (!food || !user?.user_id) return; // Add null check
-    const foodId = isCustomFood(food)
-      ? food.customFoodId.toString()
-      : (food as FoodSearchResult).fdcId.toString();
+    const foodId = food.foodId;
     const rawNutrients = getRawNutrientValuesPer100g(food);
 
     try {
-      if ((food as CustomFood | FoodSearchResult)?.isFavorite === true) {
+      if (food.isFavorite === true) {
         await removeFavoriteFood({
-          favFoodId: food?.favoriteFoodId?.toString(),
+          favFoodId: food.favoriteFoodId?.toString(),
         });
       } else {
         await addFavoriteFood({
           userId: user?.user_id,
           payload: {
             foodId: foodId,
-            foodName: food.description,
-            foodBrand: food.brandOwner,
+            foodName: food.foodName,
+            foodBrand: food.foodBrand,
             foodSource: isCustomFood(food) ? "custom" : food.foodSource,
             calories: rawNutrients?.calories || 0,
             protein: rawNutrients?.protein || 0,
@@ -552,7 +423,7 @@ export default function FoodSelectionModal({
       }
     }
   };
-  console.log(food);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
@@ -562,17 +433,17 @@ export default function FoodSelectionModal({
           <DialogTitle className="text-md">
             {mode === "edit" && editFood
               ? editFood.food_name
-              : food?.description
+              : food?.foodName
                   .split(" ")
                   .map(
-                    (word) =>
+                    (word: string) =>
                       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                   )
                   .join(" ")}
           </DialogTitle>
-          {mode === "add" && food?.brandOwner && (
+          {mode === "add" && food?.foodBrand && (
             <span className="text-sm text-muted-foreground">
-              ({food.brandOwner})
+              ({food.foodBrand})
             </span>
           )}
         </DialogHeader>

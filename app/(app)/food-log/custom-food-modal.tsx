@@ -88,8 +88,8 @@ export default function CustomFoodModal({
   useEffect(() => {
     if (mode === "edit" && editFood) {
       setFormData({
-        foodName: editFood.description || "",
-        foodBrand: editFood.brandOwner || "",
+        foodName: editFood.foodName || "",
+        foodBrand: editFood.foodBrand || "",
         calories: formatNumberForDisplay(editFood.calories || 0),
         protein: formatNumberForDisplay(editFood.protein || 0),
         carbs: formatNumberForDisplay(editFood.carbs || 0),
@@ -278,7 +278,7 @@ export default function CustomFoodModal({
       try {
         if (mode === "edit" && editFood) {
           const response = await updateCustomFood({
-            customFoodId: editFood.customFoodId,
+            customFoodId: editFood.foodId,
             payload: submissionData,
           });
           toast.success(

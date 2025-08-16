@@ -52,51 +52,12 @@ export interface Foods {
   serving_size_unit: string;
 }
 
-export interface FoodSearchResult {
-  fdcId: string;
-  brandOwner: string;
-  description: string;
-  foodSource: "USDA" | "custom";
-  foodCategory: string;
-  ingredients: string;
-  servingSize: number;
-  servingSizeUnit: string;
-  nutritions: FoodNutrient[];
-  favoriteFoodId: string | null;
-  isFavorite: boolean;
-}
-
-export interface FoodNutrient {
-  foodNutrientId: number;
-  indentLevel?: number;
-  rank?: number;
-  nutrientId: number;
-  nutrientLevel: number;
-  nutrientName: string;
-  nutrientNumber: number;
-  unitName: string;
-  value: number;
-}
-
-export interface AddCustomFoodPayload {
+export interface BaseFood {
+  foodId: string;
   foodName: string;
   foodBrand: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber: number;
-  sugar: number;
-  sodium: number;
-  cholesterol: number;
-  servingSize: number;
-  servingUnit: ServingUnit;
-}
-
-export interface CustomFood {
-  customFoodId: string;
-  description: string;
-  brandOwner: string;
+  ingredients?: string;
+  foodSource: "USDA" | "custom";
   calories: number;
   protein: number;
   carbs: number;
@@ -109,49 +70,13 @@ export interface CustomFood {
   servingSizeUnit: ServingUnit;
   favoriteFoodId: string | null;
   isFavorite: boolean;
-}
-
-export interface AddFavoriteFoodPayload {
-  foodId: string;
-  foodName: string;
-  foodBrand?: string;
-  foodSource: "USDA" | "custom";
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber: number;
-  sugar: number;
-  sodium: number;
-  cholesterol: number;
-  servingSize: number;
-  servingUnit: ServingUnit;
-}
-
-export interface FavoriteFood {
-  favoriteFoodId: string;
-  foodId: string;
-  isFavorite: boolean;
-  foodSource: "USDA" | "custom";
-  description: string;
-  brandOwner: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber: number;
-  sugar: number;
-  sodium: number;
-  cholesterol: number;
-  servingSize: number;
-  servingSizeUnit: ServingUnit;
 }
 
 export interface FoodSelectionModalProps {
   isAddingFoodLog: boolean;
   isOpen: boolean;
   onClose: () => void;
-  food: FoodSearchResult | CustomFood | FavoriteFood | null;
+  food: BaseFood | null;
   editFood?: Foods | null;
   mode?: "add" | "edit";
   onConfirm: (food: AddFoodLogPayload) => void;
@@ -161,7 +86,7 @@ export interface FoodSelectionModalProps {
 export interface CustomFoodModalProps {
   isOpen: boolean;
   onClose: () => void;
-  editFood?: CustomFood | null;
+  editFood?: BaseFood | null;
   mode?: "add" | "edit";
 }
 

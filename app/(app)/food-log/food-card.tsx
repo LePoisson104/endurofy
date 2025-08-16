@@ -8,19 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type {
-  CustomFood,
-  FoodSearchResult,
-  FavoriteFood,
-} from "../../../interfaces/food-log-interfaces";
+import type { BaseFood } from "../../../interfaces/food-log-interfaces";
 
 interface FoodCardProps {
-  food: FoodSearchResult | CustomFood | FavoriteFood;
+  food: BaseFood;
   isSelected?: boolean;
-  onSelect: (food: FoodSearchResult | CustomFood | FavoriteFood) => void;
+  onSelect: (food: BaseFood) => void;
   onToggleFavorite: (foodId: string) => void;
-  onEdit?: (food: FoodSearchResult | CustomFood) => void;
-  onDelete?: (food: FoodSearchResult | CustomFood) => void;
+  onEdit?: (food: BaseFood) => void;
+  onDelete?: (food: BaseFood) => void;
   foodSource: "USDA" | "Custom" | "Favorite";
 }
 
@@ -40,13 +36,13 @@ export default function FoodCard({
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card's onClick
     if (foodSource === "Custom" && food && onEdit) {
-      onEdit(food as CustomFood);
+      onEdit(food);
     }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete?.(food as CustomFood);
+    onDelete?.(food);
   };
 
   return (
@@ -57,7 +53,7 @@ export default function FoodCard({
       <div className="flex justify-between items-center">
         <div className="flex-1 mr-4">
           <h4 className="font-medium text-sm">
-            {food.description
+            {food.foodName
               .split(" ")
               .map(
                 (word) =>
@@ -65,7 +61,7 @@ export default function FoodCard({
               )
               .join(" ")}
           </h4>
-          <p className="text-xs text-muted-foreground">{food.brandOwner}</p>
+          <p className="text-xs text-muted-foreground">{food.foodBrand}</p>
         </div>
         {foodSource === "Custom" ? (
           <DropdownMenu>
@@ -91,9 +87,7 @@ export default function FoodCard({
           </DropdownMenu>
         ) : (
           <p className="text-xs text-muted-foreground">
-            {foodSource === "Favorite"
-              ? (food as FavoriteFood).foodSource
-              : foodSource}
+            {foodSource === "Favorite" ? food.foodSource : foodSource}
           </p>
         )}
       </div>
