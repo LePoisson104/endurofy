@@ -1,5 +1,4 @@
 import { apiSlice } from "../api-slice";
-import { AddFavoriteFoodPayload } from "../../interfaces/food-log-interfaces";
 
 export const foodApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -44,19 +43,13 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     updateCustomFood: builder.mutation({
       query: ({ customFoodId, payload }) => ({
         url: `/api/v1/foods/custom/${customFoodId}`,
-        method: "PUT",
+        method: "PATCH",
         body: payload,
       }),
       invalidatesTags: [{ type: "Food", id: "LIST" }],
     }),
     addFavoriteFood: builder.mutation({
-      query: ({
-        userId,
-        payload,
-      }: {
-        userId: string;
-        payload: AddFavoriteFoodPayload;
-      }) => ({
+      query: ({ userId, payload }: { userId: string; payload: any }) => ({
         url: `/api/v1/foods/${userId}/favorites`,
         method: "POST",
         body: payload,

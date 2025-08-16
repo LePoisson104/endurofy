@@ -1,5 +1,5 @@
 export const formatNumberForDisplay = (value: string | number): string => {
-  if (value === "" || value === 0) return "";
+  if (value === "" || value === null || value === undefined) return "";
 
   const numValue = typeof value === "string" ? parseFloat(value) : value;
   if (isNaN(numValue)) return "";

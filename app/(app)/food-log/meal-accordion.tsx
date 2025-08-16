@@ -17,7 +17,11 @@ import {
 import { Apple, Edit, Heart, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-import { FoodLogs, Foods } from "../../../interfaces/food-log-interfaces";
+import {
+  BaseFood,
+  FoodLogs,
+  Foods,
+} from "../../../interfaces/food-log-interfaces";
 import { formatNumberForDisplay } from "@/helper/display-number-format";
 
 interface MealData {
@@ -60,14 +64,15 @@ const getMealMacros = (meal: Foods[]) => {
     (totals, food) => {
       // Convert serving size to grams first
       const servingSizeInGrams =
-        food.serving_size * getUnitConversionFactor(food.serving_size_unit);
+        parseFloat(food.loggedServingSize) *
+        getUnitConversionFactor(food.loggedServingSizeUnit);
       const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
 
       return {
-        calories: totals.calories + food.calories * servingRatio,
-        protein: totals.protein + food.protein_g * servingRatio,
-        carbs: totals.carbs + food.carbs_g * servingRatio,
-        fat: totals.fat + food.fat_g * servingRatio,
+        calories: totals.calories + parseFloat(food.calories) * servingRatio,
+        protein: totals.protein + parseFloat(food.protein) * servingRatio,
+        carbs: totals.carbs + parseFloat(food.carbs) * servingRatio,
+        fat: totals.fat + parseFloat(food.fat) * servingRatio,
       };
     },
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
@@ -186,17 +191,17 @@ export default function MealAccordion({
               <div className="space-y-2">
                 {foods.map((food) => (
                   <div
-                    key={food.food_id}
+                    key={food.foodId}
                     className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
                   >
                     <div>
                       <div className="flex items-center gap-2">
                         <Apple className="h-3 w-3 text-destructive" />
                         <p className="font-medium text-sm">
-                          {food.food_name
+                          {food.foodName
                             .split(" ")
                             .map(
-                              (word) =>
+                              (word: string) =>
                                 word.charAt(0).toUpperCase() +
                                 word.slice(1).toLowerCase()
                             )
@@ -204,12 +209,14 @@ export default function MealAccordion({
                         </p>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {Math.round(food.serving_size)} {food.serving_size_unit}{" "}
-                        •{" "}
+                        {Math.round(parseFloat(food.loggedServingSize))}{" "}
+                        {food.loggedServingSizeUnit} •{" "}
                         {Math.round(
-                          food.calories *
-                            ((food.serving_size *
-                              getUnitConversionFactor(food.serving_size_unit)) /
+                          parseFloat(food.calories) *
+                            ((parseFloat(food.loggedServingSize) *
+                              getUnitConversionFactor(
+                                food.loggedServingSizeUnit
+                              )) /
                               100)
                         )}
                         cal
@@ -228,14 +235,14 @@ export default function MealAccordion({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => onEditFood(food.food_id)}
+                            onClick={() => onEditFood(food.foodId)}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
-                              onRemoveFood(food.food_id, food.food_log_id)
+                              onRemoveFood(food.foodId, food.foodLogId)
                             }
                             variant="destructive"
                           >
@@ -248,7 +255,7 @@ export default function MealAccordion({
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
-                              onFavoriteFood(mealType, food.food_id)
+                              onFavoriteFood(mealType, food.foodId)
                             }
                           >
                             <Heart className="h-4 w-4 mr-2" />

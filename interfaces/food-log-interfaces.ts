@@ -32,24 +32,27 @@ export interface FoodLogs {
 }
 
 export interface Foods {
-  food_id: string;
-  food_log_id: string;
-  food_source_id: string;
-  food_name: string;
-  brand_name: string;
-  calories: number;
-  protein_g: number;
-  carbs_g: number;
-  fat_g: number;
-  fiber_g: number;
-  sugar_g: number;
-  sodium_mg: number;
-  cholesterol_mg: number;
-  food_source: "USDA" | "custom";
-  meal_type: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
-  logged_at: string;
-  serving_size: number;
-  serving_size_unit: string;
+  baseServingSize: string;
+  baseServingSizeUnit: string;
+  brandName: string;
+  calories: string;
+  carbs: string;
+  cholesterol: string;
+  fat: string;
+  fiber: string;
+  foodId: string;
+  foodItemId: string;
+  foodLogId: string;
+  foodName: string;
+  foodSourceId: string | null;
+  ingredients: string | null;
+  loggedServingSize: string;
+  loggedServingSizeUnit: string;
+  mealType: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
+  protein: string;
+  sodium: string;
+  source: "USDA" | "custom";
+  sugar: string;
 }
 
 export interface BaseFood {
@@ -57,7 +60,7 @@ export interface BaseFood {
   foodName: string;
   foodBrand: string;
   ingredients?: string;
-  foodSource: "USDA" | "custom";
+  foodSource?: "USDA" | "custom";
   calories: number;
   protein: number;
   carbs: number;
@@ -68,8 +71,25 @@ export interface BaseFood {
   cholesterol: number;
   servingSize: number;
   servingSizeUnit: ServingUnit;
-  favoriteFoodId: string | null;
-  isFavorite: boolean;
+  favoriteFoodId?: string | null;
+  isFavorite?: boolean;
+}
+
+export interface BaseFoodPayload {
+  foodName: string;
+  foodBrand: string;
+  ingredients?: string;
+  foodSource?: "USDA" | "custom";
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+  servingSize: number;
+  servingSizeUnit: ServingUnit;
 }
 
 export interface FoodSelectionModalProps {

@@ -186,8 +186,10 @@ export default function FoodSelectionModal({
   useEffect(() => {
     if (mode === "edit" && editFood) {
       // Edit mode: initialize with existing food log data
-      const roundedSize = Math.round(editFood.serving_size).toString();
-      const unit = editFood.serving_size_unit as ServingUnit;
+      const roundedSize = Math.round(
+        parseFloat(editFood.loggedServingSize)
+      ).toString();
+      const unit = editFood.loggedServingSizeUnit as ServingUnit;
 
       setServingSize(roundedSize);
       setSelectedUnit(unit);
@@ -228,14 +230,14 @@ export default function FoodSelectionModal({
   const nutritionData =
     mode === "edit" && editFood
       ? {
-          calories: editFood.calories,
-          protein: editFood.protein_g,
-          carbs: editFood.carbs_g,
-          fat: editFood.fat_g,
-          fiber: editFood.fiber_g,
-          sugar: editFood.sugar_g,
-          sodium: editFood.sodium_mg,
-          cholesterol: editFood.cholesterol_mg,
+          calories: parseFloat(editFood.calories),
+          protein: parseFloat(editFood.protein),
+          carbs: parseFloat(editFood.carbs),
+          fat: parseFloat(editFood.fat),
+          fiber: parseFloat(editFood.fiber),
+          sugar: parseFloat(editFood.sugar),
+          sodium: parseFloat(editFood.sodium),
+          cholesterol: parseFloat(editFood.cholesterol),
         }
       : food
       ? getNutritionData(food)
@@ -336,9 +338,9 @@ export default function FoodSelectionModal({
     if (mode === "edit" && editFood && onUpdate) {
       // Edit mode: update existing food log
       const updatedFood: Partial<Foods> = {
-        food_id: editFood.food_id,
-        serving_size: servingSizeNum,
-        serving_size_unit: selectedUnit,
+        foodId: editFood.foodId,
+        loggedServingSize: servingSizeNum.toString(),
+        loggedServingSizeUnit: selectedUnit,
       };
       onUpdate(updatedFood);
     } else if (mode === "add" && food && onConfirm) {
@@ -347,7 +349,7 @@ export default function FoodSelectionModal({
       const rawNutrients = getRawNutrientValuesPer100g(food);
 
       const foodItem: AddFoodLogPayload = {
-        foodSourceId: isCustomFood(food) ? food.foodId : food.foodId,
+        foodSourceId: food.foodId,
         foodName: food.foodName,
         foodBrand: food.foodBrand,
         foodSource: isCustomFood(food) ? "custom" : food.foodSource,
@@ -432,7 +434,7 @@ export default function FoodSelectionModal({
         <DialogHeader className="relative border-b pb-4">
           <DialogTitle className="text-md">
             {mode === "edit" && editFood
-              ? editFood.food_name
+              ? editFood.foodName
               : food?.foodName
                   .split(" ")
                   .map(

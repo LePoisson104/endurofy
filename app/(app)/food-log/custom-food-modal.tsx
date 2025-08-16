@@ -21,8 +21,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   CustomFoodModalProps,
-  AddCustomFoodPayload,
   ServingUnit,
+  BaseFoodPayload,
 } from "../../../interfaces/food-log-interfaces";
 import {
   useAddCustomFoodMutation,
@@ -33,6 +33,7 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { formatNumberForDisplay } from "@/helper/display-number-format";
+import { Textarea } from "@/components/ui/textarea";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
@@ -50,6 +51,7 @@ interface FormState {
   cholesterol: string | number;
   servingSize: string | number;
   servingUnit: ServingUnit;
+  ingredients: string;
 }
 
 export default function CustomFoodModal({
@@ -78,7 +80,11 @@ export default function CustomFoodModal({
     cholesterol: "",
     servingSize: "",
     servingUnit: "g",
+    ingredients: "",
   });
+
+  // Track original values for edit mode
+  const [originalData, setOriginalData] = useState<FormState | null>(null);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormState, string>>
@@ -87,7 +93,7 @@ export default function CustomFoodModal({
   // Initialize form data when editing
   useEffect(() => {
     if (mode === "edit" && editFood) {
-      setFormData({
+      const editFormData: FormState = {
         foodName: editFood.foodName || "",
         foodBrand: editFood.foodBrand || "",
         calories: formatNumberForDisplay(editFood.calories || 0),
@@ -99,11 +105,14 @@ export default function CustomFoodModal({
         sodium: formatNumberForDisplay(editFood.sodium || 0),
         cholesterol: formatNumberForDisplay(editFood.cholesterol || 0),
         servingSize: formatNumberForDisplay(editFood.servingSize || 0),
-        servingUnit: editFood.servingSizeUnit || "g",
-      });
+        servingUnit: (editFood.servingSizeUnit || "g") as ServingUnit,
+        ingredients: editFood.ingredients || "",
+      };
+      setFormData(editFormData);
+      setOriginalData({ ...editFormData }); // Store original values
     } else {
       // Reset form for add mode
-      setFormData({
+      const resetFormData: FormState = {
         foodName: "",
         foodBrand: "",
         calories: "",
@@ -115,11 +124,77 @@ export default function CustomFoodModal({
         sodium: "",
         cholesterol: "",
         servingSize: "",
-        servingUnit: "g",
-      });
+        servingUnit: "g" as ServingUnit,
+        ingredients: "",
+      };
+      setFormData(resetFormData);
+      setOriginalData(null);
     }
     setErrors({});
   }, [mode, editFood, isOpen]);
+
+  // Check if any values have changed from original
+  const hasChanges = (): boolean => {
+    if (mode === "add") return true; // Always allow submit for add mode
+    if (!originalData) return false;
+
+    return Object.keys(formData).some(
+      (key) =>
+        formData[key as keyof FormState] !==
+        originalData[key as keyof FormState]
+    );
+  };
+
+  // Get only the changed fields for partial update
+  const getChangedFields = (): Partial<BaseFoodPayload> => {
+    if (mode === "add" || !originalData) {
+      return prepareSubmissionData();
+    }
+
+    const changes: Partial<BaseFoodPayload> = {};
+
+    if (formData.foodName !== originalData.foodName) {
+      changes.foodName = formData.foodName.trim();
+    }
+    if (formData.foodBrand !== originalData.foodBrand) {
+      changes.foodBrand = formData.foodBrand.trim() || "";
+    }
+    if (formData.calories !== originalData.calories) {
+      changes.calories = parseIntValue(formData.calories);
+    }
+    if (formData.protein !== originalData.protein) {
+      changes.protein = parseNumberValue(formData.protein);
+    }
+    if (formData.carbs !== originalData.carbs) {
+      changes.carbs = parseNumberValue(formData.carbs);
+    }
+    if (formData.fat !== originalData.fat) {
+      changes.fat = parseNumberValue(formData.fat);
+    }
+    if (formData.fiber !== originalData.fiber) {
+      changes.fiber = parseNumberValue(formData.fiber);
+    }
+    if (formData.sugar !== originalData.sugar) {
+      changes.sugar = parseNumberValue(formData.sugar);
+    }
+    if (formData.sodium !== originalData.sodium) {
+      changes.sodium = parseIntValue(formData.sodium);
+    }
+    if (formData.cholesterol !== originalData.cholesterol) {
+      changes.cholesterol = parseIntValue(formData.cholesterol);
+    }
+    if (formData.servingSize !== originalData.servingSize) {
+      changes.servingSize = parseNumberValue(formData.servingSize);
+    }
+    if (formData.servingUnit !== originalData.servingUnit) {
+      changes.servingSizeUnit = formData.servingUnit;
+    }
+    if (formData.ingredients !== originalData.ingredients) {
+      changes.ingredients = formData.ingredients.trim();
+    }
+
+    return changes;
+  };
 
   const handleInputChange = (
     field: keyof FormState,
@@ -170,7 +245,7 @@ export default function CustomFoodModal({
       newErrors.servingSize = "Serving size cannot exceed 10000";
     }
 
-    // Calories - must be greater than 0
+    // Calories - must be provided (can be 0)
     const caloriesValue = formData.calories;
     if (
       caloriesValue === "" ||
@@ -180,12 +255,12 @@ export default function CustomFoodModal({
       newErrors.calories = "Calories is required";
     } else {
       const numericCalories = parseIntValue(caloriesValue);
-      if (numericCalories <= 0) {
-        newErrors.calories = "Calories must be greater than 0";
+      if (numericCalories < 0) {
+        newErrors.calories = "Calories cannot be negative";
       }
     }
 
-    // Required macronutrients - can be 0 but not empty
+    // Required macronutrients - must be provided (can be 0)
     const requiredMacrosCanBeZero = [
       {
         field: "protein" as keyof FormState,
@@ -254,7 +329,7 @@ export default function CustomFoodModal({
     return Object.keys(newErrors).length === 0;
   };
 
-  const prepareSubmissionData = (): AddCustomFoodPayload => {
+  const prepareSubmissionData = (): BaseFoodPayload => {
     return {
       foodName: formData.foodName.trim(),
       foodBrand: formData.foodBrand.trim() || "",
@@ -267,24 +342,25 @@ export default function CustomFoodModal({
       sodium: parseIntValue(formData.sodium),
       cholesterol: parseIntValue(formData.cholesterol),
       servingSize: parseNumberValue(formData.servingSize),
-      servingUnit: formData.servingUnit,
+      servingSizeUnit: formData.servingUnit,
+      ingredients: formData.ingredients.trim(),
     };
   };
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const submissionData = prepareSubmissionData();
-
       try {
         if (mode === "edit" && editFood) {
+          const changedFields = getChangedFields();
           const response = await updateCustomFood({
             customFoodId: editFood.foodId,
-            payload: submissionData,
+            payload: changedFields,
           });
           toast.success(
             response.data.data.message || "Food updated successfully"
           );
         } else {
+          const submissionData = prepareSubmissionData();
           const response = await addCustomFood({
             userId: user?.user_id,
             payload: submissionData,
@@ -320,6 +396,7 @@ export default function CustomFoodModal({
       cholesterol: "",
       servingSize: "",
       servingUnit: "g",
+      ingredients: "",
     });
     setErrors({});
     onClose();
@@ -336,14 +413,14 @@ export default function CustomFoodModal({
     value: string,
     max?: number
   ) => {
-    // Allow empty string or valid numbers
+    // Allow empty string
     if (value === "") {
       handleInputChange(field, "");
       return;
     }
 
     const numericValue = parseFloat(value);
-    if (!isNaN(numericValue)) {
+    if (!isNaN(numericValue) && numericValue >= 0) {
       const finalValue = max && numericValue > max ? max : numericValue;
       // Format the value to remove .00 but keep meaningful decimals
       const formattedValue = formatNumberForDisplay(finalValue);
@@ -358,7 +435,7 @@ export default function CustomFoodModal({
       <DialogContent
         className={`bg-card max-h-[90vh] overflow-y-auto ${
           isMobile ? "max-w-[95vw] w-[95vw] px-1 py-6" : "max-w-2xl"
-        }`}
+        } `}
       >
         <DialogHeader>
           <DialogTitle>
@@ -651,6 +728,28 @@ export default function CustomFoodModal({
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Ingredients{" "}
+                <span className="text-sm text-muted-foreground">
+                  (Optional)
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                id="ingredients"
+                value={formData.ingredients}
+                onChange={(e) =>
+                  handleInputChange("ingredients", e.target.value)
+                }
+                placeholder="e.g., Greek Yogurt"
+                className="h-[100px]"
+              />
+            </CardContent>
+          </Card>
         </div>
 
         {/* Footer */}
@@ -660,7 +759,7 @@ export default function CustomFoodModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || (mode === "edit" && !hasChanges())}
             className="w-[120px]"
           >
             {isLoading ? (

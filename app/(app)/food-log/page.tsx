@@ -124,6 +124,8 @@ export default function FoodLogPage() {
     date: selectedDate.toLocaleDateString("en-CA"), // Convert Date to YYYY-MM-DD string
   });
 
+  console.log(foodLog);
+
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
   const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
@@ -161,7 +163,7 @@ export default function FoodLogPage() {
 
   // Calculate current macros from all meals
   const calculateCurrentMacros = () => {
-    if (!foodLog?.data?.data)
+    if (!foodLog?.data?.foodLog)
       return { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
     const allFoods = [
@@ -176,14 +178,15 @@ export default function FoodLogPage() {
       (totals, food) => {
         // Convert serving size to grams first
         const servingSizeInGrams =
-          food.serving_size * getUnitConversionFactor(food.serving_size_unit);
+          parseFloat(food.loggedServingSize) *
+          getUnitConversionFactor(food.loggedServingSizeUnit);
         const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
 
         return {
-          calories: totals.calories + food.calories * servingRatio,
-          protein: totals.protein + food.protein_g * servingRatio,
-          carbs: totals.carbs + food.carbs_g * servingRatio,
-          fat: totals.fat + food.fat_g * servingRatio,
+          calories: totals.calories + parseFloat(food.calories) * servingRatio,
+          protein: totals.protein + parseFloat(food.protein) * servingRatio,
+          carbs: totals.carbs + parseFloat(food.carbs) * servingRatio,
+          fat: totals.fat + parseFloat(food.fat) * servingRatio,
         };
       },
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
@@ -209,15 +212,17 @@ export default function FoodLogPage() {
       (totals, food) => {
         // Convert serving size to grams first
         const servingSizeInGrams =
-          food.serving_size * getUnitConversionFactor(food.serving_size_unit);
+          parseFloat(food.loggedServingSize) *
+          getUnitConversionFactor(food.loggedServingSizeUnit);
         const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
 
         return {
-          fiber: totals.fiber + (food.fiber_g || 0) * servingRatio,
-          sugar: totals.sugar + (food.sugar_g || 0) * servingRatio,
-          sodium: totals.sodium + (food.sodium_mg || 0) * servingRatio,
+          fiber: totals.fiber + (parseFloat(food.fiber) || 0) * servingRatio,
+          sugar: totals.sugar + (parseFloat(food.sugar) || 0) * servingRatio,
+          sodium: totals.sodium + (parseFloat(food.sodium) || 0) * servingRatio,
           cholesterol:
-            totals.cholesterol + (food.cholesterol_mg || 0) * servingRatio,
+            totals.cholesterol +
+            (parseFloat(food.cholesterol) || 0) * servingRatio,
         };
       },
       { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 }
@@ -289,7 +294,7 @@ export default function FoodLogPage() {
       ...(foodLog.data.foodLog.foods.snacks || []),
     ];
 
-    const foodToEdit = allFoods.find((food) => food.food_id === foodId);
+    const foodToEdit = allFoods.find((food) => food.foodId === foodId);
 
     if (foodToEdit) {
       setCurrentEditFood(foodToEdit);
@@ -316,14 +321,14 @@ export default function FoodLogPage() {
   };
 
   const handleUpdateFood = async (updatedFood: Partial<Foods>) => {
-    if (!updatedFood.food_id) return;
+    if (!updatedFood.foodId) return;
 
     try {
       await updateFoodLog({
-        foodId: updatedFood.food_id,
+        foodId: updatedFood.foodId,
         payload: {
-          serving_size: updatedFood.serving_size,
-          serving_size_unit: updatedFood.serving_size_unit,
+          loggedServingSize: updatedFood.loggedServingSize,
+          loggedServingSizeUnit: updatedFood.loggedServingSizeUnit,
         },
       }).unwrap();
 

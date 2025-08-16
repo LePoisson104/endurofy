@@ -151,11 +151,9 @@ export default function FoodSearchModal({
   };
 
   const handleEditFood = (food: BaseFood) => {
-    if ("customFoodId" in food) {
-      setEditingFood(food);
-      setCustomFoodMode("edit");
-      setShowCustomFood(true);
-    }
+    setEditingFood(food);
+    setCustomFoodMode("edit");
+    setShowCustomFood(true);
   };
 
   const handleDeleteFood = (food: BaseFood) => {
