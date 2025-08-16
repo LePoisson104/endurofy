@@ -131,15 +131,6 @@ export default function FoodLogPage() {
   const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
     useUpdateFoodLogMutation();
 
-  // Mock data - replace with actual data from your backend
-  const [mealData, setMealData] = useState<MealData>({
-    uncategorized: [],
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    snacks: [],
-  });
-
   const macroTargets: MacroTargets = {
     calories: 2000,
     protein: 150,
@@ -147,24 +138,18 @@ export default function FoodLogPage() {
     fat: 67,
   };
 
-  // Helper function to convert serving units to grams
-  const getUnitConversionFactor = (unit: string): number => {
-    switch (unit?.toLowerCase()) {
-      case "g":
-        return 1;
-      case "oz":
-        return 28.3495; // 1 oz = 28.3495 grams
-      case "ml":
-        return 1; // Assuming density of water (1ml = 1g) for simplicity
-      default:
-        return 1;
-    }
-  };
-
-  // Calculate current macros from all meals
-  const calculateCurrentMacros = () => {
+  const getTotalNutrients = () => {
     if (!foodLog?.data?.foodLog)
-      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+      return {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        fiber: 0,
+        sugar: 0,
+        sodium: 0,
+        cholesterol: 0,
+      };
 
     const allFoods = [
       ...(foodLog.data.foodLog.foods.uncategorized || []),
@@ -176,60 +161,31 @@ export default function FoodLogPage() {
 
     return allFoods.reduce(
       (totals, food) => {
-        // Convert serving size to grams first
-        const servingSizeInGrams =
-          parseFloat(food.loggedServingSize) *
-          getUnitConversionFactor(food.loggedServingSizeUnit);
-        const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
-
         return {
-          calories: totals.calories + parseFloat(food.calories) * servingRatio,
-          protein: totals.protein + parseFloat(food.protein) * servingRatio,
-          carbs: totals.carbs + parseFloat(food.carbs) * servingRatio,
-          fat: totals.fat + parseFloat(food.fat) * servingRatio,
+          calories: totals.calories + parseFloat(food.calories),
+          protein: totals.protein + parseFloat(food.protein),
+          carbs: totals.carbs + parseFloat(food.carbs),
+          fat: totals.fat + parseFloat(food.fat),
+          fiber: totals.fiber + parseFloat(food.fiber),
+          sugar: totals.sugar + parseFloat(food.sugar),
+          sodium: totals.sodium + parseFloat(food.sodium),
+          cholesterol: totals.cholesterol + parseFloat(food.cholesterol),
         };
       },
-      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+      {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        fiber: 0,
+        sugar: 0,
+        sodium: 0,
+        cholesterol: 0,
+      }
     );
   };
 
-  const currentMacros = calculateCurrentMacros();
-
-  // Calculate additional nutrients
-  const calculateAdditionalNutrients = () => {
-    if (!foodLog?.data?.data)
-      return { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 };
-
-    const allFoods = [
-      ...(foodLog.data.foodLog.foods.uncategorized || []),
-      ...(foodLog.data.foodLog.foods.breakfast || []),
-      ...(foodLog.data.foodLog.foods.lunch || []),
-      ...(foodLog.data.foodLog.foods.dinner || []),
-      ...(foodLog.data.foodLog.foods.snacks || []),
-    ];
-
-    return allFoods.reduce(
-      (totals, food) => {
-        // Convert serving size to grams first
-        const servingSizeInGrams =
-          parseFloat(food.loggedServingSize) *
-          getUnitConversionFactor(food.loggedServingSizeUnit);
-        const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
-
-        return {
-          fiber: totals.fiber + (parseFloat(food.fiber) || 0) * servingRatio,
-          sugar: totals.sugar + (parseFloat(food.sugar) || 0) * servingRatio,
-          sodium: totals.sodium + (parseFloat(food.sodium) || 0) * servingRatio,
-          cholesterol:
-            totals.cholesterol +
-            (parseFloat(food.cholesterol) || 0) * servingRatio,
-        };
-      },
-      { fiber: 0, sugar: 0, sodium: 0, cholesterol: 0 }
-    );
-  };
-
-  const additionalNutrients = calculateAdditionalNutrients();
+  const totalNutrients = getTotalNutrients();
 
   const handleAddFood = (meal: keyof MealData, event?: React.MouseEvent) => {
     event?.stopPropagation(); // Prevent event bubbling to accordion toggle
@@ -345,53 +301,6 @@ export default function FoodLogPage() {
     }
   };
 
-  // Dropdown menu handlers
-  const handleMarkDayComplete = () => {
-    setIsLogCompleted(!isLogCompleted);
-    // TODO: Add any backend logic for marking day complete
-    console.log("Day completion status:", !isLogCompleted);
-  };
-
-  const handleClearAll = () => {
-    const confirmClear = window.confirm(
-      "Are you sure you want to clear all meals for this day?"
-    );
-    if (confirmClear) {
-      setMealData({
-        uncategorized: [],
-        breakfast: [],
-        lunch: [],
-        dinner: [],
-        snacks: [],
-      });
-      console.log("All meals cleared");
-    }
-  };
-
-  const handleCopyDay = () => {
-    setCopiedMealData(mealData);
-    // TODO: Could also copy to clipboard as JSON if needed
-    console.log("Day copied to memory");
-    // Optional: Show a toast notification
-  };
-
-  const handleCopyFromPreviousDay = () => {
-    // TODO: Replace with actual logic to fetch previous day's data
-    if (copiedMealData) {
-      setMealData(copiedMealData);
-      console.log("Copied meals from memory");
-    } else {
-      // Mock implementation - you would fetch from backend
-      console.log(
-        "No copied data available. In real app, would fetch from previous day"
-      );
-      // For now, show an alert
-      alert(
-        "No copied day data available. Use 'Copy Day' first or implement backend integration."
-      );
-    }
-  };
-
   const toggleMealExpansion = (mealType: keyof MealData) => {
     setExpandedMeals((prev) => {
       const newSet = new Set(prev);
@@ -459,24 +368,24 @@ export default function FoodLogPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={handleMarkDayComplete}>
+                      <DropdownMenuItem onClick={() => {}}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         {isLogCompleted
                           ? "Mark Day Incomplete"
                           : "Mark Day Complete"}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleCopyDay}>
+                      <DropdownMenuItem onClick={() => {}}>
                         <Copy className="h-4 w-4 mr-2" />
                         Copy Day
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleCopyFromPreviousDay}>
+                      <DropdownMenuItem onClick={() => {}}>
                         <RotateCcw className="h-4 w-4 mr-2" />
                         Copy from Previous Day
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={handleClearAll}
+                        onClick={() => {}}
                         variant="destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -654,7 +563,7 @@ export default function FoodLogPage() {
                 <div className="flex flex-col gap-6">
                   <MacroProgressBar
                     label="Calories"
-                    current={currentMacros.calories}
+                    current={totalNutrients.calories}
                     target={macroTargets.calories}
                     unit="kcal"
                     color="oklch(70.7% 0.022 261.325)"
@@ -664,7 +573,7 @@ export default function FoodLogPage() {
                   />
                   <MacroProgressBar
                     label="Protein"
-                    current={currentMacros.protein}
+                    current={totalNutrients.protein}
                     target={macroTargets.protein}
                     unit="g"
                     color="oklch(79.2% 0.209 151.711)"
@@ -675,7 +584,7 @@ export default function FoodLogPage() {
                   />
                   <MacroProgressBar
                     label="Carbs"
-                    current={currentMacros.carbs}
+                    current={totalNutrients.carbs}
                     target={macroTargets.carbs}
                     unit="g"
                     color="#60a5fa"
@@ -685,7 +594,7 @@ export default function FoodLogPage() {
                   />
                   <MacroProgressBar
                     label="Fat"
-                    current={currentMacros.fat}
+                    current={totalNutrients.fat}
                     target={macroTargets.fat}
                     unit="g"
                     color="oklch(70.4% 0.191 22.216)"
@@ -713,7 +622,7 @@ export default function FoodLogPage() {
                       <span className="font-medium text-sm">Fiber</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {Math.round(additionalNutrients.fiber)} g
+                      {Math.round(totalNutrients.fiber)} g
                     </span>
                   </div>
 
@@ -723,7 +632,7 @@ export default function FoodLogPage() {
                       <span className="font-medium text-sm">Sugar</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {Math.round(additionalNutrients.sugar)} g
+                      {Math.round(totalNutrients.sugar)} g
                     </span>
                   </div>
 
@@ -733,7 +642,7 @@ export default function FoodLogPage() {
                       <span className="font-medium text-sm">Sodium</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {Math.round(additionalNutrients.sodium)} mg
+                      {Math.round(totalNutrients.sodium)} mg
                     </span>
                   </div>
 
@@ -743,7 +652,7 @@ export default function FoodLogPage() {
                       <span className="font-medium text-sm">Cholesterol</span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {Math.round(additionalNutrients.cholesterol)} mg
+                      {Math.round(totalNutrients.cholesterol)} mg
                     </span>
                   </div>
                 </div>

@@ -17,11 +17,7 @@ import {
 import { Apple, Edit, Heart, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-import {
-  BaseFood,
-  FoodLogs,
-  Foods,
-} from "../../../interfaces/food-log-interfaces";
+import { FoodLogs, Foods } from "../../../interfaces/food-log-interfaces";
 import { formatNumberForDisplay } from "@/helper/display-number-format";
 
 interface MealData {
@@ -45,34 +41,14 @@ interface MealAccordionProps {
   isDeletingFoodLog: boolean;
 }
 
-// Helper function to convert serving units to grams
-const getUnitConversionFactor = (unit: string): number => {
-  switch (unit?.toLowerCase()) {
-    case "g":
-      return 1;
-    case "oz":
-      return 28.3495; // 1 oz = 28.3495 grams
-    case "ml":
-      return 1; // Assuming density of water (1ml = 1g) for simplicity
-    default:
-      return 1;
-  }
-};
-
-const getMealMacros = (meal: Foods[]) => {
+const getTotalNutrients = (meal: Foods[]) => {
   return meal.reduce(
     (totals, food) => {
-      // Convert serving size to grams first
-      const servingSizeInGrams =
-        parseFloat(food.loggedServingSize) *
-        getUnitConversionFactor(food.loggedServingSizeUnit);
-      const servingRatio = servingSizeInGrams / 100; // Nutrition values are per 100g
-
       return {
-        calories: totals.calories + parseFloat(food.calories) * servingRatio,
-        protein: totals.protein + parseFloat(food.protein) * servingRatio,
-        carbs: totals.carbs + parseFloat(food.carbs) * servingRatio,
-        fat: totals.fat + parseFloat(food.fat) * servingRatio,
+        calories: totals.calories + parseFloat(food.calories),
+        protein: totals.protein + parseFloat(food.protein),
+        carbs: totals.carbs + parseFloat(food.carbs),
+        fat: totals.fat + parseFloat(food.fat),
       };
     },
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
@@ -93,7 +69,7 @@ export default function MealAccordion({
 }: MealAccordionProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
-  const mealMacros = getMealMacros(foods);
+  const totalNutrients = getTotalNutrients(foods);
 
   return (
     <div className="border-b border-border">
@@ -129,12 +105,12 @@ export default function MealAccordion({
                     isMobile ? "text-[10px]" : "text-xs"
                   } ${isDark ? "text-slate-400" : "text-slate-500"}`}
                 >
-                  <span>{Math.round(mealMacros.calories)} Kcal</span>
+                  <span>{Math.round(totalNutrients.calories)} Kcal</span>
                   <span>•</span>
                   <span>
                     P:{" "}
                     {formatNumberForDisplay(
-                      Number(mealMacros.protein).toFixed(2)
+                      Number(totalNutrients.protein).toFixed(2)
                     )}{" "}
                     g
                   </span>
@@ -142,14 +118,16 @@ export default function MealAccordion({
                   <span>
                     C:{" "}
                     {formatNumberForDisplay(
-                      Number(mealMacros.carbs).toFixed(2)
+                      Number(totalNutrients.carbs).toFixed(2)
                     )}{" "}
                     g
                   </span>
                   <span>•</span>
                   <span>
                     F:{" "}
-                    {formatNumberForDisplay(Number(mealMacros.fat).toFixed(2))}{" "}
+                    {formatNumberForDisplay(
+                      Number(totalNutrients.fat).toFixed(2)
+                    )}{" "}
                     g
                   </span>
                 </div>
@@ -211,14 +189,7 @@ export default function MealAccordion({
                       <p className="text-xs text-muted-foreground">
                         {Math.round(parseFloat(food.loggedServingSize))}{" "}
                         {food.loggedServingSizeUnit} •{" "}
-                        {Math.round(
-                          parseFloat(food.calories) *
-                            ((parseFloat(food.loggedServingSize) *
-                              getUnitConversionFactor(
-                                food.loggedServingSizeUnit
-                              )) /
-                              100)
-                        )}
+                        {Math.round(Number(food.calories))}
                         cal
                       </p>
                     </div>
