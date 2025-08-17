@@ -82,7 +82,7 @@ export default function MealAccordion({
             onClick={(e) => onAddFood(mealType, e)}
             size="sm"
             variant="ghost"
-            className="p-0"
+            className={`p-0 ${isMobile ? "h-5 w-5" : "h-8 w-8"}`}
           >
             <Plus className="h-4 w-4" />
           </Button>

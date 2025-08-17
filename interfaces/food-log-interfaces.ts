@@ -5,6 +5,7 @@ export interface AddFoodLogPayload {
   foodName: string;
   foodBrand?: string;
   foodSource?: "USDA" | "custom";
+  ingredients?: string;
   calories: number;
   protein: number;
   carbs: number;
