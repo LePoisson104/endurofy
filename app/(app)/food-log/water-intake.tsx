@@ -37,7 +37,10 @@ export default function WaterIntake({
   };
 
   const getWaterPercentage = () => {
-    return Math.min((waterIntake / dailyGoal) * 100, 100);
+    const maxPercent = Math.min((waterIntake / dailyGoal) * 100, 100);
+    const acutalPercent = (waterIntake / dailyGoal) * 100;
+
+    return { actualPercent: acutalPercent, maxPercent: maxPercent };
   };
 
   const getWaterCups = () => {
@@ -87,13 +90,13 @@ export default function WaterIntake({
               strokeLinecap="round"
               strokeDasharray={`${2 * Math.PI * 50}`}
               strokeDashoffset={`${
-                2 * Math.PI * 50 * (1 - getWaterPercentage() / 100)
+                2 * Math.PI * 50 * (1 - getWaterPercentage().maxPercent / 100)
               }`}
               className="transition-all duration-500 ease-out"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold">{waterIntake}</span>
+            <span className="text-xl font-bold">{waterIntake}</span>
             <span className="text-xs text-muted-foreground font-medium">
               ml
             </span>
@@ -109,13 +112,15 @@ export default function WaterIntake({
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium">Daily Goal</span>
           <span className="text-sm font-semibold">
-            {Math.round(getWaterPercentage())}%
+            {Math.round(getWaterPercentage().actualPercent)}%
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div
             className="h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500 ease-out"
-            style={{ width: `${getWaterPercentage()}%` }}
+            style={{
+              width: `${getWaterPercentage().maxPercent}%`,
+            }}
           />
         </div>
       </div>
