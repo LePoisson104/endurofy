@@ -528,22 +528,29 @@ export function WorkoutProgramCreator({
                       Add Day
                     </Button>
                   </div>
-                  <TabsList className="grid grid-cols-6 gap-1 w-full mb-8 bg-muted p-1 rounded-md">
-                    {customDays.map((day) => (
-                      <TabsTrigger
-                        key={day.id}
-                        value={day.id}
-                        className="relative data-[state=active]:bg-background"
-                      >
-                        {day.name}
-                        {exercises[day.id] && exercises[day.id].length > 0 && (
-                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                            {exercises[day.id].length}
-                          </span>
-                        )}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+                  <div className="border-b">
+                    <TabsList
+                      className={`grid grid-cols-6 gap-1 w-full ${
+                        customDays.length > 6 ? "mb-8" : ""
+                      } p-1 rounded-md`}
+                    >
+                      {customDays.map((day) => (
+                        <TabsTrigger
+                          key={day.id}
+                          value={day.id}
+                          className="relative data-[state=active]:bg-card"
+                        >
+                          {day.name}
+                          {exercises[day.id] &&
+                            exercises[day.id].length > 0 && (
+                              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                                {exercises[day.id].length}
+                              </span>
+                            )}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </div>
                 </div>
 
                 {customDays.map((day) => (
