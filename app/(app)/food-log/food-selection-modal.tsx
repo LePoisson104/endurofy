@@ -647,20 +647,18 @@ export default function FoodSelectionModal({
                     ))}
                   </SelectContent>
                 </Select>
-                {mode === "add" && (
-                  <Button variant="ghost" size="icon" onClick={handleFavorite}>
-                    <Heart
-                      className={`w-4 h-4 ${
-                        food?.isFavorite === true ? "text-rose-500" : "none"
-                      }`}
-                      fill={
-                        food?.isFavorite === true
-                          ? "oklch(71.2% 0.194 13.428)"
-                          : "none"
-                      }
-                    />
-                  </Button>
-                )}
+                <Button variant="ghost" size="icon" onClick={handleFavorite}>
+                  <Heart
+                    className={`w-4 h-4 ${
+                      food?.isFavorite === true ? "text-rose-500" : "none"
+                    }`}
+                    fill={
+                      food?.isFavorite === true
+                        ? "oklch(71.2% 0.194 13.428)"
+                        : "none"
+                    }
+                  />
+                </Button>
               </div>
             </div>
           </div>

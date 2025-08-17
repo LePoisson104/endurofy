@@ -1,4 +1,3 @@
-import { BaseFood } from "@/interfaces/food-log-interfaces";
 import {
   Dialog,
   DialogContent,
