@@ -449,7 +449,7 @@ export default function FoodSelectionModal({
         foodName: food.foodName,
         foodBrand: food.foodBrand,
         foodSource: isCustomFood(food) ? "custom" : food.foodSource,
-        ingredients: food.ingredients,
+        ingredients: food.ingredients || "",
         // All nutritional values are normalized to per 100g for backend storage
         calories: rawNutrients?.calories || 0,
         protein: rawNutrients?.protein || 0,

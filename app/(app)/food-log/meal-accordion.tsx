@@ -174,8 +174,8 @@ export default function MealAccordion({
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <Apple className="h-3 w-3 text-destructive" />
-                        <p className="font-medium text-sm">
+                        <Apple className="text-destructive w-[13px] h-[13px]" />
+                        <p className="font-medium text-sm truncate max-w-[200px]">
                           {food.foodName
                             .split(" ")
                             .map(
