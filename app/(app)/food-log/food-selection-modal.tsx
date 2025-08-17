@@ -226,69 +226,119 @@ export default function FoodSelectionModal({
 
   if (!food && !editFood) return null;
 
-  // Get nutrition data based on mode
-  const nutritionData =
-    mode === "edit" && editFood
-      ? {
-          calories: parseFloat(editFood.calories),
-          protein: parseFloat(editFood.protein),
-          carbs: parseFloat(editFood.carbs),
-          fat: parseFloat(editFood.fat),
-          fiber: parseFloat(editFood.fiber),
-          sugar: parseFloat(editFood.sugar),
-          sodium: parseFloat(editFood.sodium),
-          cholesterol: parseFloat(editFood.cholesterol),
-        }
-      : food
-      ? getNutritionData(food)
-      : null;
-
-  if (!nutritionData) return null;
-
+  // Get nutrition data and calculate values based on mode
   const servingSizeNum = parseInt(servingSize) || 1;
 
-  // Get original serving size based on mode and food type
-  const originalServingSize =
-    mode === "edit" && editFood
-      ? 100 // editFood nutrition values are per 100g
-      : food && isCustomFood(food)
-      ? 100 // CustomFood nutrition values are converted to per 100g in getNutritionData()
-      : food?.servingSize || 100; // FoodSearchResult uses original serving size
-
-  // Get the original unit from the food data
-  const originalUnit =
-    mode === "edit" && editFood
-      ? "g" // editFood nutrition values are per 100g
-      : food && isCustomFood(food)
-      ? "g" // CustomFood nutrition values are converted to per 100g in getNutritionData()
-      : convertUnitCode(food?.servingSizeUnit || "g"); // FoodSearchResult uses original unit
-
-  // Calculate multiplier based on serving size ratio and unit conversion
-  let multiplier: number;
-
-  if (isCombinedUnit(selectedUnit)) {
-    // For combined units (e.g., "112g"), the conversion is straightforward
-    // 1 unit of "112g" = 112g, 2 units = 224g, etc.
-    const { amount: combinedAmount } = parseCombinedUnit(selectedUnit);
-    const selectedTotalGrams = servingSizeNum * combinedAmount;
-    const originalTotalGrams =
-      originalServingSize * getUnitConversionFactor(originalUnit);
-    multiplier = selectedTotalGrams / originalTotalGrams;
-  } else {
-    // For standard units, use the original conversion logic
-    const selectedUnitFactor = getUnitConversionFactor(selectedUnit);
-    const originalUnitFactor = getUnitConversionFactor(originalUnit);
-    const servingSizeInOriginalUnit =
-      servingSizeNum * (selectedUnitFactor / originalUnitFactor);
-    multiplier = servingSizeInOriginalUnit / originalServingSize;
-  }
-
-  const calculatedNutrition = {
-    calories: Math.round(nutritionData.calories * multiplier),
-    protein: Number((nutritionData.protein * multiplier).toFixed(2)),
-    carbs: Number((nutritionData.carbs * multiplier).toFixed(2)),
-    fat: Number((nutritionData.fat * multiplier).toFixed(2)),
+  let nutritionData: any;
+  let calculatedNutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
   };
+  let originalNutrientsPer100g:
+    | {
+        calories: number;
+        protein: number;
+        carbs: number;
+        fat: number;
+        fiber: number;
+        sugar: number;
+        sodium: number;
+        cholesterol: number;
+      }
+    | undefined = undefined;
+
+  if (mode === "edit" && editFood) {
+    // For edit mode, the nutritional values are already calculated for the current logged serving
+    // We need to show the actual values for the current serving size selection
+
+    // First, calculate the original nutrients per 100g from the current logged values
+    const currentLoggedServingSize = parseFloat(editFood.loggedServingSize);
+    const currentLoggedUnit = editFood.loggedServingSizeUnit;
+
+    // Convert current logged serving to grams
+    const currentLoggedGrams =
+      currentLoggedServingSize * getUnitConversionFactor(currentLoggedUnit);
+
+    // Calculate per 100g values from current logged values
+    originalNutrientsPer100g = {
+      calories: (parseFloat(editFood.calories) * 100) / currentLoggedGrams,
+      protein: (parseFloat(editFood.protein) * 100) / currentLoggedGrams,
+      carbs: (parseFloat(editFood.carbs) * 100) / currentLoggedGrams,
+      fat: (parseFloat(editFood.fat) * 100) / currentLoggedGrams,
+      fiber: (parseFloat(editFood.fiber) * 100) / currentLoggedGrams,
+      sugar: (parseFloat(editFood.sugar) * 100) / currentLoggedGrams,
+      sodium: (parseFloat(editFood.sodium) * 100) / currentLoggedGrams,
+      cholesterol:
+        (parseFloat(editFood.cholesterol) * 100) / currentLoggedGrams,
+    };
+
+    // Now calculate new values based on the selected serving size and unit
+    let newServingGrams;
+    if (isCombinedUnit(selectedUnit)) {
+      const { amount: combinedAmount } = parseCombinedUnit(selectedUnit);
+      newServingGrams = servingSizeNum * combinedAmount;
+    } else {
+      const selectedUnitFactor = getUnitConversionFactor(selectedUnit);
+      newServingGrams = servingSizeNum * selectedUnitFactor;
+    }
+
+    const multiplier = newServingGrams / 100;
+
+    nutritionData = originalNutrientsPer100g;
+    calculatedNutrition = {
+      calories: Math.round(originalNutrientsPer100g.calories * multiplier),
+      protein: Number(
+        (originalNutrientsPer100g.protein * multiplier).toFixed(2)
+      ),
+      carbs: Number((originalNutrientsPer100g.carbs * multiplier).toFixed(2)),
+      fat: Number((originalNutrientsPer100g.fat * multiplier).toFixed(2)),
+    };
+  } else if (food) {
+    // Add mode: use the original logic
+    nutritionData = getNutritionData(food);
+
+    // Get original serving size and unit
+    const originalServingSize =
+      food && isCustomFood(food)
+        ? 100 // CustomFood nutrition values are converted to per 100g in getNutritionData()
+        : food?.servingSize || 100; // FoodSearchResult uses original serving size
+
+    const originalUnit =
+      food && isCustomFood(food)
+        ? "g" // CustomFood nutrition values are converted to per 100g in getNutritionData()
+        : convertUnitCode(food?.servingSizeUnit || "g"); // FoodSearchResult uses original unit
+
+    // Calculate multiplier based on serving size ratio and unit conversion
+    let multiplier: number;
+
+    if (isCombinedUnit(selectedUnit)) {
+      // For combined units (e.g., "112g"), the conversion is straightforward
+      // 1 unit of "112g" = 112g, 2 units = 224g, etc.
+      const { amount: combinedAmount } = parseCombinedUnit(selectedUnit);
+      const selectedTotalGrams = servingSizeNum * combinedAmount;
+      const originalTotalGrams =
+        originalServingSize * getUnitConversionFactor(originalUnit);
+      multiplier = selectedTotalGrams / originalTotalGrams;
+    } else {
+      // For standard units, use the original conversion logic
+      const selectedUnitFactor = getUnitConversionFactor(selectedUnit);
+      const originalUnitFactor = getUnitConversionFactor(originalUnit);
+      const servingSizeInOriginalUnit =
+        servingSizeNum * (selectedUnitFactor / originalUnitFactor);
+      multiplier = servingSizeInOriginalUnit / originalServingSize;
+    }
+
+    calculatedNutrition = {
+      calories: Math.round(nutritionData.calories * multiplier),
+      protein: Number((nutritionData.protein * multiplier).toFixed(2)),
+      carbs: Number((nutritionData.carbs * multiplier).toFixed(2)),
+      fat: Number((nutritionData.fat * multiplier).toFixed(2)),
+    };
+  } else {
+    return null;
+  }
 
   // Calculate percentages for the chart and calories from each macro
   const proteinCalories = Math.round(calculatedNutrition.protein * 4);
@@ -329,19 +379,65 @@ export default function FoodSelectionModal({
       ].filter((item) => item.value > 0);
 
   // Check if values have changed from initial (for edit mode)
-  const hasValuesChanged =
-    mode === "edit"
-      ? servingSize !== initialServingSize || selectedUnit !== initialUnit
-      : true; // Always allow in add mode // Only show segments with values > 0
+  let hasValuesChanged = true; // Always allow in add mode
+
+  if (mode === "edit" && editFood) {
+    // Calculate the final values that would be sent to backend
+    let finalServingSize: number;
+    let finalServingUnit: string;
+
+    if (isCombinedUnit(selectedUnit)) {
+      const { amount: combinedAmount, unit: baseUnit } =
+        parseCombinedUnit(selectedUnit);
+      finalServingSize = servingSizeNum * combinedAmount;
+      finalServingUnit = baseUnit;
+    } else {
+      finalServingSize = servingSizeNum;
+      finalServingUnit = selectedUnit;
+    }
+
+    // Check if either value has actually changed
+    const originalServingSize = parseFloat(editFood.loggedServingSize);
+    const servingSizeChanged = finalServingSize !== originalServingSize;
+    const servingUnitChanged =
+      finalServingUnit !== editFood.loggedServingSizeUnit;
+
+    hasValuesChanged = servingSizeChanged || servingUnitChanged;
+  }
 
   const handleConfirm = () => {
-    if (mode === "edit" && editFood && onUpdate) {
+    if (mode === "edit" && editFood && onUpdate && originalNutrientsPer100g) {
       // Edit mode: update existing food log
+      // Calculate the serving size and unit to send to backend
+      let finalServingSize: number;
+      let finalServingUnit: string;
+
+      if (isCombinedUnit(selectedUnit)) {
+        const { amount: combinedAmount, unit: baseUnit } =
+          parseCombinedUnit(selectedUnit);
+        finalServingSize = servingSizeNum * combinedAmount;
+        finalServingUnit = baseUnit;
+      } else {
+        finalServingSize = servingSizeNum;
+        finalServingUnit = selectedUnit;
+      }
+
+      // Only include fields that have actually changed
       const updatedFood: Partial<Foods> = {
         foodId: editFood.foodId,
-        loggedServingSize: servingSizeNum.toString(),
-        loggedServingSizeUnit: selectedUnit,
       };
+
+      // Check if serving size changed
+      const originalServingSize = parseFloat(editFood.loggedServingSize);
+      if (finalServingSize !== originalServingSize) {
+        updatedFood.loggedServingSize = finalServingSize.toString();
+      }
+
+      // Check if serving unit changed
+      if (finalServingUnit !== editFood.loggedServingSizeUnit) {
+        updatedFood.loggedServingSizeUnit = finalServingUnit;
+      }
+
       onUpdate(updatedFood);
     } else if (mode === "add" && food && onConfirm) {
       // Add mode: create new food log
@@ -549,18 +645,20 @@ export default function FoodSelectionModal({
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="ghost" size="icon" onClick={handleFavorite}>
-                  <Heart
-                    className={`w-4 h-4 ${
-                      food?.isFavorite === true ? "text-rose-500" : "none"
-                    }`}
-                    fill={
-                      food?.isFavorite === true
-                        ? "oklch(71.2% 0.194 13.428)"
-                        : "none"
-                    }
-                  />
-                </Button>
+                {mode === "add" && (
+                  <Button variant="ghost" size="icon" onClick={handleFavorite}>
+                    <Heart
+                      className={`w-4 h-4 ${
+                        food?.isFavorite === true ? "text-rose-500" : "none"
+                      }`}
+                      fill={
+                        food?.isFavorite === true
+                          ? "oklch(71.2% 0.194 13.428)"
+                          : "none"
+                      }
+                    />
+                  </Button>
+                )}
               </div>
             </div>
           </div>

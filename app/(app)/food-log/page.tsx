@@ -238,7 +238,7 @@ export default function FoodLogPage() {
 
   const handleEditFood = (foodId: string) => {
     // Find the food to edit in the current food log data
-    if (!foodLog?.data?.data) return;
+    if (!foodLog?.data?.foodLog) return;
 
     const allFoods = [
       ...(foodLog.data.foodLog.foods.uncategorized || []),
@@ -277,13 +277,27 @@ export default function FoodLogPage() {
   const handleUpdateFood = async (updatedFood: Partial<Foods>) => {
     if (!updatedFood.foodId) return;
 
+    // Build payload with only the fields that have been provided (changed)
+    const payload: { [key: string]: string } = {};
+
+    if (updatedFood.loggedServingSize !== undefined) {
+      payload.serving_size = updatedFood.loggedServingSize;
+    }
+
+    if (updatedFood.loggedServingSizeUnit !== undefined) {
+      payload.serving_size_unit = updatedFood.loggedServingSizeUnit;
+    }
+
+    // Don't send request if no fields to update
+    if (Object.keys(payload).length === 0) {
+      toast.info("No changes to update");
+      return;
+    }
+
     try {
       await updateFoodLog({
         foodId: updatedFood.foodId,
-        payload: {
-          loggedServingSize: updatedFood.loggedServingSize,
-          loggedServingSizeUnit: updatedFood.loggedServingSizeUnit,
-        },
+        payload,
       }).unwrap();
 
       setIsAddFoodModalOpen(false);
