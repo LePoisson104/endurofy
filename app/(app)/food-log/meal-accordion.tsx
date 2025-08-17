@@ -175,7 +175,11 @@ export default function MealAccordion({
                     <div>
                       <div className="flex items-center gap-2">
                         <Apple className="text-destructive w-[13px] h-[13px]" />
-                        <p className="font-medium text-sm truncate max-w-[200px]">
+                        <p
+                          className={`font-medium text-sm truncate ${
+                            isMobile ? "w-[200px]" : "w-full"
+                          }`}
+                        >
                           {food.foodName
                             .split(" ")
                             .map(

@@ -17,7 +17,7 @@ interface FoodCardProps {
   onToggleFavorite: (foodId: string) => void;
   onEdit?: (food: BaseFood) => void;
   onDelete?: (food: BaseFood) => void;
-  foodSource: "USDA" | "Custom" | "Favorite";
+  foodSource: "usda" | "custom" | "favorite";
 }
 
 export default function FoodCard({
@@ -35,7 +35,7 @@ export default function FoodCard({
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card's onClick
-    if (foodSource === "Custom" && food && onEdit) {
+    if (foodSource === "custom" && food && onEdit) {
       onEdit(food);
     }
   };
@@ -63,7 +63,7 @@ export default function FoodCard({
           </h4>
           <p className="text-xs text-muted-foreground">{food.foodBrand}</p>
         </div>
-        {foodSource === "Custom" ? (
+        {foodSource === "custom" ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={handleDropdownClick}>
               <Button
@@ -87,7 +87,7 @@ export default function FoodCard({
           </DropdownMenu>
         ) : (
           <p className="text-xs text-muted-foreground">
-            {foodSource === "Favorite" ? food.foodSource : foodSource}
+            {foodSource === "favorite" ? food.foodSource : foodSource}
           </p>
         )}
       </div>

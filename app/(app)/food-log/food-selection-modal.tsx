@@ -472,8 +472,7 @@ export default function FoodSelectionModal({
 
   const handleFavorite = async () => {
     if (!food || !user?.user_id) return; // Add null check
-    const foodId = food.foodId;
-    const rawNutrients = getRawNutrientValuesPer100g(food);
+    const rawNutrients = getRawNutrientValuesPer100g(food); // custom food will gurantee to be in food_item table
 
     try {
       if (food.isFavorite === true) {
@@ -484,10 +483,11 @@ export default function FoodSelectionModal({
         await addFavoriteFood({
           userId: user?.user_id,
           payload: {
-            foodId: foodId,
+            foodId: food.foodId,
             foodName: food.foodName,
             foodBrand: food.foodBrand,
-            foodSource: isCustomFood(food) ? "custom" : food.foodSource,
+            foodSource: food.foodSource,
+            ingredients: food.ingredients,
             calories: rawNutrients?.calories || 0,
             protein: rawNutrients?.protein || 0,
             carbs: rawNutrients?.carbs || 0,
@@ -499,7 +499,7 @@ export default function FoodSelectionModal({
             servingSize: isCombinedUnit(selectedUnit)
               ? parseCombinedUnit(selectedUnit).amount * servingSizeNum
               : servingSizeNum,
-            servingUnit: isCombinedUnit(selectedUnit)
+            servingSizeUnit: isCombinedUnit(selectedUnit)
               ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)
               : (selectedUnit as ServingUnit),
           },

@@ -259,7 +259,7 @@ export default function FoodSearchModal({
                         food={food}
                         onSelect={handleFoodSelect}
                         onToggleFavorite={toggleFavorite}
-                        foodSource="USDA"
+                        foodSource="usda"
                       />
                     ))
                   )}
@@ -283,7 +283,7 @@ export default function FoodSearchModal({
                         onToggleFavorite={toggleFavorite}
                         onEdit={handleEditFood}
                         onDelete={handleDeleteFood}
-                        foodSource="Favorite"
+                        foodSource="favorite"
                       />
                     ))
                   )}
@@ -307,7 +307,7 @@ export default function FoodSearchModal({
                         onToggleFavorite={toggleFavorite}
                         onEdit={handleEditFood}
                         onDelete={handleDeleteFood}
-                        foodSource="Custom"
+                        foodSource="custom"
                       />
                     ))
                   )}

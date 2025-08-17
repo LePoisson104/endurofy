@@ -4,7 +4,7 @@ export interface AddFoodLogPayload {
   foodSourceId: string;
   foodName: string;
   foodBrand?: string;
-  foodSource?: "USDA" | "custom";
+  foodSource?: "usda" | "custom";
   ingredients?: string;
   calories: number;
   protein: number;
@@ -52,7 +52,7 @@ export interface Foods {
   mealType: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
   protein: string;
   sodium: string;
-  source: "USDA" | "custom";
+  source: "usda" | "custom";
   sugar: string;
 }
 
@@ -61,7 +61,7 @@ export interface BaseFood {
   foodName: string;
   foodBrand: string;
   ingredients?: string;
-  foodSource?: "USDA" | "custom";
+  foodSource?: "usda" | "custom";
   calories: number;
   protein: number;
   carbs: number;
@@ -80,7 +80,7 @@ export interface BaseFoodPayload {
   foodName: string;
   foodBrand: string;
   ingredients?: string;
-  foodSource?: "USDA" | "custom";
+  foodSource?: "usda" | "custom";
   calories: number;
   protein: number;
   carbs: number;

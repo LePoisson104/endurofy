@@ -33,7 +33,15 @@ export default function IngredientsDialog({
         <DialogHeader>
           <DialogTitle>Ingredients</DialogTitle>
         </DialogHeader>
-        <DialogDescription>{ingredients}</DialogDescription>
+        <DialogDescription>
+          {ingredients
+            .split(" ")
+            .map(
+              (word: string) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            )
+            .join(" ")}
+        </DialogDescription>
       </DialogContent>
     </Dialog>
   );
