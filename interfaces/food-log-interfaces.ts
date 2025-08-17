@@ -35,7 +35,7 @@ export interface FoodLogs {
 export interface Foods {
   baseServingSize: string;
   baseServingSizeUnit: string;
-  brandName: string;
+  brandName?: string;
   calories: string;
   carbs: string;
   cholesterol: string;
@@ -46,7 +46,7 @@ export interface Foods {
   foodLogId: string;
   foodName: string;
   foodSourceId: string | null;
-  ingredients: string | null;
+  ingredients?: string;
   loggedServingSize: string;
   loggedServingSizeUnit: string;
   mealType: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";

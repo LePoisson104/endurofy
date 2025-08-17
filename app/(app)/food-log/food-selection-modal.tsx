@@ -34,6 +34,7 @@ import type {
   BaseFood,
 } from "../../../interfaces/food-log-interfaces";
 import { toast } from "sonner";
+import IngredientsDialog from "@/components/dialog/ingredients-dialog";
 
 const servingUnits: ServingUnit[] = ["g", "oz", "ml"];
 
@@ -175,8 +176,6 @@ export default function FoodSelectionModal({
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
   const [availableUnits, setAvailableUnits] = useState<string[]>(servingUnits);
-  const [initialServingSize, setInitialServingSize] = useState<string>("");
-  const [initialUnit, setInitialUnit] = useState<ServingUnit>("g");
   const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [addFavoriteFood] = useAddFavoriteFoodMutation();
@@ -194,10 +193,6 @@ export default function FoodSelectionModal({
       setServingSize(roundedSize);
       setSelectedUnit(unit);
       setAvailableUnits(servingUnits);
-
-      // Store initial values for comparison
-      setInitialServingSize(roundedSize);
-      setInitialUnit(unit);
     } else if (mode === "add" && food) {
       // Add mode: initialize with food data
       const originalServingSize = food.servingSize?.toString() || "100";
@@ -217,10 +212,6 @@ export default function FoodSelectionModal({
       // Set defaults: serving size = 1, unit = combined unit
       setServingSize("1");
       setSelectedUnit(combinedUnit as ServingUnit);
-
-      // Reset initial values for add mode
-      setInitialServingSize("");
-      setInitialUnit("g");
     }
   }, [food, editFood, mode]);
 
@@ -540,11 +531,22 @@ export default function FoodSelectionModal({
                   )
                   .join(" ")}
           </DialogTitle>
-          {mode === "add" && food?.foodBrand && (
+          <div className="flex items-center gap-1">
             <span className="text-sm text-muted-foreground">
-              ({food.foodBrand})
+              (
+              {mode === "edit" && editFood
+                ? editFood.brandName
+                : food?.foodBrand}
+              )
             </span>
-          )}
+
+            {((editFood?.ingredients && editFood.ingredients.trim() !== "") ||
+              (food?.ingredients && food.ingredients.trim() !== "")) && (
+              <IngredientsDialog
+                ingredients={editFood?.ingredients || food?.ingredients || ""}
+              />
+            )}
+          </div>
         </DialogHeader>
 
         <div className="space-y-6 pt-4">
