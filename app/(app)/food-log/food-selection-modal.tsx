@@ -471,23 +471,49 @@ export default function FoodSelectionModal({
   };
 
   const handleFavorite = async () => {
-    if (!food || !user?.user_id) return; // Add null check
-    const rawNutrients = getRawNutrientValuesPer100g(food); // custom food will gurantee to be in food_item table
+    if (!user?.user_id) return;
+
+    // Determine which food data to use
+    const currentFood =
+      mode === "edit" && editFood
+        ? {
+            foodId: editFood.foodSourceId || editFood.foodId,
+            foodName: editFood.foodName,
+            foodBrand: editFood.brandName || "",
+            foodSource: editFood.source,
+            ingredients: editFood.ingredients,
+            isFavorite: (editFood as any).isFavorite || false,
+            favoriteFoodId: (editFood as any).favoriteFoodId || null,
+          }
+        : food;
+
+    if (!currentFood) return;
 
     try {
-      if (food.isFavorite === true) {
+      if (currentFood.isFavorite === true) {
         await removeFavoriteFood({
-          favFoodId: food.favoriteFoodId?.toString(),
+          favFoodId: currentFood.favoriteFoodId?.toString(),
         });
       } else {
+        // For add mode, use food data; for edit mode, get original nutrients from editFood
+        let rawNutrients;
+        if (mode === "edit" && editFood) {
+          // Use the calculated per-100g nutrients from edit mode
+          rawNutrients = originalNutrientsPer100g;
+        } else if (food) {
+          rawNutrients = getRawNutrientValuesPer100g(food);
+        }
+
+        if (!rawNutrients) return;
+
         await addFavoriteFood({
           userId: user?.user_id,
           payload: {
-            foodId: food.foodId,
-            foodName: food.foodName,
-            foodBrand: food.foodBrand,
-            foodSource: food.foodSource,
-            ingredients: food.ingredients,
+            foodId: mode === "add" ? food?.foodId : editFood?.foodItemId,
+            foodName: currentFood.foodName,
+            foodBrand: currentFood.foodBrand,
+            foodSource: currentFood.foodSource,
+            ingredients: currentFood.ingredients,
             calories: rawNutrients?.calories || 0,
             protein: rawNutrients?.protein || 0,
             carbs: rawNutrients?.carbs || 0,
@@ -650,10 +676,16 @@ export default function FoodSelectionModal({
                 <Button variant="ghost" size="icon" onClick={handleFavorite}>
                   <Heart
                     className={`w-4 h-4 ${
-                      food?.isFavorite === true ? "text-rose-500" : "none"
+                      (mode === "add" && food?.isFavorite === true) ||
+                      (mode === "edit" &&
+                        (editFood as any)?.isFavorite === true)
+                        ? "text-rose-500"
+                        : "none"
                     }`}
                     fill={
-                      food?.isFavorite === true
+                      (mode === "add" && food?.isFavorite === true) ||
+                      (mode === "edit" &&
+                        (editFood as any)?.isFavorite === true)
                         ? "oklch(71.2% 0.194 13.428)"
                         : "none"
                     }
