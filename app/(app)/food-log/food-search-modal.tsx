@@ -12,11 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type {
-  FoodSearchModalProps,
-  AddFoodLogPayload,
-  BaseFood,
-} from "../../../interfaces/food-log-interfaces";
 import FoodCard from "./food-card";
 import FoodSelectionModal from "./food-selection-modal";
 import CustomFoodModal from "./custom-food-modal";
@@ -33,6 +28,12 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import FoodCardSkeleton from "@/components/skeletons/foodcard-skeleton";
 import { toast } from "sonner";
+
+import type {
+  FoodSearchModalProps,
+  AddFoodLogPayload,
+  BaseFood,
+} from "../../../interfaces/food-log-interfaces";
 
 export default function FoodSearchModal({
   isOpen,
