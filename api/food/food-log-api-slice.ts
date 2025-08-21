@@ -1,6 +1,6 @@
 import { apiSlice } from "../api-slice";
 
-export const foodApiSlice = apiSlice.injectEndpoints({
+export const foodLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getFoodLog: builder.query({
       query: ({ userId, date }) => ({
@@ -54,4 +54,4 @@ export const {
   useDeleteFoodLogMutation,
   useUpdateFoodLogMutation,
   useGetFoddLogsDateQuery,
-} = foodApiSlice;
+} = foodLogApiSlice;
