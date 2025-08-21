@@ -87,22 +87,26 @@ export default function FoodSearchModal({
   const [deleteCustomFood, { isLoading: isDeletingFood }] =
     useDeleteCustomFoodMutation();
 
-  // const filteredFoods = searchResults?.data?.filter(
-  //   (food: FoodSearchResult) => {
-  //     const matchesSearch =
-  //       food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //       (food.brand &&
-  //         food.brand.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Helper function to filter foods based on search query for favorites and custom tabs
+  const getFilteredFoods = (foods: BaseFood[] | undefined) => {
+    if (!foods || !searchQuery.trim()) {
+      return foods || [];
+    }
 
-  //     if (activeTab === "favorites") {
-  //       return matchesSearch && food.isFavorite;
-  //     }
-  //     if (activeTab === "custom") {
-  //       return matchesSearch && food.isCustom;
-  //     }
-  //     return [];
-  //   }
-  // );
+    return foods.filter((food: BaseFood) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        food.foodName.toLowerCase().includes(searchLower) ||
+        (food.foodBrand && food.foodBrand.toLowerCase().includes(searchLower))
+      );
+    });
+  };
+
+  // Apply filtering only to favorites and custom tabs
+  const filteredFavoriteFoods = getFilteredFoods(
+    favoriteFoods?.data?.favoriteFood
+  );
+  const filteredCustomFoods = getFilteredFoods(customFoods?.data?.customFood);
 
   const handleFoodSelect = (food: BaseFood) => {
     setSelectedFood(food);
@@ -270,12 +274,14 @@ export default function FoodSearchModal({
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
                   {isFetchingFavoriteFoods ? (
                     <FoodCardSkeleton />
-                  ) : favoriteFoods?.data?.favoriteFood?.length === 0 ? (
+                  ) : filteredFavoriteFoods?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      No favorite foods found
+                      {searchQuery.trim()
+                        ? "No matching favorite foods found"
+                        : "No favorite foods found"}
                     </div>
                   ) : (
-                    favoriteFoods?.data?.favoriteFood?.map((food: BaseFood) => (
+                    filteredFavoriteFoods?.map((food: BaseFood) => (
                       <FoodCard
                         key={food.foodId}
                         food={food}
@@ -294,12 +300,14 @@ export default function FoodSearchModal({
                 <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
                   {isFetchingCustomFoods ? (
                     <FoodCardSkeleton />
-                  ) : customFoods?.data?.customFood?.length === 0 ? (
+                  ) : filteredCustomFoods?.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      No custom foods found
+                      {searchQuery.trim()
+                        ? "No matching custom foods found"
+                        : "No custom foods found"}
                     </div>
                   ) : (
-                    customFoods?.data?.customFood?.map((food: BaseFood) => (
+                    filteredCustomFoods?.map((food: BaseFood) => (
                       <FoodCard
                         key={food.foodId}
                         food={food}
