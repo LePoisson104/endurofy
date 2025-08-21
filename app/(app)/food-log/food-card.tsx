@@ -12,7 +12,6 @@ import type { BaseFood } from "../../../interfaces/food-log-interfaces";
 
 interface FoodCardProps {
   food: BaseFood;
-  isSelected?: boolean;
   onSelect: (food: BaseFood) => void;
   onToggleFavorite: (foodId: string) => void;
   onEdit?: (food: BaseFood) => void;
@@ -22,7 +21,6 @@ interface FoodCardProps {
 
 export default function FoodCard({
   food,
-  isSelected = false,
   onSelect,
   onToggleFavorite,
   onEdit,
@@ -87,7 +85,13 @@ export default function FoodCard({
           </DropdownMenu>
         ) : (
           <p className="text-xs text-muted-foreground">
-            {foodSource === "favorite" ? food.foodSource : foodSource}
+            {foodSource === "favorite"
+              ? food.foodSource === "usda"
+                ? "USDA"
+                : "Custom"
+              : foodSource === "usda"
+              ? "USDA"
+              : "Custom"}
           </p>
         )}
       </div>
