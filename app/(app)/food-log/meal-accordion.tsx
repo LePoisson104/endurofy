@@ -37,7 +37,6 @@ interface MealAccordionProps {
   onAddFood: (mealType: keyof MealData, event?: React.MouseEvent) => void;
   onEditFood: (foodId: string) => void;
   onRemoveFood: (foodId: string, foodLogId: string) => void;
-  onFavoriteFood: (mealType: keyof MealData, foodId: string) => void;
   isDeletingFoodLog: boolean;
 }
 
@@ -64,7 +63,6 @@ export default function MealAccordion({
   onAddFood,
   onEditFood,
   onRemoveFood,
-  onFavoriteFood,
   isDeletingFoodLog,
 }: MealAccordionProps) {
   const isMobile = useIsMobile();
@@ -227,14 +225,6 @@ export default function MealAccordion({
                               <Trash2 className="h-4 w-4 mr-2" />
                             )}
                             Remove
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              onFavoriteFood(mealType, food.foodId)
-                            }
-                          >
-                            <Heart className="h-4 w-4 mr-2" />
-                            Add to Favorites
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

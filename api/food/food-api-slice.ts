@@ -8,7 +8,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
       providesTags: (result, error, { userId, searchItem }) => [
-        { type: "Food", id: `${userId}/${searchItem}` },
+        { type: "Food", id: `search_${userId}_${searchItem}` },
         { type: "Food", id: "LIST" },
       ],
     }),
@@ -18,7 +18,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [
-        { type: "Food", id: `${userId}` },
+        { type: "Food", id: `custom_${userId}` },
         { type: "Food", id: "LIST" },
       ],
     }),
@@ -28,8 +28,8 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [
-        { type: "Food", id: `${userId}` },
-        { type: "Food", id: "LIST" },
+        { type: "Food", id: `favorites_${userId}` },
+        { type: "Food", id: "FAVORITES" },
       ],
     }),
     addCustomFood: builder.mutation({
@@ -38,7 +38,10 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: [{ type: "Food", id: "LIST" }],
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "Food", id: `custom_${userId}` },
+        { type: "Food", id: "LIST" },
+      ],
     }),
     updateCustomFood: builder.mutation({
       query: ({ customFoodId, payload }) => ({
@@ -54,9 +57,14 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: (result, error, { userId, payload }) => [
-        { type: "Food", id: `${userId}/${payload.foodId}` },
+      invalidatesTags: (result, error, { userId }) => [
+        // Only invalidate favorite-related and search caches
+        { type: "Food", id: "FAVORITES" },
+        { type: "Food", id: `favorites_${userId}` },
+        // Invalidate search results to show updated favorite status
         { type: "Food", id: "LIST" },
+        // Invalidate food logs to show updated favorite status
+        { type: "FoodLog", id: "LIST" },
       ],
     }),
     removeFavoriteFood: builder.mutation({
@@ -64,9 +72,14 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         url: `/api/v1/foods/favorites/${favFoodId}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, { favFoodId }) => [
-        { type: "Food", id: `${favFoodId}` },
+      invalidatesTags: (result, error, { userId }) => [
+        // Only invalidate favorite-related and search caches
+        { type: "Food", id: "FAVORITES" },
+        { type: "Food", id: `favorites_${userId}` },
+        // Invalidate search results to show updated favorite status
         { type: "Food", id: "LIST" },
+        // Invalidate food logs to show updated favorite status
+        { type: "FoodLog", id: "LIST" },
       ],
     }),
     deleteCustomFood: builder.mutation({
@@ -74,7 +87,14 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         url: `/api/v1/foods/${userId}/custom/${customFoodId}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "Food", id: "LIST" }],
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "Food", id: `custom_${userId}` },
+        { type: "Food", id: "LIST" },
+        // Invalidate favorites in case the deleted custom food was favorited
+        { type: "Food", id: "FAVORITES" },
+        { type: "Food", id: `favorites_${userId}` },
+        { type: "FoodLog", id: "LIST" },
+      ],
     }),
   }),
 });

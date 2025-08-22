@@ -58,7 +58,7 @@ import {
   FlameIcon,
   CarbsIcon,
 } from "@/components/icons/nutrition-icons";
-import { Foods } from "@/interfaces/food-log-interfaces";
+import { BaseFood, Foods } from "@/interfaces/food-log-interfaces";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
@@ -109,7 +109,6 @@ export default function FoodLogPage() {
     new Set()
   );
   const [isLogCompleted, setIsLogCompleted] = useState(false);
-  const [copiedMealData, setCopiedMealData] = useState<MealData | null>(null);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentEditFood, setCurrentEditFood] = useState<Foods | null>(null);
@@ -269,11 +268,6 @@ export default function FoodLogPage() {
     }
   };
 
-  const handleFavoriteFood = (mealType: keyof MealData, foodId: string) => {
-    // TODO: Implement favorite functionality
-    console.log("Favorite food:", { mealType, foodId });
-  };
-
   const handleUpdateFood = async (updatedFood: Partial<Foods>) => {
     if (!updatedFood.foodId) return;
 
@@ -418,7 +412,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    onFavoriteFood={handleFavoriteFood}
                     isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
@@ -430,7 +423,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    onFavoriteFood={handleFavoriteFood}
                     isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
@@ -442,7 +434,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    onFavoriteFood={handleFavoriteFood}
                     isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
@@ -454,7 +445,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    onFavoriteFood={handleFavoriteFood}
                     isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
@@ -466,7 +456,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    onFavoriteFood={handleFavoriteFood}
                     isDeletingFoodLog={isDeletingFoodLog}
                   />
 

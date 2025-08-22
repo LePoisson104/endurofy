@@ -127,11 +127,6 @@ export default function FoodSearchModal({
     }
   };
 
-  const toggleFavorite = (foodId: string) => {
-    // In a real app, this would update the backend
-    console.log("Toggle favorite for food:", foodId);
-  };
-
   const handleClose = () => {
     setSearchQuery("");
     setSelectedFood(null);
@@ -262,7 +257,6 @@ export default function FoodSearchModal({
                         key={food.foodId}
                         food={food}
                         onSelect={handleFoodSelect}
-                        onToggleFavorite={toggleFavorite}
                         foodSource="usda"
                       />
                     ))
@@ -286,7 +280,6 @@ export default function FoodSearchModal({
                         key={food.foodId}
                         food={food}
                         onSelect={handleFoodSelect}
-                        onToggleFavorite={toggleFavorite}
                         onEdit={handleEditFood}
                         onDelete={handleDeleteFood}
                         foodSource="favorite"
@@ -312,7 +305,6 @@ export default function FoodSearchModal({
                         key={food.foodId}
                         food={food}
                         onSelect={handleFoodSelect}
-                        onToggleFavorite={toggleFavorite}
                         onEdit={handleEditFood}
                         onDelete={handleDeleteFood}
                         foodSource="custom"

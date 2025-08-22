@@ -176,6 +176,7 @@ export default function FoodSelectionModal({
   const [servingSize, setServingSize] = useState("1");
   const [selectedUnit, setSelectedUnit] = useState<ServingUnit>("g");
   const [availableUnits, setAvailableUnits] = useState<string[]>(servingUnits);
+  const [localIsFavorite, setLocalIsFavorite] = useState<boolean>(false);
   const isMobile = useIsMobile();
   const user = useSelector(selectCurrentUser);
   const [addFavoriteFood] = useAddFavoriteFoodMutation();
@@ -193,6 +194,7 @@ export default function FoodSelectionModal({
       setServingSize(roundedSize);
       setSelectedUnit(unit);
       setAvailableUnits(servingUnits);
+      setLocalIsFavorite((editFood as any)?.isFavorite === true);
     } else if (mode === "add" && food) {
       // Add mode: initialize with food data
       const originalServingSize = food.servingSize?.toString() || "100";
@@ -212,6 +214,7 @@ export default function FoodSelectionModal({
       // Set defaults: serving size = 1, unit = combined unit
       setServingSize("1");
       setSelectedUnit(combinedUnit as ServingUnit);
+      setLocalIsFavorite(food?.isFavorite === true);
     }
   }, [food, editFood, mode]);
 
@@ -470,30 +473,33 @@ export default function FoodSelectionModal({
     onClose();
   };
 
+  // Determine if this food is currently a favorite
+  const currentFood =
+    mode === "edit" && editFood
+      ? {
+          foodId: editFood.foodSourceId || editFood.foodId,
+          foodName: editFood.foodName,
+          foodBrand: editFood.brandName || "",
+          foodSource: editFood.source,
+          ingredients: editFood.ingredients,
+          isFavorite: (editFood as any).isFavorite || false,
+          favoriteFoodId: (editFood as any).favoriteFoodId || null,
+        }
+      : food;
+
+  // Use local state for immediate UI updates
+  const isFavorite = localIsFavorite;
+
   const handleFavorite = async () => {
-    if (!user?.user_id) return;
-
-    // Determine which food data to use
-    const currentFood =
-      mode === "edit" && editFood
-        ? {
-            foodId: editFood.foodSourceId || editFood.foodId,
-            foodName: editFood.foodName,
-            foodBrand: editFood.brandName || "",
-            foodSource: editFood.source,
-            ingredients: editFood.ingredients,
-            isFavorite: (editFood as any).isFavorite || false,
-            favoriteFoodId: (editFood as any).favoriteFoodId || null,
-          }
-        : food;
-
-    if (!currentFood) return;
+    if (!user?.user_id || !currentFood) return;
 
     try {
-      if (currentFood.isFavorite === true) {
+      if (localIsFavorite) {
         await removeFavoriteFood({
+          userId: user?.user_id,
           favFoodId: currentFood.favoriteFoodId?.toString(),
-        });
+        }).unwrap();
+        setLocalIsFavorite(false);
       } else {
         // For add mode, use food data; for edit mode, get original nutrients from editFood
         let rawNutrients;
@@ -529,10 +535,11 @@ export default function FoodSelectionModal({
               ? (parseCombinedUnit(selectedUnit).unit as ServingUnit)
               : (selectedUnit as ServingUnit),
           },
-        });
+        }).unwrap();
+        setLocalIsFavorite(true);
       }
     } catch (error: any) {
-      if (error) {
+      if (error?.data?.message) {
         toast.error(error.data.message);
       } else {
         toast.error("Error adding/removing favorite food");
@@ -674,19 +681,9 @@ export default function FoodSelectionModal({
                 <Button variant="ghost" size="icon" onClick={handleFavorite}>
                   <Heart
                     className={`w-4 h-4 ${
-                      (mode === "add" && food?.isFavorite === true) ||
-                      (mode === "edit" &&
-                        (editFood as any)?.isFavorite === true)
-                        ? "text-rose-500"
-                        : "none"
+                      isFavorite ? "text-rose-500" : "text-muted-foreground"
                     }`}
-                    fill={
-                      (mode === "add" && food?.isFavorite === true) ||
-                      (mode === "edit" &&
-                        (editFood as any)?.isFavorite === true)
-                        ? "oklch(71.2% 0.194 13.428)"
-                        : "none"
-                    }
+                    fill={isFavorite ? "currentColor" : "none"}
                   />
                 </Button>
               </div>

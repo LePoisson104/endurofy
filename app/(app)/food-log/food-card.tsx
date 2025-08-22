@@ -13,7 +13,6 @@ import type { BaseFood } from "../../../interfaces/food-log-interfaces";
 interface FoodCardProps {
   food: BaseFood;
   onSelect: (food: BaseFood) => void;
-  onToggleFavorite: (foodId: string) => void;
   onEdit?: (food: BaseFood) => void;
   onDelete?: (food: BaseFood) => void;
   foodSource: "usda" | "custom" | "favorite";
@@ -22,7 +21,6 @@ interface FoodCardProps {
 export default function FoodCard({
   food,
   onSelect,
-  onToggleFavorite,
   onEdit,
   onDelete,
   foodSource,
