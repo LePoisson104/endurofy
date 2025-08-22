@@ -162,16 +162,15 @@ export default function FoodSearchModal({
   };
 
   const handleDeleteFood = (food: BaseFood) => {
-    if ("customFoodId" in food) {
-      setFoodToDelete(food);
-      setShowDeleteDialog(true);
-    }
+    setFoodToDelete(food);
+    setShowDeleteDialog(true);
   };
 
   const confirmDeleteFood = async () => {
     if (foodToDelete) {
       try {
         const response = await deleteCustomFood({
+          userId: user?.user_id,
           customFoodId: foodToDelete.foodId,
         });
         toast.success(

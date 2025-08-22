@@ -70,8 +70,8 @@ export const foodApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     deleteCustomFood: builder.mutation({
-      query: ({ customFoodId }) => ({
-        url: `/api/v1/foods/custom/${customFoodId}`,
+      query: ({ userId, customFoodId }) => ({
+        url: `/api/v1/foods/${userId}/custom/${customFoodId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Food", id: "LIST" }],
