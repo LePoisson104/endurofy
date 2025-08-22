@@ -232,7 +232,9 @@ export default function UsersProfileModal({
     <>
       <Dialog open={isOpen}>
         <DialogContent
-          className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto bg-card scroll-bar"
+          className={`sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto bg-card scroll-bar ${
+            isMobile ? "pt-10 pb-4 px-0" : ""
+          }`}
           closeXButton={true}
         >
           <DialogHeader>
@@ -242,9 +244,12 @@ export default function UsersProfileModal({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className={`${isMobile ? "" : "space-y-6"}`}
+          >
             {/* Basic Information */}
-            <Card className="border">
+            <Card className={`${isMobile ? "border-none" : "border"}`}>
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
                 <CardDescription>
@@ -281,7 +286,7 @@ export default function UsersProfileModal({
             </Card>
 
             {/* Physical Information */}
-            <Card className="border">
+            <Card className={`${isMobile ? "border-none" : "border"}`}>
               <CardHeader>
                 <CardTitle>Physical Information</CardTitle>
                 <CardDescription>
@@ -426,7 +431,6 @@ export default function UsersProfileModal({
                     </div>
                   )}
 
-                  {/* Activity Level Section */}
                   <div className="space-y-2">
                     <Label htmlFor="activity_level">Activity Level</Label>
                     <Select
@@ -435,10 +439,16 @@ export default function UsersProfileModal({
                         updateField("activity_level", value)
                       }
                     >
-                      <SelectTrigger id="activity_level" className="w-full">
-                        <SelectValue placeholder="Select activity level" />
+                      <SelectTrigger
+                        id="activity_level"
+                        className="w-full overflow-hidden"
+                      >
+                        <SelectValue
+                          placeholder="Select activity level"
+                          className="truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                        />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="w-full">
                         <SelectItem value="sedentary">
                           Sedentary (little or no exercise)
                         </SelectItem>
@@ -475,7 +485,7 @@ export default function UsersProfileModal({
                   formData.activity_level === "" ||
                   formData.goal === ""
                 }
-                className={`${isMobile ? "w-full" : "w-[150px]"}`}
+                className={"w-[150px]"}
               >
                 {isUpdatingProfile ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

@@ -383,7 +383,8 @@ function UserProfileMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [logout] = useLogoutMutation();
+  const [logout, { isSuccess }] = useLogoutMutation();
+  const router = useRouter();
 
   const { openMobile, setOpenMobile } = useSidebar();
 
@@ -414,6 +415,12 @@ function UserProfileMenu() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push("/login");
+    }
+  }, [isSuccess, router]);
 
   return (
     <>
