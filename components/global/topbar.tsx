@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, Search, X, LogOut, Settings, User, Sun } from "lucide-react";
+import { Bell, Search, X, Settings, User, Sun } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRouter } from "next/navigation";
-import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 import { ThemeToggle } from "@/components/buttons/theme-toggle";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 
@@ -32,15 +30,7 @@ export function TopBar({ className }: TopBarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
   const isMobile = useIsMobile();
-  const router = useRouter();
-  const [logout, { isSuccess }] = useLogoutMutation();
   const isVisible = useScrollDirection();
-
-  useEffect(() => {
-    if (isSuccess) {
-      router.push("/login");
-    }
-  }, [isSuccess, router]);
 
   // Close mobile search when topbar becomes hidden
   useEffect(() => {
@@ -167,9 +157,6 @@ export function TopBar({ className }: TopBarProps) {
               <Link href="/profile">
                 <User className="h-5 w-5" />
               </Link>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => logout()}>
-              <LogOut className="h-5 w-5" />
             </Button>
           </div>
         </div>

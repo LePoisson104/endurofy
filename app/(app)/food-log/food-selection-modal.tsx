@@ -559,11 +559,9 @@ export default function FoodSelectionModal({
           </DialogTitle>
           <div className="flex items-center gap-1">
             <span className="text-sm text-muted-foreground">
-              (
               {mode === "edit" && editFood
                 ? editFood.brandName
                 : food?.foodBrand}
-              )
             </span>
 
             {((editFood?.ingredients && editFood.ingredients.trim() !== "") ||
