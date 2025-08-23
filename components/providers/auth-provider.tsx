@@ -60,7 +60,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyRefreshToken = async () => {
     try {
-      console.log("Verifying refresh token...");
       await refresh().unwrap(); // Get the new token
       setTrueSuccess(true); // Mark successful refresh
     } catch (err) {

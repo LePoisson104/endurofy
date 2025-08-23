@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -119,6 +120,9 @@ export function WorkoutFiltersModal({
           <DialogTitle className="text-xl font-semibold">
             Filter Workouts
           </DialogTitle>
+          <DialogDescription>
+            Filter your workout history by date range.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">

@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -245,6 +246,9 @@ export default function ExerciseSelectionModal({
         >
           <DialogHeader className="mb-4">
             <DialogTitle>Select Exercise</DialogTitle>
+            <DialogDescription>
+              Select an exercise to add to your workout.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">

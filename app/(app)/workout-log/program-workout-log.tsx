@@ -261,8 +261,10 @@ export function ProgramWorkoutLog({
               isDark ? "/images/darksnorlax.png" : "/images/lightsnorlax.png"
             }
             alt="Rest Day"
-            width={150}
-            height={150}
+            width={100}
+            height={100}
+            style={{ width: "auto", height: "auto", objectFit: "contain" }}
+            priority
           />
         </div>
       </>

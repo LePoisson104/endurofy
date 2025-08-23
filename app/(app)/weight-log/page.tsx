@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -394,6 +395,9 @@ export default function WeightLogPage() {
         <DialogContent className="sm:max-w-[425px] bg-card">
           <DialogHeader>
             <DialogTitle>Add Weight Entry</DialogTitle>
+            <DialogDescription>
+              Add a new weight entry to your weight log.
+            </DialogDescription>
           </DialogHeader>
           <WeightForm
             weightLogData={weightLogData}

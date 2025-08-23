@@ -42,9 +42,6 @@ export function ExerciseForm({
   const [maxReps, setMaxReps] = useState<number | null>(null);
   const [exerciseOrder, setExerciseOrder] = useState<number>(1);
 
-  console.log(bodyPart);
-  console.log(initialExercise);
-
   // Pre-fill form when editing
   useEffect(() => {
     if (initialExercise) {

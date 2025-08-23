@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -564,7 +565,7 @@ export default function FoodSelectionModal({
                   )
                   .join(" ")}
           </DialogTitle>
-          <div className="flex items-center gap-1">
+          <DialogDescription className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">
               {mode === "edit" && editFood
                 ? editFood.brandName
@@ -577,7 +578,7 @@ export default function FoodSelectionModal({
                 ingredients={editFood?.ingredients || food?.ingredients || ""}
               />
             )}
-          </div>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 pt-4">

@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,6 +30,9 @@ export default function AddExerciseModal({
       <DialogContent className="bg-card">
         <DialogHeader className="mb-4">
           <DialogTitle>{title || "Add Exercise"}</DialogTitle>
+          <DialogDescription>
+            Add new exercise to your workout collection.
+          </DialogDescription>
         </DialogHeader>
         <ExerciseForm
           onAddExercise={(exercise) => {

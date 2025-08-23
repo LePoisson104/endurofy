@@ -674,7 +674,7 @@ export default function FoodLogPage() {
 
             {/* Water Intake - Desktop Only (Mobile is in Meals section) */}
             {!isMobile && (
-              <div className="bg-card rounded-xl shadow-sm p-6">
+              <div className="bg-card rounded-xl shadow-sm p-6 border">
                 <WaterIntake />
               </div>
             )}

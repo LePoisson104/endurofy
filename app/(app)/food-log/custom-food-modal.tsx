@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -441,6 +442,9 @@ export default function CustomFoodModal({
           <DialogTitle>
             {mode === "edit" ? "Edit Custom Food" : "Create Custom Food"}
           </DialogTitle>
+          <DialogDescription className={`${isMobile ? "p-2" : "p-0"}`}>
+            Create a new food from the nutrition facts on a product label.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
