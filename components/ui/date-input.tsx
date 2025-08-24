@@ -119,7 +119,7 @@ export function DateInput({
         </Popover>
         <Input
           id={id}
-          className="w-full text-sm"
+          className="w-full"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}

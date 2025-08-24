@@ -248,7 +248,7 @@ export default function ProfileEditForm({
                   handleInputChange("weight_goal", value);
                 }
               }}
-              className="flex-1 text-sm"
+              className="flex-1"
             />
             <Select
               value={editedProfile?.current_weight_unit || "kg"}
@@ -321,7 +321,7 @@ export default function ProfileEditForm({
                   if (value > 1000) value = 1000;
                   handleInputChange("weight_goal", value);
                 }}
-                className="flex-1 text-sm"
+                className="flex-1"
               />
               <div className="w-[100px] text-center flex items-center justify-center text-muted-foreground">
                 {editedProfile?.starting_weight_unit === "lb" ? "lbs" : "kg"}
