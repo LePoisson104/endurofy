@@ -44,7 +44,6 @@ import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
-import { toast } from "sonner";
 
 export default function WeightLogPage() {
   const isDark = useGetCurrentTheme();
@@ -177,6 +176,7 @@ export default function WeightLogPage() {
             </div>
             {/* Mobile add button - only visible on small screens */}
             <Button
+              variant="outline"
               className="lg:hidden flex items-center"
               onClick={() => setIsModalOpen(true)}
             >

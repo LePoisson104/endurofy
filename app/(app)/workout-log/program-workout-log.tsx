@@ -9,8 +9,9 @@ import {
   Check,
   History,
   Loader2,
-  SquarePen,
   Trash2,
+  MoreVertical,
+  Edit,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
@@ -47,6 +48,12 @@ import DeleteDialog from "@/components/dialog/delete-dialog";
 import CompletedBadge from "@/components/badges/status-badges";
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -274,11 +281,7 @@ export function ProgramWorkoutLog({
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
-        <div
-          className={`space-y-2 flex w-full ${
-            isMobile ? "flex-col" : "flex-row justify-between items-center"
-          }`}
-        >
+        <div className="space-y-2 flex w-full justify-between items-center">
           <div className="flex">
             <div>
               {workoutLog?.data?.length > 0 ? (
@@ -318,48 +321,48 @@ export function ProgramWorkoutLog({
               </div>
             </div>
           </div>
-          <div>
-            {workoutLog?.data?.length > 0 && (
-              <div className="flex items-center gap-2">
-                {isEditing && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="gap-1"
-                    onClick={() => {
-                      setContext("Log");
-                      setShowDeleteDialog(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="flex items-center gap-2"
-                >
-                  <SquarePen className="h-4 w-4" />
-                  {isEditing ? "Done" : "Edit"}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {isMobile && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPrevious(!showPrevious)}
-            className="border3 w-fit"
-          >
-            <History className="h-4 w-4 mr-2" />
-            {showPrevious ? "Hide Previous" : "Show Previous"}
-          </Button>
-        )}
+          {workoutLog?.data?.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                asChild
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  {isEditing ? "Done" : "Edit"}
+                </DropdownMenuItem>
+                {isMobile && (
+                  <DropdownMenuItem
+                    onClick={() => setShowPrevious(!showPrevious)}
+                  >
+                    <History className="h-4 w-4 mr-2" />
+                    {showPrevious ? "Hide Previous" : "Show Previous"}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() => {
+                    setContext("Log");
+                    setShowDeleteDialog(true);
+                  }}
+                  variant="destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
 
       {selectedDay && (

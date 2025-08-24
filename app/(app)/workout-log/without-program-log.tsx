@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { Button } from "@/components/ui/button";
-import { Check, SquarePen, Plus, Trash2, Loader2 } from "lucide-react";
+import { Check, Plus, Trash2, Loader2, Edit, MoreVertical } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import ExerciseSelectionModal from "@/components/modals/exercise-selection-modal";
@@ -35,6 +35,12 @@ import type {
 } from "@/interfaces/workout-program-interfaces";
 import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -386,57 +392,58 @@ export default function WithoutProgramLog({
               {format(selectedDate, "MMMM d, yyyy")}
             </span>
           </div>
-          {workoutLog?.data.length > 0 && (
-            <div className="flex items-center gap-2">
-              {isEditing && (
+          {workoutLog?.data?.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                asChild
+                onClick={() => setIsEditing(!isEditing)}
+              >
                 <Button
-                  variant="destructive"
+                  variant="ghost"
                   size="sm"
-                  className="gap-1"
+                  className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  {isEditing ? "Done" : "Edit"}
+                </DropdownMenuItem>
+                {workoutLog?.data.length > 0 && (
+                  <DropdownMenuItem
+                    onClick={() => setIsExerciseSelectionModalOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Exercise
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
                   onClick={() => {
                     setContext("Log");
                     setShowDeleteDialog(true);
                   }}
+                  variant="destructive"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 mr-2" />
                   Delete
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center gap-2"
-              >
-                <SquarePen className="h-4 w-4" />
-                {isEditing ? "Done" : "Edit"}
-              </Button>
-            </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {workoutLog?.data.length === 0 && (
+            <CreateManualWorkoutLogModal
+              logName={workoutLogName}
+              setLogName={setWorkoutLogName}
+              isLoading={isCreatingWorkoutLog}
+              handleCreateWorkoutLog={handleCreateWorkoutLog}
+              isOpen={isModalOpen}
+              setIsOpen={setIsModalOpen}
+            />
           )}
         </header>
         <main className="space-y-4">
-          <div className="flex justify-end">
-            {workoutLog?.data.length > 0 ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-fit"
-                onClick={() => setIsExerciseSelectionModalOpen(true)}
-              >
-                <Plus className="w-3 h-3" />
-                Add Exercise
-              </Button>
-            ) : (
-              <CreateManualWorkoutLogModal
-                logName={workoutLogName}
-                setLogName={setWorkoutLogName}
-                isLoading={isCreatingWorkoutLog}
-                handleCreateWorkoutLog={handleCreateWorkoutLog}
-                isOpen={isModalOpen}
-                setIsOpen={setIsModalOpen}
-              />
-            )}
-          </div>
           {workoutLog?.data.length > 0 ? (
             <div className="space-y-6">
               {workoutLog?.data?.[0]?.workoutExercises.length === 0 ? (
