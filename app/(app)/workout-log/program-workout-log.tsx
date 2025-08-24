@@ -273,7 +273,7 @@ export function ProgramWorkoutLog({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-4">
+      <div className="flex flex-col space-y-2">
         <div className="space-y-2 flex justify-between items-center w-full">
           <div className="flex">
             <div>
@@ -314,6 +314,8 @@ export function ProgramWorkoutLog({
               </div>
             </div>
           </div>
+        </div>
+        <div>
           {workoutLog?.data?.length > 0 && (
             <div className="flex items-center gap-2">
               {isEditing && (
