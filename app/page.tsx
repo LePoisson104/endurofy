@@ -433,7 +433,7 @@ export default function Home() {
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground text-sm"
+                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
                     />
 
                     <Button
@@ -994,7 +994,7 @@ export default function Home() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground text-sm"
+                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
                 />
 
                 <Button
