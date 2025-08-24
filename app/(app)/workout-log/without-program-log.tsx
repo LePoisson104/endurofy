@@ -529,6 +529,7 @@ export default function WithoutProgramLog({
                       getWorkoutExerciseId={getManualWorkoutExerciseId}
                       hasAnyLoggedSets={hasLoggedSets(exercise.exerciseId)}
                       exercise={exercise}
+                      readOnly={false}
                     />
                   </div>
                 ))

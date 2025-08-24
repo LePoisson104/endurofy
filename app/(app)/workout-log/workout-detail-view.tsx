@@ -46,6 +46,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
+import ExerciseNotes from "./exercise-notes";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -78,6 +80,9 @@ export function WorkoutDetailView({
   const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
     null
   );
+  const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
+    {}
+  );
 
   const [originalValues, setOriginalValues] = useState<{
     [setId: string]: any;
@@ -94,6 +99,39 @@ export function WorkoutDetailView({
   const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
     useDeleteWorkoutLogMutation();
   const [deleteWorkoutExercise] = useDeleteWorkoutExerciseMutation();
+
+  // Helper functions for exercise notes (similar to program-workout-log)
+  const getExerciseNotes = (workoutExerciseId: string): string => {
+    if (workout?.workoutExercises) {
+      const exercise = workout.workoutExercises.find(
+        (ex) => ex.workoutExerciseId === workoutExerciseId
+      );
+      return exercise?.notes || "";
+    }
+    return "";
+  };
+
+  const getWorkoutExerciseId = (exerciseId: string): string => {
+    // In workout detail view, we need to find the workoutExerciseId by exerciseName
+    // since we don't have exerciseId in WorkoutExercise interface
+    if (workout?.workoutExercises) {
+      const exercise = workout.workoutExercises.find(
+        (ex) => ex.exerciseName === exerciseId // Using exerciseName as identifier
+      );
+      return exercise?.workoutExerciseId || "";
+    }
+    return "";
+  };
+
+  const hasLoggedSets = (exerciseName: string): boolean => {
+    if (workout?.workoutExercises) {
+      const exercise = workout.workoutExercises.find(
+        (ex) => ex.exerciseName === exerciseName
+      );
+      return !!(exercise?.workoutSets && exercise.workoutSets.length > 0);
+    }
+    return false;
+  };
 
   // Scroll to top when workout detail view is displayed
   useEffect(() => {
@@ -349,7 +387,7 @@ export function WorkoutDetailView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <header className="flex items-center justify-between">
         <Button
           variant="ghost"
@@ -874,14 +912,26 @@ export function WorkoutDetailView({
                   </Table>
                 </div>
 
-                {exercise.notes && (
-                  <div className="mt-4 p-3 rounded-md bg-muted/30">
-                    <div className="text-sm font-medium mb-1">
-                      Exercise Notes:
-                    </div>
-                    <div className="text-sm">{exercise.notes}</div>
-                  </div>
-                )}
+                <ExerciseNotes
+                  exerciseNotes={exerciseNotes}
+                  setExerciseNotes={setExerciseNotes}
+                  getExerciseNotes={getExerciseNotes}
+                  getWorkoutExerciseId={getWorkoutExerciseId}
+                  hasAnyLoggedSets={hasLoggedSets(exercise.exerciseName)}
+                  exercise={{
+                    exerciseId: exercise.exerciseName, // Use exerciseName as exerciseId
+                    exerciseName: exercise.exerciseName,
+                    bodyPart: exercise.bodyPart,
+                    laterality: exercise.laterality as
+                      | "bilateral"
+                      | "unilateral",
+                    sets: exercise.workoutSets.length,
+                    minReps: 0, // Not available in WorkoutExercise
+                    maxReps: 0, // Not available in WorkoutExercise
+                    exerciseOrder: exercise.exerciseOrder,
+                  }}
+                  readOnly={!isEditing}
+                />
               </div>
             ))}
           </div>

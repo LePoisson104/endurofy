@@ -449,6 +449,7 @@ export function ProgramWorkoutLog({
                     getWorkoutExerciseId={getWorkoutExerciseId}
                     hasAnyLoggedSets={hasAnyLoggedSets}
                     exercise={exercise}
+                    readOnly={false}
                   />
                 </div>
               );

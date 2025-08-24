@@ -12,6 +12,7 @@ export default function ExerciseNotes({
   getWorkoutExerciseId,
   hasAnyLoggedSets,
   exercise,
+  readOnly,
 }: {
   exerciseNotes: { [id: string]: string };
   setExerciseNotes: React.Dispatch<
@@ -21,6 +22,7 @@ export default function ExerciseNotes({
   getWorkoutExerciseId: (exerciseId: string) => string;
   hasAnyLoggedSets: boolean;
   exercise: Exercise;
+  readOnly: boolean;
 }) {
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
     useUpdateExerciseNotesMutation();
@@ -96,7 +98,7 @@ export default function ExerciseNotes({
             e.target.value
           )
         }
-        disabled={!hasAnyLoggedSets}
+        disabled={!hasAnyLoggedSets || readOnly}
       />
     </div>
   );
