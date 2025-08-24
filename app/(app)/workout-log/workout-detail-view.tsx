@@ -22,6 +22,7 @@ import {
   Save,
   Trash2,
   Loader2,
+  MoreVertical,
 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -39,6 +40,12 @@ import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-ske
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import DeleteDialog from "@/components/dialog/delete-dialog";
 import CompletedBadge from "@/components/badges/status-badges";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -373,31 +380,48 @@ export function WorkoutDetailView({
           </svg>
           Back to History
         </Button>
-        <div className="flex items-center gap-1">
-          {isEditing && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild onClick={() => setIsEditing(!isEditing)}>
             <Button
-              variant="destructive"
+              variant="ghost"
               size="sm"
-              className="gap-1"
+              className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
+              <Edit className="h-4 w-4 mr-2" />
+              {isEditing ? "Done" : "Edit"}
+            </DropdownMenuItem>
+            {isMobile && (
+              <DropdownMenuItem onClick={() => setShowPrevious(!showPrevious)}>
+                {showPrevious ? (
+                  <>
+                    <EyeOff className="h-4 w-4 mr-2" />
+                    Hide Previous
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Show Previous
+                  </>
+                )}
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
               onClick={() => {
                 setContext("Log");
                 setShowDeleteDialog(true);
               }}
+              variant="destructive"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 mr-2" />
               Delete
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-2 w-fit"
-          >
-            <Edit className="h-4 w-4" />
-            {isEditing ? "Done" : "Edit"}
-          </Button>
-        </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
       <Card>
         <CardContent>
@@ -514,33 +538,9 @@ export function WorkoutDetailView({
         </CardContent>
       </Card>
 
-      {/* Show Previous Button for Mobile */}
-      {isMobile && (
-        <div className="flex justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPrevious(!showPrevious)}
-            className="flex items-center gap-2"
-          >
-            {showPrevious ? (
-              <>
-                <EyeOff className="h-4 w-4" />
-                Hide Previous
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4" />
-                Show Previous
-              </>
-            )}
-          </Button>
-        </div>
-      )}
-
       {/* Exercises */}
       <Card>
-        <CardContent>
+        <CardContent className={`${isMobile && "p-4"}`}>
           <div className="space-y-6">
             {workout.workoutExercises.map((exercise) => (
               <div

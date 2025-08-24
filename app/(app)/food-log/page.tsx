@@ -508,7 +508,7 @@ export default function FoodLogPage() {
                             >
                               <DialogTrigger asChild>
                                 <Button
-                                  className={`w-full ${
+                                  className={`w-full border-none ${
                                     isDark ? "text-blue-400" : "text-blue-500"
                                   }`}
                                   size="lg"

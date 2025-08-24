@@ -156,7 +156,7 @@ export default function MealAccordion({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-fit"
+                  className="w-fit border-none"
                   onClick={(e) => onAddFood(mealType, e)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
