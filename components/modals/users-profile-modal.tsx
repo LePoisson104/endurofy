@@ -439,14 +439,8 @@ export default function UsersProfileModal({
                         updateField("activity_level", value)
                       }
                     >
-                      <SelectTrigger
-                        id="activity_level"
-                        className="w-full overflow-hidden"
-                      >
-                        <SelectValue
-                          placeholder="Select activity level"
-                          className="truncate whitespace-nowrap overflow-hidden text-ellipsis"
-                        />
+                      <SelectTrigger id="activity_level" className="w-full">
+                        <SelectValue placeholder="Select activity level" />
                       </SelectTrigger>
                       <SelectContent className="w-full">
                         <SelectItem value="sedentary">
@@ -485,7 +479,7 @@ export default function UsersProfileModal({
                   formData.activity_level === "" ||
                   formData.goal === ""
                 }
-                className={"w-[150px]"}
+                className={"w-[150px] mr-4"}
               >
                 {isUpdatingProfile ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
