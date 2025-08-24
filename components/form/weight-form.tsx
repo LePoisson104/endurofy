@@ -183,7 +183,10 @@ export default function WeightForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="weight" className="text-sm">
-          Weight ({userInfo?.current_weight_unit === "lb" ? "lbs" : "kg"})
+          Weight{" "}
+          <span className="text-xs text-muted-foreground">
+            ({userInfo?.current_weight_unit === "lb" ? "lbs" : "kg"})
+          </span>
         </Label>
         <Input
           id="weight"
@@ -202,7 +205,8 @@ export default function WeightForm({
       </div>
       <div>
         <Label htmlFor="weight" className="text-sm ">
-          Expected Calories Intake (Kcal)
+          Expected Calories Intake{" "}
+          <span className="text-xs text-muted-foreground">(Kcal)</span>
         </Label>
         <Input
           id="weight"
@@ -277,7 +281,8 @@ export default function WeightForm({
       </div>
       <div className="space-y-2">
         <Label htmlFor="note" className="text-sm">
-          Notes (optional)
+          Notes{" "}
+          <span className="text-xs text-muted-foreground">(optional)</span>
         </Label>
         <Input
           id="note"
