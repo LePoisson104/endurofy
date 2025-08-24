@@ -130,11 +130,7 @@ export function AppSidebar() {
       )}
 
       <Sidebar collapsible="icon" className="overflow-x-hidden">
-        <SidebarContent
-          className={`overflow-x-hidden bg-card ${
-            isDark ? "border-r" : "border-none"
-          }`}
-        >
+        <SidebarContent className={`overflow-x-hidden bg-card border-none`}>
           <SidebarHeader className="pb-0">
             <div className="flex items-center justify-between gap-2 px-3 py-2">
               <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0 flex items-center">
@@ -468,7 +464,7 @@ function UserProfileMenu() {
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed z-50 bg-card rounded-md border overflow-hidden"
+          className="fixed z-50 bg-card rounded-md overflow-hidden"
           style={{
             width: "16rem",
             bottom: !isMobile ? 10 : 65,

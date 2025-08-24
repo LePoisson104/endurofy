@@ -163,7 +163,7 @@ export default function WorkoutLogManager() {
             <div className="lg:col-span-3 space-y-6">
               {selectedTab === "log" ? (
                 <Card>
-                  <CardContent>
+                  <CardContent className={`${isMobile && "p-4"}`}>
                     {selectedProgram &&
                     selectedProgram.programType !== "manual" ? (
                       <ProgramWorkoutLog

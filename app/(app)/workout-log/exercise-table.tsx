@@ -338,39 +338,41 @@ export default function ExerciseTable({
               {!isEditing && hasLoggedSets ? (
                 <Check className="h-4 w-4 mx-auto" />
               ) : (
-                "Check"
+                "Actions"
               )}
             </TableHead>
-            <TableHead className="w-[60px] text-center">Set #</TableHead>
-            <TableHead className="w-[120px] text-center">
+            <TableHead className="w-[60px] text-center px-3">Set #</TableHead>
+            <TableHead className="w-[120px] text-center px-3">
               Weight {exercise.laterality === "bilateral" ? "(lbs)" : ""}
             </TableHead>
             {exercise.laterality === "unilateral" ? (
               <>
-                <TableHead className="w-[120px] text-center">
+                <TableHead className="w-[120px] text-center px-3">
                   {isMobile ? "Left" : "Right"}
                 </TableHead>
-                <TableHead className="w-[120px] text-center">Right</TableHead>
+                <TableHead className="w-[120px] text-center px-3">
+                  Right
+                </TableHead>
               </>
             ) : (
-              <TableHead className="w-[120px] text-center">Reps</TableHead>
+              <TableHead className="w-[120px] text-center px-3">Reps</TableHead>
             )}
             {(!isMobile || showPrevious) && (
               <>
-                <TableHead className="w-[120px] text-center">
+                <TableHead className="w-[120px] text-center px-3">
                   Prev Weight
                 </TableHead>
                 {exercise.laterality === "unilateral" ? (
                   <>
-                    <TableHead className="w-[120px] text-center">
+                    <TableHead className="w-[120px] text-center px-3">
                       Prev Left
                     </TableHead>
-                    <TableHead className="w-[120px] text-center">
+                    <TableHead className="w-[120px] text-center px-3">
                       Prev Right
                     </TableHead>
                   </>
                 ) : (
-                  <TableHead className="w-[120px] text-center">
+                  <TableHead className="w-[120px] text-center px-3">
                     Prev Reps
                   </TableHead>
                 )}

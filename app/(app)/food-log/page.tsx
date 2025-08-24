@@ -73,6 +73,7 @@ import {
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface MealData {
   uncategorized: AddFoodLogPayload[];
@@ -91,6 +92,7 @@ interface MacroTargets {
 
 export default function FoodLogPage() {
   const isMobile = useIsMobile();
+  const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     // Initialize with saved date from localStorage or current date
@@ -505,7 +507,13 @@ export default function FoodLogPage() {
                               onOpenChange={setIsWaterModalOpen}
                             >
                               <DialogTrigger asChild>
-                                <Button className="w-full" size="lg">
+                                <Button
+                                  className={`w-full ${
+                                    isDark ? "text-blue-400" : "text-blue-500"
+                                  }`}
+                                  size="lg"
+                                  variant="outline"
+                                >
                                   <Droplets className="h-4 w-4 mr-2" />
                                   Add Water Intake
                                 </Button>
@@ -674,7 +682,7 @@ export default function FoodLogPage() {
 
             {/* Water Intake - Desktop Only (Mobile is in Meals section) */}
             {!isMobile && (
-              <div className="bg-card rounded-xl shadow-sm p-6 border">
+              <div className="bg-card rounded-xl shadow-sm p-6">
                 <WaterIntake />
               </div>
             )}

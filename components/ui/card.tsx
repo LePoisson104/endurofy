@@ -1,17 +1,13 @@
 import * as React from "react";
-import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 import { cn } from "@/lib/utils";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
-  const isDark = useGetCurrentTheme();
-
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-md py-6 shadow-sm",
-        isDark ? "border" : "border-none",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-md py-6 shadow-sm border-none",
         className
       )}
       {...props}
