@@ -122,7 +122,6 @@ export function ExerciseForm({
             placeholder="e.g., Bench Press"
             value={exerciseName}
             onChange={(e) => setExerciseName(e.target.value)}
-            className="text-sm"
           />
         </div>
         <div className="w-full flex flex-col space-y-2">
@@ -131,7 +130,7 @@ export function ExerciseForm({
             value={bodyPart || initialExercise?.bodyPart}
             onValueChange={(value) => setBodyPart(value)}
           >
-            <SelectTrigger className="w-full text-sm">
+            <SelectTrigger className="w-full text-base">
               <SelectValue placeholder="Select body part" />
             </SelectTrigger>
             <SelectContent>
@@ -180,7 +179,6 @@ export function ExerciseForm({
               placeholder="Enter number of sets"
               value={sets || ""}
               onChange={(e) => setSets(Number.parseInt(e.target.value))}
-              className="flex-1 placeholder:text-sm text-sm"
             />
           </div>
           <div className="space-y-2 w-full">
@@ -191,7 +189,6 @@ export function ExerciseForm({
               placeholder="Enter min reps"
               value={minReps || ""}
               onChange={(e) => setMinReps(Number.parseInt(e.target.value))}
-              className="flex-1 placeholder:text-sm text-sm"
             />
           </div>
           <div className="space-y-2 w-full">
@@ -202,7 +199,6 @@ export function ExerciseForm({
               placeholder="Enter max reps"
               value={maxReps || ""}
               onChange={(e) => setMaxReps(Number.parseInt(e.target.value))}
-              className="flex-1 placeholder:text-sm text-sm"
             />
           </div>
         </div>

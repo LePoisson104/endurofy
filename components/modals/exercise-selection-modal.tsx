@@ -299,7 +299,7 @@ export default function ExerciseSelectionModal({
                   {filteredExercises.map((exercise) => (
                     <Card
                       key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors border-b rounded-none"
+                      className="cursor-pointer hover:bg-muted/50 transition-colors border rounded-md"
                       onClick={() => handleSelectExercise(exercise)}
                     >
                       <CardContent className="px-4 py-3 flex justify-between items-center">
