@@ -274,7 +274,11 @@ export function ProgramWorkoutLog({
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
-        <div className="space-y-2 flex justify-between items-center w-full">
+        <div
+          className={`space-y-2 flex w-full ${
+            isMobile ? "flex-col" : "flex-row justify-between items-center"
+          }`}
+        >
           <div className="flex">
             <div>
               {workoutLog?.data?.length > 0 ? (
@@ -314,36 +318,37 @@ export function ProgramWorkoutLog({
               </div>
             </div>
           </div>
-        </div>
-        <div>
-          {workoutLog?.data?.length > 0 && (
-            <div className="flex items-center gap-2">
-              {isEditing && (
+          <div>
+            {workoutLog?.data?.length > 0 && (
+              <div className="flex items-center gap-2">
+                {isEditing && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => {
+                      setContext("Log");
+                      setShowDeleteDialog(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </Button>
+                )}
                 <Button
-                  variant="destructive"
+                  variant="outline"
                   size="sm"
-                  className="gap-1"
-                  onClick={() => {
-                    setContext("Log");
-                    setShowDeleteDialog(true);
-                  }}
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="flex items-center gap-2"
                 >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
+                  <SquarePen className="h-4 w-4" />
+                  {isEditing ? "Done" : "Edit"}
                 </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center gap-2"
-              >
-                <SquarePen className="h-4 w-4" />
-                {isEditing ? "Done" : "Edit"}
-              </Button>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
+
         {isMobile && (
           <Button
             variant="outline"
