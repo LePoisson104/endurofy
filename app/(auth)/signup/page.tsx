@@ -211,7 +211,7 @@ export default function Signup() {
                   touched.firstName && formErrors.firstName
                     ? "border-red-400"
                     : ""
-                } text-sm`}
+                } `}
               />
               {touched.firstName && formErrors.firstName && (
                 <p className="text-sm text-red-400">{formErrors.firstName}</p>
@@ -231,7 +231,7 @@ export default function Signup() {
                   touched.lastName && formErrors.lastName
                     ? "border-red-400"
                     : ""
-                } text-sm`}
+                }`}
               />
               {touched.lastName && formErrors.lastName && (
                 <p className="text-sm text-red-400">{formErrors.lastName}</p>
@@ -251,7 +251,7 @@ export default function Signup() {
               onBlur={handleBlur}
               className={`${
                 touched.email && formErrors.email ? "border-red-400" : ""
-              } text-sm`}
+              }`}
             />
             {touched.email && formErrors.email && (
               <p className="text-sm text-red-400">{formErrors.email}</p>

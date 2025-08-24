@@ -75,7 +75,7 @@ export default function Login() {
               placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="text-sm"
+              className="text-base"
             />
           </div>
 
@@ -95,6 +95,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="off"
+              className="text-base"
             />
           </div>
 

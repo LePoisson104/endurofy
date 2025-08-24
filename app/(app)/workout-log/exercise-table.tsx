@@ -497,7 +497,7 @@ export default function ExerciseTable({
                       isMobile && exercise.laterality === "unilateral"
                         ? "w-16"
                         : "w-20"
-                    } mx-auto text-center text-sm ${
+                    } mx-auto text-center ${
                       setData.isLogged
                         ? "bg-muted/50"
                         : isFieldInvalid(
@@ -533,7 +533,7 @@ export default function ExerciseTable({
                         disabled={setData.isLogged && !isEditing}
                         className={`${
                           isMobile ? "w-13" : "w-20"
-                        } mx-auto text-center text-sm ${
+                        } mx-auto text-center ${
                           setData.isLogged
                             ? "bg-muted/50"
                             : isFieldInvalid(
@@ -567,7 +567,7 @@ export default function ExerciseTable({
                         disabled={setData.isLogged && !isEditing}
                         className={`${
                           isMobile ? "w-13" : "w-20"
-                        } mx-auto text-center text-sm ${
+                        } mx-auto text-center ${
                           setData.isLogged
                             ? "bg-muted/50"
                             : isFieldInvalid(
@@ -601,7 +601,7 @@ export default function ExerciseTable({
                         )
                       }
                       disabled={setData.isLogged && !isEditing}
-                      className={`w-20 mx-auto text-center text-sm ${
+                      className={`w-20 mx-auto text-center ${
                         setData.isLogged
                           ? "bg-muted/50"
                           : isFieldInvalid(
