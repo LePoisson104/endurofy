@@ -318,7 +318,6 @@ export default function UsersProfileModal({
                             if (value > 251) value = 251;
                             updateField("height", value);
                           }}
-                          className="flex-1 text-sm"
                         />
                       )}
                       <Select
@@ -347,7 +346,7 @@ export default function UsersProfileModal({
                         }
                       }}
                     >
-                      <SelectTrigger id="goal" className="w-full">
+                      <SelectTrigger id="goal" className="w-full text-base">
                         <SelectValue placeholder="Select goal" />
                       </SelectTrigger>
                       <SelectContent>
@@ -382,7 +381,6 @@ export default function UsersProfileModal({
                           }
                         }}
                         required
-                        className="flex-1 text-sm"
                       />
                       <Select
                         value={formData.starting_weight_unit}
@@ -420,7 +418,6 @@ export default function UsersProfileModal({
                             updateField("weight_goal", value);
                           }}
                           required
-                          className="flex-1 text-sm"
                         />
                         <p className="text-sm text-muted-foreground flex justify-center  w-20">
                           {formData.starting_weight_unit === "lb"

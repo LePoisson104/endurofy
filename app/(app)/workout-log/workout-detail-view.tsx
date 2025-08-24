@@ -741,7 +741,7 @@ export function WorkoutDetailView({
                                       e.target.value
                                     )
                                   }
-                                  className="w-20 mx-auto text-center text-sm"
+                                  className="w-20 mx-auto text-center"
                                 />
                               ) : (
                                 <div className={`${isMobile ? "text-sm" : ""}`}>
@@ -768,7 +768,7 @@ export function WorkoutDetailView({
                                           e.target.value
                                         )
                                       }
-                                      className="w-16 mx-auto text-center text-sm"
+                                      className="w-16 mx-auto text-center"
                                     />
                                   ) : (
                                     <div
@@ -795,7 +795,7 @@ export function WorkoutDetailView({
                                           e.target.value
                                         )
                                       }
-                                      className="w-16 mx-auto text-center text-sm"
+                                      className="w-16 mx-auto text-center"
                                     />
                                   ) : (
                                     <div
@@ -824,7 +824,7 @@ export function WorkoutDetailView({
                                         e.target.value
                                       )
                                     }
-                                    className="w-16 mx-auto text-center text-sm"
+                                    className="w-16 mx-auto text-center"
                                   />
                                 ) : (
                                   <div

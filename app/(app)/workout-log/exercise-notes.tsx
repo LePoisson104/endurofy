@@ -88,7 +88,7 @@ export default function ExerciseNotes({
             : "No sets logged yet"
         }
         maxLength={200}
-        className="min-h-[80px] text-base"
+        className="min-h-[80px]"
         value={getCurrentNoteValue(getWorkoutExerciseId(exercise.exerciseId))}
         onChange={(e) =>
           handleNotesChange(

@@ -345,7 +345,6 @@ export function WorkoutProgramCreator({
               placeholder="e.g., Hypertrophy Program"
               value={programName}
               onChange={(e) => setProgramName(e.target.value)}
-              className="text-sm"
               maxLength={30}
             />
           </div>
@@ -360,7 +359,7 @@ export function WorkoutProgramCreator({
               placeholder="Describe your workout program... (100 characters max)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px] text-sm"
+              className="min-h-[100px]"
               maxLength={100}
             />
           </div>
@@ -403,7 +402,7 @@ export function WorkoutProgramCreator({
                   type="text"
                   pattern="\\d{2}/\\d{2}/\\d{4}"
                   placeholder="MM/DD/YYYY"
-                  className="placeholder:text-sm w-full text-sm"
+                  className="w-full"
                   value={calendarInput}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -471,7 +470,7 @@ export function WorkoutProgramCreator({
                       placeholder="e.g., Push A"
                       value={dayNames[day] || ""}
                       onChange={(e) => updateDayName(day, e.target.value)}
-                      className="text-sm w-fit"
+                      className="w-fit"
                     />
                   </div>
 
@@ -571,7 +570,7 @@ export function WorkoutProgramCreator({
                         onChange={(e) =>
                           updateCustomDayName(day.id, e.target.value)
                         }
-                        className="text-sm w-fit"
+                        className="w-fit"
                       />
                     </div>
 

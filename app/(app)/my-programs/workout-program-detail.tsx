@@ -599,7 +599,6 @@ export function WorkoutProgramDetail({
                       programName: e.target.value,
                     })
                   }
-                  className="text-sm"
                 />
               </div>
             ) : (
@@ -621,7 +620,7 @@ export function WorkoutProgramDetail({
                         description: e.target.value || undefined,
                       })
                     }
-                    className="min-h-[100px] text-sm"
+                    className="min-h-[100px]"
                   />
                 </div>
                 {program.programType === "custom" && (
@@ -690,7 +689,7 @@ export function WorkoutProgramDetail({
                         type="text"
                         pattern="\d{2}/\d{2}/\d{4}"
                         placeholder="MM/DD/YYYY"
-                        className="placeholder:text-sm w-full text-sm"
+                        className="w-full"
                         value={editedProgram.startingDate}
                         onChange={(e) => {
                           setEditedProgram({
@@ -848,7 +847,7 @@ export function WorkoutProgramDetail({
                         <div className="flex gap-2 justify-between items-center">
                           <div className="flex gap-2 items-center w-3/4">
                             <Input
-                              className="w-fit placeholder:text-slate-500 text-sm"
+                              className="w-fit placeholder:text-slate-500"
                               placeholder="Day name"
                               value={getDayName(day as AllDays)}
                               onChange={(e) => {
