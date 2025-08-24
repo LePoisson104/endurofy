@@ -55,41 +55,8 @@ export function TopBar({ className }: TopBarProps) {
       <div className="flex w-full items-center justify-between">
         {/* Actions Section */}
         <div className="flex items-center justify-between w-full">
-          {/* Search - Desktop */}
-          <div className="hidden md:flex relative">
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-[200px] lg:w-[280px]"
-            />
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute right-0 top-0 h-full"
-            >
-              <Search className="h-4 w-4" />
-              <span className="sr-only">Search</span>
-            </Button>
-          </div>
-
           <div className="flex items-center gap-2">
             {isMobile && <SidebarTrigger />}
-
-            {/* Search - Mobile */}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-            >
-              {isSearchOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Search className="h-5 w-5" />
-              )}
-              <span className="sr-only">Search</span>
-            </Button>
           </div>
 
           <div className="flex items-center gap-1">
@@ -161,28 +128,6 @@ export function TopBar({ className }: TopBarProps) {
           </div>
         </div>
       </div>
-
-      {/* Mobile Search Expanded */}
-      {isSearchOpen && (
-        <div className="absolute left-0 top-16 w-full bg-background p-4 border-b md:hidden transition-transform duration-300 ease-in-out">
-          <div className="relative">
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full"
-              autoFocus
-            />
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute right-0 top-0 h-full"
-            >
-              <Search className="h-4 w-4" />
-              <span className="sr-only">Search</span>
-            </Button>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
