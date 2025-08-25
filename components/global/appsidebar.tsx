@@ -14,6 +14,7 @@ import {
   EllipsisVertical,
   LogOut,
   Apple,
+  Palette,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -32,6 +33,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState, useRef, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -464,7 +470,9 @@ function UserProfileMenu() {
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed z-50 bg-card rounded-md overflow-hidden"
+          className={`fixed z-50 bg-card rounded-md overflow-hidden ${
+            isMobile ? "border" : "border-none"
+          }`}
           style={{
             width: "16rem",
             bottom: !isMobile ? 10 : 65,
@@ -506,7 +514,6 @@ function UserProfileMenu() {
           </div>
 
           <div className="border-t"></div>
-          <div className="p-2 text-sm font-medium border-b">Theme</div>
           <ThemeToggle onClose={() => setIsOpen(false)} />
           <div className="border-t"></div>
           <div className="p-1">

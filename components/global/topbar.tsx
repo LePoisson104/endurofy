@@ -1,11 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, Search, X, Settings, User, Sun } from "lucide-react";
+import { Bell, Settings, User, Sun, Moon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -20,6 +19,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/buttons/theme-toggle";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface TopBarProps {
   className?: string;
@@ -31,6 +31,7 @@ export function TopBar({ className }: TopBarProps) {
   const [isThemeOpen, setIsThemeOpen] = useState(false);
   const isMobile = useIsMobile();
   const isVisible = useScrollDirection();
+  const isDark = useGetCurrentTheme();
 
   // Close mobile search when topbar becomes hidden
   useEffect(() => {
@@ -64,10 +65,14 @@ export function TopBar({ className }: TopBarProps) {
             <DropdownMenu open={isThemeOpen} onOpenChange={setIsThemeOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Sun className="h-5 w-5" />
+                  {isDark ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent className="w-40 text-sm">
                 <ThemeToggle onClose={() => setIsThemeOpen(false)} />
               </DropdownMenuContent>
             </DropdownMenu>

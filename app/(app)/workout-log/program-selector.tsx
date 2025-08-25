@@ -6,8 +6,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
 } from "@/components/ui/select";
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
+import { SelectGroup } from "@radix-ui/react-select";
 
 interface ProgramSelectorProps {
   programs: WorkoutProgram[];
@@ -32,13 +34,16 @@ export function ProgramSelector({
 
         {programs && (
           <SelectContent>
-            {programs.map((program) => (
-              <SelectItem key={program?.programId} value={program?.programId}>
-                {program?.programType === "manual"
-                  ? "Without Program"
-                  : program?.programName}
-              </SelectItem>
-            ))}
+            <SelectGroup>
+              <SelectLabel>Workout Program</SelectLabel>
+              {programs.map((program) => (
+                <SelectItem key={program?.programId} value={program?.programId}>
+                  {program?.programType === "manual"
+                    ? "Without Program"
+                    : program?.programName}
+                </SelectItem>
+              ))}
+            </SelectGroup>
           </SelectContent>
         )}
       </Select>

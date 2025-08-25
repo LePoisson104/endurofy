@@ -46,7 +46,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
 import ExerciseNotes from "./exercise-notes";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
