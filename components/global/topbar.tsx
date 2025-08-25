@@ -45,7 +45,8 @@ export function TopBar({ className }: TopBarProps) {
       className={cn(
         `sticky top-0 z-50 flex h-[65px] w-full items-center ${
           isMobile ? "" : "border-b"
-        } bg-background px-4 transition-opacity duration-500 ease-in-out`,
+        },
+         bg-background px-4 transition-opacity duration-500 ease-in-out`,
         {
           "opacity-0 pointer-events-none": isMobile && !isVisible,
           "opacity-100 pointer-events-auto": !isMobile || isVisible,

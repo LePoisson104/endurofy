@@ -335,7 +335,7 @@ export default function ExerciseTable({
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="w-[60px] text-center">
-              {!isEditing && hasLoggedSets ? (
+              {(!isEditing && hasLoggedSets) || !hasLoggedSets ? (
                 <Check className="h-4 w-4 mx-auto" />
               ) : (
                 "Actions"
