@@ -34,26 +34,19 @@ export interface MenuSection {
 }
 
 interface ResponsiveMenuProps {
-  /** Array of menu sections. Each section will be separated by a divider */
   sections: MenuSection[];
-  /** Trigger button component */
   trigger: React.ReactNode;
-  /** Title for the drawer (mobile only) */
   drawerTitle?: string;
-  /** Alignment for dropdown menu (desktop only) */
   dropdownAlign?: "start" | "center" | "end";
-  /** Width for dropdown menu (desktop only) */
   dropdownWidth?: string;
-  /** Additional CSS classes for the dropdown content */
   dropdownClassName?: string;
-  /** Callback to close the menu (useful for closing drawer after item click) */
   onClose?: () => void;
 }
 
 export function ResponsiveMenu({
   sections,
   trigger,
-  drawerTitle = "Actions",
+  drawerTitle,
   dropdownAlign = "end",
   dropdownWidth = "w-56",
   dropdownClassName,
@@ -83,7 +76,6 @@ export function ResponsiveMenu({
           const Icon = item.icon;
           const isDestructive = item.variant === "destructive";
 
-          // Wrap onClick with onClose callback for drawer items
           const handleClick = () => {
             item.onClick();
             if (isDrawer) {
@@ -132,7 +124,7 @@ export function ResponsiveMenu({
     return (
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-        <DrawerContent className="px-2 pb-6">
+        <DrawerContent className="px-2 pb-8">
           <DrawerHeader>
             <DrawerTitle>{drawerTitle}</DrawerTitle>
           </DrawerHeader>
@@ -155,7 +147,6 @@ export function ResponsiveMenu({
   );
 }
 
-// Convenience hook for creating menu items
 export function createMenuItem(
   id: string,
   label: string,
@@ -176,7 +167,6 @@ export function createMenuItem(
   };
 }
 
-// Convenience function for creating menu sections
 export function createMenuSection(items: MenuItem[]): MenuSection {
   return { items };
 }

@@ -367,7 +367,6 @@ export function ProgramWorkoutLog({
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               }
-              drawerTitle="Workout Actions"
               dropdownAlign="end"
               dropdownWidth="w-40"
               onClose={() => {

@@ -423,7 +423,6 @@ export default function FoodLogPage() {
                         <EllipsisVertical className="h-4 w-4" />
                       </Button>
                     }
-                    drawerTitle="Day Actions"
                     dropdownAlign="end"
                     dropdownWidth="w-56"
                   />
