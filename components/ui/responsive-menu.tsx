@@ -73,7 +73,7 @@ export function ResponsiveMenu({
         {sectionIndex > 0 && (
           <>
             {isDrawer ? (
-              <hr className="border-border my-2" />
+              <div className="border-b border-muted" />
             ) : (
               <DropdownMenuSeparator />
             )}
@@ -132,11 +132,11 @@ export function ResponsiveMenu({
     return (
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-        <DrawerContent>
+        <DrawerContent className="px-2 pb-6">
           <DrawerHeader>
             <DrawerTitle>{drawerTitle}</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-8 space-y-2">{renderMenuItems(true)}</div>
+          <div className="p-2">{renderMenuItems(true)}</div>
         </DrawerContent>
       </Drawer>
     );

@@ -494,17 +494,17 @@ function UserProfileMenu() {
       </div>
 
       <div className="border-t"></div>
-      <ThemeToggle onClose={() => setIsOpen(false)} />
+      <ThemeToggle onClose={() => setIsOpen(false)} className="p-1" />
       <div className="border-t"></div>
-      <div className="p-1">
+      <div className="p-1 ">
         <button
-          className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
+          className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent text-destructive"
           onClick={() => {
             setIsOpen(false);
             logout();
           }}
         >
-          <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
+          <LogOut className="mr-2 h-4 w-4 text-destructive" />
           <span>Log out</span>
         </button>
       </div>
