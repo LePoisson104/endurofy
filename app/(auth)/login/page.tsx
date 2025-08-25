@@ -75,7 +75,6 @@ export default function Login() {
               placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="text-base"
             />
           </div>
 
