@@ -14,7 +14,6 @@ import {
   EllipsisVertical,
   LogOut,
   Apple,
-  Palette,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -34,10 +33,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { useState, useRef, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -51,13 +52,11 @@ import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { startOfWeek, endOfWeek } from "date-fns";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
-import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import CustomBadge from "../badges/custom-badge";
 import { ThemeToggle } from "../buttons/theme-toggle";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const isDark = useGetCurrentTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { open, openMobile, setOpenMobile } = useSidebar();
@@ -424,110 +423,125 @@ function UserProfileMenu() {
     }
   }, [isSuccess, router]);
 
+  const userTrigger = (
+    <div className={`relative ${isMobile && "mb-5"}`}>
+      {userInfo.email !== "" ? (
+        <SidebarMenuButton
+          size="lg"
+          tooltip="Account"
+          className="max-w-full flex justify-between"
+        >
+          <div className="flex items-center gap-2 w-9/10">
+            <Avatar
+              className={`${isCollapsed ? "h-7.5 w-7.5" : "h-9 w-9"} shrink-0`}
+            >
+              <AvatarImage src="#" alt="User" />
+              <AvatarFallback className="bg-[#FE9496] text-white">
+                {userInfo?.first_name?.charAt(0).toUpperCase()}
+                {userInfo?.last_name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col min-w-0">
+              <span className="font-medium truncate">
+                {userInfo?.first_name?.charAt(0).toUpperCase()}
+                {userInfo?.first_name?.slice(1)}{" "}
+                {userInfo?.last_name?.charAt(0).toUpperCase()}
+                {userInfo?.last_name?.slice(1)}
+              </span>
+              <span className="text-xs text-muted-foreground truncate">
+                {userInfo?.email}
+              </span>
+            </div>
+          </div>
+          <EllipsisVertical className="h-4 w-4" />
+        </SidebarMenuButton>
+      ) : (
+        <Skeleton className={`${isCollapsed ? "h-8 w-full" : "h-12 w-full"}`} />
+      )}
+    </div>
+  );
+
+  const menuContent = (
+    <>
+      <div className="p-2 text-sm font-medium border-b">My Account</div>
+      <div className="p-1">
+        <Link
+          href="/profile"
+          className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
+            pathname === "/profile" ? "bg-accent" : ""
+          }`}
+          onClick={() => {
+            setIsOpen(false);
+            handleCloseSidebarOnMobile();
+          }}
+        >
+          <User className="mr-2 h-4 w-4 text-muted-foreground" />
+          <span>Profile</span>
+        </Link>
+        <Link
+          href="/settings"
+          className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
+            pathname === "/settings" ? "bg-accent" : ""
+          }`}
+          onClick={() => {
+            setIsOpen(false);
+            handleCloseSidebarOnMobile();
+          }}
+        >
+          <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+          <span>Settings</span>
+        </Link>
+      </div>
+
+      <div className="border-t"></div>
+      <ThemeToggle onClose={() => setIsOpen(false)} />
+      <div className="border-t"></div>
+      <div className="p-1">
+        <button
+          className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
+          onClick={() => {
+            setIsOpen(false);
+            logout();
+          }}
+        >
+          <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
+          <span>Log out</span>
+        </button>
+      </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <DrawerTrigger asChild>{userTrigger}</DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Account Menu</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-8">{menuContent}</div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <>
-      <div ref={buttonRef} className={`relative ${isMobile && "mb-5"}`}>
-        {userInfo.email !== "" ? (
-          <SidebarMenuButton
-            size="lg"
-            tooltip="Account"
-            className="max-w-full flex justify-between"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <div className="flex items-center gap-2 w-9/10">
-              <Avatar
-                className={`${
-                  isCollapsed ? "h-7.5 w-7.5" : "h-9 w-9"
-                } shrink-0`}
-              >
-                <AvatarImage src="#" alt="User" />
-                <AvatarFallback className="bg-[#FE9496] text-white">
-                  {userInfo?.first_name?.charAt(0).toUpperCase()}
-                  {userInfo?.last_name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col min-w-0">
-                <span className="font-medium truncate">
-                  {userInfo?.first_name?.charAt(0).toUpperCase()}
-                  {userInfo?.first_name?.slice(1)}{" "}
-                  {userInfo?.last_name?.charAt(0).toUpperCase()}
-                  {userInfo?.last_name?.slice(1)}
-                </span>
-                <span className="text-xs text-muted-foreground truncate">
-                  {userInfo?.email}
-                </span>
-              </div>
-            </div>
-            <EllipsisVertical className="h-4 w-4" />
-          </SidebarMenuButton>
-        ) : (
-          <Skeleton
-            className={`${isCollapsed ? "h-8 w-full" : "h-12 w-full"}`}
-          />
-        )}
+      <div ref={buttonRef} onClick={() => setIsOpen(!isOpen)}>
+        {userTrigger}
       </div>
 
       {isOpen && (
         <div
           ref={menuRef}
-          className={`fixed z-50 bg-card rounded-md overflow-hidden ${
-            isMobile ? "border mb-5" : "border-none"
-          }`}
+          className="fixed z-50 bg-card rounded-md overflow-hidden border-none"
           style={{
             width: "16rem",
-            bottom: !isMobile ? 10 : 65,
-            left: isMobile
-              ? 0
-              : isCollapsed && !isMobile
-              ? "3.5rem"
-              : "16.5rem", // Simpler, more reliable positioning
+            bottom: 10,
+            left: isCollapsed ? "3.5rem" : "16.5rem",
           }}
         >
-          <div className="p-2 text-sm font-medium border-b">My Account</div>
-          <div className="p-1">
-            <Link
-              href="/profile"
-              className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
-                pathname === "/profile" ? "bg-accent" : ""
-              }`}
-              onClick={() => {
-                setIsOpen(false);
-                handleCloseSidebarOnMobile();
-              }}
-            >
-              <User className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span>Profile</span>
-            </Link>
-            <Link
-              href="/settings"
-              className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${
-                pathname === "/settings" ? "bg-accent" : ""
-              }`}
-              onClick={() => {
-                setIsOpen(false);
-                handleCloseSidebarOnMobile();
-              }}
-            >
-              <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span>Settings</span>
-            </Link>
-          </div>
-
-          <div className="border-t"></div>
-          <ThemeToggle onClose={() => setIsOpen(false)} className="p-1" />
-          <div className="border-t"></div>
-          <div className="p-1">
-            <button
-              className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent"
-              onClick={() => {
-                setIsOpen(false);
-                logout();
-              }}
-            >
-              <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span>Log out</span>
-            </button>
-          </div>
+          {menuContent}
         </div>
       )}
     </>

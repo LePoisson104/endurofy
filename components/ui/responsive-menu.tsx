@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useState } from "react";
 import { LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
@@ -45,6 +46,8 @@ interface ResponsiveMenuProps {
   dropdownWidth?: string;
   /** Additional CSS classes for the dropdown content */
   dropdownClassName?: string;
+  /** Callback to close the menu (useful for closing drawer after item click) */
+  onClose?: () => void;
 }
 
 export function ResponsiveMenu({
@@ -54,8 +57,15 @@ export function ResponsiveMenu({
   dropdownAlign = "end",
   dropdownWidth = "w-56",
   dropdownClassName,
+  onClose,
 }: ResponsiveMenuProps) {
   const isMobile = useIsMobile();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false);
+    onClose?.();
+  };
 
   const renderMenuItems = (isDrawer: boolean = false) => {
     return sections.map((section, sectionIndex) => (
@@ -73,11 +83,19 @@ export function ResponsiveMenu({
           const Icon = item.icon;
           const isDestructive = item.variant === "destructive";
 
+          // Wrap onClick with onClose callback for drawer items
+          const handleClick = () => {
+            item.onClick();
+            if (isDrawer) {
+              handleDrawerClose();
+            }
+          };
+
           if (isDrawer) {
             return (
               <button
                 key={item.id}
-                onClick={item.onClick}
+                onClick={handleClick}
                 disabled={item.disabled}
                 className={cn(
                   "flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors",
@@ -112,7 +130,7 @@ export function ResponsiveMenu({
 
   if (isMobile) {
     return (
-      <Drawer>
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>

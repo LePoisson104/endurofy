@@ -49,11 +49,10 @@ import CompletedBadge from "@/components/badges/status-badges";
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  ResponsiveMenu,
+  createMenuItem,
+  createMenuSection,
+} from "@/components/ui/responsive-menu";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -278,6 +277,40 @@ export function ProgramWorkoutLog({
     );
   }
 
+  // Menu configuration for responsive menu
+  const editMenuSections = [
+    createMenuSection([
+      createMenuItem("edit", isEditing ? "Done" : "Edit", Edit, () =>
+        setIsEditing(!isEditing)
+      ),
+    ]),
+    // Show Previous item only appears in mobile drawer
+    ...(isMobile
+      ? [
+          createMenuSection([
+            createMenuItem(
+              "show-previous",
+              showPrevious ? "Hide Previous" : "Show Previous",
+              History,
+              () => setShowPrevious(!showPrevious)
+            ),
+          ]),
+        ]
+      : []),
+    createMenuSection([
+      createMenuItem(
+        "delete",
+        "Delete",
+        Trash2,
+        () => {
+          setContext("Log");
+          setShowDeleteDialog(true);
+        },
+        { variant: "destructive" }
+      ),
+    ]),
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
@@ -323,11 +356,9 @@ export function ProgramWorkoutLog({
           </div>
 
           {workoutLog?.data?.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                asChild
-                onClick={() => setIsEditing(!isEditing)}
-              >
+            <ResponsiveMenu
+              sections={editMenuSections}
+              trigger={
                 <Button
                   variant="ghost"
                   size="sm"
@@ -335,32 +366,14 @@ export function ProgramWorkoutLog({
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditing ? "Done" : "Edit"}
-                </DropdownMenuItem>
-                {isMobile && (
-                  <DropdownMenuItem
-                    onClick={() => setShowPrevious(!showPrevious)}
-                  >
-                    <History className="h-4 w-4 mr-2" />
-                    {showPrevious ? "Hide Previous" : "Show Previous"}
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onClick={() => {
-                    setContext("Log");
-                    setShowDeleteDialog(true);
-                  }}
-                  variant="destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              }
+              drawerTitle="Workout Actions"
+              dropdownAlign="end"
+              dropdownWidth="w-40"
+              onClose={() => {
+                // Optional: Add any additional close logic here
+              }}
+            />
           )}
         </div>
       </div>
