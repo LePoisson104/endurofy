@@ -8,7 +8,13 @@ import { toast } from "sonner";
 import { useToggleThemeMutation } from "@/api/settings/settings-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 
-export function ThemeToggle({ onClose }: { onClose: () => void }) {
+export function ThemeToggle({
+  onClose,
+  className,
+}: {
+  onClose: () => void;
+  className?: string;
+}) {
   const { theme, setTheme } = useTheme();
   const [toggleTheme] = useToggleThemeMutation();
   const user = useSelector(selectCurrentUser);
@@ -30,7 +36,7 @@ export function ThemeToggle({ onClose }: { onClose: () => void }) {
   return (
     <>
       <div className="p-2 text-sm font-medium border-b">Theme</div>
-      <div className="p-0">
+      <div className={className}>
         <button
           onClick={() => handleThemeToggle("light")}
           className={`flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent ${

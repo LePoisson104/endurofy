@@ -514,7 +514,7 @@ function UserProfileMenu() {
           </div>
 
           <div className="border-t"></div>
-          <ThemeToggle onClose={() => setIsOpen(false)} />
+          <ThemeToggle onClose={() => setIsOpen(false)} className="p-1" />
           <div className="border-t"></div>
           <div className="p-1">
             <button

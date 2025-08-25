@@ -34,13 +34,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  ResponsiveMenu,
+  createMenuItem,
+  createMenuSection,
+} from "@/components/ui/responsive-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   FoodSearchModal,
@@ -58,7 +57,7 @@ import {
   FlameIcon,
   CarbsIcon,
 } from "@/components/icons/nutrition-icons";
-import { BaseFood, Foods } from "@/interfaces/food-log-interfaces";
+import { Foods } from "@/interfaces/food-log-interfaces";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
@@ -92,6 +91,7 @@ interface MacroTargets {
 
 export default function FoodLogPage() {
   const isMobile = useIsMobile();
+
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
@@ -136,6 +136,53 @@ export default function FoodLogPage() {
     carbs: 250,
     fat: 67,
   };
+
+  // Menu actions
+  const handleMarkDayComplete = () => {
+    // TODO: Implement mark day complete logic
+    console.log("Mark day complete/incomplete");
+  };
+
+  const handleCopyDay = () => {
+    // TODO: Implement copy day logic
+    console.log("Copy day");
+  };
+
+  const handleCopyFromPrevious = () => {
+    // TODO: Implement copy from previous day logic
+    console.log("Copy from previous day");
+  };
+
+  const handleClearAll = () => {
+    // TODO: Implement clear all logic
+    console.log("Clear all");
+  };
+
+  // Menu configuration
+  const menuSections = [
+    createMenuSection([
+      createMenuItem(
+        "mark-complete",
+        isLogCompleted ? "Mark Day Incomplete" : "Mark Day Complete",
+        CheckCircle,
+        handleMarkDayComplete
+      ),
+    ]),
+    createMenuSection([
+      createMenuItem("copy-day", "Copy Day", Copy, handleCopyDay),
+      createMenuItem(
+        "copy-previous",
+        "Copy from Previous Day",
+        RotateCcw,
+        handleCopyFromPrevious
+      ),
+    ]),
+    createMenuSection([
+      createMenuItem("clear-all", "Clear All", Trash2, handleClearAll, {
+        variant: "destructive",
+      }),
+    ]),
+  ];
 
   const getTotalNutrients = () => {
     if (!foodLog?.data?.foodLog)
@@ -369,38 +416,17 @@ export default function FoodLogPage() {
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                  <ResponsiveMenu
+                    sections={menuSections}
+                    trigger={
                       <Button variant="ghost" size="icon">
                         <EllipsisVertical className="h-4 w-4" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={() => {}}>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        {isLogCompleted
-                          ? "Mark Day Incomplete"
-                          : "Mark Day Complete"}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => {}}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Day
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {}}>
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                        Copy from Previous Day
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => {}}
-                        variant="destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Clear All
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    }
+                    drawerTitle="Day Actions"
+                    dropdownAlign="end"
+                    dropdownWidth="w-56"
+                  />
                 </div>
               </CardHeader>
               <CardContent>
