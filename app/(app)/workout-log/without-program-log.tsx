@@ -348,11 +348,7 @@ export default function WithoutProgramLog({
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <header
-          className={`flex ${
-            isMobile ? "flex-col gap-2" : "justify-between items-center"
-          }`}
-        >
+        <header className="flex flex-row justify-between items-align">
           <div>
             {workoutLog?.data.length > 0 &&
               (isEditing ? (

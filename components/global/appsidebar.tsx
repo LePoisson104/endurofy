@@ -426,7 +426,7 @@ function UserProfileMenu() {
 
   return (
     <>
-      <div ref={buttonRef} className="relative">
+      <div ref={buttonRef} className={`relative ${isMobile && "mb-5"}`}>
         {userInfo.email !== "" ? (
           <SidebarMenuButton
             size="lg"
@@ -471,7 +471,7 @@ function UserProfileMenu() {
         <div
           ref={menuRef}
           className={`fixed z-50 bg-card rounded-md overflow-hidden ${
-            isMobile ? "border" : "border-none"
+            isMobile ? "border mb-5" : "border-none"
           }`}
           style={{
             width: "16rem",

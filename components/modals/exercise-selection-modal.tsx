@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Search, EllipsisVertical, Trash2, Pencil } from "lucide-react";
@@ -297,12 +296,12 @@ export default function ExerciseSelectionModal({
               ) : (
                 <div className="space-y-2">
                   {filteredExercises.map((exercise) => (
-                    <Card
+                    <div
                       key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
                       className="cursor-pointer hover:bg-muted/50 transition-colors border rounded-md"
                       onClick={() => handleSelectExercise(exercise)}
                     >
-                      <CardContent className="px-4 py-3 flex justify-between items-center">
+                      <div className="px-4 py-3 flex justify-between items-center">
                         <div className="flex justify-between items-start flex-1">
                           <div className="space-y-2">
                             <div
@@ -374,8 +373,8 @@ export default function ExerciseSelectionModal({
                             </DropdownMenu>
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}

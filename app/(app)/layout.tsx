@@ -18,7 +18,7 @@ export default async function Layout({
     <AuthProvider>
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
-        <main className="w-full h-full">
+        <main className="w-full h-full mb-5">
           <TopBar />
           {children}
         </main>
