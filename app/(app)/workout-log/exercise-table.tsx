@@ -341,38 +341,56 @@ export default function ExerciseTable({
                 "Actions"
               )}
             </TableHead>
-            <TableHead className="w-[60px] text-center px-3">Set #</TableHead>
-            <TableHead className="w-[120px] text-center px-3">
+            <TableHead className="w-[60px] text-center px-2">Set #</TableHead>
+            <TableHead
+              className={`w-[120px] text-center ${
+                !isMobile || showPrevious ? "px-4" : "px-2"
+              }`}
+            >
               Weight {exercise.laterality === "bilateral" ? "(lbs)" : ""}
             </TableHead>
             {exercise.laterality === "unilateral" ? (
               <>
-                <TableHead className="w-[120px] text-center px-3">
-                  {isMobile ? "Left" : "Right"}
+                <TableHead
+                  className={`w-[120px] text-center ${
+                    !isMobile || showPrevious ? "px-4" : "px-2"
+                  }`}
+                >
+                  Left
                 </TableHead>
-                <TableHead className="w-[120px] text-center px-3">
+                <TableHead
+                  className={`w-[120px] text-center ${
+                    !isMobile || showPrevious ? "px-4" : "px-2"
+                  }`}
+                >
                   Right
                 </TableHead>
               </>
             ) : (
-              <TableHead className="w-[120px] text-center px-3">Reps</TableHead>
+              <TableHead
+                className={`w-[120px] text-center ${
+                  !isMobile || showPrevious ? "px-4" : "px-2"
+                }`}
+              >
+                Reps
+              </TableHead>
             )}
             {(!isMobile || showPrevious) && (
               <>
-                <TableHead className="w-[120px] text-center px-3">
+                <TableHead className="w-[120px] text-center px-4 border-l border-muted">
                   Prev Weight
                 </TableHead>
                 {exercise.laterality === "unilateral" ? (
                   <>
-                    <TableHead className="w-[120px] text-center px-3">
+                    <TableHead className="w-[120px] text-center px-4">
                       Prev Left
                     </TableHead>
-                    <TableHead className="w-[120px] text-center px-3">
+                    <TableHead className="w-[120px] text-center px-4">
                       Prev Right
                     </TableHead>
                   </>
                 ) : (
-                  <TableHead className="w-[120px] text-center px-3">
+                  <TableHead className="w-[120px] text-center px-4">
                     Prev Reps
                   </TableHead>
                 )}
@@ -472,10 +490,14 @@ export default function ExerciseTable({
                   </TableCell>
                 )}
 
-                <TableCell className="font-medium text-center">
+                <TableCell className="font-medium text-center px-2">
                   {setData.setNumber}
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell
+                  className={`text-center ${
+                    !isMobile || showPrevious ? "px-4" : "px-2"
+                  }`}
+                >
                   <Input
                     placeholder={
                       setData.previousWeight
@@ -496,8 +518,10 @@ export default function ExerciseTable({
                     }
                     disabled={setData.isLogged && !isEditing}
                     className={`${
-                      isMobile && exercise.laterality === "unilateral"
-                        ? "w-16"
+                      exercise.laterality === "unilateral"
+                        ? isMobile
+                          ? "w-16"
+                          : "w-20"
                         : "w-20"
                     } mx-auto text-center ${
                       setData.isLogged
@@ -514,7 +538,11 @@ export default function ExerciseTable({
                 </TableCell>
                 {exercise.laterality === "unilateral" ? (
                   <>
-                    <TableCell className="text-center">
+                    <TableCell
+                      className={`text-center ${
+                        !isMobile || showPrevious ? "px-4" : "px-2"
+                      }`}
+                    >
                       <Input
                         placeholder={
                           setData.previousLeftReps
@@ -534,7 +562,7 @@ export default function ExerciseTable({
                         }
                         disabled={setData.isLogged && !isEditing}
                         className={`${
-                          isMobile ? "w-13" : "w-20"
+                          isMobile ? "w-16" : "w-20"
                         } mx-auto text-center ${
                           setData.isLogged
                             ? "bg-muted/50"
@@ -548,7 +576,11 @@ export default function ExerciseTable({
                         }`}
                       />
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell
+                      className={`text-center ${
+                        !isMobile || showPrevious ? "px-4" : "px-2"
+                      }`}
+                    >
                       <Input
                         placeholder={
                           setData.previousRightReps
@@ -568,7 +600,7 @@ export default function ExerciseTable({
                         }
                         disabled={setData.isLogged && !isEditing}
                         className={`${
-                          isMobile ? "w-13" : "w-20"
+                          isMobile ? "w-16" : "w-20"
                         } mx-auto text-center ${
                           setData.isLogged
                             ? "bg-muted/50"
@@ -584,7 +616,11 @@ export default function ExerciseTable({
                     </TableCell>
                   </>
                 ) : (
-                  <TableCell className="text-center">
+                  <TableCell
+                    className={`text-center ${
+                      !isMobile || showPrevious ? "px-4" : "px-2"
+                    }`}
+                  >
                     <Input
                       placeholder={
                         setData.previousLeftReps
@@ -619,24 +655,24 @@ export default function ExerciseTable({
                 )}
                 {(!isMobile || showPrevious) && (
                   <>
-                    <TableCell className="text-slate-500 text-center">
+                    <TableCell className="text-slate-500 text-center px-4 border-l border-muted">
                       {setData.previousWeight ? setData.previousWeight : "-"}
                     </TableCell>
                     {exercise.laterality === "unilateral" ? (
                       <>
-                        <TableCell className="text-slate-500 text-center">
+                        <TableCell className="text-slate-500 text-center px-4">
                           {setData.previousLeftReps
                             ? setData.previousLeftReps
                             : "-"}
                         </TableCell>
-                        <TableCell className="text-slate-500 text-center">
+                        <TableCell className="text-slate-500 text-center px-4">
                           {setData.previousRightReps
                             ? setData.previousRightReps
                             : "-"}
                         </TableCell>
                       </>
                     ) : (
-                      <TableCell className="text-slate-500 text-center">
+                      <TableCell className="text-slate-500 text-center px-4">
                         {setData.previousLeftReps
                           ? setData.previousLeftReps
                           : "-"}
