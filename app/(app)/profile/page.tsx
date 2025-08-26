@@ -58,7 +58,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto p-[1rem] max-w-7xl">
+    <div className="container mx-auto p-[1rem] max-w-7xl min-h-screen">
       <UpdateWeightUnitNotice
         isOpen={isUpdateWeightUnitNoticeOpen}
         setIsOpen={setIsUpdateWeightUnitNoticeOpen}

@@ -43,7 +43,7 @@ export function TopBar({ className }: TopBarProps) {
   return (
     <header
       className={cn(
-        `sticky top-0 z-50 flex h-[65px] w-full items-center ${
+        `sticky top-0 z-50 flex h-[65px] w-full items-center standalone:pt-14 standalone:h-[100px] ${
           isMobile ? "" : "border-b"
         },
          bg-background px-4 transition-opacity duration-500 ease-in-out`,

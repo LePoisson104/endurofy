@@ -166,7 +166,7 @@ export default function WeightLogPage() {
   }, [lineChartOptions, weightLogWithRates?.data]);
 
   return (
-    <div className="flex min-h-screen flex-col p-[1rem] relative">
+    <div className="flex min-h-screen flex-col p-[1rem]">
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
           {/* Page Header */}

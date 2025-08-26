@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import useScrollBehavior from "@/hooks/use-scroll-behavior";
 
 export interface MenuItem {
   id: string;
@@ -54,6 +55,7 @@ export function ResponsiveMenu({
 }: ResponsiveMenuProps) {
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  useScrollBehavior(isDrawerOpen);
 
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);

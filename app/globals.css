@@ -4,6 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@custom-variant standalone {
+  @media (display-mode: standalone) {
+    @slot;
+  }
+}
+
 /* Custom thin scrollbar styling */
 .thin-scrollbar {
   scrollbar-width: thin;

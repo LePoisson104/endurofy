@@ -248,7 +248,7 @@ export default function Home() {
       {/* Header moved into hero section */}
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent"
+        className="fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent standalone:fixed standalone:pt-14"
         style={{ backdropFilter: `blur(${headerBlur}px)` }}
       >
         <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
@@ -400,6 +400,7 @@ export default function Home() {
           </div>
         </div>
       </header>
+      <div className="standalone:h-[70px]" />
       <main className="flex-1">
         {/* Hero Section with Header */}
         {/* Header inside hero section */}
@@ -1308,7 +1309,7 @@ export default function Home() {
           ref={menuRef}
         >
           {/* Close button inside the panel */}
-          <div className="flex justify-end w-full mb-3">
+          <div className="flex justify-end w-full mb-3 standalone:pt-14">
             <Button
               variant="ghost"
               size="icon"

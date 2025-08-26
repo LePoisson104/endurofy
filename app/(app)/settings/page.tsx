@@ -18,7 +18,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-[1rem] flex flex-col gap-[1rem]">
+    <div className="p-[1rem] flex flex-col min-h-screen">
       <Tabs
         defaultValue="profile"
         value={activeTab}
