@@ -41,6 +41,11 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  ResponsiveMenu,
+  createMenuItem,
+  createMenuSection,
+} from "@/components/ui/responsive-menu";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -113,6 +118,31 @@ export default function WithoutProgramLog({
     getExercises,
     getManualWorkoutExerciseId,
   } = useExerciseSets(workoutLog, programs || []);
+
+  const editMenuSections = [
+    createMenuSection([
+      createMenuItem("edit", isEditing ? "Done" : "Edit", Edit, () =>
+        setIsEditing(!isEditing)
+      ),
+    ]),
+    createMenuSection([
+      createMenuItem("add-exercise", "Add Exercise", Plus, () =>
+        setIsExerciseSelectionModalOpen(true)
+      ),
+    ]),
+    createMenuSection([
+      createMenuItem(
+        "delete",
+        "Delete",
+        Trash2,
+        () => {
+          setContext("Log");
+          setShowDeleteDialog(true);
+        },
+        { variant: "destructive" }
+      ),
+    ]),
+  ];
 
   useEffect(() => {
     setManualProgram(
@@ -389,11 +419,9 @@ export default function WithoutProgramLog({
             </span>
           </div>
           {workoutLog?.data?.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                asChild
-                onClick={() => setIsEditing(!isEditing)}
-              >
+            <ResponsiveMenu
+              sections={editMenuSections}
+              trigger={
                 <Button
                   variant="ghost"
                   size="sm"
@@ -401,32 +429,8 @@ export default function WithoutProgramLog({
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditing ? "Done" : "Edit"}
-                </DropdownMenuItem>
-                {workoutLog?.data.length > 0 && (
-                  <DropdownMenuItem
-                    onClick={() => setIsExerciseSelectionModalOpen(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Exercise
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onClick={() => {
-                    setContext("Log");
-                    setShowDeleteDialog(true);
-                  }}
-                  variant="destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              }
+            />
           )}
           {workoutLog?.data.length === 0 && (
             <CreateManualWorkoutLogModal

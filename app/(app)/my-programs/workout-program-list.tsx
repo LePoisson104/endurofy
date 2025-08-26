@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, MoreHorizontal } from "lucide-react";
+import { Calendar, Check, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   Card,
@@ -11,12 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 import DeleteDialog from "@/components/dialog/delete-dialog";
@@ -29,6 +23,11 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
 import CustomBadge from "@/components/badges/custom-badge";
+import {
+  ResponsiveMenu,
+  createMenuItem,
+  createMenuSection,
+} from "@/components/ui/responsive-menu";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
@@ -126,88 +125,99 @@ export default function WorkoutProgramList({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {programs
             .filter((program) => program.programType !== "manual")
-            .map((program) => (
-              <Card
-                key={program.programId}
-                className="overflow-hidden flex flex-col h-[280px] shadow-sm"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center gap-2">
-                        <CardTitle>{program.programName}</CardTitle>
-                        {program.isActive === 1 && (
-                          <CustomBadge title="Active" />
-                        )}
-                      </div>
+            .map((program) => {
+              const menuSections = [
+                createMenuSection([
+                  createMenuItem("view-details", "View Details", Eye, () =>
+                    onSelectProgram(program)
+                  ),
+                ]),
+                createMenuSection([
+                  program.isActive === 1
+                    ? createMenuItem(
+                        "set-as-inactive",
+                        "Set as inactive",
+                        Check,
+                        () => handleSetProgramAsInactive(program.programId)
+                      )
+                    : createMenuItem(
+                        "set-as-active",
+                        "Set as active",
+                        Check,
+                        () => handleSetProgramAsActive(program.programId)
+                      ),
+                ]),
+                createMenuSection([
+                  createMenuItem(
+                    "delete",
+                    "Delete",
+                    Trash2,
+                    () => setProgramToDelete(program.programId),
+                    {
+                      variant: "destructive",
+                    }
+                  ),
+                ]),
+              ];
 
-                      <CardDescription className="line-clamp-2 h-10">
-                        {program.description || "No description"}
-                      </CardDescription>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {program.isActive === 1 ? (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleSetProgramAsInactive(program.programId)
-                            }
+              return (
+                <Card
+                  key={program.programId}
+                  className="overflow-hidden flex flex-col h-[280px] shadow-sm"
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-2">
+                          <CardTitle>{program.programName}</CardTitle>
+                          {program.isActive === 1 && (
+                            <CustomBadge title="Active" />
+                          )}
+                        </div>
+
+                        <CardDescription className="line-clamp-2 h-10">
+                          {program.description || "No description"}
+                        </CardDescription>
+                      </div>
+                      <ResponsiveMenu
+                        sections={menuSections}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                           >
-                            Set as inactive
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleSetProgramAsActive(program.programId)
-                            }
-                          >
-                            Set as active
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => onSelectProgram(program)}
-                        >
-                          View details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => setProgramToDelete(program.programId)}
-                        >
-                          Delete program
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-slate-500" />
-                      <span>
-                        Created {formatCreatedDate(program.createdAt)}
-                      </span>
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Menu</span>
+                          </Button>
+                        }
+                      />
                     </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Badge>{countActiveDays(program)} days</Badge>
-                    <Badge>{countTotalExercises(program)} exercises</Badge>
-                  </div>
-                  <Button
-                    className="mt-auto w-full"
-                    variant="outline"
-                    onClick={() => onSelectProgram(program)}
-                  >
-                    View Program
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-slate-500" />
+                        <span>
+                          Created {formatCreatedDate(program.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Badge>{countActiveDays(program)} days</Badge>
+                      <Badge>{countTotalExercises(program)} exercises</Badge>
+                    </div>
+                    <Button
+                      className="mt-auto w-full"
+                      variant="outline"
+                      onClick={() => onSelectProgram(program)}
+                    >
+                      View Program
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
         </div>
       )}
 

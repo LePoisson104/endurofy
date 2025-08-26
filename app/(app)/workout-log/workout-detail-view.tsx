@@ -16,13 +16,12 @@ import {
   Target,
   Dumbbell,
   Check,
-  Eye,
-  EyeOff,
   Edit,
   Save,
   Trash2,
   Loader2,
   MoreVertical,
+  History,
 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -40,13 +39,12 @@ import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-ske
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import DeleteDialog from "@/components/dialog/delete-dialog";
 import CompletedBadge from "@/components/badges/status-badges";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import ExerciseNotes from "./exercise-notes";
+import {
+  ResponsiveMenu,
+  createMenuItem,
+  createMenuSection,
+} from "@/components/ui/responsive-menu";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -98,6 +96,40 @@ export function WorkoutDetailView({
   const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
     useDeleteWorkoutLogMutation();
   const [deleteWorkoutExercise] = useDeleteWorkoutExerciseMutation();
+
+  // Menu configuration for responsive menu
+  const editMenuSections = [
+    createMenuSection([
+      createMenuItem("edit", isEditing ? "Done" : "Edit", Edit, () =>
+        setIsEditing(!isEditing)
+      ),
+    ]),
+    // Show Previous item only appears in mobile drawer
+    ...(isMobile
+      ? [
+          createMenuSection([
+            createMenuItem(
+              "show-previous",
+              showPrevious ? "Hide Previous" : "Show Previous",
+              History,
+              () => setShowPrevious(!showPrevious)
+            ),
+          ]),
+        ]
+      : []),
+    createMenuSection([
+      createMenuItem(
+        "delete",
+        "Delete",
+        Trash2,
+        () => {
+          setContext("Log");
+          setShowDeleteDialog(true);
+        },
+        { variant: "destructive" }
+      ),
+    ]),
+  ];
 
   // Helper functions for exercise notes (similar to program-workout-log)
   const getExerciseNotes = (workoutExerciseId: string): string => {
@@ -417,8 +449,10 @@ export function WorkoutDetailView({
           </svg>
           Back to History
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={() => setIsEditing(!isEditing)}>
+
+        <ResponsiveMenu
+          sections={editMenuSections}
+          trigger={
             <Button
               variant="ghost"
               size="sm"
@@ -426,39 +460,8 @@ export function WorkoutDetailView({
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setIsEditing(!isEditing)}>
-              <Edit className="h-4 w-4 mr-2" />
-              {isEditing ? "Done" : "Edit"}
-            </DropdownMenuItem>
-            {isMobile && (
-              <DropdownMenuItem onClick={() => setShowPrevious(!showPrevious)}>
-                {showPrevious ? (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-2" />
-                    Hide Previous
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Show Previous
-                  </>
-                )}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              onClick={() => {
-                setContext("Log");
-                setShowDeleteDialog(true);
-              }}
-              variant="destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          }
+        />
       </header>
       <Card>
         <CardContent>
@@ -633,55 +636,72 @@ export function WorkoutDetailView({
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto mb-4">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
                         {isEditing && (
-                          <TableHead className="w-[80px] text-center">
+                          <TableHead className="w-[60px] text-center">
                             Actions
                           </TableHead>
                         )}
-                        <TableHead className="w-[60px] text-center">
+                        <TableHead className="w-[60px] text-center px-2">
                           Set #
                         </TableHead>
-                        <TableHead className="w-[100px] text-center">
-                          Weight (lbs)
+                        <TableHead
+                          className={`w-[120px] text-center ${
+                            !isMobile || showPrevious ? "px-4" : "px-2"
+                          }`}
+                        >
+                          Weight{" "}
+                          {exercise.laterality === "bilateral" ? "(lbs)" : ""}
                         </TableHead>
                         {exercise.laterality === "unilateral" ? (
                           <>
-                            <TableHead className="w-[80px] text-center">
+                            <TableHead
+                              className={`w-[120px] text-center  ${
+                                !isMobile || showPrevious ? "px-4" : "px-2"
+                              }`}
+                            >
                               Left
                             </TableHead>
-                            <TableHead className="w-[80px] text-center">
+                            <TableHead
+                              className={`w-[120px] text-center  ${
+                                !isMobile || showPrevious ? "px-4" : "px-2"
+                              }`}
+                            >
                               Right
                             </TableHead>
                           </>
                         ) : (
-                          <TableHead className="w-[80px] text-center">
+                          <TableHead
+                            className={`w-[120px] text-center  ${
+                              !isMobile || showPrevious ? "px-4" : "px-2"
+                            }`}
+                          >
                             Reps
                           </TableHead>
                         )}
                         {(!isMobile || showPrevious) && (
                           <>
-                            <TableHead className="w-[100px] text-center">
+                            <TableHead className="w-[120px] text-center px-4 border-l border-muted">
                               Prev Weight
                             </TableHead>
                             {exercise.laterality === "unilateral" ? (
                               <>
-                                <TableHead className="w-[80px] text-center">
+                                <TableHead className="w-[120px] text-center px-4">
                                   Prev Left
                                 </TableHead>
-                                <TableHead className="w-[80px] text-center">
+                                <TableHead className="w-[120px] text-center px-4">
                                   Prev Right
                                 </TableHead>
                               </>
                             ) : (
-                              <TableHead className="w-[80px] text-center">
+                              <TableHead className="w-[120px] text-center px-4">
                                 Prev Reps
                               </TableHead>
                             )}
-                            <TableHead className="w-[100px] text-center">
+                            <TableHead className="w-[120px] text-center px-4">
                               Volume (lbs)
                             </TableHead>
                           </>
@@ -757,10 +777,15 @@ export function WorkoutDetailView({
                                 </div>
                               </TableCell>
                             )}
-                            <TableCell className="font-medium text-center">
+
+                            <TableCell className="font-medium text-center px-2">
                               {setIndex + 1}
                             </TableCell>
-                            <TableCell className="text-center">
+                            <TableCell
+                              className={`text-center ${
+                                !isMobile || showPrevious ? "px-4" : "px-2"
+                              }`}
+                            >
                               {isEditing ? (
                                 <Input
                                   type="number"
@@ -778,7 +803,13 @@ export function WorkoutDetailView({
                                       e.target.value
                                     )
                                   }
-                                  className="w-20 mx-auto text-center"
+                                  className={`${
+                                    isMobile
+                                      ? exercise.laterality === "unilateral"
+                                        ? "w-16"
+                                        : "w-18"
+                                      : "w-22"
+                                  } mx-auto text-center`}
                                 />
                               ) : (
                                 <div className={`${isMobile ? "text-sm" : ""}`}>
@@ -788,7 +819,11 @@ export function WorkoutDetailView({
                             </TableCell>
                             {exercise.laterality === "unilateral" ? (
                               <>
-                                <TableCell className="text-center">
+                                <TableCell
+                                  className={`text-center ${
+                                    !isMobile || showPrevious ? "px-4" : "px-2"
+                                  }`}
+                                >
                                   {isEditing ? (
                                     <Input
                                       type="number"
@@ -805,7 +840,9 @@ export function WorkoutDetailView({
                                           e.target.value
                                         )
                                       }
-                                      className="w-16 mx-auto text-center"
+                                      className={`${
+                                        isMobile ? "w-16" : "w-22"
+                                      } mx-auto text-center`}
                                     />
                                   ) : (
                                     <div
@@ -815,7 +852,11 @@ export function WorkoutDetailView({
                                     </div>
                                   )}
                                 </TableCell>
-                                <TableCell className="text-center">
+                                <TableCell
+                                  className={`text-center ${
+                                    !isMobile || showPrevious ? "px-4" : "px-2"
+                                  }`}
+                                >
                                   {isEditing ? (
                                     <Input
                                       type="number"
@@ -832,7 +873,9 @@ export function WorkoutDetailView({
                                           e.target.value
                                         )
                                       }
-                                      className="w-16 mx-auto text-center"
+                                      className={`${
+                                        isMobile ? "w-16" : "w-22"
+                                      } mx-auto text-center`}
                                     />
                                   ) : (
                                     <div
@@ -844,7 +887,11 @@ export function WorkoutDetailView({
                                 </TableCell>
                               </>
                             ) : (
-                              <TableCell className="text-center">
+                              <TableCell
+                                className={`text-center ${
+                                  !isMobile || showPrevious ? "px-4" : "px-2"
+                                }`}
+                              >
                                 {isEditing ? (
                                   <Input
                                     type="number"
@@ -861,7 +908,9 @@ export function WorkoutDetailView({
                                         e.target.value
                                       )
                                     }
-                                    className="w-16 mx-auto text-center"
+                                    className={`${
+                                      isMobile ? "w-18" : "w-22"
+                                    } mx-auto text-center`}
                                   />
                                 ) : (
                                   <div
@@ -874,32 +923,32 @@ export function WorkoutDetailView({
                             )}
                             {(!isMobile || showPrevious) && (
                               <>
-                                <TableCell className="text-slate-500 text-center">
+                                <TableCell className="text-slate-500 text-center px-4 border-l border-muted">
                                   {set.previousWeight
                                     ? set.previousWeight
                                     : "-"}
                                 </TableCell>
                                 {exercise.laterality === "unilateral" ? (
                                   <>
-                                    <TableCell className="text-slate-500 text-center">
+                                    <TableCell className="text-slate-500 text-center px-4">
                                       {set.previousLeftReps
                                         ? set.previousLeftReps
                                         : "-"}
                                     </TableCell>
-                                    <TableCell className="text-slate-500 text-center">
+                                    <TableCell className="text-slate-500 text-center px-4">
                                       {set.previousRightReps
                                         ? set.previousRightReps
                                         : "-"}
                                     </TableCell>
                                   </>
                                 ) : (
-                                  <TableCell className="text-slate-500 text-center">
+                                  <TableCell className="text-slate-500 text-center px-4">
                                     {set.previousLeftReps
                                       ? set.previousLeftReps
                                       : "-"}
                                   </TableCell>
                                 )}
-                                <TableCell className="text-center font-medium">
+                                <TableCell className="text-center font-medium px-4">
                                   {volume}
                                 </TableCell>
                               </>

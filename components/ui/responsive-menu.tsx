@@ -126,7 +126,7 @@ export function ResponsiveMenu({
     return (
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-        <DrawerContent className="px-2 pb-8">
+        <DrawerContent className="px-2 pb-8 ">
           <DrawerHeader>
             <DrawerTitle>{drawerTitle}</DrawerTitle>
           </DrawerHeader>
@@ -141,7 +141,7 @@ export function ResponsiveMenu({
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent
         align={dropdownAlign}
-        className={cn(dropdownWidth, dropdownClassName)}
+        className={cn(dropdownWidth, dropdownClassName, "w-fit")}
       >
         {renderMenuItems(false)}
       </DropdownMenuContent>
