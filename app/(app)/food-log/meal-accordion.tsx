@@ -4,21 +4,20 @@ import { Button } from "@/components/ui/button";
 import {
   ChevronDown,
   ChevronRight,
-  Loader2,
   MoreVertical,
   UtensilsCrossed,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Apple, Edit, Heart, Plus, Trash2 } from "lucide-react";
+
+import { Apple, Edit, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { FoodLogs, Foods } from "../../../interfaces/food-log-interfaces";
 import { formatNumberForDisplay } from "@/helper/display-number-format";
+import {
+  ResponsiveMenu,
+  createMenuItem,
+  createMenuSection,
+} from "@/components/ui/responsive-menu";
 
 interface MealData {
   uncategorized: FoodLogs[];
@@ -165,72 +164,73 @@ export default function MealAccordion({
               </div>
             ) : (
               <div className="space-y-2">
-                {foods.map((food) => (
-                  <div
-                    key={food.foodId}
-                    className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Apple className="text-destructive w-[13px] h-[13px]" />
-                        <p
-                          className={`font-medium text-sm truncate ${
-                            isMobile ? "w-[200px]" : "w-full"
-                          }`}
-                        >
-                          {food.foodName
-                            .split(" ")
-                            .map(
-                              (word: string) =>
-                                word.charAt(0).toUpperCase() +
-                                word.slice(1).toLowerCase()
-                            )
-                            .join(" ")}
+                {foods.map((food) => {
+                  const menuSections = [
+                    createMenuSection([
+                      createMenuItem("edit", "Edit", Edit, () =>
+                        onEditFood(food.foodId)
+                      ),
+                    ]),
+                    createMenuSection([
+                      createMenuItem(
+                        "remove",
+                        "Remove",
+                        Trash2,
+                        () => onRemoveFood(food.foodId, food.foodLogId),
+                        {
+                          variant: "destructive",
+                        }
+                      ),
+                    ]),
+                  ];
+
+                  return (
+                    <div
+                      key={food.foodId}
+                      className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Apple className="text-destructive w-[13px] h-[13px]" />
+                          <p
+                            className={`font-medium text-sm truncate ${
+                              isMobile ? "w-[200px]" : "w-full"
+                            }`}
+                          >
+                            {food.foodName
+                              .split(" ")
+                              .map(
+                                (word: string) =>
+                                  word.charAt(0).toUpperCase() +
+                                  word.slice(1).toLowerCase()
+                              )
+                              .join(" ")}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {Math.round(parseFloat(food.loggedServingSize))}{" "}
+                          {food.loggedServingSizeUnit} •{" "}
+                          {Math.round(Number(food.calories))}
+                          cal
                         </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {Math.round(parseFloat(food.loggedServingSize))}{" "}
-                        {food.loggedServingSizeUnit} •{" "}
-                        {Math.round(Number(food.calories))}
-                        cal
-                      </p>
+                      <div className="flex items-center space-x-2">
+                        <ResponsiveMenu
+                          sections={menuSections}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => onEditFood(food.foodId)}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              onRemoveFood(food.foodId, food.foodLogId)
-                            }
-                            variant="destructive"
-                          >
-                            {isDeletingFoodLog ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4 mr-2" />
-                            )}
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
