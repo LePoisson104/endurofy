@@ -36,7 +36,6 @@ interface MealAccordionProps {
   onAddFood: (mealType: keyof MealData, event?: React.MouseEvent) => void;
   onEditFood: (foodId: string) => void;
   onRemoveFood: (foodId: string, foodLogId: string) => void;
-  isDeletingFoodLog: boolean;
 }
 
 const getTotalNutrients = (meal: Foods[]) => {
@@ -62,7 +61,6 @@ export default function MealAccordion({
   onAddFood,
   onEditFood,
   onRemoveFood,
-  isDeletingFoodLog,
 }: MealAccordionProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
