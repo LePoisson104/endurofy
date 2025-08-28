@@ -16,7 +16,6 @@ export default function WaterIntake({
 }: WaterIntakeProps) {
   const [waterIntake, setWaterIntake] = useState(initialIntake);
   const [customAmount, setCustomAmount] = useState(250);
-
   const updateWaterIntake = (newIntake: number) => {
     setWaterIntake(newIntake);
     onIntakeChange?.(newIntake);
@@ -132,25 +131,25 @@ export default function WaterIntake({
             onClick={() => addWater(250)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
           >
-            <Droplets className="h-5 w-5 text-blue-400 mb-1" />
+            <Droplets className="h-5 w-5 text-blue-500 mb-1" />
             <span className="text-xs font-medium text-blue-400">+250ml</span>
-            <span className="text-xs text-blue-400">1 cup</span>
+            <span className="text-xs text-slate-500">1 cup</span>
           </Button>
           <Button
             onClick={() => addWater(500)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
           >
-            <Droplets className="h-5 w-5 text-blue-400 mb-1" />
+            <Droplets className="h-5 w-5 text-blue-500 mb-1" />
             <span className="text-xs font-medium text-blue-400">+500ml</span>
-            <span className="text-xs text-blue-400">2 cups</span>
+            <span className="text-xs text-slate-500">2 cups</span>
           </Button>
           <Button
             onClick={() => addWater(750)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
           >
-            <Droplets className="h-5 w-5 text-blue-400 mb-1" />
+            <Droplets className="h-5 w-5 text-blue-500 mb-1" />
             <span className="text-xs font-medium text-blue-400">+750ml</span>
-            <span className="text-xs text-blue-400">3 cups</span>
+            <span className="text-xs text-slate-500">3 cups</span>
           </Button>
         </div>
 
@@ -175,7 +174,7 @@ export default function WaterIntake({
               className="w-20 px-2 py-1 text-center text-sm"
               placeholder="250"
             />
-            <span className="text-sm text-muted-foreground">ml</span>
+            <span className="text-sm text-slate-500">ml</span>
           </div>
           <Button
             variant="outline"
