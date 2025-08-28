@@ -439,7 +439,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="breakfast"
@@ -450,7 +449,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="lunch"
@@ -461,7 +459,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="dinner"
@@ -472,7 +469,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    isDeletingFoodLog={isDeletingFoodLog}
                   />
                   <MealAccordion
                     mealType="snacks"
@@ -483,7 +479,6 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
-                    isDeletingFoodLog={isDeletingFoodLog}
                   />
 
                   {/* Water Intake Accordion - Mobile Only */}

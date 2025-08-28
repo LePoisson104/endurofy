@@ -1,33 +1,96 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Droplets, Plus, Minus, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  useCreateWaterLogMutation,
+  useGetWaterLogQuery,
+  useUpdateWaterLogMutation,
+  useDeleteWaterLogMutation,
+} from "@/api/water-log/waterlog-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { selectUserInfo } from "@/api/user/user-slice";
 
-interface WaterIntakeProps {
-  initialIntake?: number;
-  dailyGoal?: number;
-  onIntakeChange?: (intake: number) => void;
-}
+export default function WaterIntake({}) {
+  const user = useSelector(selectCurrentUser);
+  const userInfo = useSelector(selectUserInfo);
+  const dailyGoal = Number(userInfo?.gender === "male" ? 3700 : 2100);
 
-export default function WaterIntake({
-  initialIntake = 0,
-  dailyGoal = 2500,
-  onIntakeChange,
-}: WaterIntakeProps) {
-  const [waterIntake, setWaterIntake] = useState(initialIntake);
+  const [waterIntake, setWaterIntake] = useState(0);
   const [customAmount, setCustomAmount] = useState(250);
-  const updateWaterIntake = (newIntake: number) => {
-    setWaterIntake(newIntake);
-    onIntakeChange?.(newIntake);
-  };
+
+  const { data: waterLog, isLoading: isGettingWaterLog } = useGetWaterLogQuery(
+    {
+      userId: user?.user_id,
+      date: new Date().toISOString().split("T")[0],
+    },
+    {
+      skip: !user?.user_id,
+    }
+  );
+
+  const [createWaterLog, { isLoading: isCreatingWaterLog }] =
+    useCreateWaterLogMutation();
+  const [updateWaterLog, { isLoading: isUpdatingWaterLog }] =
+    useUpdateWaterLogMutation();
+  const [deleteWaterLog, { isLoading: isDeletingWaterLog }] =
+    useDeleteWaterLogMutation();
+
+  useEffect(() => {
+    if (waterLog && waterLog.amount !== null && waterLog.amount !== undefined) {
+      const amount = Number(waterLog.amount);
+      setWaterIntake(isNaN(amount) ? 0 : amount);
+    }
+  }, [waterLog]);
 
   const addWater = (amount: number) => {
-    const newIntake = Math.min(waterIntake + amount, dailyGoal * 1.5);
+    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
+    const safeAmount = isNaN(amount) ? 0 : amount;
+    const safeDailyGoal =
+      isNaN(dailyGoal) || dailyGoal === 0 ? 2100 : dailyGoal;
+
+    const newIntake = Math.min(
+      safeWaterIntake + safeAmount,
+      safeDailyGoal * 1.5
+    );
     updateWaterIntake(newIntake);
   };
 
+  const updateWaterIntake = async (newIntake: number) => {
+    const safeIntake = isNaN(newIntake) ? 0 : Math.max(0, newIntake);
+    setWaterIntake(safeIntake);
+
+    try {
+      const currentDate = new Date().toISOString().split("T")[0];
+      const waterPayload = { amount: safeIntake };
+
+      if (waterLog) {
+        // Update existing water log
+        await updateWaterLog({
+          waterLogId: waterLog.water_log_id,
+          foodLogId: waterLog.food_log_id,
+          waterPayload,
+        }).unwrap();
+      } else {
+        // Create new water log
+        await createWaterLog({
+          userId: user?.user_id,
+          date: currentDate,
+          waterPayload,
+        }).unwrap();
+      }
+    } catch (error) {
+      console.error("Failed to update water intake:", error);
+      // Optionally, you could revert the local state here or show an error message
+    }
+  };
+
   const removeWater = (amount: number) => {
-    const newIntake = Math.max(waterIntake - amount, 0);
+    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
+    const safeAmount = isNaN(amount) ? 0 : amount;
+
+    const newIntake = Math.max(safeWaterIntake - safeAmount, 0);
     updateWaterIntake(newIntake);
   };
 
@@ -35,24 +98,32 @@ export default function WaterIntake({
     updateWaterIntake(0);
   };
 
-  const getWaterPercentage = () => {
-    const maxPercent = Math.min((waterIntake / dailyGoal) * 100, 100);
-    const acutalPercent = (waterIntake / dailyGoal) * 100;
+  const isLoading =
+    isCreatingWaterLog || isUpdatingWaterLog || isDeletingWaterLog;
 
-    return { actualPercent: acutalPercent, maxPercent: maxPercent };
+  const getWaterPercentage = () => {
+    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
+    const safeDailyGoal =
+      isNaN(dailyGoal) || dailyGoal === 0 ? 2100 : dailyGoal;
+
+    const maxPercent = Math.min((safeWaterIntake / safeDailyGoal) * 100, 100);
+    const actualPercent = (safeWaterIntake / safeDailyGoal) * 100;
+
+    return {
+      actualPercent: isNaN(actualPercent) ? 0 : actualPercent,
+      maxPercent: isNaN(maxPercent) ? 0 : maxPercent,
+    };
   };
 
   const getWaterCups = () => {
-    return Math.round(waterIntake / 250);
+    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
+    return Math.round(safeWaterIntake / 250);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-3 bg-foreground/5 rounded-lg">
-            <Droplets className="h-5 w-5 text-blue-400" />
-          </div>
           <div>
             <h3 className="font-semibold">Water Intake</h3>
             <p className="text-sm text-gray-500">{getWaterCups()} cups today</p>
@@ -60,10 +131,11 @@ export default function WaterIntake({
         </div>
         <button
           onClick={resetWater}
-          className="p-2 text-gray-400 hover:text-gray-500 transition-colors duration-200"
+          disabled={isLoading}
+          className="p-2 text-gray-400 hover:text-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Reset water intake"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
@@ -95,7 +167,9 @@ export default function WaterIntake({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-bold">{waterIntake}</span>
+            <span className="text-xl font-bold">
+              {isNaN(waterIntake) ? 0 : waterIntake}
+            </span>
             <span className="text-xs text-muted-foreground font-medium">
               ml
             </span>
@@ -129,7 +203,8 @@ export default function WaterIntake({
         <div className="grid grid-cols-3 gap-2">
           <Button
             onClick={() => addWater(250)}
-            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
+            disabled={isLoading}
+            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
             <Droplets className="h-5 w-5 text-blue-500 mb-1" />
             <span className="text-xs font-medium text-blue-400">+250ml</span>
@@ -137,7 +212,8 @@ export default function WaterIntake({
           </Button>
           <Button
             onClick={() => addWater(500)}
-            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
+            disabled={isLoading}
+            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
             <Droplets className="h-5 w-5 text-blue-500 mb-1" />
             <span className="text-xs font-medium text-blue-400">+500ml</span>
@@ -145,7 +221,8 @@ export default function WaterIntake({
           </Button>
           <Button
             onClick={() => addWater(750)}
-            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full"
+            disabled={isLoading}
+            className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
             <Droplets className="h-5 w-5 text-blue-500 mb-1" />
             <span className="text-xs font-medium text-blue-400">+750ml</span>
@@ -159,7 +236,7 @@ export default function WaterIntake({
             variant="outline"
             onClick={() => removeWater(customAmount)}
             className="flex items-center justify-center w-8 h-8 rounded-full"
-            disabled={waterIntake === 0}
+            disabled={waterIntake === 0 || isLoading}
           >
             <Minus className="h-4 w-4" />
           </Button>
@@ -180,6 +257,7 @@ export default function WaterIntake({
             variant="outline"
             onClick={() => addWater(customAmount)}
             className="flex items-center justify-center w-8 h-8 rounded-full"
+            disabled={isLoading}
           >
             <Plus className="h-4 w-4" />
           </Button>

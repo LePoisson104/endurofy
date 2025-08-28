@@ -71,6 +71,7 @@ export const apiSlice = createApi({
     "Food",
     "FoodLog",
     "Settings",
+    "WaterLog",
   ],
   endpoints: (builder) => ({}),
 });
