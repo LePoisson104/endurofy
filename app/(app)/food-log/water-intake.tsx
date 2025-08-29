@@ -11,8 +11,13 @@ import {
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { selectUserInfo } from "@/api/user/user-slice";
+import { toast } from "sonner";
 
-export default function WaterIntake({}) {
+export default function WaterIntake({
+  selectedDate,
+}: {
+  selectedDate: string;
+}) {
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
   const dailyGoal = Number(userInfo?.gender === "male" ? 3700 : 2100);
@@ -23,83 +28,65 @@ export default function WaterIntake({}) {
   const { data: waterLog, isLoading: isGettingWaterLog } = useGetWaterLogQuery(
     {
       userId: user?.user_id,
-      date: new Date().toISOString().split("T")[0],
+      date: selectedDate,
     },
     {
       skip: !user?.user_id,
     }
   );
 
-  const [createWaterLog, { isLoading: isCreatingWaterLog }] =
-    useCreateWaterLogMutation();
-  const [updateWaterLog, { isLoading: isUpdatingWaterLog }] =
-    useUpdateWaterLogMutation();
-  const [deleteWaterLog, { isLoading: isDeletingWaterLog }] =
-    useDeleteWaterLogMutation();
+  const [createWaterLog] = useCreateWaterLogMutation();
+  const [updateWaterLog] = useUpdateWaterLogMutation();
+  const [deleteWaterLog] = useDeleteWaterLogMutation();
 
   useEffect(() => {
-    if (waterLog && waterLog.amount !== null && waterLog.amount !== undefined) {
-      const amount = Number(waterLog.amount);
-      setWaterIntake(isNaN(amount) ? 0 : amount);
+    if (waterLog?.data?.waterLog.length > 0) {
+      setWaterIntake(Number(waterLog.data.waterLog[0]?.amount));
+    } else {
+      setWaterIntake(0);
     }
   }, [waterLog]);
 
-  const addWater = (amount: number) => {
-    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
-    const safeAmount = isNaN(amount) ? 0 : amount;
-    const safeDailyGoal =
-      isNaN(dailyGoal) || dailyGoal === 0 ? 2100 : dailyGoal;
-
-    const newIntake = Math.min(
-      safeWaterIntake + safeAmount,
-      safeDailyGoal * 1.5
-    );
-    updateWaterIntake(newIntake);
-  };
-
-  const updateWaterIntake = async (newIntake: number) => {
-    const safeIntake = isNaN(newIntake) ? 0 : Math.max(0, newIntake);
-    setWaterIntake(safeIntake);
-
+  const addWater = async (amount: number) => {
     try {
-      const currentDate = new Date().toISOString().split("T")[0];
-      const waterPayload = { amount: safeIntake };
-
-      if (waterLog) {
-        // Update existing water log
-        await updateWaterLog({
-          waterLogId: waterLog.water_log_id,
-          foodLogId: waterLog.food_log_id,
-          waterPayload,
-        }).unwrap();
-      } else {
-        // Create new water log
+      if (waterIntake === 0 && waterLog?.data?.waterLog.length === 0) {
         await createWaterLog({
           userId: user?.user_id,
-          date: currentDate,
-          waterPayload,
+          date: selectedDate,
+          waterPayload: { amount: amount, unit: "ml" },
+        }).unwrap();
+      } else {
+        await updateWaterLog({
+          waterLogId: waterLog.data.waterLog[0]?.water_log_id,
+          foodLogId: waterLog.data.waterLog[0]?.food_log_id,
+          waterPayload: {
+            amount: amount + waterIntake < 0 ? 0 : amount + waterIntake,
+          },
         }).unwrap();
       }
-    } catch (error) {
-      console.error("Failed to update water intake:", error);
-      // Optionally, you could revert the local state here or show an error message
+    } catch (error: any) {
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Error adding water");
+      }
     }
   };
-
-  const removeWater = (amount: number) => {
-    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
-    const safeAmount = isNaN(amount) ? 0 : amount;
-
-    const newIntake = Math.max(safeWaterIntake - safeAmount, 0);
-    updateWaterIntake(newIntake);
+  console.log(waterLog);
+  const resetWater = async () => {
+    try {
+      await deleteWaterLog({
+        waterLogId: waterLog.data.waterLog[0]?.water_log_id,
+        foodLogId: waterLog.data.waterLog[0]?.food_log_id,
+      }).unwrap();
+    } catch (error: any) {
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Error resetting water");
+      }
+    }
   };
-
-  const resetWater = () => {
-    updateWaterIntake(0);
-  };
-
-  const isLoading =
-    isCreatingWaterLog || isUpdatingWaterLog || isDeletingWaterLog;
 
   const getWaterPercentage = () => {
     const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
@@ -131,11 +118,11 @@ export default function WaterIntake({}) {
         </div>
         <button
           onClick={resetWater}
-          disabled={isLoading}
           className="p-2 text-gray-400 hover:text-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Reset water intake"
+          disabled={waterIntake === 0}
         >
-          <RotateCcw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          <RotateCcw className="h-4 w-4" />
         </button>
       </div>
 
@@ -203,7 +190,6 @@ export default function WaterIntake({}) {
         <div className="grid grid-cols-3 gap-2">
           <Button
             onClick={() => addWater(250)}
-            disabled={isLoading}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
             <Droplets className="h-5 w-5 text-blue-500 mb-1" />
@@ -212,7 +198,6 @@ export default function WaterIntake({}) {
           </Button>
           <Button
             onClick={() => addWater(500)}
-            disabled={isLoading}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
             <Droplets className="h-5 w-5 text-blue-500 mb-1" />
@@ -221,7 +206,6 @@ export default function WaterIntake({}) {
           </Button>
           <Button
             onClick={() => addWater(750)}
-            disabled={isLoading}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
             <Droplets className="h-5 w-5 text-blue-500 mb-1" />
@@ -234,20 +218,28 @@ export default function WaterIntake({}) {
         <div className="flex items-center justify-between p-3 rounded-lg gap-3 bg-foreground/5 mt-5">
           <Button
             variant="outline"
-            onClick={() => removeWater(customAmount)}
+            onClick={() => addWater(-customAmount)}
             className="flex items-center justify-center w-8 h-8 rounded-full"
-            disabled={waterIntake === 0 || isLoading}
+            disabled={waterIntake === 0 || customAmount === 0}
           >
             <Minus className="h-4 w-4" />
           </Button>
           <div className="flex items-center space-x-2 flex-1 justify-center">
             <Input
               type="number"
-              max="2000"
-              value={customAmount}
-              onChange={(e) =>
-                setCustomAmount(Math.max(0, parseInt(e.target.value) || 0))
-              }
+              max={dailyGoal.toString()}
+              value={customAmount === 0 ? "" : customAmount}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "") {
+                  setCustomAmount(0);
+                } else {
+                  const numValue = parseInt(value);
+                  if (!isNaN(numValue) && numValue >= 0) {
+                    setCustomAmount(Math.min(numValue, dailyGoal));
+                  }
+                }
+              }}
               className="w-20 px-2 py-1 text-center text-sm"
               placeholder="250"
             />
@@ -257,7 +249,7 @@ export default function WaterIntake({}) {
             variant="outline"
             onClick={() => addWater(customAmount)}
             className="flex items-center justify-center w-8 h-8 rounded-full"
-            disabled={isLoading}
+            disabled={customAmount === 0}
           >
             <Plus className="h-4 w-4" />
           </Button>

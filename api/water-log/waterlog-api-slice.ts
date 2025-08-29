@@ -21,6 +21,7 @@ export const waterLogApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { userId, date }) => [
         { type: "WaterLog", id: `${userId}-${date}` },
         { type: "WaterLog", id: "LIST" },
+        { type: "FoodLog", id: "LIST" },
       ],
     }),
     updateWaterLog: builder.mutation({
@@ -32,6 +33,7 @@ export const waterLogApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { userId, date }) => [
         { type: "WaterLog", id: `${userId}-${date}` },
         { type: "WaterLog", id: "LIST" },
+        { type: "FoodLog", id: "LIST" },
       ],
     }),
     deleteWaterLog: builder.mutation({
@@ -42,6 +44,7 @@ export const waterLogApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { userId, date }) => [
         { type: "WaterLog", id: `${userId}-${date}` },
         { type: "WaterLog", id: "LIST" },
+        { type: "FoodLog", id: "LIST" },
       ],
     }),
   }),

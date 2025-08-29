@@ -544,7 +544,11 @@ export default function FoodLogPage() {
                                     Water Intake Tracker
                                   </DialogTitle>
                                 </DialogHeader>
-                                <WaterIntake />
+                                <WaterIntake
+                                  selectedDate={selectedDate.toLocaleDateString(
+                                    "en-CA"
+                                  )}
+                                />
                               </DialogContent>
                             </Dialog>
                           </div>
@@ -703,7 +707,9 @@ export default function FoodLogPage() {
             {/* Water Intake - Desktop Only (Mobile is in Meals section) */}
             {!isMobile && (
               <div className="bg-card rounded-xl shadow-sm p-6">
-                <WaterIntake />
+                <WaterIntake
+                  selectedDate={selectedDate.toLocaleDateString("en-CA")}
+                />
               </div>
             )}
           </div>
