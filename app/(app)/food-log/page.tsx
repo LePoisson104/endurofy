@@ -542,7 +542,7 @@ export default function FoodLogPage() {
                               <div className="text-left">
                                 <h3 className="font-semibold">Water Intake</h3>
                                 <p className="text-sm text-gray-500">
-                                  {waterLog?.data?.waterLog[0]?.amount}ml /{" "}
+                                  {waterLog?.data?.waterLog[0]?.amount || 0}ml /{" "}
                                   {dailyGoal}ml today
                                 </p>
                               </div>
