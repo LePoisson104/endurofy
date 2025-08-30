@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Droplets, Plus, Minus, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,10 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { toast } from "sonner";
+import {
+  useAnimatedCounter,
+  useAnimatedDecimalCounter,
+} from "@/hooks/use-decimal-counter";
 
 export default function WaterIntake({
   selectedDate,
@@ -72,7 +76,7 @@ export default function WaterIntake({
       }
     }
   };
-  console.log(waterLog);
+
   const resetWater = async () => {
     try {
       await deleteWaterLog({
@@ -108,8 +112,8 @@ export default function WaterIntake({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 flex flex-col justify-center items-center w-full">
+      <div className="flex items-center justify-between w-full">
         <div className="flex items-center space-x-3">
           <div>
             <h3 className="font-semibold">Water Intake</h3>
@@ -126,67 +130,15 @@ export default function WaterIntake({
         </button>
       </div>
 
-      {/* Water Progress Circle */}
-      <div className="flex items-center justify-center">
-        <div className="relative w-32 h-32">
-          <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke="#E5E7EB"
-              strokeWidth="8"
-            />
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke="#3B82F6"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 50}`}
-              strokeDashoffset={`${
-                2 * Math.PI * 50 * (1 - getWaterPercentage().maxPercent / 100)
-              }`}
-              className="transition-all duration-500 ease-out"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-bold">
-              {isNaN(waterIntake) ? 0 : waterIntake}
-            </span>
-            <span className="text-xs text-muted-foreground font-medium">
-              ml
-            </span>
-            <span className="text-xs text-muted-foreground font-medium">
-              of {dailyGoal}ml
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Water Progress Bar */}
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium">Daily Goal</span>
-          <span className="text-sm font-semibold">
-            {Math.round(getWaterPercentage().actualPercent)}%
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
-          <div
-            className="h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500 ease-out"
-            style={{
-              width: `${getWaterPercentage().maxPercent}%`,
-            }}
-          />
-        </div>
-      </div>
+      <ProgressCircle
+        waterIntake={waterIntake}
+        dailyGoal={dailyGoal}
+        percentage={getWaterPercentage().actualPercent}
+        selectedDate={selectedDate}
+      />
 
       {/* Quick Add Buttons */}
-      <div className="space-y-3">
+      <div className="space-y-3 w-full">
         <div className="grid grid-cols-3 gap-2">
           <Button
             onClick={() => addWater(250)}
@@ -258,3 +210,92 @@ export default function WaterIntake({
     </div>
   );
 }
+
+const ProgressCircle = ({
+  waterIntake,
+  dailyGoal,
+  percentage,
+  selectedDate,
+}: {
+  waterIntake: number;
+  dailyGoal: number;
+  percentage: number;
+  selectedDate: string;
+}) => {
+  const animatedPercentage = useAnimatedCounter(percentage, 500);
+  const animatedWaterIntake = useAnimatedDecimalCounter(
+    waterIntake / 1000,
+    500,
+    2
+  );
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  const waveHeight = Math.min(percentage === 0 ? 4 : percentage, 100);
+
+  return (
+    <div className="flex flex-col items-center justify-center mt-2 mb-5">
+      <div className="text-xs text-secondary w-fit h-fit bg-primary px-2 py-1 rounded-md absolute -translate-y-20 z-50">
+        {formatDate(selectedDate)}
+      </div>
+
+      <div className="flex flex-col items-center justify-center h-45 w-45 border border-4 rounded-full border-primary mt-5 mb-5">
+        <div className="relative flex flex-col justify-center items-center h-40 w-40 rounded-full overflow-hidden">
+          {/* Water with Wave Border */}
+          <div className="absolute inset-0 rounded-full overflow-hidden">
+            <svg
+              className="absolute bottom-0 left-0 w-full h-full"
+              viewBox="0 0 160 160"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient
+                  id="waterGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#60a5fa" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+              <path
+                d={`M0,160 L0,${160 - waveHeight * 1.6} 
+                      Q20,${160 - waveHeight * 1.6 - 3} 40,${
+                  160 - waveHeight * 1.6
+                } 
+                      T80,${160 - waveHeight * 1.6} 
+                      T120,${160 - waveHeight * 1.6} 
+                      T160,${160 - waveHeight * 1.6} 
+                      L160,160 Z`}
+                fill="url(#waterGradient)"
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+          </div>
+
+          {/* Content overlay */}
+          <div
+            className={`relative z-10 flex flex-col justify-center items-center ${
+              percentage === 0 ? "text-gray-400" : "text-primary"
+            }`}
+          >
+            <div className="text-3xl font-[1000]">{animatedPercentage}%</div>
+            <div className="text-sm">
+              {animatedWaterIntake.toFixed(2)} of {dailyGoal / 1000}{" "}
+              <span className="font-sans">l</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
