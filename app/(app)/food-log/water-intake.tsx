@@ -16,6 +16,7 @@ import {
   useAnimatedCounter,
   useAnimatedDecimalCounter,
 } from "@/hooks/use-decimal-counter";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export default function WaterIntake({
   selectedDate,
@@ -222,6 +223,7 @@ const ProgressCircle = ({
   percentage: number;
   selectedDate: string;
 }) => {
+  const isDark = useGetCurrentTheme();
   const animatedPercentage = useAnimatedCounter(percentage, 500);
   const animatedWaterIntake = useAnimatedDecimalCounter(
     waterIntake / 1000,
@@ -263,8 +265,22 @@ const ProgressCircle = ({
                   x2="0%"
                   y2="100%"
                 >
-                  <stop offset="0%" stopColor="#60a5fa" />
-                  <stop offset="100%" stopColor="#3b82f6" />
+                  <stop
+                    offset="0%"
+                    stopColor={
+                      isDark
+                        ? "oklch(68.5% 0.169 237.323)" //sky-500
+                        : "oklch(74.6% 0.16 232.661)" //sky-400
+                    }
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor={
+                      isDark
+                        ? "oklch(50% 0.134 242.749)" //sky-700
+                        : "oklch(58.8% 0.158 241.966)" //sky-600
+                    }
+                  />
                 </linearGradient>
               </defs>
               <path
