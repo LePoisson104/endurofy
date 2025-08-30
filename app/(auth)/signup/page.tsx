@@ -25,6 +25,7 @@ interface FormErrors {
 
 export default function Signup() {
   const router = useRouter();
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -178,9 +179,13 @@ export default function Signup() {
     <div className="flex justify-center items-center min-h-screen p-10 bg-background">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
-          <Link href="/">
+          {!isStandalone ? (
+            <Link href="/">
+              <AppLogo />
+            </Link>
+          ) : (
             <AppLogo />
-          </Link>
+          )}
           <h1 className="text-2xl font-bold tracking-tight">
             Get started with Endurofy
           </h1>
