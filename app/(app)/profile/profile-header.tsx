@@ -8,6 +8,7 @@ import {
   getHeightInFeetAndMeters,
 } from "@/helper/weight-height-converter";
 import EditProfileBtn from "./edit-profile-btn";
+import { calculateAge } from "@/helper/calculate-age";
 
 interface ProfileHeaderProps {
   onEdit: () => void;
@@ -20,9 +21,8 @@ export default function ProfileHeader({
 }: ProfileHeaderProps) {
   const userInfo = useSelector(selectUserInfo);
 
-  const age =
-    new Date().getFullYear() -
-    new Date(userInfo?.birth_date || "").getFullYear();
+  const age = calculateAge(userInfo?.birth_date || "");
+
   const userHeight = getHeightInFeetAndMeters(
     userInfo?.height || 0,
     userInfo?.height_unit || ""

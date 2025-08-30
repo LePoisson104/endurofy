@@ -1,4 +1,5 @@
 {
   "display": "standalone",
-  "short_name": "Endurofy"
+  "short_name": "Endurofy",
+  "start_url": "/login"
 }

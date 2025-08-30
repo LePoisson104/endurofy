@@ -7,15 +7,14 @@ import {
   getHeightInFeetAndMeters,
 } from "@/helper/weight-height-converter";
 import { UserInfo } from "@/interfaces/user-interfaces";
+import { calculateAge } from "@/helper/calculate-age";
 
 interface PersonalInfoCardProps {
   userInfo: UserInfo;
 }
 
 export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
-  const age =
-    new Date().getFullYear() -
-    new Date(userInfo?.birth_date || "").getFullYear();
+  const age = calculateAge(userInfo?.birth_date || "");
   const lastUpdated = convertDateFormat(
     userInfo?.user_profile_updated_at || ""
   );
