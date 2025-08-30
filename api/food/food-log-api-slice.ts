@@ -30,13 +30,6 @@ export const foodLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
     }),
-    deleteFoodLog: builder.mutation({
-      query: ({ foodId, foodLogId }) => ({
-        url: `/api/v1/food-logs/food/${foodId}/${foodLogId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
-    }),
     updateFoodLog: builder.mutation({
       query: ({ foodId, payload }) => ({
         url: `/api/v1/food-logs/food/${foodId}`,
@@ -45,13 +38,51 @@ export const foodLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
     }),
+    markDayComplete: builder.mutation({
+      query: ({ userId, foodLogId, payload }) => ({
+        url: `/api/v1/food-logs/mark-as-complete/${userId}/${foodLogId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: [
+        { type: "FoodLog", id: "LIST" },
+        { type: "WeightLog", id: "LIST" },
+      ],
+    }),
+    markDayAsIncomplete: builder.mutation({
+      query: ({ foodLogId }) => ({
+        url: `/api/v1/food-logs/mark-as-incomplete/${foodLogId}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
+    }),
+    removeFood: builder.mutation({
+      query: ({ foodId, foodLogId }) => ({
+        url: `/api/v1/food-logs/food/${foodId}/${foodLogId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
+    }),
+    deleteFoodLog: builder.mutation({
+      query: ({ foodLogId }) => ({
+        url: `/api/v1/food-logs/food-log/${foodLogId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [
+        { type: "FoodLog", id: "LIST" },
+        { type: "WaterLog", id: "LIST" },
+      ],
+    }),
   }),
 });
 
 export const {
   useAddFoodLogMutation,
   useGetFoodLogQuery,
-  useDeleteFoodLogMutation,
+  useRemoveFoodMutation,
   useUpdateFoodLogMutation,
   useGetFoddLogsDateQuery,
+  useDeleteFoodLogMutation,
+  useMarkDayCompleteMutation,
+  useMarkDayAsIncompleteMutation,
 } = foodLogApiSlice;

@@ -8,8 +8,6 @@ import {
   EllipsisVertical,
   CheckCircle,
   Trash2,
-  Copy,
-  RotateCcw,
   ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,13 +64,17 @@ import WaterIntake from "./water-intake";
 import {
   useAddFoodLogMutation,
   useGetFoodLogQuery,
-  useDeleteFoodLogMutation,
+  useRemoveFoodMutation,
   useUpdateFoodLogMutation,
+  useDeleteFoodLogMutation,
+  useMarkDayCompleteMutation,
+  useMarkDayAsIncompleteMutation,
 } from "@/api/food/food-log-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import DeleteDialog from "@/components/dialog/delete-dialog";
 
 interface MealData {
   uncategorized: AddFoodLogPayload[];
@@ -110,7 +112,7 @@ export default function FoodLogPage() {
   const [expandedMeals, setExpandedMeals] = useState<Set<keyof MealData>>(
     new Set()
   );
-  const [isLogCompleted, setIsLogCompleted] = useState(false);
+
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentEditFood, setCurrentEditFood] = useState<Foods | null>(null);
@@ -118,6 +120,7 @@ export default function FoodLogPage() {
     (localStorage.getItem("foodLogView") as "consumed" | "remaining") ||
       "consumed"
   );
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const [addFoodLog, { isLoading: isAddingFoodLog }] = useAddFoodLogMutation();
   const { data: foodLog, isLoading: isLoadingFoodLog } = useGetFoodLogQuery({
@@ -125,10 +128,15 @@ export default function FoodLogPage() {
     date: selectedDate.toLocaleDateString("en-CA"), // Convert Date to YYYY-MM-DD string
   });
 
+  const [removeFood] = useRemoveFoodMutation();
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
   const [updateFoodLog, { isLoading: isUpdatingFoodLog }] =
     useUpdateFoodLogMutation();
+  const [markDayComplete] = useMarkDayCompleteMutation();
+  const [markDayAsIncomplete] = useMarkDayAsIncompleteMutation();
+
+  console.log(foodLog?.data?.foodLog?.status);
 
   const macroTargets: MacroTargets = {
     calories: 2000,
@@ -137,50 +145,68 @@ export default function FoodLogPage() {
     fat: 67,
   };
 
-  // Menu actions
-  const handleMarkDayComplete = () => {
-    // TODO: Implement mark day complete logic
-    console.log("Mark day complete/incomplete");
+  const handleMarkDayComplete = async () => {
+    try {
+      if (foodLog?.data?.foodLog?.status === "completed") {
+        await markDayAsIncomplete({
+          foodLogId: foodLog?.data?.foodLog.food_log_id,
+        }).unwrap();
+      } else {
+        await markDayComplete({
+          userId: user?.user_id,
+          foodLogId: foodLog?.data?.foodLog.food_log_id,
+          payload: {
+            caloriesIntake: Math.round(totalNutrients.calories),
+            date: selectedDate.toLocaleDateString("en-CA"),
+          },
+        }).unwrap();
+      }
+    } catch (error: any) {
+      if (error.status !== 500) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to mark day complete");
+      }
+    }
   };
 
-  const handleCopyDay = () => {
-    // TODO: Implement copy day logic
-    console.log("Copy day");
+  const handleClearAll = async () => {
+    try {
+      await deleteFoodLog({
+        foodLogId: foodLog?.data?.foodLog.food_log_id,
+      }).unwrap();
+      setShowDeleteDialog(false);
+      toast.success("Food log cleared successfully");
+    } catch (error: any) {
+      if (error.status !== 500) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Internal server error. Failed to clear all food log");
+      }
+    }
   };
 
-  const handleCopyFromPrevious = () => {
-    // TODO: Implement copy from previous day logic
-    console.log("Copy from previous day");
-  };
-
-  const handleClearAll = () => {
-    // TODO: Implement clear all logic
-    console.log("Clear all");
-  };
-
-  // Menu configuration
   const menuSections = [
     createMenuSection([
       createMenuItem(
         "mark-complete",
-        isLogCompleted ? "Mark Day Incomplete" : "Mark Day Complete",
+        foodLog?.data?.foodLog?.status === "completed"
+          ? "Mark Day Incomplete"
+          : "Mark Day Complete",
         CheckCircle,
         handleMarkDayComplete
       ),
     ]),
     createMenuSection([
-      createMenuItem("copy-day", "Copy Day", Copy, handleCopyDay),
       createMenuItem(
-        "copy-previous",
-        "Copy from Previous Day",
-        RotateCcw,
-        handleCopyFromPrevious
+        "clear-all",
+        "Clear All",
+        Trash2,
+        () => setShowDeleteDialog(true),
+        {
+          variant: "destructive",
+        }
       ),
-    ]),
-    createMenuSection([
-      createMenuItem("clear-all", "Clear All", Trash2, handleClearAll, {
-        variant: "destructive",
-      }),
     ]),
   ];
 
@@ -272,7 +298,6 @@ export default function FoodLogPage() {
   const handleCalendarDateSelect = (date: Date) => {
     setSelectedDate(date);
     localStorage.setItem("foodLogSelectedDate", date.toISOString());
-    setIsLogCompleted(false); // Reset completion status when changing dates
     if (isMobile) {
       setIsCalendarModalOpen(false);
     }
@@ -281,7 +306,6 @@ export default function FoodLogPage() {
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
     localStorage.setItem("foodLogSelectedDate", date.toISOString());
-    setIsLogCompleted(false); // Reset completion status when changing dates
   };
 
   const handleEditFood = (foodId: string) => {
@@ -307,7 +331,7 @@ export default function FoodLogPage() {
 
   const handleRemoveFood = async (foodId: string, foodLogId: string) => {
     try {
-      await deleteFoodLog({ foodId, foodLogId }).unwrap();
+      await removeFood({ foodId, foodLogId }).unwrap();
     } catch (error: any) {
       if (error.status !== 500) {
         toast.error(error.data.message);
@@ -415,18 +439,20 @@ export default function FoodLogPage() {
                     Add and track your daily meals
                   </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ResponsiveMenu
-                    sections={menuSections}
-                    trigger={
-                      <Button variant="ghost" size="icon">
-                        <EllipsisVertical className="h-4 w-4" />
-                      </Button>
-                    }
-                    dropdownAlign="end"
-                    dropdownWidth="w-56"
-                  />
-                </div>
+                {foodLog?.data?.foodLog.food_log_id && (
+                  <div className="flex items-center gap-2">
+                    <ResponsiveMenu
+                      sections={menuSections}
+                      trigger={
+                        <Button variant="ghost" size="icon">
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      }
+                      dropdownAlign="end"
+                      dropdownWidth="w-56"
+                    />
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="space-y-0">
@@ -439,6 +465,9 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
+                    disableAddFood={
+                      foodLog?.data?.foodLog?.status === "completed"
+                    }
                   />
                   <MealAccordion
                     mealType="breakfast"
@@ -449,6 +478,9 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
+                    disableAddFood={
+                      foodLog?.data?.foodLog?.status === "completed"
+                    }
                   />
                   <MealAccordion
                     mealType="lunch"
@@ -459,6 +491,9 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
+                    disableAddFood={
+                      foodLog?.data?.foodLog?.status === "completed"
+                    }
                   />
                   <MealAccordion
                     mealType="dinner"
@@ -469,6 +504,9 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
+                    disableAddFood={
+                      foodLog?.data?.foodLog?.status === "completed"
+                    }
                   />
                   <MealAccordion
                     mealType="snacks"
@@ -479,6 +517,9 @@ export default function FoodLogPage() {
                     onAddFood={handleAddFood}
                     onEditFood={handleEditFood}
                     onRemoveFood={handleRemoveFood}
+                    disableAddFood={
+                      foodLog?.data?.foodLog?.status === "completed"
+                    }
                   />
 
                   {/* Water Intake Accordion - Mobile Only */}
@@ -548,6 +589,10 @@ export default function FoodLogPage() {
                                   selectedDate={selectedDate.toLocaleDateString(
                                     "en-CA"
                                   )}
+                                  disableButton={
+                                    foodLog?.data?.foodLog?.status ===
+                                    "completed"
+                                  }
                                 />
                               </DialogContent>
                             </Dialog>
@@ -709,6 +754,7 @@ export default function FoodLogPage() {
               <div className="bg-card rounded-xl shadow-sm p-6">
                 <WaterIntake
                   selectedDate={selectedDate.toLocaleDateString("en-CA")}
+                  disableButton={foodLog?.data?.foodLog?.status === "completed"}
                 />
               </div>
             )}
@@ -761,6 +807,14 @@ export default function FoodLogPage() {
           isAddingFoodLog={isAddingFoodLog}
         />
       )}
+      <DeleteDialog
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        handleDelete={handleClearAll}
+        isDeleting={isDeletingFoodLog}
+        title="Delete Food Log"
+        children="Are you sure you want to clear all entries for today's food log?"
+      />
     </div>
   );
 }

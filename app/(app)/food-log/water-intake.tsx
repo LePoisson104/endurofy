@@ -20,8 +20,10 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export default function WaterIntake({
   selectedDate,
+  disableButton,
 }: {
   selectedDate: string;
+  disableButton: boolean;
 }) {
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
@@ -123,14 +125,15 @@ export default function WaterIntake({
             </p>
           </div>
         </div>
-        <button
+        <Button
+          variant="ghost"
           onClick={resetWater}
           className="p-2 text-gray-400 hover:text-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Reset water intake"
-          disabled={waterIntake === 0}
+          disabled={waterIntake === 0 || disableButton}
         >
           <RotateCcw className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
 
       <ProgressCircle
@@ -146,6 +149,7 @@ export default function WaterIntake({
           <Button
             onClick={() => addWater(250)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
+            disabled={disableButton}
           >
             <Droplets className="h-5 w-5 text-sky-500 mb-1" />
             <span className="text-xs font-medium text-sky-500">+250ml</span>
@@ -154,6 +158,7 @@ export default function WaterIntake({
           <Button
             onClick={() => addWater(500)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
+            disabled={disableButton}
           >
             <Droplets className="h-5 w-5 text-sky-500 mb-1" />
             <span className="text-xs font-medium text-sky-500">+500ml</span>
@@ -162,6 +167,7 @@ export default function WaterIntake({
           <Button
             onClick={() => addWater(750)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
+            disabled={disableButton}
           >
             <Droplets className="h-5 w-5 text-sky-500 mb-1" />
             <span className="text-xs font-medium text-sky-500">+750ml</span>
@@ -175,7 +181,7 @@ export default function WaterIntake({
             variant="outline"
             onClick={() => addWater(-customAmount)}
             className="flex items-center justify-center w-8 h-8 rounded-full"
-            disabled={waterIntake === 0 || customAmount === 0}
+            disabled={waterIntake === 0 || customAmount === 0 || disableButton}
           >
             <Minus className="h-4 w-4" />
           </Button>
@@ -183,6 +189,7 @@ export default function WaterIntake({
             <Input
               type="number"
               max={dailyGoal.toString()}
+              disabled={disableButton}
               value={customAmount === 0 ? "" : customAmount}
               onChange={(e) => {
                 const value = e.target.value;
@@ -204,7 +211,7 @@ export default function WaterIntake({
             variant="outline"
             onClick={() => addWater(customAmount)}
             className="flex items-center justify-center w-8 h-8 rounded-full"
-            disabled={customAmount === 0}
+            disabled={customAmount === 0 || disableButton}
           >
             <Plus className="h-4 w-4" />
           </Button>

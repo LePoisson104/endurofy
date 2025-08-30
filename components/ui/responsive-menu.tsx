@@ -63,63 +63,66 @@ export function ResponsiveMenu({
   };
 
   const renderMenuItems = (isDrawer: boolean = false) => {
-    return sections.map((section, sectionIndex) => (
-      <React.Fragment key={sectionIndex}>
-        {sectionIndex > 0 && (
-          <>
-            {isDrawer ? (
-              <div className="border-b border-muted" />
-            ) : (
-              <DropdownMenuSeparator />
-            )}
-          </>
-        )}
-        {section.items.map((item) => {
-          const Icon = item.icon;
-          const isDestructive = item.variant === "destructive";
-
-          const handleClick = () => {
-            item.onClick();
-            if (isDrawer) {
-              handleDrawerClose();
-            }
-          };
-
-          if (isDrawer) {
-            return (
-              <button
-                key={item.id}
-                onClick={handleClick}
-                disabled={item.disabled}
-                className={cn(
-                  "flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors",
-                  item.disabled
-                    ? "opacity-50 cursor-not-allowed"
-                    : isDestructive
-                    ? "hover:bg-destructive/10 text-destructive"
-                    : "hover:bg-accent"
+    return sections.map(
+      (section, sectionIndex) =>
+        section.items.length > 0 && (
+          <React.Fragment key={sectionIndex}>
+            {sectionIndex > 0 && (
+              <>
+                {isDrawer ? (
+                  <div className="border-b border-muted" />
+                ) : (
+                  <DropdownMenuSeparator />
                 )}
-              >
-                <Icon className="h-4 w-4 mr-3" />
-                {item.label}
-              </button>
-            );
-          }
+              </>
+            )}
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const isDestructive = item.variant === "destructive";
 
-          return (
-            <DropdownMenuItem
-              key={item.id}
-              onClick={item.onClick}
-              disabled={item.disabled}
-              variant={item.variant}
-            >
-              <Icon className="h-4 w-4 mr-2" />
-              {item.label}
-            </DropdownMenuItem>
-          );
-        })}
-      </React.Fragment>
-    ));
+              const handleClick = () => {
+                item.onClick();
+                if (isDrawer) {
+                  handleDrawerClose();
+                }
+              };
+
+              if (isDrawer) {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={handleClick}
+                    disabled={item.disabled}
+                    className={cn(
+                      "flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors",
+                      item.disabled
+                        ? "opacity-50 cursor-not-allowed"
+                        : isDestructive
+                        ? "hover:bg-destructive/10 text-destructive"
+                        : "hover:bg-accent"
+                    )}
+                  >
+                    <Icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                  </button>
+                );
+              }
+
+              return (
+                <DropdownMenuItem
+                  key={item.id}
+                  onClick={item.onClick}
+                  disabled={item.disabled}
+                  variant={item.variant}
+                >
+                  <Icon className="h-4 w-4 mr-2" />
+                  {item.label}
+                </DropdownMenuItem>
+              );
+            })}
+          </React.Fragment>
+        )
+    );
   };
 
   if (isMobile) {

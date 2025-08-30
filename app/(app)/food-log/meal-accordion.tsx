@@ -36,6 +36,7 @@ interface MealAccordionProps {
   onAddFood: (mealType: keyof MealData, event?: React.MouseEvent) => void;
   onEditFood: (foodId: string) => void;
   onRemoveFood: (foodId: string, foodLogId: string) => void;
+  disableAddFood: boolean;
 }
 
 const getTotalNutrients = (meal: Foods[]) => {
@@ -61,6 +62,7 @@ export default function MealAccordion({
   onAddFood,
   onEditFood,
   onRemoveFood,
+  disableAddFood,
 }: MealAccordionProps) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
@@ -78,6 +80,7 @@ export default function MealAccordion({
             size="sm"
             variant="ghost"
             className={`p-0 ${isMobile ? "h-5 w-5" : "h-8 w-8"}`}
+            disabled={disableAddFood}
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -155,6 +158,7 @@ export default function MealAccordion({
                   size="sm"
                   className="w-fit border-none"
                   onClick={(e) => onAddFood(mealType, e)}
+                  disabled={disableAddFood}
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Food
@@ -220,6 +224,7 @@ export default function MealAccordion({
                               variant="ghost"
                               size="sm"
                               className="h-8 w-8 p-0"
+                              disabled={disableAddFood}
                             >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
