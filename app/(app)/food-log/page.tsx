@@ -32,7 +32,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
 import {
   ResponsiveMenu,
   createMenuItem,
@@ -70,11 +69,14 @@ import {
   useMarkDayCompleteMutation,
   useMarkDayAsIncompleteMutation,
 } from "@/api/food/food-log-api-slice";
+import { useGetWaterLogQuery } from "@/api/water-log/waterlog-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { toast } from "sonner";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import DeleteDialog from "@/components/dialog/delete-dialog";
+import { selectUserInfo } from "@/api/user/user-slice";
+import { getWaterPercentage } from "@/helper/get-water-percentage";
 
 interface MealData {
   uncategorized: AddFoodLogPayload[];
@@ -93,6 +95,8 @@ interface MacroTargets {
 
 export default function FoodLogPage() {
   const isMobile = useIsMobile();
+  const userInfo = useSelector(selectUserInfo);
+  const dailyGoal = Number(userInfo?.gender === "male" ? 3700 : 2100);
 
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
@@ -128,6 +132,11 @@ export default function FoodLogPage() {
     date: selectedDate.toLocaleDateString("en-CA"), // Convert Date to YYYY-MM-DD string
   });
 
+  const { data: waterLog } = useGetWaterLogQuery({
+    userId: user?.user_id,
+    date: selectedDate.toLocaleDateString("en-CA"),
+  });
+
   const [removeFood] = useRemoveFoodMutation();
   const [deleteFoodLog, { isLoading: isDeletingFoodLog }] =
     useDeleteFoodLogMutation();
@@ -135,8 +144,6 @@ export default function FoodLogPage() {
     useUpdateFoodLogMutation();
   const [markDayComplete] = useMarkDayCompleteMutation();
   const [markDayAsIncomplete] = useMarkDayAsIncompleteMutation();
-
-  console.log(foodLog?.data?.foodLog?.status);
 
   const macroTargets: MacroTargets = {
     calories: 2000,
@@ -535,7 +542,8 @@ export default function FoodLogPage() {
                               <div className="text-left">
                                 <h3 className="font-semibold">Water Intake</h3>
                                 <p className="text-sm text-gray-500">
-                                  0ml / 2500ml today
+                                  {waterLog?.data?.waterLog[0]?.amount}ml /{" "}
+                                  {dailyGoal}ml today
                                 </p>
                               </div>
                             </div>
@@ -551,13 +559,28 @@ export default function FoodLogPage() {
                                   Daily Goal
                                 </span>
                                 <span className="text-sm font-semibold">
-                                  0%
+                                  {Math.round(
+                                    getWaterPercentage({
+                                      waterIntake:
+                                        waterLog?.data?.waterLog[0]?.amount,
+                                      dailyGoal,
+                                    }).actualPercent
+                                  )}
+                                  %
                                 </span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-3">
                                 <div
-                                  className="h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500 ease-out"
-                                  style={{ width: `0%` }}
+                                  className="h-3 rounded-full bg-gradient-to-r from-sky-400 to-sky-600 transition-all duration-500 ease-out"
+                                  style={{
+                                    width: `${
+                                      getWaterPercentage({
+                                        waterIntake:
+                                          waterLog?.data?.waterLog[0]?.amount,
+                                        dailyGoal,
+                                      }).actualPercent
+                                    }%`,
+                                  }}
                                 />
                               </div>
                             </div>
@@ -570,7 +593,7 @@ export default function FoodLogPage() {
                               <DialogTrigger asChild>
                                 <Button
                                   className={`w-full border-none ${
-                                    isDark ? "text-blue-400" : "text-blue-500"
+                                    isDark ? "text-sky-400" : "text-sky-500"
                                   }`}
                                   size="lg"
                                   variant="outline"
@@ -586,6 +609,7 @@ export default function FoodLogPage() {
                                   </DialogTitle>
                                 </DialogHeader>
                                 <WaterIntake
+                                  waterLog={waterLog}
                                   selectedDate={selectedDate.toLocaleDateString(
                                     "en-CA"
                                   )}
@@ -753,6 +777,7 @@ export default function FoodLogPage() {
             {!isMobile && (
               <div className="bg-card rounded-xl shadow-sm p-6">
                 <WaterIntake
+                  waterLog={waterLog}
                   selectedDate={selectedDate.toLocaleDateString("en-CA")}
                   disableButton={foodLog?.data?.foodLog?.status === "completed"}
                 />

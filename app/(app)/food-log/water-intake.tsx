@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   useCreateWaterLogMutation,
-  useGetWaterLogQuery,
   useUpdateWaterLogMutation,
   useDeleteWaterLogMutation,
 } from "@/api/water-log/waterlog-api-slice";
@@ -17,11 +16,14 @@ import {
   useAnimatedDecimalCounter,
 } from "@/hooks/use-decimal-counter";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { getWaterPercentage } from "@/helper/get-water-percentage";
 
 export default function WaterIntake({
+  waterLog,
   selectedDate,
   disableButton,
 }: {
+  waterLog: any;
   selectedDate: string;
   disableButton: boolean;
 }) {
@@ -31,16 +33,6 @@ export default function WaterIntake({
 
   const [waterIntake, setWaterIntake] = useState(0);
   const [customAmount, setCustomAmount] = useState(250);
-
-  const { data: waterLog, isLoading: isGettingWaterLog } = useGetWaterLogQuery(
-    {
-      userId: user?.user_id,
-      date: selectedDate,
-    },
-    {
-      skip: !user?.user_id,
-    }
-  );
 
   const [createWaterLog] = useCreateWaterLogMutation();
   const [updateWaterLog] = useUpdateWaterLogMutation();
@@ -95,20 +87,6 @@ export default function WaterIntake({
     }
   };
 
-  const getWaterPercentage = () => {
-    const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
-    const safeDailyGoal =
-      isNaN(dailyGoal) || dailyGoal === 0 ? 2100 : dailyGoal;
-
-    const maxPercent = Math.min((safeWaterIntake / safeDailyGoal) * 100, 100);
-    const actualPercent = (safeWaterIntake / safeDailyGoal) * 100;
-
-    return {
-      actualPercent: isNaN(actualPercent) ? 0 : actualPercent,
-      maxPercent: isNaN(maxPercent) ? 0 : maxPercent,
-    };
-  };
-
   const getWaterCups = () => {
     const safeWaterIntake = isNaN(waterIntake) ? 0 : waterIntake;
     return Math.round(safeWaterIntake / 250);
@@ -139,8 +117,12 @@ export default function WaterIntake({
       <ProgressCircle
         waterIntake={waterIntake}
         dailyGoal={dailyGoal}
-        percentage={getWaterPercentage().actualPercent}
-        selectedDate={selectedDate}
+        percentage={
+          getWaterPercentage({
+            waterIntake,
+            dailyGoal,
+          }).actualPercent
+        }
       />
 
       {/* Quick Add Buttons */}
@@ -225,12 +207,10 @@ const ProgressCircle = ({
   waterIntake,
   dailyGoal,
   percentage,
-  selectedDate,
 }: {
   waterIntake: number;
   dailyGoal: number;
   percentage: number;
-  selectedDate: string;
 }) => {
   const isDark = useGetCurrentTheme();
   const animatedPercentage = useAnimatedCounter(percentage, 500);

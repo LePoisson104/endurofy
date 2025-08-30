@@ -56,7 +56,11 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               {children}
-              <Toaster richColors position="top-center" />
+              <Toaster
+                richColors
+                position="top-center"
+                style={{ marginTop: 50 }}
+              />
             </ThemeProvider>
           </LoginPersistProvider>
         </ReduxProvider>
