@@ -118,7 +118,9 @@ export default function WaterIntake({
         <div className="flex items-center space-x-3">
           <div>
             <h3 className="font-semibold">Water Intake</h3>
-            <p className="text-sm text-gray-500">{getWaterCups()} cups today</p>
+            <p className="text-sm text-slate-500">
+              {getWaterCups()} cups today
+            </p>
           </div>
         </div>
         <button
@@ -145,24 +147,24 @@ export default function WaterIntake({
             onClick={() => addWater(250)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
-            <Droplets className="h-5 w-5 text-blue-500 mb-1" />
-            <span className="text-xs font-medium text-blue-400">+250ml</span>
+            <Droplets className="h-5 w-5 text-sky-500 mb-1" />
+            <span className="text-xs font-medium text-sky-500">+250ml</span>
             <span className="text-xs text-slate-500">1 cup</span>
           </Button>
           <Button
             onClick={() => addWater(500)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
-            <Droplets className="h-5 w-5 text-blue-500 mb-1" />
-            <span className="text-xs font-medium text-blue-400">+500ml</span>
+            <Droplets className="h-5 w-5 text-sky-500 mb-1" />
+            <span className="text-xs font-medium text-sky-500">+500ml</span>
             <span className="text-xs text-slate-500">2 cups</span>
           </Button>
           <Button
             onClick={() => addWater(750)}
             className="flex flex-col items-center p-3 bg-foreground/5 hover:bg-foreground/10 rounded-lg transition-colors duration-200 h-full disabled:opacity-50"
           >
-            <Droplets className="h-5 w-5 text-blue-500 mb-1" />
-            <span className="text-xs font-medium text-blue-400">+750ml</span>
+            <Droplets className="h-5 w-5 text-sky-500 mb-1" />
+            <span className="text-xs font-medium text-sky-500">+750ml</span>
             <span className="text-xs text-slate-500">3 cups</span>
           </Button>
         </div>
@@ -244,11 +246,7 @@ const ProgressCircle = ({
 
   return (
     <div className="flex flex-col items-center justify-center mt-2 mb-5">
-      <div className="text-xs text-secondary w-fit h-fit bg-primary px-2 py-1 rounded-md absolute -translate-y-20 z-50">
-        {formatDate(selectedDate)}
-      </div>
-
-      <div className="flex flex-col items-center justify-center h-45 w-45 border border-4 rounded-full border-primary mt-5 mb-5">
+      <div className="flex flex-col items-center justify-center h-45 w-45 border border-4 rounded-full border-muted mt-5 mb-5">
         <div className="relative flex flex-col justify-center items-center h-40 w-40 rounded-full overflow-hidden">
           {/* Water with Wave Border */}
           <div className="absolute inset-0 rounded-full overflow-hidden">
@@ -284,10 +282,12 @@ const ProgressCircle = ({
                 </linearGradient>
               </defs>
               <path
-                d={`M0,160 L0,${160 - waveHeight * 1.6} 
-                      Q20,${160 - waveHeight * 1.6 - 3} 40,${
-                  160 - waveHeight * 1.6
+                d={`M0,160 L0,${
+                  160 - waveHeight * (percentage >= 100 ? 1.6 : 1.8)
                 } 
+                      Q20,${
+                        160 - waveHeight * (percentage >= 100 ? 1.6 : 1.7) - 3
+                      } 40,${160 - waveHeight * 1.6} 
                       T80,${160 - waveHeight * 1.6} 
                       T120,${160 - waveHeight * 1.6} 
                       T160,${160 - waveHeight * 1.6} 

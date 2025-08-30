@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WorkoutProgramList from "./workout-program-list";
-import { WorkoutProgramCreator } from "./workout-program-creator";
 import { WorkoutProgramDetail } from "./workout-program-detail";
+import { WorkoutProgramCreator } from "./workout-program-creator";
 import PageTitle from "@/components/global/page-title";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
