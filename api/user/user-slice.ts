@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
 import { UserInfo } from "@/interfaces/user-interfaces";
+import { UserMacrosGoals } from "@/interfaces/user-interfaces";
 
 const initialState: UserInfo = {
   email: "",
@@ -26,6 +27,11 @@ const initialState: UserInfo = {
   bmi_category_color: "",
   pending_email: "",
   bmr: 0,
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
+  macros_goals_updated_at: "",
 };
 
 const userSlice = createSlice({
@@ -33,6 +39,9 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUserInfo: (state, action: PayloadAction<UserInfo>) => {
+      Object.assign(state, action.payload);
+    },
+    setUserMacrosGoals: (state, action: PayloadAction<UserMacrosGoals>) => {
       Object.assign(state, action.payload);
     },
     resetUserInfo: (state) => {
@@ -72,8 +81,12 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUserInfo, resetUserInfo, calculateAndSetBMR } =
-  userSlice.actions;
+export const {
+  setUserInfo,
+  setUserMacrosGoals,
+  resetUserInfo,
+  calculateAndSetBMR,
+} = userSlice.actions;
 export const selectUserInfo = (state: RootState) => state.user;
 
 export default userSlice.reducer;

@@ -146,10 +146,10 @@ export default function FoodLogPage() {
   const [markDayAsIncomplete] = useMarkDayAsIncompleteMutation();
 
   const macroTargets: MacroTargets = {
-    calories: 2000,
-    protein: 150,
-    carbs: 250,
-    fat: 67,
+    calories: Math.round(userInfo?.calories || 0),
+    protein: userInfo?.protein || 0,
+    carbs: userInfo?.carbs || 0,
+    fat: userInfo?.fat || 0,
   };
 
   const handleMarkDayComplete = async () => {

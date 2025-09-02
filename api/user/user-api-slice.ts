@@ -29,6 +29,23 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, arg) =>
         result ? [{ type: "User", id: arg.userId }] : [],
     }),
+    getUsersMacrosGoals: builder.query({
+      query: ({ userId }) => ({
+        url: `/api/v1/users/macros-goals/${userId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, arg) => [{ type: "User", id: arg.userId }],
+    }),
+    updateUsersMacrosGoals: builder.mutation({
+      query: ({ userId, payload }) => ({
+        url: `/api/v1/users/macros-goals/${userId}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "User", id: arg.userId },
+      ],
+    }),
     updateUsersName: builder.mutation({
       query: ({ userId, payload }) => ({
         url: `/api/v1/users/update-name/${userId}`,
@@ -109,6 +126,8 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetAllUsersInfoQuery,
+  useGetUsersMacrosGoalsQuery,
+  useUpdateUsersMacrosGoalsMutation,
   useUpdateUsersNameMutation,
   useUpdateUsersProfileMutation,
   useUpdateUsersEmailMutation,

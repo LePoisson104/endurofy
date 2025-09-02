@@ -6,10 +6,17 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import DotPulse from "@/components/global/dot-pulse";
 import UsersProfileModal from "@/components/modals/users-profile-modal";
-import { useGetAllUsersInfoQuery } from "@/api/user/user-api-slice";
+import {
+  useGetAllUsersInfoQuery,
+  useGetUsersMacrosGoalsQuery,
+} from "@/api/user/user-api-slice";
 import ProfileSuccessNotice from "@/components/modals/profile-success-notice";
 import { useDispatch } from "react-redux";
-import { calculateAndSetBMR, setUserInfo } from "@/api/user/user-slice";
+import {
+  calculateAndSetBMR,
+  setUserInfo,
+  setUserMacrosGoals,
+} from "@/api/user/user-slice";
 import { calculateBMI } from "@/helper/calculate-bmi";
 import { useGetWorkoutProgramQuery } from "@/api/workout-program/workout-program-api-slice";
 import {
@@ -40,6 +47,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [refresh, { isLoading, isSuccess, isError }] = useRefreshMutation();
 
   const { data: userInfo, refetch } = useGetAllUsersInfoQuery({
+    userId: user?.user_id || "",
+  });
+
+  const { data: usersMacrosGoals } = useGetUsersMacrosGoalsQuery({
     userId: user?.user_id || "",
   });
 
@@ -106,12 +117,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [userInfo, manualProfileClose]);
 
   useEffect(() => {
-    if (userInfo?.data) {
+    if (userInfo?.data && usersMacrosGoals?.data) {
       const bmiResults = calculateBMI(userInfo);
       dispatch(setUserInfo({ ...userInfo.data, ...bmiResults }));
       dispatch(calculateAndSetBMR());
+      dispatch(setUserMacrosGoals(usersMacrosGoals.data));
     }
-  }, [userInfo, dispatch]);
+  }, [userInfo, usersMacrosGoals, dispatch]);
 
   useEffect(() => {
     if (isError) {

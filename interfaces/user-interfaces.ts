@@ -7,7 +7,7 @@ export interface User {
   profile_status: string;
 }
 
-export interface UserInfo {
+export interface UserInfo extends UserMacrosGoals {
   email: string;
   first_name: string;
   last_name: string;
@@ -31,6 +31,14 @@ export interface UserInfo {
   bmi_category_color?: string;
   pending_email?: string;
   bmr?: number;
+}
+
+export interface UserMacrosGoals {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  macros_goals_updated_at: string;
 }
 
 export interface UpdateUserInfo {
