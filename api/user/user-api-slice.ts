@@ -37,10 +37,10 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, arg) => [{ type: "User", id: arg.userId }],
     }),
     updateUsersMacrosGoals: builder.mutation({
-      query: ({ userId, payload }) => ({
+      query: ({ userId, updateMacrosGoalsPayload }) => ({
         url: `/api/v1/users/macros-goals/${userId}`,
         method: "PATCH",
-        body: payload,
+        body: updateMacrosGoalsPayload,
       }),
       invalidatesTags: (result, error, arg) => [
         { type: "User", id: arg.userId },

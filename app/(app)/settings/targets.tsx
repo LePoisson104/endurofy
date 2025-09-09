@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import PageTitle from "@/components/global/page-title";
 import { useState, useEffect } from "react";
@@ -10,6 +11,9 @@ import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { useSelector } from "react-redux";
+import { useUpdateUsersMacrosGoalsMutation } from "@/api/user/user-api-slice";
+import { toast } from "sonner";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
 
 const MACROS_CONSTANTS = {
   PROTEIN: 4,
@@ -19,7 +23,10 @@ const MACROS_CONSTANTS = {
 
 export default function Targets() {
   const isMobile = useIsMobile();
+  const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
+  const [updateUsersMacrosGoals, { isLoading: isUpdatingMacrosGoals }] =
+    useUpdateUsersMacrosGoalsMutation();
 
   const [calories, setCalories] = useState(0);
   const [proteinPercent, setProteinPercent] = useState(0);
@@ -113,6 +120,41 @@ export default function Targets() {
     }
   };
 
+  const handleSave = async () => {
+    const payload = {
+      calories: Number(calories),
+      protein: proteinPercent,
+      carbs: carbsPercent,
+      fat: fatPercent,
+    };
+
+    if (
+      payload.calories === 0 &&
+      payload.protein === 0 &&
+      payload.carbs === 0 &&
+      payload.fat === 0
+    ) {
+      toast.error("Please set your macros goals");
+      return;
+    }
+
+    console.log(payload);
+
+    try {
+      await updateUsersMacrosGoals({
+        userId: user?.user_id || "",
+        updateMacrosGoalsPayload: payload,
+      }).unwrap();
+      toast.success("Macros goals updated successfully");
+    } catch (error: any) {
+      if (!error.status) {
+        toast.error("No Server Response");
+      } else {
+        toast.error(error.data?.message);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col gap-[1rem]">
       <div
@@ -133,8 +175,16 @@ export default function Targets() {
           >
             Reset
           </Button>
-          <Button variant="default" disabled={!hasChanges || !isValidTotal}>
-            Save
+          <Button
+            variant="default"
+            disabled={!hasChanges || !isValidTotal || isUpdatingMacrosGoals}
+            onClick={handleSave}
+          >
+            {isUpdatingMacrosGoals ? (
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            ) : (
+              "Save"
+            )}
           </Button>
         </div>
       </div>
@@ -156,7 +206,7 @@ export default function Targets() {
               <Input
                 id="calories"
                 type="number"
-                value={calories}
+                value={Number(calories)}
                 onChange={(e) => setCalories(parseInt(e.target.value) || 0)}
                 className="font-semibold"
                 min="800"
