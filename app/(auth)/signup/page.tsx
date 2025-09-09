@@ -3,9 +3,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import ContinuteWithGoogleBtn from "@/components/buttons/continue-with-google-btn";
 import AppLogo from "@/components/global/app-logo";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState, useEffect } from "react";
@@ -176,7 +174,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-10 bg-background">
+    <div className="flex justify-center items-center min-h-screen p-10 bg-background flex-col">
       <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center gap-1 mb-2">
           {!isStandalone ? (
@@ -186,18 +184,9 @@ export default function Signup() {
           ) : (
             <AppLogo />
           )}
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl tracking-tight mb-4">
             Get started with Endurofy
           </h1>
-          <p className="text-sm text-muted-foreground text-center">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-primary hover:underline font-medium"
-            >
-              Log in
-            </Link>
-          </p>
         </div>
 
         <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
@@ -315,34 +304,28 @@ export default function Signup() {
             )}
           </Button>
 
-          <div className="flex items-center gap-3 my-2">
-            <Separator className="flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground font-medium">
-              OR
-            </span>
-            <Separator className="flex-1 bg-border" />
-          </div>
-
-          <ContinuteWithGoogleBtn />
+          <Button variant="ghost" className="w-full" asChild>
+            <Link href="/login">Back to login</Link>
+          </Button>
         </form>
-
-        <p className="text-xs text-muted-foreground mt-4 text-center">
-          By logging in, you agree to our{" "}
-          <Link
-            href="/terms"
-            className="hover:underline underline-offset-2 text-primary"
-          >
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link
-            href="/privacy"
-            className="hover:underline underline-offset-2 text-primary"
-          >
-            Privacy Policy
-          </Link>
-        </p>
       </div>
+      <p className="fixed bottom-0 left-0 right-0 text-xs text-muted-foreground text-center max-w-sm mx-auto mb-4">
+        By proceeding you acknowledge that you have read, understood and agree
+        to our{" "}
+        <Link
+          href="/terms"
+          className="hover:underline underline-offset-2 text-primary font-medium"
+        >
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link
+          href="/privacy"
+          className="hover:underline underline-offset-2 text-primary font-medium"
+        >
+          Privacy Policy
+        </Link>
+      </p>
     </div>
   );
 }
