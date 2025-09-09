@@ -62,6 +62,35 @@ export default function Targets() {
   const totalPercent = proteinPercent + carbsPercent + fatPercent;
   const isValidTotal = totalPercent === 100;
 
+  // Check if current values match original values from userInfo
+  const getOriginalValues = () => {
+    if (!userInfo?.calories) return null;
+
+    const proteinCalories =
+      Number(userInfo?.protein) * MACROS_CONSTANTS.PROTEIN;
+    const carbsCalories = Number(userInfo?.carbs) * MACROS_CONSTANTS.CARBS;
+    const fatCalories = Number(userInfo?.fat) * MACROS_CONSTANTS.FAT;
+
+    return {
+      calories: userInfo.calories,
+      proteinPercent: Math.round(
+        (proteinCalories / Number(userInfo.calories)) * 100
+      ),
+      carbsPercent: Math.round(
+        (carbsCalories / Number(userInfo.calories)) * 100
+      ),
+      fatPercent: Math.round((fatCalories / Number(userInfo.calories)) * 100),
+    };
+  };
+
+  const originalValues = getOriginalValues();
+  const hasChanges = originalValues
+    ? calories !== originalValues.calories ||
+      proteinPercent !== originalValues.proteinPercent ||
+      carbsPercent !== originalValues.carbsPercent ||
+      fatPercent !== originalValues.fatPercent
+    : false;
+
   // Reset function to restore original values from userInfo
   const handleReset = () => {
     if (userInfo?.calories) {
@@ -97,10 +126,16 @@ export default function Targets() {
           subTitle="Set your daily calorie and macronutrient goals"
         />
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" onClick={handleReset}>
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            disabled={!hasChanges}
+          >
             Reset
           </Button>
-          <Button variant="default">Save</Button>
+          <Button variant="default" disabled={!hasChanges || !isValidTotal}>
+            Save
+          </Button>
         </div>
       </div>
 
