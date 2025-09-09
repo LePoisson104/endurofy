@@ -131,8 +131,6 @@ export default function WorkoutProgramList({
                   createMenuItem("view-details", "View Details", Eye, () =>
                     onSelectProgram(program)
                   ),
-                ]),
-                createMenuSection([
                   program.isActive === 1
                     ? createMenuItem(
                         "set-as-inactive",
