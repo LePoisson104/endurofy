@@ -657,7 +657,7 @@ export default function FoodSelectionModal({
                   min="1"
                   max="10000"
                   step="1"
-                  inputMode="decimal"
+                  inputMode="numeric"
                   value={servingSize}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
