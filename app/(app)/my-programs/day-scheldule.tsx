@@ -149,6 +149,7 @@ function SortableTableRow({
             <Input
               id="exercise-sets"
               type="number"
+              inputMode="numeric"
               min="1"
               value={editedExercise?.sets || ""}
               onChange={(e) =>
@@ -170,6 +171,7 @@ function SortableTableRow({
                 id="exercise-min-reps"
                 type="number"
                 min="1"
+                inputMode="numeric"
                 value={editedExercise?.minReps || ""}
                 onChange={(e) =>
                   setEditedExercise({
@@ -190,6 +192,7 @@ function SortableTableRow({
                 id="exercise-max-reps"
                 type="number"
                 min="1"
+                inputMode="numeric"
                 value={editedExercise?.maxReps || ""}
                 onChange={(e) =>
                   setEditedExercise({
