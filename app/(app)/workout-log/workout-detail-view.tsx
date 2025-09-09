@@ -789,6 +789,7 @@ export function WorkoutDetailView({
                               {isEditing ? (
                                 <Input
                                   type="number"
+                                  inputMode="decimal"
                                   min="0"
                                   step="2.5"
                                   value={
@@ -827,6 +828,7 @@ export function WorkoutDetailView({
                                   {isEditing ? (
                                     <Input
                                       type="number"
+                                      inputMode="numeric"
                                       min="0"
                                       value={
                                         currentSet.repsLeft === 0
@@ -860,6 +862,7 @@ export function WorkoutDetailView({
                                   {isEditing ? (
                                     <Input
                                       type="number"
+                                      inputMode="numeric"
                                       min="0"
                                       value={
                                         currentSet.repsRight === 0
@@ -895,6 +898,7 @@ export function WorkoutDetailView({
                                 {isEditing ? (
                                   <Input
                                     type="number"
+                                    inputMode="numeric"
                                     min="0"
                                     value={
                                       currentSet.repsLeft === 0

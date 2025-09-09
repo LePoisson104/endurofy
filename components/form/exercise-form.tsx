@@ -176,6 +176,7 @@ export function ExerciseForm({
             <Input
               id="sets"
               type="number"
+              inputMode="numeric"
               placeholder="Enter number of sets"
               value={sets || ""}
               onChange={(e) => setSets(Number.parseInt(e.target.value))}
@@ -186,6 +187,7 @@ export function ExerciseForm({
             <Input
               id="min-reps"
               type="number"
+              inputMode="numeric"
               placeholder="Enter min reps"
               value={minReps || ""}
               onChange={(e) => setMinReps(Number.parseInt(e.target.value))}
@@ -196,6 +198,7 @@ export function ExerciseForm({
             <Input
               id="max-reps"
               type="number"
+              inputMode="numeric"
               placeholder="Enter max reps"
               value={maxReps || ""}
               onChange={(e) => setMaxReps(Number.parseInt(e.target.value))}

@@ -192,6 +192,7 @@ export default function WeightForm({
           id="weight"
           type="number"
           placeholder="Enter weight"
+          inputMode="numeric"
           value={formData.weight || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);
@@ -211,6 +212,7 @@ export default function WeightForm({
           id="weight"
           type="number"
           placeholder="Enter calories"
+          inputMode="numeric"
           value={formData.caloriesIntake || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);

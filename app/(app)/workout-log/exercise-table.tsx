@@ -506,6 +506,7 @@ export default function ExerciseTable({
                     }
                     type="number"
                     min="0"
+                    inputMode="decimal"
                     step="2.5"
                     value={setData.weight === 0 ? "" : setData.weight}
                     onChange={(e) =>
@@ -550,6 +551,7 @@ export default function ExerciseTable({
                             : "-"
                         }
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         value={setData.leftReps === 0 ? "" : setData.leftReps}
                         onChange={(e) =>
@@ -588,6 +590,7 @@ export default function ExerciseTable({
                             : "-"
                         }
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         value={setData.rightReps === 0 ? "" : setData.rightReps}
                         onChange={(e) =>
@@ -629,6 +632,7 @@ export default function ExerciseTable({
                       }
                       type="number"
                       min="0"
+                      inputMode="numeric"
                       value={setData.reps === 0 ? "" : setData.reps}
                       onChange={(e) =>
                         handleUpdateSetData(

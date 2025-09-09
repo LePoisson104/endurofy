@@ -237,6 +237,7 @@ export default function ProfileEditForm({
             <Input
               id="weight"
               type="number"
+              inputMode="decimal"
               value={editedProfile?.current_weight?.toString() || ""}
               onChange={(e) => {
                 let value = Number.parseFloat(e.target.value);
@@ -314,6 +315,7 @@ export default function ProfileEditForm({
               <Input
                 id="weight_goal"
                 type="number"
+                inputMode="decimal"
                 value={editedProfile?.weight_goal?.toString() || ""}
                 onChange={(e) => {
                   let value = Number.parseFloat(e.target.value);

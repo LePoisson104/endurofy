@@ -206,6 +206,7 @@ export default function Targets() {
               <Input
                 id="calories"
                 type="number"
+                inputMode="decimal"
                 value={Number(calories)}
                 onChange={(e) => setCalories(parseInt(e.target.value) || 0)}
                 className="font-semibold"

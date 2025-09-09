@@ -497,6 +497,7 @@ export default function CustomFoodModal({
                     min="0.1"
                     max="10000"
                     step="0.1"
+                    inputMode="decimal"
                     value={formData.servingSize}
                     onChange={(e) =>
                       handleNumberInputChange(
@@ -555,6 +556,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="1"
+                    inputMode="decimal"
                     value={formData.calories}
                     onChange={(e) =>
                       handleNumberInputChange("calories", e.target.value)
@@ -576,6 +578,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="0.1"
+                    inputMode="decimal"
                     value={formData.protein}
                     onChange={(e) =>
                       handleNumberInputChange("protein", e.target.value)
@@ -597,6 +600,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="0.1"
+                    inputMode="decimal"
                     value={formData.carbs}
                     onChange={(e) =>
                       handleNumberInputChange("carbs", e.target.value)
@@ -618,6 +622,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="0.1"
+                    inputMode="decimal"
                     value={formData.fat}
                     onChange={(e) =>
                       handleNumberInputChange("fat", e.target.value)
@@ -655,6 +660,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="0.1"
+                    inputMode="decimal"
                     value={formData.fiber}
                     onChange={(e) =>
                       handleNumberInputChange("fiber", e.target.value)
@@ -676,6 +682,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="0.1"
+                    inputMode="decimal"
                     value={formData.sugar}
                     onChange={(e) =>
                       handleNumberInputChange("sugar", e.target.value)
@@ -697,6 +704,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="1"
+                    inputMode="decimal"
                     value={formData.sodium}
                     onChange={(e) =>
                       handleNumberInputChange("sodium", e.target.value)
@@ -718,6 +726,7 @@ export default function CustomFoodModal({
                     type="number"
                     min="0"
                     step="1"
+                    inputMode="decimal"
                     value={formData.cholesterol}
                     onChange={(e) =>
                       handleNumberInputChange("cholesterol", e.target.value)

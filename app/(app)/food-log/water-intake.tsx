@@ -170,6 +170,7 @@ export default function WaterIntake({
           <div className="flex items-center space-x-2 flex-1 justify-center">
             <Input
               type="number"
+              inputMode="decimal"
               max={dailyGoal.toString()}
               disabled={disableButton}
               value={customAmount === 0 ? "" : customAmount}
