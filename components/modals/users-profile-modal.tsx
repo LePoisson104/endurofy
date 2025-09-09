@@ -419,7 +419,7 @@ export default function UsersProfileModal({
                           }}
                           required
                         />
-                        <p className="text-sm text-muted-foreground flex justify-center  w-20">
+                        <p className="text-sm text-muted-foreground flex justify-center w-20">
                           {formData.starting_weight_unit === "lb"
                             ? "lbs"
                             : "kg"}
