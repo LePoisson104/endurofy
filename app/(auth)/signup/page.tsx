@@ -309,23 +309,26 @@ export default function Signup() {
           </Button>
         </form>
       </div>
-      <p className="fixed bottom-0 left-0 right-0 text-xs text-muted-foreground text-center max-w-sm mx-auto mb-4">
-        By proceeding you acknowledge that you have read, understood and agree
-        to our{" "}
-        <Link
-          href="/terms"
-          className="hover:underline underline-offset-2 text-primary font-medium"
-        >
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/privacy"
-          className="hover:underline underline-offset-2 text-primary font-medium"
-        >
-          Privacy Policy
-        </Link>
-      </p>
+
+      {!isStandalone && (
+        <p className="fixed bottom-0 left-0 right-0 text-xs text-muted-foreground text-center max-w-sm mx-auto mb-4 standalone:mb-10">
+          By proceeding you acknowledge that you have read, understood and agree
+          to our{" "}
+          <Link
+            href="/terms"
+            className="hover:underline underline-offset-2 text-primary font-medium"
+          >
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/privacy"
+            className="hover:underline underline-offset-2 text-primary font-medium"
+          >
+            Privacy Policy
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

@@ -9,13 +9,13 @@ export default function AppLogo() {
 
   useEffect(() => {
     setLogoSrc(
-      isDark ? "/images/endurofy_logo_dark.png" : "/images/endurofy_logo.png"
+      !isDark ? "/images/endurofy_logo_dark.png" : "/images/endurofy_logo.png"
     );
   }, [isDark]);
 
   return (
-    <div className="flex items-center justify-center w-10 h-10 mb-2 bg-primary">
-      <Image src={logoSrc} alt="Endurofy" width={30} height={30} />
+    <div className="flex items-center justify-center w-10 h-10 mb-2">
+      <Image src={logoSrc} alt="Endurofy" width={45} height={45} />
     </div>
   );
 }
