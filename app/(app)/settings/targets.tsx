@@ -5,16 +5,54 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import PageTitle from "@/components/global/page-title";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { selectUserInfo } from "@/api/user/user-slice";
+import { useSelector } from "react-redux";
+
+const MACROS_CONSTANTS = {
+  PROTEIN: 4,
+  CARBS: 4,
+  FAT: 9,
+};
 
 export default function Targets() {
   const isMobile = useIsMobile();
-  const [calories, setCalories] = useState(2000);
-  const [proteinPercent, setProteinPercent] = useState(25);
-  const [carbsPercent, setCarbsPercent] = useState(45);
-  const [fatPercent, setFatPercent] = useState(30);
+  const userInfo = useSelector(selectUserInfo);
+
+  const [calories, setCalories] = useState(0);
+  const [proteinPercent, setProteinPercent] = useState(0);
+  const [carbsPercent, setCarbsPercent] = useState(0);
+  const [fatPercent, setFatPercent] = useState(0);
+
+  useEffect(() => {
+    if (userInfo?.calories) {
+      const caloriesValue = userInfo.calories;
+
+      // Convert grams to calories, then calculate percentages
+      const proteinCalories =
+        Number(userInfo?.protein) * MACROS_CONSTANTS.PROTEIN;
+      const carbsCalories = Number(userInfo?.carbs) * MACROS_CONSTANTS.CARBS;
+      const fatCalories = Number(userInfo?.fat) * MACROS_CONSTANTS.FAT;
+
+      const proteinPercentValue = Math.round(
+        (proteinCalories / Number(userInfo.calories)) * 100
+      );
+      const carbsPercentValue = Math.round(
+        (carbsCalories / Number(userInfo.calories)) * 100
+      );
+      const fatPercentValue = Math.round(
+        (fatCalories / Number(userInfo.calories)) * 100
+      );
+
+      // Set current values
+      setCalories(caloriesValue);
+      setProteinPercent(proteinPercentValue);
+      setCarbsPercent(carbsPercentValue);
+      setFatPercent(fatPercentValue);
+    }
+  }, [userInfo]);
 
   // Calculate grams from percentages and calories
   const proteinGrams = Math.round((calories * proteinPercent) / 100 / 4);
@@ -23,6 +61,28 @@ export default function Targets() {
 
   const totalPercent = proteinPercent + carbsPercent + fatPercent;
   const isValidTotal = totalPercent === 100;
+
+  // Reset function to restore original values from userInfo
+  const handleReset = () => {
+    if (userInfo?.calories) {
+      // Convert grams to calories, then calculate percentages (same logic as useEffect)
+      const proteinCalories =
+        Number(userInfo?.protein) * MACROS_CONSTANTS.PROTEIN;
+      const carbsCalories = Number(userInfo?.carbs) * MACROS_CONSTANTS.CARBS;
+      const fatCalories = Number(userInfo?.fat) * MACROS_CONSTANTS.FAT;
+
+      setCalories(userInfo.calories);
+      setProteinPercent(
+        Math.round((proteinCalories / Number(userInfo.calories)) * 100)
+      );
+      setCarbsPercent(
+        Math.round((carbsCalories / Number(userInfo.calories)) * 100)
+      );
+      setFatPercent(
+        Math.round((fatCalories / Number(userInfo.calories)) * 100)
+      );
+    }
+  };
 
   return (
     <div className="flex flex-col gap-[1rem]">
@@ -37,7 +97,9 @@ export default function Targets() {
           subTitle="Set your daily calorie and macronutrient goals"
         />
         <div className="flex gap-2 justify-end">
-          <Button variant="outline">Reset</Button>
+          <Button variant="outline" onClick={handleReset}>
+            Reset
+          </Button>
           <Button variant="default">Save</Button>
         </div>
       </div>
@@ -50,7 +112,7 @@ export default function Targets() {
               Daily Calorie Target
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className={`space-y-6 ${isMobile ? "p-4" : ""}`}>
             <div className="space-y-2">
               <Label htmlFor="calories" className="text-sm font-medium">
                 Target Calories{" "}
@@ -61,7 +123,7 @@ export default function Targets() {
                 type="number"
                 value={calories}
                 onChange={(e) => setCalories(parseInt(e.target.value) || 0)}
-                className="text-lg font-semibold"
+                className="font-semibold"
                 min="800"
                 max="5000"
               />
@@ -71,9 +133,13 @@ export default function Targets() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-medium">Calorie Breakdown</span>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-4 text-center flex">
                 <div>
-                  <div className="text-2xl font-bold">
+                  <div
+                    className={`text-2xl font-bold ${
+                      isMobile ? "flex flex-col" : ""
+                    }`}
+                  >
                     {Math.round((calories * proteinPercent) / 100)}{" "}
                     <span className="text-sm text-muted-foreground">cal</span>
                   </div>
@@ -82,7 +148,11 @@ export default function Targets() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">
+                  <div
+                    className={`text-2xl font-bold ${
+                      isMobile ? "flex flex-col" : ""
+                    }`}
+                  >
                     {Math.round((calories * carbsPercent) / 100)}{" "}
                     <span className="text-sm text-muted-foreground">cal</span>
                   </div>
@@ -91,7 +161,11 @@ export default function Targets() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">
+                  <div
+                    className={`text-2xl font-bold ${
+                      isMobile ? "flex flex-col" : ""
+                    }`}
+                  >
                     {Math.round((calories * fatPercent) / 100)}{" "}
                     <span className="text-sm text-muted-foreground">cal</span>
                   </div>
@@ -137,18 +211,22 @@ export default function Targets() {
         {/* Macronutrient Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle
+              className={`flex gap-2 ${
+                isMobile ? "flex-col" : "items-center justify-between"
+              }`}
+            >
               Macronutrient Distribution
-              {!isValidTotal && (
-                <Badge variant="destructive" className="ml-2">
-                  {totalPercent}% (Must equal 100%)
-                </Badge>
-              )}
-              {isValidTotal && (
-                <Badge variant="default" className="ml-2">
-                  ✓ 100%
-                </Badge>
-              )}
+              <div>
+                {!isValidTotal && (
+                  <Badge variant="destructive">
+                    {totalPercent}% (Must equal 100%)
+                  </Badge>
+                )}
+                {isValidTotal && (
+                  <Badge className="bg-green-600 text-white">✓ 100%</Badge>
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">

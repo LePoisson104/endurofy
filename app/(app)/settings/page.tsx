@@ -11,10 +11,13 @@ import Targets from "./targets";
 export default function SettingsPage() {
   // const router = useRouter();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("account");
+  const [activeTab, setActiveTab] = useState(
+    localStorage.getItem("activeTab") || "account"
+  );
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    localStorage.setItem("activeTab", value);
   };
 
   return (
