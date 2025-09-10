@@ -32,6 +32,12 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useDispatch } from "react-redux";
 import { calculateAndSetBMR } from "@/api/user/user-slice";
 import { getActivityMultiplier } from "@/helper/constants/activity-level-contants";
+import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
+import { isInCurrentRotation } from "@/helper/get-current-rotation";
+import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
+import { startOfWeek, endOfWeek } from "date-fns";
 
 export default function DashboardPage() {
   const isDark = useGetCurrentTheme();
@@ -40,6 +46,34 @@ export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("90d");
   const userInfo = useSelector(selectUserInfo);
   const weeklyRate = useSelector(selectWeeklyRate);
+  const workoutPrograms = useSelector(selectWorkoutProgram);
+  const currentUser = useSelector(selectCurrentUser);
+  const [activeProgram, setActiveProgram] = useState<WorkoutProgram | null>(
+    null
+  );
+
+  const [currentStartingDate, setCurrentStartingDate] = useState<string | null>(
+    null
+  );
+  const [currentEndingDate, setCurrentEndingDate] = useState<string | null>(
+    null
+  );
+
+  const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery(
+    {
+      userId: currentUser?.user_id,
+      programId: activeProgram?.programId,
+      startDate: currentStartingDate,
+      endDate: currentEndingDate,
+    },
+    {
+      skip:
+        !currentStartingDate ||
+        !currentEndingDate ||
+        !currentUser?.user_id ||
+        !activeProgram?.programId,
+    }
+  );
 
   const currentWeight = Number(userInfo?.current_weight || 0);
   const startWeight = Number(userInfo?.starting_weight || 0);
@@ -65,6 +99,27 @@ export default function DashboardPage() {
       dispatch(calculateAndSetBMR());
     }
   }, [userInfo, dispatch]);
+
+  useEffect(() => {
+    const active = workoutPrograms?.filter((program) => program.isActive === 1);
+    setActiveProgram(active?.[0] || null);
+  }, [workoutPrograms]);
+
+  useEffect(() => {
+    if (activeProgram?.programType === "custom") {
+      const { currentRotationStart, currentRotationEnd } =
+        isInCurrentRotation(activeProgram);
+      setCurrentStartingDate(currentRotationStart);
+      setCurrentEndingDate(currentRotationEnd);
+    } else {
+      setCurrentStartingDate(
+        startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString().split("T")[0]
+      );
+      setCurrentEndingDate(
+        endOfWeek(new Date(), { weekStartsOn: 0 }).toISOString().split("T")[0]
+      );
+    }
+  }, [activeProgram]);
 
   if (userInfo.email === "") {
     return (
@@ -96,16 +151,62 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Completed Workouts
+                    {activeProgram?.programType === "dayOfWeek"
+                      ? "Weekly Progress"
+                      : activeProgram?.programType === "custom"
+                      ? "Rotation Progress"
+                      : "Completed Workouts"}
                   </CardTitle>
                   <Dumbbell className="h-4 w-4 text-blue-400" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold mb-2">3 / 5 Sessions</p>
-                  <Progress value={30} />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Progress: 30% of your goal
-                  </p>
+                  {workoutPrograms && activeProgram ? (
+                    <>
+                      <p className="text-2xl font-bold mb-2">
+                        {completedWorkoutLogs?.data || 0} /{" "}
+                        {activeProgram?.programType === "manual"
+                          ? completedWorkoutLogs?.data || 0
+                          : activeProgram?.workoutDays.length || 0}{" "}
+                        Sessions
+                      </p>
+                      <Progress
+                        value={
+                          completedWorkoutLogs?.data
+                            ? Math.round(
+                                (completedWorkoutLogs?.data /
+                                  (activeProgram?.programType === "manual"
+                                    ? completedWorkoutLogs?.data || 1
+                                    : activeProgram?.workoutDays.length || 1)) *
+                                  100
+                              )
+                            : 0
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Progress:{" "}
+                        {completedWorkoutLogs?.data
+                          ? Math.round(
+                              (completedWorkoutLogs?.data /
+                                (activeProgram?.programType === "manual"
+                                  ? completedWorkoutLogs?.data || 1
+                                  : activeProgram?.workoutDays.length || 1)) *
+                                100
+                            )
+                          : 0}
+                        % of your goal
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-2xl font-bold mb-2">
+                        No Active Program
+                      </p>
+                      <Progress value={0} />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Create a workout program to track progress
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
               <Card>
