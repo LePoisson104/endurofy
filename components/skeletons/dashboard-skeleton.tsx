@@ -81,7 +81,7 @@ export default function DashboardSkeleton() {
         <Card className="shadow-sm">
           <CardHeader>
             <Skeleton className="h-6 w-36 mb-2" />
-            <Skeleton className="h-9 w-44" />
+            <Skeleton className="h-4 w-50" />
           </CardHeader>
           <Separator />
           <CardContent className="h-[300px] overflow-y-auto">

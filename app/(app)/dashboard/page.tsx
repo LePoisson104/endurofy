@@ -37,7 +37,7 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
 import { isInCurrentRotation } from "@/helper/get-current-rotation";
 import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
-import { startOfWeek, endOfWeek } from "date-fns";
+import { startOfWeek, endOfWeek, format, parseISO, addDays } from "date-fns";
 
 export default function DashboardPage() {
   const isDark = useGetCurrentTheme();
@@ -58,6 +58,75 @@ export default function DashboardPage() {
   const [currentEndingDate, setCurrentEndingDate] = useState<string | null>(
     null
   );
+
+  // Generate workout sessions based on program type
+  const generateWorkoutSessions = () => {
+    if (!activeProgram || activeProgram.programType === "manual") return [];
+
+    if (activeProgram.programType === "dayOfWeek") {
+      // For dayOfWeek programs, show current week's workouts
+      const weekStart = startOfWeek(new Date());
+      const weekEnd = endOfWeek(new Date());
+      const sessions = [];
+
+      for (let i = 0; i < 7; i++) {
+        const currentDay = addDays(weekStart, i);
+        const dayOfWeek = currentDay.getDay() || 7; // Convert Sunday (0) to 7
+
+        const workoutDay = activeProgram.workoutDays.find(
+          (day) => day.dayNumber === dayOfWeek
+        );
+
+        if (workoutDay) {
+          sessions.push({
+            id: `${activeProgram.programId}-${dayOfWeek}`,
+            title: workoutDay.dayName,
+            date: currentDay,
+            dayId: workoutDay.dayId,
+          });
+        }
+      }
+      return sessions;
+    }
+
+    if (activeProgram.programType === "custom") {
+      // For custom programs, show current rotation's workouts
+      const { currentRotationStart, currentRotationEnd } =
+        isInCurrentRotation(activeProgram);
+      if (!currentRotationStart || !currentRotationEnd) return [];
+
+      const rotationStart = parseISO(currentRotationStart);
+      const sessions = [];
+
+      // Calculate cycle length
+      const maxDayNumber = Math.max(
+        ...activeProgram.workoutDays.map((workoutDay) => workoutDay.dayNumber)
+      );
+
+      for (let i = 0; i < maxDayNumber; i++) {
+        const currentDay = addDays(rotationStart, i);
+        const cycleDay = i + 1;
+
+        const workoutDay = activeProgram.workoutDays.find(
+          (day) => day.dayNumber === cycleDay
+        );
+
+        if (workoutDay) {
+          sessions.push({
+            id: `${activeProgram.programId}-${cycleDay}`,
+            title: workoutDay.dayName,
+            date: currentDay,
+            dayId: workoutDay.dayId,
+          });
+        }
+      }
+      return sessions;
+    }
+
+    return [];
+  };
+
+  const workoutSessions = generateWorkoutSessions();
 
   const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery(
     {
@@ -121,7 +190,7 @@ export default function DashboardPage() {
     }
   }, [activeProgram]);
 
-  if (userInfo.email === "") {
+  if (activeProgram === null) {
     return (
       <div className="flex min-h-screen flex-col p-[1rem]">
         {/* Main Content */}
@@ -343,63 +412,110 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle>Workout Sessions</CardTitle>
                 <div className="text-sm text-muted-foreground mt-1">
-                  <Button variant="outline">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    March 15, 2025 - March 21, 2025
-                  </Button>
+                  <p>
+                    {activeProgram?.programType === "dayOfWeek"
+                      ? `${format(
+                          startOfWeek(new Date()),
+                          "MMM dd, yyyy"
+                        )} - ${format(endOfWeek(new Date()), "MMM dd, yyyy")}`
+                      : activeProgram?.programType === "custom" &&
+                        currentStartingDate &&
+                        currentEndingDate
+                      ? `${format(
+                          new Date(currentStartingDate + "T00:00:00"),
+                          "MMM dd, yyyy"
+                        )} - ${format(
+                          new Date(currentEndingDate + "T00:00:00"),
+                          "MMM dd, yyyy"
+                        )}`
+                      : activeProgram?.programType === "custom"
+                      ? "Current Rotation"
+                      : "Current Period"}
+                  </p>
                 </div>
               </CardHeader>
               <Separator />
               <CardContent className="h-[300px] overflow-y-auto">
-                <div className="space-y-5 ">
-                  {recentSales.map((log) => (
-                    <div key={log.name}>
-                      <div className="flex justify-between mb-5">
-                        <div className=" w-3/10">
-                          <p className="text-sm font-bold truncate">
-                            {log.name}
-                          </p>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {log.program}
-                          </p>
+                <div className="space-y-5">
+                  {workoutSessions && workoutSessions.length > 0 ? (
+                    workoutSessions.map((session) => (
+                      <div key={session.id}>
+                        <div className="flex justify-between mb-5">
+                          <div className="w-3/10">
+                            <p className="text-sm font-bold truncate">
+                              {session.title}
+                            </p>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {activeProgram?.programName}
+                            </p>
+                          </div>
+                          <div className="w-3/10 flex justify-center items-center">
+                            <p className="text-sm text-muted-foreground">
+                              {format(session.date, "MMM dd, yyyy")}
+                            </p>
+                          </div>
+                          <div className="w-3/10 flex justify-end">
+                            <Button className="w-fit arrow-button">
+                              View
+                              <svg
+                                className="arrow-icon"
+                                viewBox="0 -3.5 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="7"
+                                height="7"
+                              >
+                                <path
+                                  className="arrow-icon__tip"
+                                  d="M8 15L14 8.5L8 2"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                />
+                                <line
+                                  className="arrow-icon__line"
+                                  x1="13"
+                                  y1="8.5"
+                                  y2="8.5"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                />
+                              </svg>
+                            </Button>
+                          </div>
                         </div>
-                        <div className=" w-3/10 flex justify-center items-center">
-                          <p className="text-sm text-muted-foreground">
-                            {log.date}
-                          </p>
-                        </div>
-                        <div className="w-3/10 flex justify-end">
-                          <Button className="w-fit arrow-button">
-                            View
-                            <svg
-                              className="arrow-icon"
-                              viewBox="0 -3.5 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="7"
-                              height="7"
-                            >
-                              <path
-                                className="arrow-icon__tip"
-                                d="M8 15L14 8.5L8 2"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                              <line
-                                className="arrow-icon__line"
-                                x1="13"
-                                y1="8.5"
-                                y2="8.5"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                            </svg>
-                          </Button>
-                        </div>
+                        <Separator />
                       </div>
-                      <Separator />
+                    ))
+                  ) : activeProgram?.programType === "manual" ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Manual Program
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Create workouts as needed - no scheduled sessions
+                      </p>
                     </div>
-                  ))}
+                  ) : activeProgram ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        No workout sessions found
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {activeProgram?.programType === "dayOfWeek"
+                          ? "No workouts scheduled for this week"
+                          : "No workouts in current rotation"}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        No active workout program
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Create a workout program to see sessions here
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -453,36 +569,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-const recentSales = [
-  {
-    name: "Push A",
-    program: "5 day split",
-    date: "Mar 15, 2025",
-  },
-  {
-    name: "Pull A",
-    program: "5 day split",
-    date: "Mar 16, 2025",
-  },
-  {
-    name: "Legs A",
-    program: "5 day split",
-    date: "Mar 17, 2025",
-  },
-  {
-    name: "Push B",
-    program: "5 day split",
-    date: "Mar 18, 2025",
-  },
-  {
-    name: "Pull B",
-    program: "5 day split",
-    date: "Mar 19, 2025",
-  },
-  {
-    name: "Legs B",
-    program: "5 day split",
-    date: "Mar 20, 2025",
-  },
-];
