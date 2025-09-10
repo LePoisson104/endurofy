@@ -77,6 +77,7 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import DeleteDialog from "@/components/dialog/delete-dialog";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { getWaterPercentage } from "@/helper/get-water-percentage";
+import FoodLogSkeleton from "@/components/skeletons/food-log-skeleton";
 
 interface MealData {
   uncategorized: AddFoodLogPayload[];
@@ -398,6 +399,10 @@ export default function FoodLogPage() {
       return newSet;
     });
   };
+
+  if (isLoadingFoodLog) {
+    return <FoodLogSkeleton />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">

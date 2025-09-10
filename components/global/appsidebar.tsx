@@ -90,8 +90,6 @@ export function AppSidebar() {
     }
   );
 
-  console.log(completedWorkoutLogs);
-
   useEffect(() => {
     const active = workoutPrograms?.filter((program) => program.isActive === 1);
     setActiveProgram(active?.[0] || null);
