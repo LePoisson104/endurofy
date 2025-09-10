@@ -19,12 +19,16 @@ import { CalendarIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
-import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-program-api-slice";
+import {
+  useSetProgramAsActiveMutation,
+  useGetWorkoutProgramQuery,
+} from "@/api/workout-program/workout-program-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParams } from "next/navigation";
 import WithoutProgramLog from "./without-program-log";
 import { toast } from "sonner";
+import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 
@@ -51,6 +55,12 @@ export default function WorkoutLogManager() {
   const [selectedTab, setSelectedTab] = useState("log");
 
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
+
+  // Add the query to get loading state
+  const { isLoading: isLoadingPrograms } = useGetWorkoutProgramQuery(
+    { userId: user?.user_id },
+    { skip: !user?.user_id }
+  );
 
   // Load selectedDate from localStorage on component mount
   useEffect(() => {
@@ -164,8 +174,10 @@ export default function WorkoutLogManager() {
               {selectedTab === "log" ? (
                 <Card>
                   <CardContent className={`${isMobile && "p-4"}`}>
-                    {selectedProgram &&
-                    selectedProgram.programType !== "manual" ? (
+                    {isLoadingPrograms ? (
+                      <ProgramWorkoutLogSkeleton />
+                    ) : selectedProgram &&
+                      selectedProgram.programType !== "manual" ? (
                       <ProgramWorkoutLog
                         program={selectedProgram}
                         selectedDate={selectedDate}

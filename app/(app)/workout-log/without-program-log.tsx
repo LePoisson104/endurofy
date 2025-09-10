@@ -371,7 +371,7 @@ export default function WithoutProgramLog({
     }
   };
 
-  if (isLoadingWorkoutLog) {
+  if (isLoadingWorkoutLog || !manualProgram) {
     return <ProgramWorkoutLogSkeleton />;
   }
 
