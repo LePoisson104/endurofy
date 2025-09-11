@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccountSettings } from "./account-settings";
-import { NotificationSettings } from "./notification-settings";
 import { useIsMobile } from "@/hooks/use-mobile";
-import PrivacySettings from "./privacy-settings";
 import Targets from "./targets";
 
 export default function SettingsPage() {
@@ -35,32 +33,13 @@ export default function SettingsPage() {
             <TabsTrigger value="targets" className={isMobile ? "py-2" : ""}>
               Targets
             </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              className={isMobile ? "py-2" : ""}
-            >
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="privacy" className={isMobile ? "py-2" : ""}>
-              Privacy
-            </TabsTrigger>
           </TabsList>
         </div>
-
         <TabsContent value="account" className="space-y-6">
           <AccountSettings />
         </TabsContent>
-
         <TabsContent value="targets" className="space-y-6">
           <Targets />
-        </TabsContent>
-
-        <TabsContent value="notifications" className="space-y-6">
-          <NotificationSettings />
-        </TabsContent>
-
-        <TabsContent value="privacy" className="space-y-6">
-          <PrivacySettings />
         </TabsContent>
       </Tabs>
     </div>
