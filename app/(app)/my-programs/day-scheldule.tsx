@@ -42,6 +42,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { DayScheduleMobile } from "./day-schedule-mobile";
 
 interface DayScheduleProps {
   exercises: Exercise[];
@@ -317,12 +319,9 @@ export function DaySchedule({
   onReorderExercises,
   isEditing = true,
 }: DayScheduleProps) {
+  // All hooks must be called before any conditional returns
   const [activeId, setActiveId] = useState<string | null>(null);
-
-  // Sort exercises by exerciseOrder
-  const sortedExercises = [...exercises].sort(
-    (a, b) => a.exerciseOrder - b.exerciseOrder
-  );
+  const isMobile = useIsMobile();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -340,6 +339,24 @@ export function DaySchedule({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Sort exercises by exerciseOrder
+  const sortedExercises = [...exercises].sort(
+    (a, b) => a.exerciseOrder - b.exerciseOrder
+  );
+
+  // Use mobile component on mobile devices
+  if (isMobile) {
+    return (
+      <DayScheduleMobile
+        exercises={exercises}
+        onRemoveExercise={onRemoveExercise}
+        onUpdateExercise={onUpdateExercise}
+        onReorderExercises={onReorderExercises}
+        isEditing={isEditing}
+      />
+    );
+  }
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
