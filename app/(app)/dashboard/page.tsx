@@ -31,7 +31,6 @@ import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useDispatch } from "react-redux";
 import { calculateAndSetBMR } from "@/api/user/user-slice";
-import { getActivityMultiplier } from "@/helper/constants/activity-level-contants";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
@@ -39,10 +38,12 @@ import { useGetFoodLogQuery } from "@/api/food/food-log-api-slice";
 import { isInCurrentRotation } from "@/helper/get-current-rotation";
 import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { startOfWeek, endOfWeek, format, parseISO, addDays } from "date-fns";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const isDark = useGetCurrentTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const [timeRange, setTimeRange] = useState("90d");
   const userInfo = useSelector(selectUserInfo);
@@ -183,6 +184,12 @@ export default function DashboardPage() {
 
   const consumedCalories = getConsumedCalories();
   const remainingCalories = Math.max(0, userInfo?.calories - consumedCalories);
+
+  // Handle navigation to workout log with specific date
+  const handleViewWorkout = (date: Date) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+    router.push(`/workout-log?date=${formattedDate}&tab=log`);
+  };
 
   useEffect(() => {
     if (userInfo) {
@@ -384,7 +391,10 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground mb-2">
                       Today's Events
                     </p>
-                    <Button className="w-fit arrow-button">
+                    <Button
+                      className="w-fit arrow-button"
+                      onClick={() => handleViewWorkout(new Date())}
+                    >
                       View
                       <svg
                         className="arrow-icon"
@@ -476,7 +486,10 @@ export default function DashboardPage() {
                             </p>
                           </div>
                           <div className="w-3/10 flex justify-end">
-                            <Button className="w-fit arrow-button">
+                            <Button
+                              className="w-fit arrow-button"
+                              onClick={() => handleViewWorkout(session.date)}
+                            >
                               View
                               <svg
                                 className="arrow-icon"
