@@ -35,17 +35,22 @@ import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slic
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
 import { useGetFoodLogQuery } from "@/api/food/food-log-api-slice";
+import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
 import { isInCurrentRotation } from "@/helper/get-current-rotation";
 import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { startOfWeek, endOfWeek, format, parseISO, addDays } from "date-fns";
 import { useRouter } from "next/navigation";
+import { getDayRange } from "@/helper/get-day-range";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function DashboardPage() {
   const isDark = useGetCurrentTheme();
   const dispatch = useDispatch();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const [timeRange, setTimeRange] = useState("90d");
+  const [weightLogView, setWeightLogView] = useState("both");
   const userInfo = useSelector(selectUserInfo);
   const weeklyRate = useSelector(selectWeeklyRate);
   const workoutPrograms = useSelector(selectWorkoutProgram);
@@ -60,6 +65,12 @@ export default function DashboardPage() {
   const [currentEndingDate, setCurrentEndingDate] = useState<string | null>(
     null
   );
+
+  // Weight log chart date range
+  const [weightLogStartDate, setWeightLogStartDate] = useState<Date | null>(
+    null
+  );
+  const [weightLogEndDate, setWeightLogEndDate] = useState<Date | null>(null);
 
   // Generate workout sessions based on program type
   const generateWorkoutSessions = () => {
@@ -152,6 +163,23 @@ export default function DashboardPage() {
     date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
   });
 
+  // Weight log query for chart
+  const { data: weightLogData, isLoading: isLoadingWeightLog } =
+    useGetWeightLogByDateQuery(
+      {
+        userId: currentUser?.user_id || "",
+        startDate: weightLogStartDate
+          ? format(weightLogStartDate, "yyyy-MM-dd")
+          : "",
+        endDate: weightLogEndDate ? format(weightLogEndDate, "yyyy-MM-dd") : "",
+        options: timeRange !== "all" ? "date" : "all",
+        withRates: false,
+      },
+      {
+        skip: !currentUser?.user_id || !weightLogStartDate || !weightLogEndDate,
+      }
+    );
+
   const currentWeight = Number(userInfo?.current_weight || 0);
   const startWeight = Number(userInfo?.starting_weight || 0);
   const goalWeight = Number(userInfo?.weight_goal || 0);
@@ -217,6 +245,30 @@ export default function DashboardPage() {
       );
     }
   }, [activeProgram]);
+
+  // Set weight log date range based on timeRange selection
+  useEffect(() => {
+    const now = new Date();
+
+    if (timeRange === "7d") {
+      const { startDate, endDate } = getDayRange({ options: "7d" });
+      setWeightLogStartDate(startDate);
+      setWeightLogEndDate(endDate);
+    } else if (timeRange === "30d") {
+      const { startDate, endDate } = getDayRange({ options: "30d" });
+      setWeightLogStartDate(startDate);
+      setWeightLogEndDate(endDate);
+    } else if (timeRange === "90d") {
+      const { startDate, endDate } = getDayRange({ options: "90d" });
+      setWeightLogStartDate(startDate);
+      setWeightLogEndDate(endDate);
+    } else {
+      // Default to last 90 days
+      const { startDate, endDate } = getDayRange({ options: "90d" });
+      setWeightLogStartDate(startDate);
+      setWeightLogEndDate(endDate);
+    }
+  }, [timeRange]);
 
   if (activeProgram === null) {
     return (
@@ -567,35 +619,79 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex items-center gap-2 space-y-0  sm:flex-row ">
+              <CardHeader
+                className={`flex items-center gap-2 space-y-0 ${
+                  isMobile ? "flex-col" : "flex-row"
+                }`}
+              >
                 <div className="flex flex-col w-full gap-2">
                   <CardTitle>Weight log overview</CardTitle>
                   <CardDescription>
-                    March 15, 2025 - March 21, 2025
+                    {weightLogStartDate && weightLogEndDate
+                      ? `${format(
+                          weightLogStartDate,
+                          "MMM dd, yyyy"
+                        )} - ${format(weightLogEndDate, "MMM dd, yyyy")}`
+                      : "Loading date range..."}
                   </CardDescription>
                 </div>
 
-                <Select value={timeRange} onValueChange={setTimeRange}>
-                  <SelectTrigger
-                    className="w-[160px] rounded-lg sm:ml-auto"
-                    aria-label="Select a value"
+                <div className="flex flex-row items-center gap-2">
+                  <Select
+                    value={weightLogView}
+                    onValueChange={setWeightLogView}
                   >
-                    <SelectValue placeholder="Last 3 months" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="90d" className="rounded-lg">
-                      Last 3 months
-                    </SelectItem>
-                    <SelectItem value="30d" className="rounded-lg">
-                      Last 30 days
-                    </SelectItem>
-                    <SelectItem value="7d" className="rounded-lg">
-                      Last 7 days
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                    <SelectTrigger
+                      className="w-fit rounded-lg"
+                      aria-label="Select chart view"
+                    >
+                      <SelectValue placeholder="View Both" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="both" className="rounded-lg">
+                        View Both
+                      </SelectItem>
+                      <SelectItem value="weight" className="rounded-lg">
+                        View Weight
+                      </SelectItem>
+                      <SelectItem value="calories" className="rounded-lg">
+                        View Calories
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={timeRange} onValueChange={setTimeRange}>
+                    <SelectTrigger
+                      className="w-[160px] rounded-lg"
+                      aria-label="Select time range"
+                    >
+                      <SelectValue placeholder="Last 3 months" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="90d" className="rounded-lg">
+                        Last 3 months
+                      </SelectItem>
+                      <SelectItem value="30d" className="rounded-lg">
+                        Last 30 days
+                      </SelectItem>
+                      <SelectItem value="7d" className="rounded-lg">
+                        Last 7 days
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardHeader>
-              <LineChart weightLogData={[]} view={"both"} />
+              {!isLoadingWeightLog ? (
+                <LineChart
+                  weightLogData={weightLogData?.data || []}
+                  view={weightLogView}
+                />
+              ) : (
+                <div className="h-[300px] flex items-center justify-center">
+                  <div className="text-muted-foreground">
+                    Loading chart data...
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
         </div>
