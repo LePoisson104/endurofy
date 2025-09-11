@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import {
   Card,
@@ -10,7 +11,6 @@ import {
 import { Dumbbell, Activity, Flame, CalendarDays } from "lucide-react";
 import BarChart from "@/components/charts/bar-chart";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import LineChart from "@/components/charts/line-chart";
 import { Progress } from "@/components/ui/progress";
@@ -35,6 +35,7 @@ import { getActivityMultiplier } from "@/helper/constants/activity-level-contant
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-api-slice";
+import { useGetFoodLogQuery } from "@/api/food/food-log-api-slice";
 import { isInCurrentRotation } from "@/helper/get-current-rotation";
 import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { startOfWeek, endOfWeek, format, parseISO, addDays } from "date-fns";
@@ -144,6 +145,12 @@ export default function DashboardPage() {
     }
   );
 
+  // Get today's food log for calorie calculation
+  const { data: todaysFoodLog } = useGetFoodLogQuery({
+    userId: currentUser?.user_id,
+    date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
+  });
+
   const currentWeight = Number(userInfo?.current_weight || 0);
   const startWeight = Number(userInfo?.starting_weight || 0);
   const goalWeight = Number(userInfo?.weight_goal || 0);
@@ -157,11 +164,25 @@ export default function DashboardPage() {
     ) || 0
   );
 
-  const TDEE = Number(
-    userInfo?.bmr
-      ? userInfo?.bmr * getActivityMultiplier(userInfo?.activity_level || "")
-      : 0
-  );
+  // Calculate consumed calories from today's food log
+  const getConsumedCalories = () => {
+    if (!todaysFoodLog?.data?.foodLog) return 0;
+
+    const allFoods = [
+      ...(todaysFoodLog.data.foodLog.foods.uncategorized || []),
+      ...(todaysFoodLog.data.foodLog.foods.breakfast || []),
+      ...(todaysFoodLog.data.foodLog.foods.lunch || []),
+      ...(todaysFoodLog.data.foodLog.foods.dinner || []),
+      ...(todaysFoodLog.data.foodLog.foods.snacks || []),
+    ];
+
+    return allFoods.reduce((total, food) => {
+      return total + parseFloat(food.calories);
+    }, 0);
+  };
+
+  const consumedCalories = getConsumedCalories();
+  const remainingCalories = Math.max(0, userInfo?.calories - consumedCalories);
 
   useEffect(() => {
     if (userInfo) {
@@ -281,25 +302,25 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Calories Burned
+                    Remaining Calories
                   </CardTitle>
                   <Flame className="h-4 w-4 text-red-400" />
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold mb-2">
-                    {Number(TDEE).toFixed(0)}{" "}
+                    {Math.round(remainingCalories)}{" "}
                     <span className="text-sm text-red-400">Kcal</span>
                   </p>
                   <p className="text-xs">
-                    Basal Metabolic Rate (BMR):{" "}
+                    Consumed Today:{" "}
                     <span className="text-sm text-muted-foreground">
-                      {userInfo?.bmr} Kcal
+                      {Math.round(consumedCalories)} Kcal
                     </span>
                   </p>
                   <p className="text-xs ">
-                    Base Line Activity:{" "}
+                    Daily Target (TDEE):{" "}
                     <span className="text-sm text-muted-foreground">
-                      {Number(TDEE - (userInfo?.bmr || 0)).toFixed(0)} Kcal
+                      {Number(userInfo?.calories).toFixed(0)} Kcal
                     </span>
                   </p>
                 </CardContent>
