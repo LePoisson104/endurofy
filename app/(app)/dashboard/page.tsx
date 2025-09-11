@@ -219,6 +219,52 @@ export default function DashboardPage() {
     router.push(`/workout-log?date=${formattedDate}&tab=log`);
   };
 
+  // Get today's workout session
+  const getTodaysWorkout = () => {
+    if (!activeProgram) return null;
+
+    const today = new Date();
+
+    if (activeProgram.programType === "dayOfWeek") {
+      const dayOfWeek = today.getDay() || 7; // Convert Sunday (0) to 7
+      return (
+        activeProgram.workoutDays.find((day) => day.dayNumber === dayOfWeek) ||
+        null
+      );
+    }
+
+    if (activeProgram.programType === "custom") {
+      const startingDate = new Date(activeProgram.startingDate);
+      const daysDifference = Math.floor(
+        (today.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      const maxDayNumber = Math.max(
+        ...activeProgram.workoutDays.map((day) => day.dayNumber)
+      );
+
+      if (maxDayNumber <= 0) return null;
+
+      let cycleDay;
+      if (daysDifference >= 0) {
+        cycleDay = (daysDifference % maxDayNumber) + 1;
+      } else {
+        const positiveDays = Math.abs(daysDifference);
+        const remainder = positiveDays % maxDayNumber;
+        cycleDay = remainder === 0 ? 1 : maxDayNumber + 1 - remainder;
+      }
+
+      return (
+        activeProgram.workoutDays.find((day) => day.dayNumber === cycleDay) ||
+        null
+      );
+    }
+
+    return null;
+  };
+
+  const todaysWorkout = getTodaysWorkout();
+
   useEffect(() => {
     if (userInfo) {
       dispatch(calculateAndSetBMR());
@@ -427,27 +473,35 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Upcoming Events
+                    Today's Session
                   </CardTitle>
                   <CalendarDays className="h-4 w-4 text-orange-400" />
                 </CardHeader>
                 <CardContent className="flex gap-4">
                   <div className="flex flex-col w-1/2">
-                    <p className="text-xl font-bold">
-                      {new Date().toLocaleDateString("en-US", {
-                        weekday: "long",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Today's Events
-                    </p>
+                    {todaysWorkout ? (
+                      <>
+                        <p className="text-xl font-bold mb-2">
+                          {todaysWorkout.dayName}
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {todaysWorkout.exercises.length} exercises scheduled
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xl font-bold mb-2">Rest Day</p>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          No workout scheduled for today
+                        </p>
+                      </>
+                    )}
                     <Button
-                      className="w-fit arrow-button"
+                      className="w-fit arrow-button mt-auto"
                       onClick={() => handleViewWorkout(new Date())}
+                      disabled={!todaysWorkout}
                     >
-                      View
+                      {todaysWorkout ? "Start" : "View"}
                       <svg
                         className="arrow-icon"
                         viewBox="0 -3.5 24 24"
@@ -474,18 +528,34 @@ export default function DashboardPage() {
                     </Button>
                   </div>
                   <div className="flex flex-col gap-2 w-1/2">
-                    <div className="flex gap-2">
-                      <div className="w-[1px] h-5 bg-red-400" />
-                      <p className="text-sm">Fasted Cardio</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-[1px] h-5 bg-orange-400" />
-                      <p className="text-sm">Chest A</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-[1px] h-5 bg-teal-400" />
-                      <p className="text-sm">2 miles run</p>
-                    </div>
+                    {todaysWorkout && todaysWorkout.exercises.length > 0 ? (
+                      todaysWorkout.exercises
+                        .slice(0, 3)
+                        .map((exercise, index) => (
+                          <div key={exercise.exerciseId} className="flex gap-2">
+                            <div
+                              className={`w-[1px] h-5 ${
+                                index === 0
+                                  ? "bg-red-400"
+                                  : index === 1
+                                  ? "bg-orange-400"
+                                  : "bg-teal-400"
+                              }`}
+                            />
+                            <p className="text-sm truncate">
+                              {exercise.exerciseName}
+                            </p>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-sm text-muted-foreground">
+                          {todaysWorkout
+                            ? "No exercises scheduled"
+                            : "Enjoy your rest day!"}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
