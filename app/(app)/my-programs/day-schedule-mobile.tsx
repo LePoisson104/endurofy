@@ -59,12 +59,16 @@ function SortableExerciseCard({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: exercise.exerciseId });
 
-  const style = {
+  // Separate styles for card and drag handle
+  const cardStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : undefined,
-    cursor: isEditing ? "grab" : "auto",
-    touchAction: "none",
+  };
+
+  const dragHandleStyle = {
+    touchAction: "none" as const,
+    cursor: "grab",
   };
 
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
@@ -104,8 +108,7 @@ function SortableExerciseCard({
   return (
     <Card
       ref={setNodeRef}
-      style={style}
-      {...(isEditing ? attributes : {})}
+      style={cardStyle}
       className={`mb-3 ${isDragging ? "bg-muted/50" : ""} ${
         isCurrentlyEditing ? "border-primary" : ""
       }`}
@@ -115,8 +118,10 @@ function SortableExerciseCard({
         {isEditing && (
           <div className="flex justify-between items-start mb-3">
             <button
+              {...attributes}
               {...listeners}
-              className="touch-none cursor-grab active:cursor-grabbing flex items-center p-2 -ml-2 -mt-2"
+              style={dragHandleStyle}
+              className="active:cursor-grabbing flex items-center p-2 -ml-2 -mt-2"
               aria-label="Drag handle"
             >
               <GripVertical className="h-5 w-5 text-slate-400" />
