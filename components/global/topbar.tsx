@@ -77,7 +77,7 @@ export function TopBar({ className }: TopBarProps) {
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Notifications */}
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
@@ -119,7 +119,7 @@ export function TopBar({ className }: TopBarProps) {
                   View all notifications
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
             <Button variant="ghost" size="icon">
               <Link href="/settings">
                 <Settings className="h-5 w-5" />
