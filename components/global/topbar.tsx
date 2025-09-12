@@ -1,20 +1,15 @@
 "use client";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, Settings, User, Sun, Moon } from "lucide-react";
-
+import { Settings, User, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThemeToggle } from "@/components/buttons/theme-toggle";
@@ -76,50 +71,6 @@ export function TopBar({ className }: TopBarProps) {
                 <ThemeToggle onClose={() => setIsThemeOpen(false)} />
               </DropdownMenuContent>
             </DropdownMenu>
-            {/* Notifications */}
-            {/* <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <Badge className="absolute -right-1 -top-0 h-5 w-5 rounded-full p-0 flex items-center justify-center  bg-[#FF3B30] text-white">
-                    3
-                  </Badge>
-                  <span className="sr-only">Notifications</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="max-h-80 overflow-auto">
-                  {[1, 2, 3].map((i) => (
-                    <DropdownMenuItem key={i} className="cursor-pointer py-3">
-                      <div className="flex items-start gap-2">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={`#`} alt="Avatar" />
-                          <AvatarFallback>U{i}</AvatarFallback>
-                        </Avatar>
-                        <div className="grid gap-1">
-                          <p className="text-sm font-medium leading-none">
-                            New notification {i}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            This is a notification message that might be quite
-                            long and needs to wrap properly.
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            2 hours ago
-                          </p>
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer justify-center font-medium">
-                  View all notifications
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu> */}
             <Button variant="ghost" size="icon">
               <Link href="/settings">
                 <Settings className="h-5 w-5" />
