@@ -23,7 +23,7 @@ export const isInCurrentRotation = (program: WorkoutProgram) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const currentRotation = Math.floor(todaysDifference / maxDayNumber);
   const currentRotationStart = new Date(
-    startingDate.getTime() + currentRotation * maxDayNumber * oneDay - oneDay
+    startingDate.getTime() + currentRotation * maxDayNumber * oneDay
   );
   const currentRotationEnd = new Date(
     currentRotationStart.getTime() + maxDayNumber * oneDay
