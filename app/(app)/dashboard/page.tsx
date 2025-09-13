@@ -42,6 +42,7 @@ import { startOfWeek, endOfWeek, format, parseISO, addDays } from "date-fns";
 import { useRouter } from "next/navigation";
 import { getDayRange } from "@/helper/get-day-range";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useGetWeeklySetsQuery } from "@/api/workout-log/workout-log-api-slice";
 
 export default function DashboardPage() {
   const isDark = useGetCurrentTheme();
@@ -140,6 +141,15 @@ export default function DashboardPage() {
   };
 
   const workoutSessions = generateWorkoutSessions();
+
+  const { data: weeklySets } = useGetWeeklySetsQuery({
+    userId: currentUser?.user_id,
+    programId: activeProgram?.programId,
+    startDate: currentStartingDate,
+    endDate: currentEndingDate,
+  });
+
+  console.log(weeklySets);
 
   const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery(
     {
@@ -685,7 +695,7 @@ export default function DashboardPage() {
                 <CardDescription>January - June 2024</CardDescription>
               </CardHeader>
               <CardContent>
-                <BarChart />
+                <BarChart chartData={weeklySets?.data} />
               </CardContent>
             </Card>
             <Card>

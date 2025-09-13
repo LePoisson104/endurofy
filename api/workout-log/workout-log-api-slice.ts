@@ -16,6 +16,19 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         { type: "WorkoutLog", id: "LIST" },
       ],
     }),
+    getWeeklySets: builder.query({
+      query: ({ userId, programId, startDate, endDate }) => ({
+        url: `/api/v1/workout-logs/get-weekly-sets/${userId}/${programId}/${startDate}/${endDate}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, arg) => [
+        {
+          type: "WorkoutLog",
+          id: `${arg.userId}-${arg.programId}-${arg.startDate}-${arg.endDate}`,
+        },
+        { type: "WorkoutLog", id: "LIST" },
+      ],
+    }),
     getManualWorkoutLogWithPrevious: builder.query({
       query: ({ userId, programId, workoutDate }) => ({
         url: `/api/v1/workout-logs/get-manual-workout-log-with-previous/${userId}/${programId}/${workoutDate}`,
@@ -205,4 +218,5 @@ export const {
   useDeleteWorkoutExerciseMutation,
   useDeleteWorkoutSetWithCascadeMutation,
   useGetManualWorkoutLogWithPreviousQuery,
+  useGetWeeklySetsQuery,
 } = workoutLogApiSlice;
