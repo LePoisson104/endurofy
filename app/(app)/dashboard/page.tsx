@@ -692,10 +692,27 @@ export default function DashboardPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Weekly Sets</CardTitle>
-                <CardDescription>January - June 2024</CardDescription>
+                <CardDescription>
+                  {new Date(
+                    currentStartingDate + "T00:00:00"
+                  ).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}{" "}
+                  -{" "}
+                  {new Date(currentEndingDate + "T00:00:00").toLocaleDateString(
+                    "en-US",
+                    { month: "long", day: "numeric", year: "numeric" }
+                  )}
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <BarChart chartData={weeklySets?.data} />
+              <CardContent className="flex justify-center items-center h-full">
+                {weeklySets?.data.length > 0 ? (
+                  <BarChart chartData={weeklySets?.data} />
+                ) : (
+                  <p className="text-sm text-muted-foreground">No data</p>
+                )}
               </CardContent>
             </Card>
             <Card>
