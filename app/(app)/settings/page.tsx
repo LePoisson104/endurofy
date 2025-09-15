@@ -26,7 +26,7 @@ export default function SettingsPage() {
         onValueChange={handleTabChange}
       >
         <div className="bg-background z-10 border-b mb-2">
-          <TabsList className={"grid grid-cols-3 h-auto flex gap-1"}>
+          <TabsList className={"grid grid-cols-3 h-auto flex gap-2"}>
             <TabsTrigger value="account" className={isMobile ? "py-2" : ""}>
               Account
             </TabsTrigger>

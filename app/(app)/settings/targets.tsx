@@ -217,9 +217,9 @@ export default function Targets() {
 
             <div className="bg-muted/30 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-medium">Calorie Breakdown</span>
+                <span className="text-sm font-medium">Calorie Breakdown</span>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-center flex">
+              <div className="grid grid-cols-3 gap-4 text-center flex py-4">
                 <div>
                   <div
                     className={`text-2xl font-bold ${
@@ -261,9 +261,11 @@ export default function Targets() {
             </div>
             <div className="bg-muted/30 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-medium">Macronutrient Breakdown</span>
+                <span className="text-sm font-medium">
+                  Macronutrient Breakdown
+                </span>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-4 text-center py-4">
                 <div>
                   <div className="text-2xl font-bold">
                     {proteinGrams}{" "}
