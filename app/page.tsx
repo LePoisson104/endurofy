@@ -12,8 +12,6 @@ import {
   Dumbbell,
   Sparkle,
   CalendarSync,
-  X,
-  Check,
 } from "lucide-react";
 import { MotionAccordion } from "@/components/landing/motion-accordion";
 import { LandingPageThemeToggle } from "@/components/buttons/landing-page-theme-toggle";
@@ -24,6 +22,7 @@ import { useState, useEffect, useRef } from "react";
 import { FeatureCard } from "@/components/cards/landingpage-cards";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/landing/footer";
+import MobileNavigation from "@/components/landing/mobile-navigation";
 
 // Animation variants
 const fadeInUp = {
@@ -41,19 +40,6 @@ const imageVariants = {
     opacity: 1,
     scale: 1,
     transition: { duration: 0.7, ease: "easeOut" },
-  },
-};
-
-const menuVariants = {
-  hidden: {
-    x: "100%",
-    opacity: 0,
-    transition: { type: "tween", duration: 0.25, ease: "easeInOut" },
-  },
-  visible: {
-    x: 0,
-    opacity: 1,
-    transition: { type: "tween", duration: 0.25, ease: "easeInOut" },
   },
 };
 
@@ -214,7 +200,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col">
+    <div className="flex min-h-[100dvh] flex-col landing-page">
       {/* <div className="animated-mesh-gradient"></div> */}
       {/* Header moved into hero section */}
       <header
@@ -380,9 +366,9 @@ export default function Home() {
                     <br />
                     Enhance Your Life
                   </h1>
-                  <p className="max-w-[600px] text-muted-background md:text-xl mx-auto lg:mx-0">
-                    Endurofy helps you track your endurance activities, analyze
-                    your performance, and reach your fitness goals faster.
+                  <p className="max-w-[600px] text-muted-background text-sm mx-auto lg:mx-0">
+                    Endurofy makes it easy to track your endurance activities,
+                    stay consistent, and achieve your fitness goals faster.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[200px]:flex-col justify-center lg:justify-start sm:w-full">
@@ -469,7 +455,7 @@ export default function Home() {
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Everything you need to reach your peak
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className="max-w-[900px] text-muted-foreground text-sm">
                   Endurofy combines powerful tracking and analytics features to
                   help you achieve your fitness goals.
                 </p>
@@ -533,7 +519,7 @@ export default function Home() {
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Simple, intuitive, and effective
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className="max-w-[900px] text-muted-foreground text-sm">
                   Customize your training plans, track your progress, and reach
                   your goals.
                 </p>
@@ -602,7 +588,7 @@ export default function Home() {
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Effortless Interactions, Powerful Experiences
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className="max-w-[900px] text-muted-foreground text-sm">
                   Beautiful, intuitive interface that helps you focus on what
                   matters most - your performance.
                 </p>
@@ -681,7 +667,7 @@ export default function Home() {
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Questions & Answers
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className="max-w-[900px] text-muted-foreground text-sm">
                   Everything you need to know about Endurofy.
                 </p>
               </div>
@@ -707,13 +693,14 @@ export default function Home() {
                   Get started with Endurofy
                 </h2>
                 <p className="max-w-[600px] text-muted-foreground text-sm mx-auto">
-                  Get started with Endurofy today and join thousands of athletes
-                  who are tracking, improving, and conquering their fitness
-                  goals.
+                  Built for driven athletes who want to turn consistent training
+                  into real progress.
                 </p>
               </div>
 
-              <div className={`relative flex-1 ${isMobile ? "w-3/4" : "w-md"}`}>
+              <div
+                className={`relative flex-1 ${isMobile ? "w-[90%]" : "w-md"}`}
+              >
                 <Input
                   placeholder="Enter your email"
                   value={email}
@@ -759,92 +746,12 @@ export default function Home() {
 
       {/* Mobile menu panel MOVED HERE, as a sibling to header, main, and footer */}
       {isMobile && (
-        <motion.div
-          className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-xs bg-background p-4 shadow-xl flex flex-col backdrop-filter backdrop-blur-lg bg-opacity-90 dark:bg-opacity-90 overflow-y-auto"
-          initial="hidden"
-          animate={isMenuOpen ? "visible" : "hidden"}
-          variants={menuVariants}
-          ref={menuRef}
-        >
-          {/* Close button inside the panel */}
-          <div className="flex justify-end w-full mb-3 standalone:pt-14">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMenu}
-              aria-label="Close menu"
-              className="h-7 w-7"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          {/* Original navigation content */}
-          <nav className="flex flex-col gap-2">
-            <Link
-              href="#features"
-              onClick={(e) => scrollToSection(e, "features")}
-              className="text-sm font-medium hover:text-primary py-1.5"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              onClick={(e) => scrollToSection(e, "how-it-works")}
-              className="text-sm font-medium hover:text-primary py-1.5"
-            >
-              How it works
-            </Link>
-            <Link
-              href="#pricing"
-              onClick={(e) => scrollToSection(e, "pricing")}
-              className="text-sm font-medium hover:text-primary py-1.5"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#faq"
-              onClick={(e) => scrollToSection(e, "faq")}
-              className="text-sm font-medium hover:text-primary py-1.5"
-            >
-              FAQ
-            </Link>
-            <div className="flex gap-2 pt-1 pb-1">
-              <Link href="/login" className="flex-1">
-                <Button variant="outline" className="w-full h-9">
-                  Log in
-                </Button>
-              </Link>
-              <Link href="/signup" className="flex-1">
-                <Button className="w-full h-9 arrow-button">
-                  Try it now
-                  <svg
-                    className="arrow-icon"
-                    viewBox="0 -3.5 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="7"
-                    height="7"
-                  >
-                    <path
-                      className="arrow-icon__tip"
-                      d="M8 15L14 8.5L8 2"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <line
-                      className="arrow-icon__line"
-                      x1="13"
-                      y1="8.5"
-                      y2="8.5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </Button>
-              </Link>
-            </div>
-          </nav>
-        </motion.div>
+        <MobileNavigation
+          isMenuOpen={isMenuOpen}
+          menuRef={menuRef}
+          toggleMenu={toggleMenu}
+          scrollToSection={scrollToSection}
+        />
       )}
     </div>
   );

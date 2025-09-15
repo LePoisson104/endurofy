@@ -215,6 +215,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  .landing-page ::selection {
+    @apply bg-sky-500 text-white;
+  }
 }
 
 @keyframes slideDown {
