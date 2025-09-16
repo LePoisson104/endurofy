@@ -11,6 +11,8 @@ import {
   Component,
   Menu,
   Sparkle,
+  FilePlus,
+  ChartColumn,
   CalendarSync,
 } from "lucide-react";
 import { MotionAccordion } from "@/components/landing/motion-accordion";
@@ -361,7 +363,11 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px] items-center justify-center">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2 text-center lg:text-left">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                  <h1
+                    className={`text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none ${
+                      isMobile ? "mt-15" : ""
+                    }`}
+                  >
                     Strengthen Your Endurance,
                     <br />
                     Enhance Your Life
@@ -466,40 +472,39 @@ export default function Home() {
               className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3"
             >
               <FeatureCard
-                icon={<Calendar className="h-6 w-6 text-blue-400" />}
+                icon={<Calendar className="h-6 w-6 text-red-400" />}
                 title="Training Programs"
-                bgColor="bg-blue-400"
+                bgColor="bg-red-400"
                 description="Follow personalized training programs designed to help you reach your goals."
               />
               <FeatureCard
-                icon={<CalendarSync className="h-6 w-6 text-blue-400" />}
+                icon={<CalendarSync className="h-6 w-6 text-pink-400" />}
                 title="Auto-filled Workouts"
-                bgColor="bg-blue-400"
+                bgColor="bg-pink-400"
                 description="Endurofy pre-fills each day in your workout log with the exercises from your program."
               />
               <FeatureCard
-                icon={<NotepadText className="h-6 w-6 text-blue-400" />}
+                icon={<NotepadText className="h-6 w-6 text-purple-400" />}
                 title="Advanced Tracking"
-                bgColor="bg-blue-400"
+                bgColor="bg-purple-400"
                 description="Track workouts, and daily weights with detailed metrics."
               />
               <FeatureCard
-                icon={<Apple className="h-6 w-6 text-red-400" />}
+                icon={<Activity className="h-6 w-6 text-sky-400" />}
+                title="Weight Log"
+                bgColor="bg-sky-400"
+                description="Log your daily weight and automatically track your calorie intake at the end of each day."
+              />
+              <FeatureCard
+                icon={<Apple className="h-6 w-6 text-emerald-400" />}
                 title="Food Log"
-                bgColor="bg-red-400"
+                bgColor="bg-emerald-400"
                 description="Easily track your daily food intake with access to over 300,000 food items."
               />
               <FeatureCard
-                icon={<Activity className="h-6 w-6 text-blue-400" />}
-                title="Weight Log"
-                bgColor="bg-blue-400"
-                description="Log your daily weight and automatically track your calorie intake at the end of each day."
-              />
-
-              <FeatureCard
-                icon={<Component className="h-6 w-6 text-blue-400" />}
+                icon={<Component className="h-6 w-6 text-teal-400" />}
                 title="Unlock Superpowers"
-                bgColor="bg-blue-400"
+                bgColor="bg-teal-400"
                 description="Consolidate three core features into a single app to save time and reduce switching between apps."
               />
             </motion.div>
@@ -536,7 +541,9 @@ export default function Home() {
                 variants={fadeInUp}
                 className="flex flex-col items-center text-center space-y-4"
               >
-                <div className="pulse pulse-1">1</div>
+                <div className="pulse pulse-1 bg-muted">
+                  <FilePlus className="h-6 w-6 text-primary" />
+                </div>
                 <h3 className="text-xl font-bold">
                   Create Your Workout program
                 </h3>
@@ -550,7 +557,9 @@ export default function Home() {
                 variants={fadeInUp}
                 className="flex flex-col items-center text-center space-y-4"
               >
-                <div className="pulse pulse-2">2</div>
+                <div className="pulse pulse-2 bg-muted">
+                  <CalendarSync className="h-6 w-6 text-primary" />
+                </div>
                 <h3 className="text-xl font-bold">Auto-filled Workouts</h3>
                 <p className="text-muted-foreground text-[15px]">
                   Stay focused &amp; Endurofy pre-fills each day in your workout
@@ -562,7 +571,9 @@ export default function Home() {
                 variants={fadeInUp}
                 className="flex flex-col items-center text-center space-y-4"
               >
-                <div className="pulse pulse-3">3</div>
+                <div className="pulse pulse-3 bg-muted">
+                  <ChartColumn className="h-6 w-6 text-primary" />
+                </div>
                 <h3 className="text-xl font-bold">Track and Progress</h3>
                 <p className="text-muted-foreground text-[15px]">
                   Follow your plan, track your progress, and see your growth
@@ -606,7 +617,7 @@ export default function Home() {
             >
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl  dark:drop-shadow-[0_15px_40px_rgba(30,30,30,1)]"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[400px] mx-auto"
               >
                 <Image
                   src={`${
@@ -621,7 +632,7 @@ export default function Home() {
               </motion.div>
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted md:translate-y-10 drop-shadow-xl dark:drop-shadow-[0_15px_40px_rgba(30,30,30,1)]"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl md:translate-y-10 bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[400px] mx-auto"
               >
                 <Image
                   src={
@@ -637,7 +648,7 @@ export default function Home() {
 
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl dark:drop-shadow-[0_15px_40px_rgba(30,30,30,1)]"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[400px] mx-auto"
               >
                 <Image
                   src={`${

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const featureCardVariants = {
   hidden: { opacity: 0 },
@@ -23,6 +24,7 @@ export function FeatureCard({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -44,19 +46,17 @@ export function FeatureCard({
     const colorName = getColorName(color);
 
     const colorMap: Record<string, string> = {
-      blue: "bg-blue-500/10 group-hover:bg-blue-500/20 dark:bg-blue-500/20 dark:group-hover:bg-blue-500/30 text-blue-600 group-hover:text-blue-500 dark:text-blue-400 dark:group-hover:text-blue-300",
-      green:
-        "bg-green-500/10 group-hover:bg-green-500/20 dark:bg-green-500/20 dark:group-hover:bg-green-500/30 text-green-600 group-hover:text-green-500 dark:text-green-400 dark:group-hover:text-green-300",
       purple:
         "bg-purple-500/10 group-hover:bg-purple-500/20 dark:bg-purple-500/20 dark:group-hover:bg-purple-500/30 text-purple-600 group-hover:text-purple-500 dark:text-purple-400 dark:group-hover:text-purple-300",
-      orange:
-        "bg-orange-500/10 group-hover:bg-orange-500/20 dark:bg-orange-500/20 dark:group-hover:bg-orange-500/30 text-orange-600 group-hover:text-orange-500 dark:text-orange-400 dark:group-hover:text-orange-300",
       red: "bg-red-500/10 group-hover:bg-red-500/20 dark:bg-red-500/20 dark:group-hover:bg-red-500/30 text-red-600 group-hover:text-red-500 dark:text-red-400 dark:group-hover:text-red-300",
-      indigo:
-        "bg-indigo-500/10 group-hover:bg-indigo-500/20 dark:bg-indigo-500/20 dark:group-hover:bg-indigo-500/30 text-indigo-600 group-hover:text-indigo-500 dark:text-indigo-400 dark:group-hover:text-indigo-300",
+      pink: "bg-pink-500/10 group-hover:bg-pink-500/20 dark:bg-pink-500/20 dark:group-hover:bg-pink-500/30 text-pink-600 group-hover:text-pink-500 dark:text-pink-400 dark:group-hover:text-pink-300",
+      emerald:
+        "bg-emerald-500/10 group-hover:bg-emerald-500/20 dark:bg-emerald-500/20 dark:group-hover:bg-emerald-500/30 text-emerald-600 group-hover:text-emerald-500 dark:text-emerald-400 dark:group-hover:text-emerald-300",
+      teal: "bg-teal-500/10 group-hover:bg-teal-500/20 dark:bg-teal-500/20 dark:group-hover:bg-teal-500/30 text-teal-600 group-hover:text-teal-500 dark:text-teal-400 dark:group-hover:text-teal-300",
+      sky: "bg-sky-500/10 group-hover:bg-sky-500/20 dark:bg-sky-500/20 dark:group-hover:bg-sky-500/30 text-sky-600 group-hover:text-sky-500 dark:text-sky-400 dark:group-hover:text-sky-300",
     };
 
-    return colorMap[colorName] || colorMap["blue"]; // fallback to blue
+    return colorMap[colorName] || colorMap["blue"]; // fallback to purple
   };
 
   // Get hover shadow gradient classes based on color
@@ -64,28 +64,86 @@ export function FeatureCard({
     const colorName = getColorName(color);
 
     const gradientMap: Record<string, string> = {
-      blue: "bg-gradient-to-r from-blue-300/40 to-blue-500/10",
-      green: "bg-gradient-to-r from-green-300/40 to-green-500/10",
       purple: "bg-gradient-to-r from-purple-300/40 to-purple-500/10",
-      orange: "bg-gradient-to-r from-orange-300/40 to-orange-500/10",
       red: "bg-gradient-to-r from-red-300/40 to-red-500/10",
-      indigo: "bg-gradient-to-r from-indigo-300/40 to-indigo-500/10",
+      pink: "bg-gradient-to-r from-pink-300/40 to-pink-500/10",
+      sky: "bg-gradient-to-r from-sky-300/40 to-sky-500/10",
+      emerald: "bg-gradient-to-r from-emerald-300/40 to-emerald-500/10",
+      teal: "bg-gradient-to-r from-teal-300/40 to-teal-500/10",
     };
 
-    return gradientMap[colorName] || gradientMap["blue"]; // fallback to blue
+    return gradientMap[colorName] || gradientMap["purple"]; // fallback to purple
+  };
+
+  // Get card shadow classes based on color
+  const getCardShadow = (color: string) => {
+    const colorName = getColorName(color);
+
+    const shadowMap: Record<string, string> = {
+      purple:
+        "hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] dark:hover:shadow-[0_8px_30px_rgba(168,85,247,0.25)]",
+      red: "hover:shadow-[0_8px_30px_rgba(239,68,68,0.15)] dark:hover:shadow-[0_8px_30px_rgba(239,68,68,0.25)]",
+      pink: "hover:shadow-[0_8px_30px_rgba(236,72,153,0.15)] dark:hover:shadow-[0_8px_30px_rgba(236,72,153,0.25)]",
+      sky: "hover:shadow-[0_8px_30px_rgba(14,165,233,0.15)] dark:hover:shadow-[0_8px_30px_rgba(14,165,233,0.25)]",
+      emerald:
+        "hover:shadow-[0_8px_30px_rgba(16,185,129,0.15)] dark:hover:shadow-[0_8px_30px_rgba(16,185,129,0.25)]",
+      teal: "hover:shadow-[0_8px_30px_rgba(20,184,166,0.15)] dark:hover:shadow-[0_8px_30px_rgba(20,184,166,0.25)]",
+    };
+
+    return shadowMap[colorName] || shadowMap["purple"]; // fallback to purple
+  };
+
+  const getHighlightedText = (color: string) => {
+    const colorName = getColorName(color);
+
+    const highlightedTextMap: Record<string, string> = {
+      purple: "selection:bg-purple-400 dark:selection:bg-purple-500",
+      red: "selection:bg-red-400 dark:selection:bg-red-500",
+      pink: "selection:bg-pink-400 dark:selection:bg-pink-500",
+      sky: "selection:bg-sky-400 dark:selection:bg-sky-500",
+      emerald: "selection:bg-emerald-400 dark:selection:bg-emerald-500",
+      teal: "selection:bg-teal-400 dark:selection:bg-teal-500",
+    };
+
+    return highlightedTextMap[colorName] || highlightedTextMap["purple"]; // fallback to purple
+  };
+
+  // Get mobile background gradient
+  const getMobileBackground = (color: string) => {
+    const colorName = getColorName(color);
+
+    const mobileGradientMap: Record<string, string> = {
+      purple:
+        "bg-gradient-to-br from-purple-500/20 via-purple-500/5 to-transparent",
+      red: "bg-gradient-to-br from-red-500/20 via-red-500/5 to-transparent",
+      pink: "bg-gradient-to-br from-pink-500/20 via-pink-500/5 to-transparent",
+      sky: "bg-gradient-to-br from-sky-500/20 via-sky-500/5 to-transparent",
+      emerald:
+        "bg-gradient-to-br from-emerald-500/20 via-emerald-500/5 to-transparent",
+      teal: "bg-gradient-to-br from-teal-500/20 via-teal-500/5 to-transparent",
+    };
+
+    return mobileGradientMap[colorName] || mobileGradientMap["purple"]; // fallback to purple
   };
 
   return (
     <motion.div
       ref={cardRef}
       variants={featureCardVariants}
-      className="flex flex-col p-6 rounded-xl border bg-card dark:bg-background hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
-      dark:hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] transition-all cursor-pointer h-[200px] w-full group relative overflow-hidden"
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`flex flex-col p-6 rounded-xl border ${
+        isMobile
+          ? `${getMobileBackground(bgColor)} dark:${getMobileBackground(
+              bgColor
+            )}`
+          : "bg-card dark:bg-background"
+      } ${getCardShadow(
+        bgColor
+      )} transition-all cursor-pointer h-[200px] w-full group relative overflow-hidden`}
+      onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onMouseEnter={!isMobile ? () => setIsHovered(true) : undefined}
+      onMouseLeave={!isMobile ? () => setIsHovered(false) : undefined}
     >
-      {isHovered && (
+      {isHovered && !isMobile && (
         <div
           className={`absolute w-[200px] h-[200px] rounded-full blur-2xl pointer-events-none transition-transform duration-100 ${getHoverGradient(
             bgColor
@@ -104,34 +162,16 @@ export function FeatureCard({
       >
         {icon}
       </div>
-      <div className="mt-4 relative z-10">
+      <div
+        className={`mt-4 relative z-10 ${getHighlightedText(
+          bgColor
+        )} selection:text-white`}
+      >
         <h3 className="text-xl font-bold text-left">{title}</h3>
         <p className="mt-2 text-sm text-muted-foreground text-left">
           {description}
         </p>
       </div>
     </motion.div>
-  );
-}
-
-export function PricingFeature({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-2">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="shrink-0 h-4 w-4 text-primary mt-1"
-      >
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      <span className="flex-1 text-left">{children}</span>
-    </li>
   );
 }
