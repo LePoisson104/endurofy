@@ -69,13 +69,13 @@ export default function Footer({
             </Link>
             <div className="flex gap-6">
               <Link
-                href="#"
+                href="/terms-of-service"
                 className="text-muted-foreground hover:text-foreground text-sm"
               >
                 Terms of Service
               </Link>
               <Link
-                href="#"
+                href="/privacy-policy"
                 className="text-muted-foreground hover:text-foreground text-sm"
               >
                 Privacy Policy

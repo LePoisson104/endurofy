@@ -315,14 +315,14 @@ export default function Signup() {
           By proceeding you acknowledge that you have read, understood and agree
           to our{" "}
           <Link
-            href="/terms"
+            href="/terms-of-service"
             className="hover:underline underline-offset-2 text-primary font-medium"
           >
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
-            href="/privacy"
+            href="/privacy-policy"
             className="hover:underline underline-offset-2 text-primary font-medium"
           >
             Privacy Policy
