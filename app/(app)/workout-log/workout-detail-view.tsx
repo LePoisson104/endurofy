@@ -551,7 +551,7 @@ export function WorkoutDetailView({
           <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-cyan-500" />
                 <div className="text-sm font-medium">Total Exercises</div>
                 <div className="text-sm font-bold">
                   {workout.workoutExercises.length}
@@ -560,14 +560,14 @@ export function WorkoutDetailView({
             </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <Target className="h-6 w-6 mx-auto mb-2 text-emerald-500" />
+                <Target className="h-6 w-6 mx-auto mb-2 text-sky-500" />
                 <div className="text-sm font-medium">Total Sets</div>
                 <div className="text-sm font-bold">{calculateTotalSets}</div>
               </div>
             </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-red-500" />
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-blue-500" />
                 <div className="text-sm font-medium">Volume</div>
                 <div className="text-sm font-bold">
                   {(calculateTotalVolume / 1000).toFixed(1)}K lbs

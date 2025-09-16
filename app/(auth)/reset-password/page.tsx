@@ -80,7 +80,6 @@ export default function ResetPassword() {
       toast.error("No parameters found");
       return;
     }
-    console.log(email, otp);
 
     // Mark all fields as touched
     setTouched({

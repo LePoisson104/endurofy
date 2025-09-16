@@ -36,12 +36,6 @@ import type {
 import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
 import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ResponsiveMenu,
   createMenuItem,
   createMenuSection,

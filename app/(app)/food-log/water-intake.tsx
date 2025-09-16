@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Droplets, Plus, Minus, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -220,15 +220,6 @@ const ProgressCircle = ({
     500,
     2
   );
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      day: "numeric",
-      month: "short",
-    });
-  };
 
   const waveHeight = Math.min(percentage === 0 ? 4 : percentage, 100);
 

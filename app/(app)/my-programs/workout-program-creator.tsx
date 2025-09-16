@@ -38,7 +38,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;

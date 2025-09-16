@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -137,8 +138,6 @@ export default function Targets() {
       toast.error("Please set your macros goals");
       return;
     }
-
-    console.log(payload);
 
     try {
       await updateUsersMacrosGoals({

@@ -66,10 +66,6 @@ export default function WeekSelector({
     setCurrentDay(nextWeek);
   };
 
-  const handleDaySelect = (date: Date) => {
-    onSelectDate(date);
-  };
-
   return (
     <div className="bg-card shadow-sm rounded-lg p-3">
       {/* Header with Month/Year and Navigation */}

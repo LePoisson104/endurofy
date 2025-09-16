@@ -80,7 +80,6 @@ export default function DashboardPage() {
     if (activeProgram.programType === "dayOfWeek") {
       // For dayOfWeek programs, show current week's workouts
       const weekStart = startOfWeek(new Date());
-      const weekEnd = endOfWeek(new Date());
       const sessions = [];
 
       for (let i = 0; i < 7; i++) {
@@ -148,8 +147,6 @@ export default function DashboardPage() {
     startDate: currentStartingDate,
     endDate: currentEndingDate,
   });
-
-  console.log(weeklySets);
 
   const { data: completedWorkoutLogs } = useGetCompletedWorkoutLogsQuery(
     {
