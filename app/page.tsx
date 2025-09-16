@@ -4,12 +4,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  NotepadText,
   Activity,
-  BarChart3,
+  Apple,
   Calendar,
-  Heart,
+  Component,
   Menu,
-  Dumbbell,
   Sparkle,
   CalendarSync,
 } from "lucide-react";
@@ -19,7 +19,7 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect, useRef } from "react";
-import { FeatureCard } from "@/components/cards/landingpage-cards";
+import { FeatureCard } from "@/components/landing/feature-card";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/landing/footer";
 import MobileNavigation from "@/components/landing/mobile-navigation";
@@ -466,35 +466,41 @@ export default function Home() {
               className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3"
             >
               <FeatureCard
-                icon={<Calendar className="h-6 w-6" />}
+                icon={<Calendar className="h-6 w-6 text-blue-400" />}
                 title="Training Programs"
+                bgColor="bg-blue-400"
                 description="Follow personalized training programs designed to help you reach your goals."
               />
               <FeatureCard
-                icon={<CalendarSync className="h-6 w-6" />}
+                icon={<CalendarSync className="h-6 w-6 text-blue-400" />}
                 title="Auto-filled Workouts"
+                bgColor="bg-blue-400"
                 description="Endurofy pre-fills each day in your workout log with the exercises from your program."
               />
               <FeatureCard
-                icon={<Activity className="h-6 w-6" />}
+                icon={<NotepadText className="h-6 w-6 text-blue-400" />}
                 title="Advanced Tracking"
+                bgColor="bg-blue-400"
                 description="Track workouts, and daily weights with detailed metrics."
               />
               <FeatureCard
-                icon={<BarChart3 className="h-6 w-6" />}
-                title="Performance Analytics"
-                description="Get insights into your training with detailed charts and progress tracking."
+                icon={<Apple className="h-6 w-6 text-red-400" />}
+                title="Food Log"
+                bgColor="bg-red-400"
+                description="Easily track your daily food intake with access to over 300,000 food items."
               />
               <FeatureCard
-                icon={<Dumbbell className="h-6 w-6" />}
-                title="Workout Explorer"
-                description="Explore workouts from our library and add them to your own training plans."
+                icon={<Activity className="h-6 w-6 text-blue-400" />}
+                title="Weight Log"
+                bgColor="bg-blue-400"
+                description="Log your daily weight and automatically track your calorie intake at the end of each day."
               />
 
               <FeatureCard
-                icon={<Heart className="h-6 w-6" />}
-                title="Health Integration"
-                description="Connect with Apple Health, Google Fit, and other platforms for a complete picture."
+                icon={<Component className="h-6 w-6 text-blue-400" />}
+                title="Unlock Superpowers"
+                bgColor="bg-blue-400"
+                description="Consolidate three core features into a single app to save time and reduce switching between apps."
               />
             </motion.div>
           </div>
@@ -534,7 +540,7 @@ export default function Home() {
                 <h3 className="text-xl font-bold">
                   Create Your Workout program
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-[15px]">
                   Design your custom training plan with the flexibility to match
                   your goals, whether it&apos;s strength, endurance, or overall
                   fitness.
@@ -546,7 +552,7 @@ export default function Home() {
               >
                 <div className="pulse pulse-2">2</div>
                 <h3 className="text-xl font-bold">Auto-filled Workouts</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-[15px]">
                   Stay focused &amp; Endurofy pre-fills each day in your workout
                   log with the exercises from your program, so all you need to
                   do is log your reps and weights.
@@ -558,7 +564,7 @@ export default function Home() {
               >
                 <div className="pulse pulse-3">3</div>
                 <h3 className="text-xl font-bold">Track and Progress</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-[15px]">
                   Follow your plan, track your progress, and see your growth
                   over time with powerful insights and analytics.
                 </p>

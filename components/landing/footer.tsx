@@ -61,6 +61,12 @@ export default function Footer({
             >
               FAQ
             </Link>
+            <Link
+              href="mailto:endurofy@gmail.com"
+              className="text-muted-foreground hover:text-foreground text-sm"
+            >
+              Contact Us
+            </Link>
             <div className="flex gap-6">
               <Link
                 href="#"
