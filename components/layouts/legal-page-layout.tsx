@@ -48,7 +48,7 @@ const buttonVariants = {
 
 interface LegalPageLayoutProps {
   children: React.ReactNode;
-  title: string;
+  title?: string;
 }
 
 export default function LegalPageLayout({
@@ -123,7 +123,7 @@ export default function LegalPageLayout({
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col">
+    <div className="flex flex-col">
       {/* Header */}
       <header
         ref={headerRef}
@@ -272,13 +272,6 @@ export default function LegalPageLayout({
           variants={fadeInUp}
           className="container mx-auto px-4 py-8 max-w-4xl mt-16"
         >
-          <motion.div variants={fadeInUp} className="mb-8">
-            <h1 className="text-4xl font-bold tracking-tight">{title}</h1>
-            <p className="text-muted-foreground mt-2">
-              Last updated: {new Date().toLocaleDateString()}
-            </p>
-          </motion.div>
-
           <motion.div
             variants={fadeInUp}
             className="prose prose-gray dark:prose-invert max-w-none"

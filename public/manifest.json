@@ -1,5 +1,28 @@
 {
-  "display": "standalone",
+  "name": "Endurofy - Endurance Fitness Tracker",
   "short_name": "Endurofy",
-  "start_url": "/login"
+  "description": "Track your endurance activities, stay consistent, and achieve your fitness goals faster",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/images/endurofy_logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/endurofy_logo_dark.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["fitness", "health", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
 }

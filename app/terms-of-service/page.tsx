@@ -4,6 +4,11 @@ export default function TermsOfService() {
   return (
     <LegalPageLayout title="Terms of Service">
       <section className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">Terms of Service</h1>
+        <p className="text-muted-foreground mt-2 mb-10">
+          Last updated:{" "}
+          {new Date("2025-09-16" + "T00:00:00").toLocaleDateString()}
+        </p>
         <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
         <p className="mb-4">
           By accessing and using Endurofy (&quot;the Service&quot;), you accept

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
-export default function AppLogo() {
+export default function AppLogo({ size = 45 }: { size?: number }) {
   const isDark = useGetCurrentTheme();
   const [logoSrc, setLogoSrc] = useState("/images/endurofy_logo.png");
 
@@ -14,8 +14,8 @@ export default function AppLogo() {
   }, [isDark]);
 
   return (
-    <div className="flex items-center justify-center w-10 h-10 mb-2">
-      <Image src={logoSrc} alt="Endurofy" width={45} height={45} />
+    <div className="flex items-center justify-center p-0">
+      <Image src={logoSrc} alt="Endurofy" width={size} height={size} />
     </div>
   );
 }

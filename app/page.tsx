@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -89,6 +90,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [headerBlur, setHeaderBlur] = useState(5); // Initial blur amount
   const [email, setEmail] = useState("");
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -122,6 +125,32 @@ export default function Home() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // PWA Install prompt handling
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+      console.log("PWA was installed");
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
   }, []);
 
   const toggleMenu = () => {
@@ -199,6 +228,16 @@ export default function Home() {
       sessionStorage.removeItem("getStartedEmail");
     }
     router.push("/signup");
+  };
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+    }
   };
 
   return (
@@ -355,14 +394,12 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-48 px-4 md:px-6"
+          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-40 px-4 md:px-6"
         >
           <div className="container px-4 md:px-6 mx-auto mt-16">
-            {" "}
-            {/* Changed pt-16 to mt-16 */}
-            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px] items-center justify-center">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2 text-center lg:text-left">
+            <div className="flex justify-center items-center">
+              <div className="flex flex-col justify-center items-center space-y-4">
+                <div className="space-y-2 text-center">
                   <h1
                     className={`text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none ${
                       isMobile ? "mt-15" : ""
@@ -372,18 +409,18 @@ export default function Home() {
                     <br />
                     Enhance Your Life
                   </h1>
-                  <p className="max-w-[600px] text-muted-background text-sm mx-auto lg:mx-0">
+                  <p className="max-w-[600px] text-muted-background text-sm mx-auto">
                     Endurofy makes it easy to track your endurance activities,
                     stay consistent, and achieve your fitness goals faster.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[200px]:flex-col justify-center lg:justify-start sm:w-full">
-                  <div className="relative flex-1 max-w-md">
+                <div className="flex flex-col gap-4 items-center w-full max-w-md mx-auto">
+                  <div className="relative w-full">
                     <Input
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
+                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground w-full"
                     />
 
                     <Button
@@ -415,26 +452,46 @@ export default function Home() {
                       </svg>
                     </Button>
                   </div>
-                  <div className="flex flex gap-2 mt-1">
-                    <div className="flex items-center gap-1">
-                      <p className="text-xs indent-2">
-                        Get set up in 5 minutes. No credit card required.
-                      </p>
-                    </div>
+
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Get set up in 5 minutes. No credit card required.
+                    </p>
                   </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <div className="relative aspect-square w-full max-w-[400px] overflow-hidden rounded-2xl bg-muted">
-                  <Image
-                    src="/placeholder.svg?height=800&width=400"
-                    alt="Endurofy App Screenshot"
-                    fill
-                    className="object-cover"
-                  />
+                  {isInstallable && (
+                    <Button
+                      onClick={handleInstallPWA}
+                      className="px-10 py-5 cursor-pointer bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-md hover:from-sky-500 hover:to-blue-600 transition-all duration-300"
+                    >
+                      <Image
+                        src="/images/endurofy_logo.png"
+                        alt="Endurofy"
+                        width={30}
+                        height={30}
+                      />
+                      Install App
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
+          </div>
+        </motion.section>
+
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
+          <div className="container px-4 md:px-6 mx-auto bg-red-500 felx justify-center items-center">
+            <Image
+              src="/images/endurofy_logo.png"
+              alt="Endurofy"
+              width={30}
+              height={30}
+            />
           </div>
         </motion.section>
 
@@ -606,18 +663,18 @@ export default function Home() {
                   Effortless Interactions, Powerful Experiences
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground text-sm">
-                  Beautiful, intuitive interface that helps you focus on what
-                  matters most - your performance.
+                  Beautiful, intuitive interface that works for both desktop and
+                  mobile devices.
                 </p>
               </div>
             </motion.div>
             <motion.div
               variants={staggerContainer}
-              className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3"
+              className="mx-auto grid max-w-6xl gap-6 py-12 md:grid-cols-4"
             >
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[400px] mx-auto"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
               >
                 <Image
                   src={`${
@@ -632,7 +689,22 @@ export default function Home() {
               </motion.div>
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl md:translate-y-10 bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[400px] mx-auto"
+                className="relative aspect-[9/20] overflow-hidden md:translate-y-10 rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
+              >
+                <Image
+                  src={`${
+                    isDark
+                      ? "/images/dark/foodlog.png"
+                      : "/images/light/foodlog-light.png"
+                  }`}
+                  alt="dashboard"
+                  fill
+                  className="object-cover"
+                />
+              </motion.div>
+              <motion.div
+                variants={imageVariants}
+                className="relative aspect-[9/20] overflow-hidden rounded-xl md:translate-y-10 bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
               >
                 <Image
                   src={
@@ -648,7 +720,7 @@ export default function Home() {
 
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[400px] mx-auto"
+                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
               >
                 <Image
                   src={`${

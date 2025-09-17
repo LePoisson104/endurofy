@@ -4,6 +4,11 @@ export default function PrivacyPolicy() {
   return (
     <LegalPageLayout title="Privacy Policy">
       <section className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">Privacy Policy</h1>
+        <p className="text-muted-foreground mt-2 mb-10">
+          Last updated:{" "}
+          {new Date("2025-09-16" + "T00:00:00").toLocaleDateString()}
+        </p>
         <h2 className="text-2xl font-semibold mb-4">
           1. Information We Collect
         </h2>

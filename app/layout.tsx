@@ -19,7 +19,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Endurofy",
-  description: "Endurofy",
+  description:
+    "Track your endurance activities, stay consistent, and achieve your fitness goals faster",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Endurofy",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -39,10 +49,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
+        <meta name="apple-mobile-web-app-title" content="Endurofy" />
+        <link rel="apple-touch-icon" href="/images/endurofy_logo.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
