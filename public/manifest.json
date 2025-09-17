@@ -1,5 +1,5 @@
 {
-  "name": "Endurofy - Endurance Fitness Tracker",
+  "name": "Endurofy",
   "short_name": "Endurofy",
   "description": "Track your endurance activities, stay consistent, and achieve your fitness goals faster",
   "start_url": "/",
@@ -10,13 +10,13 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/images/endurofy_logo.png",
+      "src": "/images/applogo.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/endurofy_logo_dark.png",
+      "src": "/images/applogo.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any"

@@ -461,10 +461,15 @@ export default function Home() {
                   {isInstallable && (
                     <Button
                       onClick={handleInstallPWA}
-                      className="px-10 py-5 cursor-pointer bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-md hover:from-sky-500 hover:to-blue-600 transition-all duration-300"
+                      className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
+                       hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
                     >
                       <Image
-                        src="/images/endurofy_logo.png"
+                        src={
+                          isDark
+                            ? "/images/endurofy_logo_dark.png"
+                            : "/images/endurofy_logo.png"
+                        }
                         alt="Endurofy"
                         width={30}
                         height={30}
@@ -475,23 +480,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </motion.section>
-
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32"
-        >
-          <div className="container px-4 md:px-6 mx-auto bg-red-500 felx justify-center items-center">
-            <Image
-              src="/images/endurofy_logo.png"
-              alt="Endurofy"
-              width={30}
-              height={30}
-            />
           </div>
         </motion.section>
 
