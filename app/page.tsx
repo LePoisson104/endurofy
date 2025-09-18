@@ -250,7 +250,9 @@ export default function Home() {
       {/* Header moved into hero section */}
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent standalone:fixed standalone:pt-14"
+        className={`fixed top-0 left-0 right-0 z-50 w-full supports-[backdrop-filter]:bg-transparent ${
+          isMobile ? "standalone:fixed standalone:pt-14" : ""
+        }`}
         style={{ backdropFilter: `blur(${headerBlur}px)` }}
       >
         <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">

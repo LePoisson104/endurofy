@@ -136,7 +136,9 @@ export function AppSidebar() {
 
       <Sidebar collapsible="icon" className="overflow-x-hidden">
         <SidebarContent className={`overflow-x-hidden bg-card border-none`}>
-          <SidebarHeader className="pb-0 standalone:pt-14">
+          <SidebarHeader
+            className={`pb-0 ${isMobile ? "standalone:pt-14" : ""}`}
+          >
             <div className="flex items-center justify-between gap-2 px-3 py-2">
               <div className="font-semibold text-2xl tracking-tight group-data-[collapsible=icon]:opacity-0 flex items-center">
                 Endurofy
