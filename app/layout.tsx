@@ -55,7 +55,28 @@ export default function RootLayout({
           content="black-translucent"
         />
         <meta name="apple-mobile-web-app-title" content="Endurofy" />
-        <link rel="apple-touch-icon" href="/images/endurofy_logo.png" />
+
+        {/* Apple Touch Icons */}
+        <link
+          rel="apple-touch-icon"
+          sizes="120x120"
+          href="/icons/icon-120x120.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="152x152"
+          href="/icons/icon-152x152.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="167x167"
+          href="/icons/icon-167x167.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/icon-180x180.png"
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
