@@ -2,7 +2,7 @@
   "name": "Endurofy",
   "short_name": "Endurofy",
   "description": "Track your endurance activities, stay consistent, and achieve your fitness goals faster",
-  "start_url": "/",
+  "start_url": "./login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",

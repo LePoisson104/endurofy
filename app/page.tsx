@@ -240,6 +240,10 @@ export default function Home() {
     }
   };
 
+  const handleOpenApp = () => {
+    router.push("/dashboard");
+  };
+
   return (
     <div className="flex min-h-[100dvh] flex-col landing-page">
       {/* <div className="animated-mesh-gradient"></div> */}
@@ -394,7 +398,7 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-40 px-4 md:px-6"
+          className="relative z-0 w-full py-12 md:py-24 lg:py-25 xl:pt-40 px-4 md:px-6"
         >
           <div className="container px-4 md:px-6 mx-auto mt-16">
             <div className="flex justify-center items-center">
@@ -458,26 +462,53 @@ export default function Home() {
                       Get set up in 5 minutes. No credit card required.
                     </p>
                   </div>
-                  {isInstallable && (
-                    <Button
-                      onClick={handleInstallPWA}
-                      className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
-                       hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
-                    >
-                      <Image
-                        src={
-                          isDark
-                            ? "/images/endurofy_logo_dark.png"
-                            : "/images/endurofy_logo.png"
-                        }
-                        alt="Endurofy"
-                        width={30}
-                        height={30}
-                      />
-                      Install App
-                    </Button>
-                  )}
+                  <Button
+                    onClick={isInstallable ? handleInstallPWA : handleOpenApp}
+                    className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
+                     hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
+                  >
+                    <Image
+                      src={
+                        isDark
+                          ? "/images/endurofy_logo_dark.png"
+                          : "/images/endurofy_logo.png"
+                      }
+                      alt="Endurofy"
+                      width={30}
+                      height={30}
+                    />
+                    {isInstallable ? "Install App" : "Open App"}
+                  </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full mb-30"
+        >
+          <div className="container px-4 md:px-6 mx-auto flex justify-center items-center">
+            <div className="border p-[2px] rounded-lg shadow-xl">
+              <div className="relative overflow-hidden rounded-lg border transition-transform duration-300 max-w-7xl">
+                <Image
+                  src={
+                    isDark
+                      ? "/images/dark/desktop.png"
+                      : "/images/light/desktop-light.png"
+                  }
+                  alt="Endurofy Desktop View"
+                  width={1500}
+                  height={1000}
+                  className="object-contain w-full h-auto"
+                  priority
+                  quality={95}
+                  unoptimized={false}
+                />
               </div>
             </div>
           </div>
