@@ -429,7 +429,7 @@ export default function Home() {
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground w-full"
+                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-muted-foreground w-full"
                     />
 
                     <Button
@@ -702,7 +702,7 @@ export default function Home() {
             >
               <motion.div
                 variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
+                className="relative aspect-[9/20] overflow-hidden drop-shadow-xl w-full max-w-[300px] md:max-w-[500px] mx-auto border rounded-xl"
               >
                 <Image
                   src={`${
@@ -822,7 +822,7 @@ export default function Home() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-foreground"
+                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-muted-foreground"
                 />
 
                 <Button
