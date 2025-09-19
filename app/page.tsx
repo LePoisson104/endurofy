@@ -26,6 +26,7 @@ import { FeatureCard } from "@/components/landing/feature-card";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/landing/footer";
 import MobileNavigation from "@/components/landing/mobile-navigation";
+import GradientText from "@/components/text/gradient-text";
 
 // Animation variants
 const fadeInUp = {
@@ -407,15 +408,17 @@ export default function Home() {
               <div className="flex flex-col justify-center items-center space-y-4">
                 <div className="space-y-2 text-center">
                   <h1
-                    className={`text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none ${
+                    className={`text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none  ${
                       isMobile ? "mt-15" : ""
                     }`}
                   >
-                    Strengthen Your Endurance,
-                    <br />
-                    Enhance Your Life
+                    <GradientText>
+                      Strengthen Your Endurance,
+                      <br />
+                      Enhance Your Life
+                    </GradientText>
                   </h1>
-                  <p className="max-w-[600px] text-muted-background text-sm mx-auto">
+                  <p className="max-w-[600px] text-muted-foreground mx-auto">
                     Endurofy makes it easy to track your endurance activities,
                     stay consistent, and achieve your fitness goals faster.
                   </p>
@@ -431,7 +434,7 @@ export default function Home() {
 
                     <Button
                       size="sm"
-                      className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
+                      className="arrow-button rounded-full px-3 py-1 h-7 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
                       onClick={handleStartNow}
                     >
                       Start now
@@ -532,14 +535,16 @@ export default function Home() {
               className="flex flex-col items-center justify-center space-y-4 text-center"
             >
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
                   <Sparkle className="h-3 w-3" />
                   Features
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Everything you need to reach your peak
+                  <GradientText>
+                    Everything you need to reach your peak
+                  </GradientText>
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground text-sm">
+                <p className="max-w-[900px] text-muted-foreground">
                   Endurofy combines powerful tracking and analytics features to
                   help you achieve your fitness goals.
                 </p>
@@ -601,14 +606,14 @@ export default function Home() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
                   <Sparkle className="h-3 w-3" />
                   How it works
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Simple, intuitive, and effective
+                  <GradientText>Simple, intuitive, and effective</GradientText>
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground text-sm">
+                <p className="max-w-[900px] text-muted-foreground">
                   Customize your training plans, track your progress, and reach
                   your goals.
                 </p>
@@ -676,14 +681,16 @@ export default function Home() {
               className="flex flex-col items-center justify-center space-y-4 text-center"
             >
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
                   <Sparkle className="h-3 w-3" />
                   Intuitive interface
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Effortless Interactions, Powerful Experiences
+                  <GradientText>
+                    Effortless Interactions, Powerful Experiences
+                  </GradientText>
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground text-sm">
+                <p className="max-w-[900px] text-muted-foreground">
                   Beautiful, intuitive interface that works for both desktop and
                   mobile devices.
                 </p>
@@ -770,14 +777,14 @@ export default function Home() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 text-sm text-primary-foreground rounded-full shadow-lg shadow-primary/70">
+                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
                   <Sparkle className="h-3 w-3" />
                   FAQ
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Questions & Answers
+                  <GradientText>Questions & Answers</GradientText>
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground text-sm">
+                <p className="max-w-[900px] text-muted-foreground">
                   Everything you need to know about Endurofy.
                 </p>
               </div>
@@ -800,7 +807,7 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Get started with Endurofy
+                  <GradientText>Get started with Endurofy</GradientText>
                 </h2>
                 <p className="max-w-[600px] text-muted-foreground text-sm mx-auto">
                   Built for driven athletes who want to turn consistent training
@@ -820,7 +827,7 @@ export default function Home() {
 
                 <Button
                   size="sm"
-                  className="arrow-button rounded-full px-3 py-1 h-7 bg-primary text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
+                  className="arrow-button rounded-full px-3 py-1 h-7 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
                   onClick={handleStartNow}
                 >
                   Start now
