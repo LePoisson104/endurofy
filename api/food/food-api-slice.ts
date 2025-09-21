@@ -12,6 +12,16 @@ export const foodApiSlice = apiSlice.injectEndpoints({
         { type: "Food", id: "LIST" },
       ],
     }),
+    getRecentFoods: builder.query({
+      query: ({ userId }) => ({
+        url: `/api/v1/foods/${userId}/recent`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { userId }) => [
+        { type: "Food", id: `recent_${userId}` },
+        { type: "Food", id: "LIST" },
+      ],
+    }),
     getCustomFoods: builder.query({
       query: ({ userId }) => ({
         url: `/api/v1/foods/${userId}/custom`,
@@ -101,6 +111,7 @@ export const foodApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useSearchFoodQuery,
+  useGetRecentFoodsQuery,
   useAddCustomFoodMutation,
   useGetCustomFoodsQuery,
   useUpdateCustomFoodMutation,

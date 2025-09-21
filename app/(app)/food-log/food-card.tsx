@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MoreVertical, Edit, Trash2 } from "lucide-react";
 import {
@@ -7,6 +8,8 @@ import {
   createMenuItem,
   createMenuSection,
 } from "@/components/ui/responsive-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 import type { BaseFood } from "../../../interfaces/food-log-interfaces";
 
 interface FoodCardProps {
@@ -24,6 +27,9 @@ export default function FoodCard({
   onDelete,
   foodSource,
 }: FoodCardProps) {
+  const isMobile = useIsMobile();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const menuSections = [
     createMenuSection([
       createMenuItem("edit", "Edit", Edit, () => onEdit?.(food)),
@@ -54,7 +60,18 @@ export default function FoodCard({
           <p className="text-xs text-muted-foreground">{food.foodBrand}</p>
         </div>
         {foodSource === "custom" ? (
-          <div onClick={(e) => e.stopPropagation()}>
+          isMobile ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDrawerOpen(true);
+              }}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          ) : (
             <ResponsiveMenu
               sections={menuSections}
               trigger={
@@ -67,7 +84,7 @@ export default function FoodCard({
                 </Button>
               }
             />
-          </div>
+          )
         ) : (
           <p className="text-xs text-muted-foreground">
             {foodSource === "favorite"
@@ -80,6 +97,13 @@ export default function FoodCard({
           </p>
         )}
       </div>
+      <ResponsiveMenu
+        sections={menuSections}
+        isOpen={isDrawerOpen}
+        setIsOpen={setIsDrawerOpen}
+        dropdownAlign="end"
+        dropdownWidth="w-56"
+      />
     </div>
   );
 }

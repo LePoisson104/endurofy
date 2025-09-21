@@ -23,6 +23,7 @@ import {
   useGetCustomFoodsQuery,
   useDeleteCustomFoodMutation,
   useGetFavoriteFoodsQuery,
+  useGetRecentFoodsQuery,
 } from "@/api/food/food-api-slice";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
@@ -75,6 +76,14 @@ export default function FoodSearchModal({
       skip: !debouncedSearchQuery.trim() || !isOpen,
     }
   );
+
+  const { data: recentFoods, isFetching: isFetchingRecentFoods } =
+    useGetRecentFoodsQuery(
+      { userId: user?.user_id },
+      {
+        skip: activeTab !== "all" || !isOpen || !!debouncedSearchQuery.trim(),
+      }
+    );
 
   const { data: customFoods, isFetching: isFetchingCustomFoods } =
     useGetCustomFoodsQuery(
@@ -219,8 +228,24 @@ export default function FoodSearchModal({
 
         <TabsContent value="all" className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto thin-scrollbar standalone:pb-10">
-            {isFetching ? (
+            {isFetching || isFetchingRecentFoods ? (
               <FoodCardSkeleton />
+            ) : !searchQuery.trim() ? (
+              // Show recent foods when no search query
+              recentFoods?.data?.data?.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No recent foods found
+                </div>
+              ) : (
+                recentFoods?.data?.data?.map((food: any) => (
+                  <FoodCard
+                    key={food.foodId}
+                    food={food}
+                    onSelect={handleFoodSelect}
+                    foodSource="favorite"
+                  />
+                ))
+              )
             ) : searchResults?.data?.foods?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 No foods found
