@@ -12,6 +12,7 @@ import {
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -124,6 +125,7 @@ export function ResponsiveMenu({
         <DrawerContent className="px-2 pb-8">
           <DrawerHeader>
             <DrawerTitle>{drawerTitle}</DrawerTitle>
+            <DrawerDescription />
           </DrawerHeader>
           <div className="p-2">{renderMenuItems(true)}</div>
         </DrawerContent>

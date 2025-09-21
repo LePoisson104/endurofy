@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,13 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useSelector } from "react-redux";
 import FoodCardSkeleton from "@/components/skeletons/foodcard-skeleton";
 import { toast } from "sonner";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 import type {
   FoodSearchModalProps,
@@ -189,135 +196,174 @@ export default function FoodSearchModal({
     setCustomFoodMode("add");
   };
 
+  const mainContent = (
+    <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex flex-col flex-1 overflow-hidden"
+      >
+        <div className="border-b">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="favorites">Favorites</TabsTrigger>
+            <TabsTrigger value="custom">Custom</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <div className="flex justify-between items-center text-sm font-medium mt-4 border-b border-solid pb-2 px-2">
+          <p>Description</p>
+          {activeTab === "custom" ? <p>Actions</p> : <p>Source</p>}
+        </div>
+
+        <TabsContent value="all" className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto thin-scrollbar">
+            {isFetching ? (
+              <FoodCardSkeleton />
+            ) : searchResults?.data?.foods?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No foods found
+              </div>
+            ) : (
+              searchResults?.data?.foods?.map((food: any) => (
+                <FoodCard
+                  key={food.foodId}
+                  food={food}
+                  onSelect={handleFoodSelect}
+                  foodSource="usda"
+                />
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="favorites" className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
+            {isFetchingFavoriteFoods ? (
+              <FoodCardSkeleton />
+            ) : filteredFavoriteFoods?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {searchQuery.trim()
+                  ? "No matching favorite foods found"
+                  : "No favorite foods found"}
+              </div>
+            ) : (
+              filteredFavoriteFoods?.map((food: BaseFood) => (
+                <FoodCard
+                  key={food.foodId}
+                  food={food}
+                  onSelect={handleFoodSelect}
+                  onEdit={handleEditFood}
+                  onDelete={handleDeleteFood}
+                  foodSource="favorite"
+                />
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="custom" className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
+            {isFetchingCustomFoods ? (
+              <FoodCardSkeleton />
+            ) : filteredCustomFoods?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {searchQuery.trim()
+                  ? "No matching custom foods found"
+                  : "No custom foods found"}
+              </div>
+            ) : (
+              filteredCustomFoods?.map((food: BaseFood) => (
+                <FoodCard
+                  key={food.foodId}
+                  food={food}
+                  onSelect={handleFoodSelect}
+                  onEdit={handleEditFood}
+                  onDelete={handleDeleteFood}
+                  foodSource="custom"
+                />
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent
-          className={`max-w-2xl h-[80vh] overflow-hidden flex flex-col bg-card ${
-            isMobile ? "w-[95vw]" : ""
-          }`}
-        >
-          <DialogHeader>
-            <DialogTitle>Add food to {mealType}</DialogTitle>
-            <DialogDescription>
-              Search for foods and add them to your meal
-            </DialogDescription>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search for foods..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </DialogHeader>
-
-          <div className="flex flex-col gap-4 flex-1 overflow-hidden">
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCreateCustomFood}
-              >
-                Create Custom Food
-              </Button>
-            </div>
-
-            {/* Tabs */}
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="flex flex-col flex-1 overflow-hidden"
-            >
-              <div className="border-b">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="favorites">Favorites</TabsTrigger>
-                  <TabsTrigger value="custom">Custom</TabsTrigger>
-                </TabsList>
+      {!isMobile ? (
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+          <DialogContent
+            className="h-[80vh] overflow-hidden flex flex-col bg-card"
+            closeXButton={true}
+          >
+            <DialogHeader>
+              <div className="flex items-center gap-2 w-full">
+                <Button variant="ghost" size="sm" onClick={handleClose}>
+                  <X className="h-4 w-4" />
+                </Button>
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for foods..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCreateCustomFood}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
+              <DialogTitle />
+              <DialogDescription />
+            </DialogHeader>
 
-              <div className="flex justify-between items-center text-sm font-medium mt-4 border-b border-solid pb-2 px-2">
-                <p>Description</p>
-                {activeTab === "custom" ? <p>Actions</p> : <p>Source</p>}
+            {mainContent}
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+          <DrawerContent
+            height="100vh"
+            hideBar={true}
+            className="overflow-hidden h-full p-2"
+          >
+            <DrawerHeader>
+              <DrawerTitle />
+              <DrawerDescription />
+              <div className="flex items-center gap-2 w-full mb-4">
+                <Button variant="ghost" size="sm" onClick={handleClose}>
+                  <X className="h-4 w-4" />
+                </Button>
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for foods..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCreateCustomFood}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
-
-              <TabsContent value="all" className="flex-1 overflow-hidden">
-                <div className="h-full overflow-y-auto thin-scrollbar">
-                  {isFetching ? (
-                    <FoodCardSkeleton />
-                  ) : searchResults?.data?.foods?.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No foods found
-                    </div>
-                  ) : (
-                    searchResults?.data?.foods?.map((food: any) => (
-                      <FoodCard
-                        key={food.foodId}
-                        food={food}
-                        onSelect={handleFoodSelect}
-                        foodSource="usda"
-                      />
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="favorites" className="flex-1 overflow-hidden">
-                <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-                  {isFetchingFavoriteFoods ? (
-                    <FoodCardSkeleton />
-                  ) : filteredFavoriteFoods?.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      {searchQuery.trim()
-                        ? "No matching favorite foods found"
-                        : "No favorite foods found"}
-                    </div>
-                  ) : (
-                    filteredFavoriteFoods?.map((food: BaseFood) => (
-                      <FoodCard
-                        key={food.foodId}
-                        food={food}
-                        onSelect={handleFoodSelect}
-                        onEdit={handleEditFood}
-                        onDelete={handleDeleteFood}
-                        foodSource="favorite"
-                      />
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="custom" className="flex-1 overflow-hidden">
-                <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-                  {isFetchingCustomFoods ? (
-                    <FoodCardSkeleton />
-                  ) : filteredCustomFoods?.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      {searchQuery.trim()
-                        ? "No matching custom foods found"
-                        : "No custom foods found"}
-                    </div>
-                  ) : (
-                    filteredCustomFoods?.map((food: BaseFood) => (
-                      <FoodCard
-                        key={food.foodId}
-                        food={food}
-                        onSelect={handleFoodSelect}
-                        onEdit={handleEditFood}
-                        onDelete={handleDeleteFood}
-                        foodSource="custom"
-                      />
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </DialogContent>
-      </Dialog>
-
+            </DrawerHeader>
+            {mainContent}
+          </DrawerContent>
+        </Drawer>
+      )}
       {/* Food Selection Modal */}
       <FoodSelectionModal
         isOpen={showFoodSelection}

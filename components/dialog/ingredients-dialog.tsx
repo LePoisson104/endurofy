@@ -28,7 +28,7 @@ export default function IngredientsDialog({
           <Info className="w-4 h-4 text-muted-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-card">
+      <DialogContent className="bg-card z-9999">
         <DialogHeader>
           <DialogTitle>Ingredients</DialogTitle>
         </DialogHeader>

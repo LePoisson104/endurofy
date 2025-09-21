@@ -434,7 +434,7 @@ export default function CustomFoodModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={`bg-card max-h-[90vh] overflow-y-auto ${
+        className={`bg-card max-h-[90vh] overflow-y-auto z-9999  ${
           isMobile ? "max-w-[95vw] w-[95vw] px-1 py-6" : "max-w-2xl"
         } `}
       >
@@ -442,9 +442,7 @@ export default function CustomFoodModal({
           <DialogTitle>
             {mode === "edit" ? "Edit Custom Food" : "Create Custom Food"}
           </DialogTitle>
-          <DialogDescription className={`${isMobile ? "p-2" : "p-0"}`}>
-            Create a new food from the nutrition facts on a product label.
-          </DialogDescription>
+          <DialogDescription />
         </DialogHeader>
 
         <div className="space-y-4">
