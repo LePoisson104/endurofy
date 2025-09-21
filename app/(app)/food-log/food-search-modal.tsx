@@ -197,7 +197,7 @@ export default function FoodSearchModal({
   };
 
   const mainContent = (
-    <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+    <div className="flex flex-col gap-4 flex-1 overflow-hidden ">
       {/* Tabs */}
       <Tabs
         value={activeTab}
@@ -218,7 +218,7 @@ export default function FoodSearchModal({
         </div>
 
         <TabsContent value="all" className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto thin-scrollbar">
+          <div className="h-full overflow-y-auto thin-scrollbar standalone:pb-10">
             {isFetching ? (
               <FoodCardSkeleton />
             ) : searchResults?.data?.foods?.length === 0 ? (
@@ -333,7 +333,7 @@ export default function FoodSearchModal({
           <DrawerContent
             height="100vh"
             hideBar={true}
-            className="overflow-hidden h-full p-2"
+            className="overflow-hidden h-full p-2 standalone:pt-14"
           >
             <DrawerHeader>
               <DrawerTitle />
