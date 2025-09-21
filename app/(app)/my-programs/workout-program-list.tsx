@@ -28,6 +28,7 @@ import {
   createMenuItem,
   createMenuSection,
 } from "@/components/ui/responsive-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface WorkoutProgramListProps {
   programs: WorkoutProgram[];
@@ -45,10 +46,12 @@ export default function WorkoutProgramList({
   isDeleting,
 }: WorkoutProgramListProps) {
   const user = useSelector(selectCurrentUser);
-  const [programToDelete, setProgramToDelete] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
+  const [programToDelete, setProgramToDelete] = useState<string | null>(null);
   const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Count days with exercises
   const countActiveDays = (program: WorkoutProgram) => {
@@ -163,6 +166,13 @@ export default function WorkoutProgramList({
                   key={program.programId}
                   className="overflow-hidden flex flex-col h-[280px] shadow-sm"
                 >
+                  <ResponsiveMenu
+                    sections={menuSections}
+                    isOpen={isDrawerOpen}
+                    setIsOpen={setIsDrawerOpen}
+                    dropdownAlign="end"
+                    dropdownWidth="w-56"
+                  />
                   <CardHeader className="pb-3">
                     <div className="flex justify-between">
                       <div className="space-y-1 flex-1">
@@ -177,19 +187,29 @@ export default function WorkoutProgramList({
                           {program.description || "No description"}
                         </CardDescription>
                       </div>
-                      <ResponsiveMenu
-                        sections={menuSections}
-                        trigger={
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Menu</span>
-                          </Button>
-                        }
-                      />
+                      {isMobile ? (
+                        <Button
+                          onClick={() => setIsDrawerOpen(true)}
+                          variant="ghost"
+                          size="icon"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <ResponsiveMenu
+                          sections={menuSections}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Menu</span>
+                            </Button>
+                          }
+                        />
+                      )}
                     </div>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col">
