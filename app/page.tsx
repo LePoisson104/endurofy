@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import Footer from "@/components/landing/footer";
 import MobileNavigation from "@/components/landing/mobile-navigation";
 import GradientText from "@/components/text/gradient-text";
+import { MobileInstallInstructionsModal } from "@/components/modals/mobile-install-instructions-modal";
 
 // Animation variants
 const fadeInUp = {
@@ -93,6 +94,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const [showMobileInstructions, setShowMobileInstructions] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -232,6 +234,13 @@ export default function Home() {
   };
 
   const handleInstallPWA = async () => {
+    // On mobile, show instructions instead of PWA prompt
+    if (isMobile) {
+      setShowMobileInstructions(true);
+      return;
+    }
+
+    // On desktop, use standard PWA prompt if available
     if (deferredPrompt) {
       deferredPrompt.prompt();
       setDeferredPrompt(null);
@@ -476,7 +485,11 @@ export default function Home() {
                     </p>
                   </div>
                   <Button
-                    onClick={isInstallable ? handleInstallPWA : handleOpenApp}
+                    onClick={
+                      isMobile || isInstallable
+                        ? handleInstallPWA
+                        : handleOpenApp
+                    }
                     className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
                      hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
                   >
@@ -490,7 +503,7 @@ export default function Home() {
                       width={30}
                       height={30}
                     />
-                    {isInstallable ? "Install App" : "Open App"}
+                    {isMobile || isInstallable ? "Install App" : "Open App"}
                   </Button>
                 </div>
               </div>
@@ -878,6 +891,12 @@ export default function Home() {
           scrollToSection={scrollToSection}
         />
       )}
+
+      {/* Mobile Install Instructions Modal */}
+      <MobileInstallInstructionsModal
+        isOpen={showMobileInstructions}
+        onClose={() => setShowMobileInstructions(false)}
+      />
     </div>
   );
 }
