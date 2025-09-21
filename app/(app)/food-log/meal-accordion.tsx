@@ -18,6 +18,7 @@ import {
   createMenuItem,
   createMenuSection,
 } from "@/components/ui/responsive-menu";
+import { useState } from "react";
 
 interface MealData {
   uncategorized: FoodLogs[];
@@ -67,6 +68,7 @@ export default function MealAccordion({
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const totalNutrients = getTotalNutrients(foods);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
     <div className="border-b border-border">
@@ -191,6 +193,13 @@ export default function MealAccordion({
                       key={food.foodId}
                       className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
                     >
+                      <ResponsiveMenu
+                        sections={menuSections}
+                        isOpen={isDrawerOpen}
+                        setIsOpen={setIsDrawerOpen}
+                        dropdownAlign="end"
+                        dropdownWidth="w-56"
+                      />
                       <div>
                         <div className="flex items-center gap-2">
                           <Apple className="text-destructive w-[13px] h-[13px]" />
@@ -217,19 +226,31 @@ export default function MealAccordion({
                         </p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <ResponsiveMenu
-                          sections={menuSections}
-                          trigger={
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              disabled={disableAddFood}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          }
-                        />
+                        {isMobile ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            disabled={disableAddFood}
+                            onClick={() => setIsDrawerOpen(true)}
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <ResponsiveMenu
+                            sections={menuSections}
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                disabled={disableAddFood}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                        )}
                       </div>
                     </div>
                   );

@@ -33,7 +33,7 @@ export interface MenuSection {
 
 interface ResponsiveMenuProps {
   sections: MenuSection[];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   drawerTitle?: string;
   dropdownAlign?: "start" | "center" | "end";
   dropdownWidth?: string;

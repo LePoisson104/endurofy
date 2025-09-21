@@ -859,11 +859,6 @@ export default function FoodLogPage() {
         sections={menuSections}
         isOpen={isDrawerOpen}
         setIsOpen={setIsDrawerOpen}
-        trigger={
-          <Button variant="ghost" size="icon">
-            <EllipsisVertical className="h-4 w-4" />
-          </Button>
-        }
         dropdownAlign="end"
         dropdownWidth="w-56"
       />
