@@ -66,8 +66,10 @@ export default function WorkoutLogManager() {
   useEffect(() => {
     const savedDate = localStorage.getItem("selectedDate");
 
-    if (savedDate) {
-      setSelectedDate(new Date(savedDate));
+    if (savedDate && new Date(savedDate + "T00:00:00") < new Date()) {
+      setSelectedDate(new Date());
+    } else {
+      setSelectedDate(new Date(savedDate || new Date()));
     }
 
     const savedTab = localStorage.getItem("selectedTab");
