@@ -27,6 +27,7 @@ import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-a
 import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
 import { useGetSettingsQuery } from "@/api/settings/settings-api-slice";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -143,7 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   let content;
   if (isLoading) {
     content = (
-      <div className="w-full h-screen flex justify-center items-center bg-background">
+      <div className="w-full h-screen flex justify-center items-center bg-black flex flex-col gap-4">
+        <Image
+          src={"/images/endurofy_logo.png"}
+          alt="Endurofy"
+          width={70}
+          height={70}
+        />
         <DotPulse />
       </div>
     );

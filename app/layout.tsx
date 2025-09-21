@@ -56,6 +56,21 @@ export default function RootLayout({
         />
         <meta name="apple-mobile-web-app-title" content="Endurofy" />
 
+        {/* Favicon */}
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+        <link
+          rel="icon"
+          href="/icons/favicon-16x16.png"
+          sizes="16x16"
+          type="image/png"
+        />
+        <link
+          rel="icon"
+          href="/icons/favicon-32x32.png"
+          sizes="32x32"
+          type="image/png"
+        />
+
         {/* Apple Touch Icons */}
         <link
           rel="apple-touch-icon"
@@ -76,6 +91,20 @@ export default function RootLayout({
           rel="apple-touch-icon"
           sizes="180x180"
           href="/icons/icon-180x180.png"
+        />
+
+        {/* Android Chrome Icons */}
+        <link
+          rel="icon"
+          href="/icons/icon-192x192.png"
+          sizes="192x192"
+          type="image/png"
+        />
+        <link
+          rel="icon"
+          href="/icons/icon-512x512.png"
+          sizes="512x512"
+          type="image/png"
         />
       </head>
       <body

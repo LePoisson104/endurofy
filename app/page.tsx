@@ -234,7 +234,6 @@ export default function Home() {
   const handleInstallPWA = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
       setDeferredPrompt(null);
       setIsInstallable(false);
     }
@@ -258,7 +257,17 @@ export default function Home() {
         <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
           <Link href="/" onClick={(e) => scrollToSection(e, "hero")}>
             <div className="flex items-center gap-1">
-              <span className="text-xl font-bold hover:text-primary">
+              <span className="text-xl font-bold hover:text-primary flex items-center gap-2">
+                <Image
+                  src={
+                    !isDark
+                      ? "/images/endurofy_logo_dark.png"
+                      : "/images/endurofy_logo.png"
+                  }
+                  alt="Endurofy"
+                  width={30}
+                  height={30}
+                />
                 Endurofy
               </span>
             </div>

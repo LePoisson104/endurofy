@@ -9,6 +9,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Footer from "@/components/landing/footer";
 import MobileNavigation from "@/components/landing/mobile-navigation";
+import Image from "next/image";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 // Animation variants
 const fadeInUp = {
@@ -59,7 +61,7 @@ export default function LegalPageLayout({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [headerBlur, setHeaderBlur] = useState(5);
-
+  const isDark = useGetCurrentTheme();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -133,7 +135,17 @@ export default function LegalPageLayout({
         <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6">
           <Link href="/">
             <div className="flex items-center gap-1">
-              <span className="text-xl font-bold hover:text-primary">
+              <span className="text-xl font-bold hover:text-primary flex items-center gap-2">
+                <Image
+                  src={
+                    !isDark
+                      ? "/images/endurofy_logo_dark.png"
+                      : "/images/endurofy_logo.png"
+                  }
+                  alt="Endurofy"
+                  width={30}
+                  height={30}
+                />
                 Endurofy
               </span>
             </div>
