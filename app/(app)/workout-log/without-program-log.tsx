@@ -1,3 +1,5 @@
+"use client";
+
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -50,7 +52,7 @@ export default function WithoutProgramLog({
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
   const programs = useSelector(selectWorkoutProgram);
-
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [manualProgram, setManualProgram] = useState<WorkoutProgram | null>(
     null
   );
@@ -412,20 +414,30 @@ export default function WithoutProgramLog({
               {format(selectedDate, "MMMM d, yyyy")}
             </span>
           </div>
-          {workoutLog?.data?.length > 0 && (
-            <ResponsiveMenu
-              sections={editMenuSections}
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              }
-            />
-          )}
+          {workoutLog?.data?.length > 0 &&
+            (isMobile ? (
+              <Button
+                onClick={() => setIsDrawerOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            ) : (
+              <ResponsiveMenu
+                sections={editMenuSections}
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                }
+              />
+            ))}
           {workoutLog?.data.length === 0 && (
             <CreateManualWorkoutLogModal
               logName={workoutLogName}
@@ -550,6 +562,13 @@ export default function WithoutProgramLog({
         isDeleting={isDeletingWorkoutLog}
         title={`Delete Workout ${context}`}
         children={`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
+      />
+      <ResponsiveMenu
+        sections={editMenuSections}
+        isOpen={isDrawerOpen}
+        setIsOpen={setIsDrawerOpen}
+        dropdownAlign="end"
+        dropdownWidth="w-40"
       />
     </div>
   );

@@ -68,6 +68,7 @@ export function ProgramWorkoutLog({
   const user = useSelector(selectCurrentUser);
   const { selectedDay } = useWorkoutDay(program, selectedDate);
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showPrevious, setShowPrevious] = useState(false);
   const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
@@ -355,25 +356,35 @@ export function ProgramWorkoutLog({
             </div>
           </div>
 
-          {workoutLog?.data?.length > 0 && (
-            <ResponsiveMenu
-              sections={editMenuSections}
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              }
-              dropdownAlign="end"
-              dropdownWidth="w-40"
-              onClose={() => {
-                // Optional: Add any additional close logic here
-              }}
-            />
-          )}
+          {workoutLog?.data?.length > 0 &&
+            (isMobile ? (
+              <Button
+                onClick={() => setIsDrawerOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            ) : (
+              <ResponsiveMenu
+                sections={editMenuSections}
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                }
+                dropdownAlign="end"
+                dropdownWidth="w-40"
+                onClose={() => {
+                  // Optional: Add any additional close logic here
+                }}
+              />
+            ))}
         </div>
       </div>
 
@@ -476,6 +487,13 @@ export function ProgramWorkoutLog({
         isDeleting={isDeletingWorkoutLog}
         title={`Delete Workout ${context}`}
         children={`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
+      />
+      <ResponsiveMenu
+        sections={editMenuSections}
+        isOpen={isDrawerOpen}
+        setIsOpen={setIsDrawerOpen}
+        dropdownAlign="end"
+        dropdownWidth="w-40"
       />
     </div>
   );

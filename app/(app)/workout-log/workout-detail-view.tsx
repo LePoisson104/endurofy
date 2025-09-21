@@ -80,7 +80,7 @@ export function WorkoutDetailView({
   const [exerciseNotes, setExerciseNotes] = useState<{ [id: string]: string }>(
     {}
   );
-
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [originalValues, setOriginalValues] = useState<{
     [setId: string]: any;
   }>({});
@@ -449,18 +449,36 @@ export function WorkoutDetailView({
           </svg>
           Back to History
         </Button>
+        {isMobile ? (
+          <Button
+            onClick={() => setIsDrawerOpen(true)}
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        ) : (
+          <ResponsiveMenu
+            sections={editMenuSections}
+            trigger={
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            }
+          />
+        )}
 
         <ResponsiveMenu
           sections={editMenuSections}
-          trigger={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          }
+          isOpen={isDrawerOpen}
+          setIsOpen={setIsDrawerOpen}
+          dropdownAlign="end"
+          dropdownWidth="w-40"
         />
       </header>
       <Card>
