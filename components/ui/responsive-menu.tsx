@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
 import { LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
@@ -15,11 +14,9 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import useScrollBehavior from "@/hooks/use-scroll-behavior";
 
 export interface MenuItem {
   id: string;
@@ -42,6 +39,8 @@ interface ResponsiveMenuProps {
   dropdownWidth?: string;
   dropdownClassName?: string;
   onClose?: () => void;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 }
 
 export function ResponsiveMenu({
@@ -51,16 +50,10 @@ export function ResponsiveMenu({
   dropdownAlign = "end",
   dropdownWidth = "w-56",
   dropdownClassName,
-  onClose,
+  isOpen,
+  setIsOpen,
 }: ResponsiveMenuProps) {
   const isMobile = useIsMobile();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  useScrollBehavior(isDrawerOpen);
-
-  const handleDrawerClose = () => {
-    setIsDrawerOpen(false);
-    onClose?.();
-  };
 
   const renderMenuItems = (isDrawer: boolean = false) => {
     return sections.map(
@@ -83,7 +76,7 @@ export function ResponsiveMenu({
               const handleClick = () => {
                 item.onClick();
                 if (isDrawer) {
-                  handleDrawerClose();
+                  setIsOpen?.(false);
                 }
               };
 
@@ -127,8 +120,7 @@ export function ResponsiveMenu({
 
   if (isMobile) {
     return (
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerContent className="px-2 pb-8">
           <DrawerHeader>
             <DrawerTitle>{drawerTitle}</DrawerTitle>

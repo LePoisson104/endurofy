@@ -235,7 +235,6 @@ export default function Home() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User response to the install prompt: ${outcome}`);
       setDeferredPrompt(null);
       setIsInstallable(false);
     }

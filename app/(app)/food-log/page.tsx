@@ -117,6 +117,7 @@ export default function FoodLogPage() {
   const [expandedMeals, setExpandedMeals] = useState<Set<keyof MealData>>(
     new Set()
   );
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -451,8 +452,16 @@ export default function FoodLogPage() {
                     Add and track your daily meals
                   </CardDescription>
                 </div>
-                {foodLog?.data?.foodLog.food_log_id && (
-                  <div className="flex items-center gap-2">
+                {foodLog?.data?.foodLog.food_log_id &&
+                  (isMobile ? (
+                    <Button
+                      onClick={() => setIsDrawerOpen(true)}
+                      variant="ghost"
+                      size="icon"
+                    >
+                      <EllipsisVertical className="h-4 w-4" />
+                    </Button>
+                  ) : (
                     <ResponsiveMenu
                       sections={menuSections}
                       trigger={
@@ -463,8 +472,7 @@ export default function FoodLogPage() {
                       dropdownAlign="end"
                       dropdownWidth="w-56"
                     />
-                  </div>
-                )}
+                  ))}
               </CardHeader>
               <CardContent>
                 <div className="space-y-0">
@@ -846,6 +854,18 @@ export default function FoodLogPage() {
         isDeleting={isDeletingFoodLog}
         title="Delete Food Log"
         children="Are you sure you want to clear all entries for today's food log?"
+      />
+      <ResponsiveMenu
+        sections={menuSections}
+        isOpen={isDrawerOpen}
+        setIsOpen={setIsDrawerOpen}
+        trigger={
+          <Button variant="ghost" size="icon">
+            <EllipsisVertical className="h-4 w-4" />
+          </Button>
+        }
+        dropdownAlign="end"
+        dropdownWidth="w-56"
       />
     </div>
   );

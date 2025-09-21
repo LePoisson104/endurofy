@@ -551,7 +551,7 @@ export default function FoodSelectionModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={`bg-card ${isMobile ? "w-[95vw]" : "max-w-lg"}`}
+        className={`bg-card ${isMobile ? "w-[95vw]" : "max-w-lg"} z-9999`}
       >
         <DialogHeader className="relative border-b pb-4">
           <DialogTitle className="text-md">

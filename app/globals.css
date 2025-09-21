@@ -12,13 +12,11 @@
 
 /* Hide vertical scrollbar in standalone mode */
 @media (display-mode: standalone) {
-  /* Alternative approach - hide scrollbar but keep functionality */
   html::-webkit-scrollbar,
   body::-webkit-scrollbar {
     width: 0px;
     background: transparent;
   }
-
   html {
     scrollbar-width: none; /* Firefox */
   }
@@ -49,12 +47,10 @@
   background-color: hsl(var(--muted-foreground) / 0.5);
 }
 
-/* Hide scrollbar corner */
 .thin-scrollbar::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* Apply thin scrollbar to all scroll areas by default */
 * {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
