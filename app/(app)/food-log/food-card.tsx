@@ -72,18 +72,20 @@ export default function FoodCard({
               <MoreVertical className="h-4 w-4" />
             </Button>
           ) : (
-            <ResponsiveMenu
-              sections={menuSections}
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              }
-            />
+            <div onClick={(e) => e.stopPropagation()}>
+              <ResponsiveMenu
+                sections={menuSections}
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                }
+              />
+            </div>
           )
         ) : (
           <p className="text-xs text-muted-foreground">
