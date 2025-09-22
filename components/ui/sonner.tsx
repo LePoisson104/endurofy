@@ -14,7 +14,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       style={
         {
           ...(isStandalone && {
-            top: 50,
+            top: 52,
           }),
           "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",

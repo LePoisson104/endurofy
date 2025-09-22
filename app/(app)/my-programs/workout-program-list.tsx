@@ -51,7 +51,9 @@ export default function WorkoutProgramList({
   const [programToDelete, setProgramToDelete] = useState<string | null>(null);
   const [setProgramAsInactive] = useSetProgramAsInactiveMutation();
   const [setProgramAsActive] = useSetProgramAsActiveMutation();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [openDrawerProgramId, setOpenDrawerProgramId] = useState<string | null>(
+    null
+  );
 
   // Count days with exercises
   const countActiveDays = (program: WorkoutProgram) => {
@@ -166,13 +168,6 @@ export default function WorkoutProgramList({
                   key={program.programId}
                   className="overflow-hidden flex flex-col h-[280px] shadow-sm"
                 >
-                  <ResponsiveMenu
-                    sections={menuSections}
-                    isOpen={isDrawerOpen}
-                    setIsOpen={setIsDrawerOpen}
-                    dropdownAlign="end"
-                    dropdownWidth="w-56"
-                  />
                   <CardHeader className="pb-3">
                     <div className="flex justify-between">
                       <div className="space-y-1 flex-1">
@@ -188,13 +183,28 @@ export default function WorkoutProgramList({
                         </CardDescription>
                       </div>
                       {isMobile ? (
-                        <Button
-                          onClick={() => setIsDrawerOpen(true)}
-                          variant="ghost"
-                          size="icon"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <>
+                          <Button
+                            onClick={() =>
+                              setOpenDrawerProgramId(program.programId)
+                            }
+                            variant="ghost"
+                            size="icon"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                          <ResponsiveMenu
+                            sections={menuSections}
+                            isOpen={openDrawerProgramId === program.programId}
+                            setIsOpen={(open) =>
+                              setOpenDrawerProgramId(
+                                open ? program.programId : null
+                              )
+                            }
+                            dropdownAlign="end"
+                            dropdownWidth="w-56"
+                          />
+                        </>
                       ) : (
                         <ResponsiveMenu
                           sections={menuSections}
@@ -246,7 +256,10 @@ export default function WorkoutProgramList({
         handleDelete={handleDeleteConfirm}
         isDeleting={isDeleting}
         title="Delete Program"
-        children={`Are you sure you want to delete this program? This action cannot be undone.`}
+        children={`Are you sure you want to delete this "${
+          programs.find((program) => program.programId === programToDelete)
+            ?.programName
+        }" program? This action cannot be undone.`}
       />
     </div>
   );
