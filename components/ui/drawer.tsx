@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 import { cn } from "@/lib/utils";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 function Drawer({
   ...props
@@ -32,11 +33,14 @@ function DrawerOverlay({
   className,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {
+  const isDark = useGetCurrentTheme();
   return (
     <DrawerPrimitive.Overlay
       data-slot="drawer-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-9999 bg-black/50",
+        `data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-9999 ${
+          isDark ? "bg-card/30" : "bg-foreground/30"
+        }`,
         className
       )}
       {...props}
