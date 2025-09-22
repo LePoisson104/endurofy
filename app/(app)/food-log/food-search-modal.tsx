@@ -321,7 +321,7 @@ export default function FoodSearchModal({
       {!isMobile ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
-            className="h-[80vh] overflow-hidden flex flex-col bg-card"
+            className="h-[80vh] overflow-hidden flex flex-col"
             closeXButton={true}
           >
             <DialogHeader>

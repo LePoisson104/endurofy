@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { MoreVertical, Edit, Trash2 } from "lucide-react";
 import {
@@ -29,6 +29,7 @@ export default function FoodCard({
 }: FoodCardProps) {
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const isClosingRef = useRef(false);
 
   const menuSections = [
     createMenuSection([
@@ -41,10 +42,35 @@ export default function FoodCard({
     ]),
   ];
 
+  const handleFoodCardClick = (e: React.MouseEvent) => {
+    // Prevent food selection if drawer is open or currently closing
+    if (isDrawerOpen || isClosingRef.current) {
+      return;
+    }
+    onSelect(food);
+  };
+
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (!open && isDrawerOpen) {
+      // Drawer is closing
+      isClosingRef.current = true;
+      setIsDrawerOpen(false);
+
+      // Clear the closing flag after a short delay to prevent accidental food selection
+      setTimeout(() => {
+        isClosingRef.current = false;
+      }, 150);
+    } else if (open) {
+      // Drawer is opening
+      isClosingRef.current = false;
+      setIsDrawerOpen(true);
+    }
+  };
+
   return (
     <div
       className={`p-3 border-b rounded-none cursor-pointer hover:bg-accent`}
-      onClick={() => onSelect(food)}
+      onClick={handleFoodCardClick}
     >
       <div className="flex justify-between items-center">
         <div className="flex-1 mr-4">
@@ -66,7 +92,7 @@ export default function FoodCard({
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsDrawerOpen(true);
+                handleDrawerOpenChange(true);
               }}
             >
               <MoreVertical className="h-4 w-4" />
@@ -102,7 +128,7 @@ export default function FoodCard({
       <ResponsiveMenu
         sections={menuSections}
         isOpen={isDrawerOpen}
-        setIsOpen={setIsDrawerOpen}
+        setIsOpen={handleDrawerOpenChange}
         dropdownAlign="end"
         dropdownWidth="w-56"
       />
