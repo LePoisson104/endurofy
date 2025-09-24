@@ -30,9 +30,7 @@ export default function AddExerciseModal({
       <DialogContent className="bg-card">
         <DialogHeader className="mb-4">
           <DialogTitle>{title || "Add Exercise"}</DialogTitle>
-          <DialogDescription>
-            Add new exercise to your workout collection.
-          </DialogDescription>
+          <DialogDescription />
         </DialogHeader>
         <ExerciseForm
           onAddExercise={(exercise) => {
