@@ -433,335 +433,321 @@ export default function CustomFoodModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent
-        className={`bg-card max-h-[90vh] overflow-y-auto z-9999  ${
-          isMobile ? "max-w-[95vw] w-[95vw] px-1 py-6" : "max-w-2xl"
-        } `}
-      >
+      <DialogContent className="bg-card max-h-[90vh] overflow-y-auto z-9999">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="flex justify-center">
             {mode === "edit" ? "Edit Custom Food" : "Create Custom Food"}
           </DialogTitle>
           <DialogDescription />
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="food-name">Food Name *</Label>
-                  <Input
-                    id="food-name"
-                    value={formData.foodName}
-                    onChange={(e) =>
-                      handleInputChange("foodName", e.target.value)
-                    }
-                    placeholder="e.g., Greek Yogurt"
-                    className={errors.foodName ? "border-red-500" : ""}
-                  />
-                  {errors.foodName && (
-                    <p className="text-sm text-red-500">{errors.foodName}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="food-brand">
-                    Brand{" "}
-                    <span className="text-xs text-muted-foreground">
-                      (Optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="food-brand"
-                    value={formData.foodBrand}
-                    onChange={(e) =>
-                      handleInputChange("foodBrand", e.target.value)
-                    }
-                    placeholder="e.g., Chobani"
-                  />
-                </div>
+        {/* Basic Information */}
+        <Card className="flex flex-col border py-6 rounded-lg bg-popover">
+          <CardHeader className="flex justify-center mb-4">
+            <CardTitle>Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="flex gap-4 flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="food-name">Food Name *</Label>
+                <Input
+                  id="food-name"
+                  value={formData.foodName}
+                  onChange={(e) =>
+                    handleInputChange("foodName", e.target.value)
+                  }
+                  placeholder="e.g., Greek Yogurt"
+                  className={errors.foodName ? "border-red-500" : ""}
+                />
+                {errors.foodName && (
+                  <p className="text-sm text-red-500">{errors.foodName}</p>
+                )}
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="serving-size">Serving Size *</Label>
-                  <Input
-                    id="serving-size"
-                    type="number"
-                    min="0.1"
-                    max="10000"
-                    step="0.1"
-                    inputMode="decimal"
-                    value={formData.servingSize}
-                    onChange={(e) =>
-                      handleNumberInputChange(
-                        "servingSize",
-                        e.target.value,
-                        10000
-                      )
-                    }
-                    placeholder="e.g., 100"
-                    className={errors.servingSize ? "border-red-500" : ""}
-                  />
-                  {errors.servingSize && (
-                    <p className="text-sm text-red-500">{errors.servingSize}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="serving-unit">Serving Unit *</Label>
-                  <Select
-                    value={formData.servingUnit}
-                    onValueChange={(value: ServingUnit) =>
-                      handleInputChange("servingUnit", value)
-                    }
-                  >
-                    <SelectTrigger id="serving-unit" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {servingUnits.map((unit) => (
-                        <SelectItem key={unit} value={unit}>
-                          {unit}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="food-brand">
+                  Brand{" "}
+                  <span className="text-xs text-muted-foreground">
+                    (Optional)
+                  </span>
+                </Label>
+                <Input
+                  id="food-brand"
+                  value={formData.foodBrand}
+                  onChange={(e) =>
+                    handleInputChange("foodBrand", e.target.value)
+                  }
+                  placeholder="e.g., Chobani"
+                />
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Macronutrients */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Macronutrients</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="calories">
-                    Calories *{" "}
-                    <span className="text-xs text-muted-foreground">
-                      (kcal)
-                    </span>
-                  </Label>
-                  <Input
-                    id="calories"
-                    type="number"
-                    min="0"
-                    step="1"
-                    inputMode="decimal"
-                    value={formData.calories}
-                    onChange={(e) =>
-                      handleNumberInputChange("calories", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.calories ? "border-red-500" : ""}
-                  />
-                  {errors.calories && (
-                    <p className="text-sm text-red-500">{errors.calories}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="protein">
-                    Protein *{" "}
-                    <span className="text-xs text-muted-foreground">(g)</span>
-                  </Label>
-                  <Input
-                    id="protein"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    inputMode="decimal"
-                    value={formData.protein}
-                    onChange={(e) =>
-                      handleNumberInputChange("protein", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.protein ? "border-red-500" : ""}
-                  />
-                  {errors.protein && (
-                    <p className="text-sm text-red-500">{errors.protein}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="carbs">
-                    Carbs *{" "}
-                    <span className="text-xs text-muted-foreground">(g)</span>
-                  </Label>{" "}
-                  <Input
-                    id="carbs"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    inputMode="decimal"
-                    value={formData.carbs}
-                    onChange={(e) =>
-                      handleNumberInputChange("carbs", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.carbs ? "border-red-500" : ""}
-                  />
-                  {errors.carbs && (
-                    <p className="text-sm text-red-500">{errors.carbs}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fat">
-                    Fat *{" "}
-                    <span className="text-xs text-muted-foreground">(g)</span>
-                  </Label>
-                  <Input
-                    id="fat"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    inputMode="decimal"
-                    value={formData.fat}
-                    onChange={(e) =>
-                      handleNumberInputChange("fat", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.fat ? "border-red-500" : ""}
-                  />
-                  {errors.fat && (
-                    <p className="text-sm text-red-500">{errors.fat}</p>
-                  )}
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="serving-size">Serving Size *</Label>
+                <Input
+                  id="serving-size"
+                  type="number"
+                  min="0.1"
+                  max="10000"
+                  step="0.1"
+                  inputMode="decimal"
+                  value={formData.servingSize}
+                  onChange={(e) =>
+                    handleNumberInputChange(
+                      "servingSize",
+                      e.target.value,
+                      10000
+                    )
+                  }
+                  placeholder="e.g., 100"
+                  className={errors.servingSize ? "border-red-500" : ""}
+                />
+                {errors.servingSize && (
+                  <p className="text-sm text-red-500">{errors.servingSize}</p>
+                )}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Additional Nutrients */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Additional Nutrients{" "}
-                <span className="text-sm text-muted-foreground">
-                  (Optional)
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fiber">
-                    Fiber{" "}
-                    <span className="text-xs text-muted-foreground">(g)</span>
-                  </Label>
-                  <Input
-                    id="fiber"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    inputMode="decimal"
-                    value={formData.fiber}
-                    onChange={(e) =>
-                      handleNumberInputChange("fiber", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.fiber ? "border-red-500" : ""}
-                  />
-                  {errors.fiber && (
-                    <p className="text-sm text-red-500">{errors.fiber}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sugar">
-                    Sugar{" "}
-                    <span className="text-xs text-muted-foreground">(g)</span>
-                  </Label>
-                  <Input
-                    id="sugar"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    inputMode="decimal"
-                    value={formData.sugar}
-                    onChange={(e) =>
-                      handleNumberInputChange("sugar", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.sugar ? "border-red-500" : ""}
-                  />
-                  {errors.sugar && (
-                    <p className="text-sm text-red-500">{errors.sugar}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sodium">
-                    Sodium{" "}
-                    <span className="text-xs text-muted-foreground">(mg)</span>
-                  </Label>
-                  <Input
-                    id="sodium"
-                    type="number"
-                    min="0"
-                    step="1"
-                    inputMode="decimal"
-                    value={formData.sodium}
-                    onChange={(e) =>
-                      handleNumberInputChange("sodium", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.sodium ? "border-red-500" : ""}
-                  />
-                  {errors.sodium && (
-                    <p className="text-sm text-red-500">{errors.sodium}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cholesterol">
-                    Cholesterol
-                    <span className="text-xs text-muted-foreground">(mg)</span>
-                  </Label>
-                  <Input
-                    id="cholesterol"
-                    type="number"
-                    min="0"
-                    step="1"
-                    inputMode="decimal"
-                    value={formData.cholesterol}
-                    onChange={(e) =>
-                      handleNumberInputChange("cholesterol", e.target.value)
-                    }
-                    placeholder="0"
-                    className={errors.cholesterol ? "border-red-500" : ""}
-                  />
-                  {errors.cholesterol && (
-                    <p className="text-sm text-red-500">{errors.cholesterol}</p>
-                  )}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="serving-unit">Serving Unit *</Label>
+                <Select
+                  value={formData.servingUnit}
+                  onValueChange={(value: ServingUnit) =>
+                    handleInputChange("servingUnit", value)
+                  }
+                >
+                  <SelectTrigger id="serving-unit" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {servingUnits.map((unit) => (
+                      <SelectItem key={unit} value={unit}>
+                        {unit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Ingredients{" "}
-                <span className="text-sm text-muted-foreground">
-                  (Optional)
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                id="ingredients"
-                value={formData.ingredients}
-                onChange={(e) =>
-                  handleInputChange("ingredients", e.target.value)
-                }
-                placeholder="e.g., Greek Yogurt"
-                className="h-[100px]"
-              />
-            </CardContent>
-          </Card>
-        </div>
+        {/* Macronutrients */}
+        <Card className="flex flex-col border py-6 rounded-lg bg-popover">
+          <CardHeader className="flex justify-center mb-4">
+            <CardTitle>Macronutrients</CardTitle>
+          </CardHeader>
+          <CardContent className="flex gap-4 flex-col">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="calories">
+                  Calories *{" "}
+                  <span className="text-xs text-muted-foreground">(kcal)</span>
+                </Label>
+                <Input
+                  id="calories"
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="decimal"
+                  value={formData.calories}
+                  onChange={(e) =>
+                    handleNumberInputChange("calories", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.calories ? "border-red-500" : ""}
+                />
+                {errors.calories && (
+                  <p className="text-sm text-red-500">{errors.calories}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="protein">
+                  Protein *{" "}
+                  <span className="text-xs text-muted-foreground">(g)</span>
+                </Label>
+                <Input
+                  id="protein"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  inputMode="decimal"
+                  value={formData.protein}
+                  onChange={(e) =>
+                    handleNumberInputChange("protein", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.protein ? "border-red-500" : ""}
+                />
+                {errors.protein && (
+                  <p className="text-sm text-red-500">{errors.protein}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="carbs">
+                  Carbs *{" "}
+                  <span className="text-xs text-muted-foreground">(g)</span>
+                </Label>{" "}
+                <Input
+                  id="carbs"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  inputMode="decimal"
+                  value={formData.carbs}
+                  onChange={(e) =>
+                    handleNumberInputChange("carbs", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.carbs ? "border-red-500" : ""}
+                />
+                {errors.carbs && (
+                  <p className="text-sm text-red-500">{errors.carbs}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fat">
+                  Fat *{" "}
+                  <span className="text-xs text-muted-foreground">(g)</span>
+                </Label>
+                <Input
+                  id="fat"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  inputMode="decimal"
+                  value={formData.fat}
+                  onChange={(e) =>
+                    handleNumberInputChange("fat", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.fat ? "border-red-500" : ""}
+                />
+                {errors.fat && (
+                  <p className="text-sm text-red-500">{errors.fat}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Additional Nutrients */}
+        <Card className="flex flex-col border py-6 rounded-lg bg-popover">
+          <CardHeader className="flex justify-center mb-4">
+            <CardTitle>
+              Additional Nutrients{" "}
+              <span className="text-sm text-muted-foreground">(Optional)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex gap-4 flex-col">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="fiber">
+                  Fiber{" "}
+                  <span className="text-xs text-muted-foreground">(g)</span>
+                </Label>
+                <Input
+                  id="fiber"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  inputMode="decimal"
+                  value={formData.fiber}
+                  onChange={(e) =>
+                    handleNumberInputChange("fiber", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.fiber ? "border-red-500" : ""}
+                />
+                {errors.fiber && (
+                  <p className="text-sm text-red-500">{errors.fiber}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sugar">
+                  Sugar{" "}
+                  <span className="text-xs text-muted-foreground">(g)</span>
+                </Label>
+                <Input
+                  id="sugar"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  inputMode="decimal"
+                  value={formData.sugar}
+                  onChange={(e) =>
+                    handleNumberInputChange("sugar", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.sugar ? "border-red-500" : ""}
+                />
+                {errors.sugar && (
+                  <p className="text-sm text-red-500">{errors.sugar}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sodium">
+                  Sodium{" "}
+                  <span className="text-xs text-muted-foreground">(mg)</span>
+                </Label>
+                <Input
+                  id="sodium"
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="decimal"
+                  value={formData.sodium}
+                  onChange={(e) =>
+                    handleNumberInputChange("sodium", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.sodium ? "border-red-500" : ""}
+                />
+                {errors.sodium && (
+                  <p className="text-sm text-red-500">{errors.sodium}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cholesterol">
+                  Cholesterol
+                  <span className="text-xs text-muted-foreground">(mg)</span>
+                </Label>
+                <Input
+                  id="cholesterol"
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="decimal"
+                  value={formData.cholesterol}
+                  onChange={(e) =>
+                    handleNumberInputChange("cholesterol", e.target.value)
+                  }
+                  placeholder="0"
+                  className={errors.cholesterol ? "border-red-500" : ""}
+                />
+                {errors.cholesterol && (
+                  <p className="text-sm text-red-500">{errors.cholesterol}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="flex flex-col border py-6 rounded-lg bg-popover">
+          <CardHeader className="flex justify-center mb-4">
+            <CardTitle>
+              Ingredients{" "}
+              <span className="text-sm text-muted-foreground">(Optional)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              id="ingredients"
+              value={formData.ingredients}
+              onChange={(e) => handleInputChange("ingredients", e.target.value)}
+              placeholder="e.g., Greek Yogurt"
+              className="h-[100px]"
+            />
+          </CardContent>
+        </Card>
 
         {/* Footer */}
         <div className="flex justify-end gap-2 pt-4">
