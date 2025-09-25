@@ -21,7 +21,10 @@ export function ThemeToggle({
 
   const handleThemeToggle = async (selectedTheme: string) => {
     try {
-      await toggleTheme({ userId: user?.user_id, theme: selectedTheme });
+      await toggleTheme({
+        userId: user?.user_id,
+        theme: selectedTheme,
+      }).unwrap();
       setTheme(selectedTheme);
       onClose();
     } catch (error: any) {
