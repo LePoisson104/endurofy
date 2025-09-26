@@ -10,11 +10,26 @@ interface BirthdateStepProps {
 }
 
 export default function BirthdateStep({ data, onNext }: BirthdateStepProps) {
-  const [birthdate, setBirthdate] = useState<Date | undefined>(data.birthdate);
+  const [birthDateString, setBirthDateString] = useState<string>(
+    data.birth_date ||
+      (data.birthdate ? format(data.birthdate, "MM/dd/yyyy") : "")
+  );
 
   const handleNext = () => {
-    if (birthdate) {
-      onNext({ birthdate });
+    if (birthDateString) {
+      // Parse the date string to create a Date object for legacy compatibility
+      const [month, day, year] = birthDateString.split("/");
+      if (month && day && year) {
+        const birthdate = new Date(
+          parseInt(year),
+          parseInt(month) - 1,
+          parseInt(day)
+        );
+        onNext({
+          birthdate,
+          birth_date: birthDateString,
+        });
+      }
     }
   };
 
@@ -28,11 +43,11 @@ export default function BirthdateStep({ data, onNext }: BirthdateStepProps) {
       </div>
 
       <DateInput
-        value={birthdate ? format(birthdate, "MM/dd/yyyy") : ""}
-        onChange={(value) => setBirthdate(new Date(value))}
+        value={birthDateString}
+        onChange={(value) => setBirthDateString(value)}
       />
 
-      <ContinueBtn onClick={handleNext} disabled={!birthdate} />
+      <ContinueBtn onClick={handleNext} disabled={!birthDateString} />
     </div>
   );
 }

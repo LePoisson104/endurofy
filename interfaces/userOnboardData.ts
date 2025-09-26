@@ -28,6 +28,6 @@ export type UserData = {
     | "moderately_active"
     | "very_active"
     | "extremely_active";
-  goal?: "lose_weight" | "gain_weight" | "maintain_weight" | "build_muscle";
+  goal?: "lose" | "gain" | "maintain";
   profile_status?: string;
 };

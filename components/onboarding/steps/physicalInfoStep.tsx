@@ -127,6 +127,7 @@ export default function PhysicalInfoStep({
                 <Input
                   id="height"
                   type="number"
+                  inputMode="numeric"
                   placeholder="Height in cm"
                   value={height || ""}
                   onChange={(e) => {
@@ -166,6 +167,7 @@ export default function PhysicalInfoStep({
               <Input
                 id="weight"
                 type="number"
+                inputMode="decimal"
                 placeholder={
                   weightUnit === "kg" ? "Weight in kg" : "Weight in lbs"
                 }

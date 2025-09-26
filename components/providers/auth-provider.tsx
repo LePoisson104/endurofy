@@ -5,7 +5,6 @@ import { useRefreshMutation } from "@/api/auth/auth-api-slice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import DotPulse from "@/components/global/dot-pulse";
-import UsersProfileModal from "@/components/modals/users-profile-modal";
 import {
   useGetAllUsersInfoQuery,
   useGetUsersMacrosGoalsQuery,
@@ -28,6 +27,7 @@ import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
 import { useGetSettingsQuery } from "@/api/settings/settings-api-slice";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import OnboardingFlow from "../onboarding/onBoardingFlow";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -38,7 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // open profile modal when user is not complete
   const [isOpen, setIsOpen] = useState(false);
   const [trueSuccess, setTrueSuccess] = useState(false);
-  const [manualProfileClose, setManualProfileClose] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
   const { data: settings } = useGetSettingsQuery({
@@ -47,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [refresh, { isLoading, isSuccess, isError }] = useRefreshMutation();
 
-  const { data: userInfo, refetch } = useGetAllUsersInfoQuery({
+  const { data: userInfo } = useGetAllUsersInfoQuery({
     userId: user?.user_id || "",
   });
 
@@ -107,15 +106,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isWorkoutProgramLoading, workoutProgram, dispatch]);
 
   useEffect(() => {
-    if (
-      userInfo?.data?.profile_status === "incomplete" &&
-      !manualProfileClose
-    ) {
+    if (userInfo?.data?.profile_status === "incomplete") {
       setIsOpen(true);
     } else if (userInfo?.data?.profile_status === "complete") {
       setIsOpen(false);
     }
-  }, [userInfo, manualProfileClose]);
+  }, [userInfo]);
 
   useEffect(() => {
     if (userInfo?.data && usersMacrosGoals?.data) {
@@ -131,15 +127,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push("/login");
     }
   }, [isError, router]);
-
-  // This function will be passed to the UsersProfileModal to handle the proper state transitions
-  const handleProfileSuccess = () => {
-    setManualProfileClose(true); // Prevent auto-opening based on userInfo
-    setIsOpen(false);
-    setIsProfileSuccessNoticeOpen(true);
-    // Refetch user info to get the updated profile status
-    refetch();
-  };
 
   let content;
   if (isLoading) {
@@ -157,14 +144,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   } else if (isSuccess && trueSuccess) {
     if (isOpen) {
       content = (
-        <>
-          {children}
-          <UsersProfileModal
-            isOpen={isOpen}
-            profileStatus={userInfo?.data?.profile_status}
-            setIsProfileSuccessNoticeOpen={handleProfileSuccess}
-          />
-        </>
+        <OnboardingFlow
+          setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
+          profileStatus={userInfo?.data?.profile_status}
+        />
       );
     } else {
       content = (

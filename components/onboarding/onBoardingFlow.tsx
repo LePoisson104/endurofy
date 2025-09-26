@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, CheckCircle } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import BirthdateStep from "./steps/birthdateStep";
 import GenderStep from "./steps/genderStep";
 import PhysicalInfoStep from "./steps/physicalInfoStep";
 import GoalStep from "./steps/goalStep";
 import ActivityStep from "./steps/activityStep";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { useUpdateUsersProfileMutation } from "@/api/user/user-api-slice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { UpdateUserInfo } from "@/interfaces/user-interfaces";
+import { toast } from "sonner";
 
 export type UserData = {
   gender?: "male" | "female";
@@ -30,15 +34,23 @@ export type UserData = {
     | "moderately_active"
     | "very_active"
     | "extremely_active";
-  goal?: "lose_weight" | "gain_weight" | "maintain_weight" | "build_muscle";
+  goal?: "lose" | "gain" | "maintain";
   profile_status?: string;
 };
 
-export default function OnboardingFlow() {
+export default function OnboardingFlow({
+  setIsProfileSuccessNoticeOpen,
+  profileStatus,
+}: {
+  profileStatus: string;
+  setIsProfileSuccessNoticeOpen: (isSuccess: boolean) => void;
+}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [userData, setUserData] = useState<UserData>({});
-  const [isCompleted, setIsCompleted] = useState(false);
   const isDark = useGetCurrentTheme();
+  const user = useSelector(selectCurrentUser);
+  const [updateUserProfile, { isLoading: isUpdatingProfile }] =
+    useUpdateUsersProfileMutation();
 
   const steps = [
     {
@@ -59,7 +71,7 @@ export default function OnboardingFlow() {
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 
-  const handleNext = (data: Partial<UserData>) => {
+  const handleNext = async (data: Partial<UserData>) => {
     let processedData = { ...data };
 
     // Handle data transformation based on the step
@@ -125,10 +137,24 @@ export default function OnboardingFlow() {
       // Final data processing before completion
       const finalData = {
         ...newUserData,
-        profile_status: "completed",
+        profile_status: profileStatus,
       };
-      console.log("Final onboarding data:", finalData);
-      setIsCompleted(true);
+      console.log(finalData);
+      try {
+        await updateUserProfile({
+          userId: user?.user_id || "",
+          payload: finalData as UpdateUserInfo,
+        }).unwrap();
+        setIsProfileSuccessNoticeOpen(true);
+      } catch (error: any) {
+        if (!error.status) {
+          toast.error("No Server Response");
+        } else if (error.status === 400) {
+          toast.error(error.data?.message);
+        } else {
+          toast.error(error.data?.message);
+        }
+      }
     }
   };
 
@@ -155,44 +181,13 @@ export default function OnboardingFlow() {
     }),
   };
 
-  if (isCompleted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-md"
-        >
-          <Card className="shadow-card border-0 bg-white/95 backdrop-blur-sm">
-            <div className="p-8 text-center">
-              <CheckCircle className="w-16 h-16 text-success mx-auto mb-6" />
-              <h2 className="text-2xl font-bold text-foreground mb-3">
-                All Set!
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Your health profile is now complete. Let's start your fitness
-                journey!
-              </p>
-              <Button
-                className="w-full bg-gradient-primary hover:opacity-90 transition-opacity h-12"
-                size="lg"
-              >
-                Continue to Dashboard
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
-
   const CurrentStepComponent = steps[currentStep].component;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 standalone:pt-20 standalone:pb-10">
       <div className="w-full max-w-md">
         {/* Progress Header */}
-        <div className="mb-6">
+        <div className="mb-6 px-7">
           <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"

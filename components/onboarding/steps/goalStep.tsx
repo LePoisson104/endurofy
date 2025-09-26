@@ -13,13 +13,9 @@ interface GoalStepProps {
 }
 
 export default function GoalStep({ data, onNext }: GoalStepProps) {
-  const [goal, setGoal] = useState<
-    | "lose_weight"
-    | "gain_weight"
-    | "maintain_weight"
-    | "build_muscle"
-    | undefined
-  >(data.goal);
+  const [goal, setGoal] = useState<"lose" | "gain" | "maintain" | undefined>(
+    data.goal
+  );
   const [goalWeight, setGoalWeight] = useState<string>(
     data.weight_goal?.toString() || ""
   );
@@ -31,7 +27,7 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
     if (goal) {
       let goalWeightNum: number | undefined;
 
-      if (goal === "maintain_weight") {
+      if (goal === "maintain") {
         // Use current weight as goal weight for maintain weight goal
         goalWeightNum = data.current_weight || data.weight;
       } else {
@@ -48,30 +44,29 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
 
   const goalOptions = [
     {
-      value: "lose_weight" as const,
+      value: "lose" as const,
       icon: TrendingDown,
       label: "Lose Weight",
       description: "Reduce body weight and fat",
     },
     {
-      value: "gain_weight" as const,
+      value: "gain" as const,
       icon: TrendingUp,
       label: "Gain Weight",
       description: "Increase overall body weight",
     },
     {
-      value: "maintain_weight" as const,
+      value: "maintain" as const,
       icon: MoveRight,
       label: "Maintain Weight",
       description: "Keep current weight stable",
     },
   ];
 
-  const needsGoalWeightInput = goal === "lose_weight" || goal === "gain_weight";
+  const needsGoalWeightInput = goal === "lose" || goal === "gain";
   const isValid =
     goal &&
-    (goal === "maintain_weight" ||
-      goal === "build_muscle" ||
+    (goal === "maintain" ||
       !needsGoalWeightInput ||
       (goalWeight && parseFloat(goalWeight) > 0));
 
@@ -100,7 +95,7 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
                 setGoal(option.value);
                 // Auto-populate goal weight with current weight for maintain weight goal
                 if (
-                  option.value === "maintain_weight" &&
+                  option.value === "maintain" &&
                   (data.current_weight || data.weight)
                 ) {
                   setGoalWeight(
@@ -142,6 +137,7 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
             <Input
               id="goalWeight"
               type="number"
+              inputMode="decimal"
               placeholder={weightUnit === "kg" ? "65" : "143"}
               value={goalWeight}
               onChange={(e) => setGoalWeight(e.target.value)}
