@@ -24,6 +24,9 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
     data.goalWeight?.toString() || ""
   );
 
+  // Get the weight unit from the physical info step
+  const weightUnit = data.weight_unit || "kg";
+
   const handleNext = () => {
     if (goal) {
       const goalWeightNum = goalWeight ? parseFloat(goalWeight) : undefined;
@@ -52,7 +55,10 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
     },
   ];
 
-  const needsGoalWeight = goal === "lose_weight" || goal === "gain_weight";
+  const needsGoalWeight =
+    goal === "lose_weight" ||
+    goal === "gain_weight" ||
+    goal === "maintain_weight";
   const isValid =
     goal && (!needsGoalWeight || (goalWeight && parseFloat(goalWeight) > 0));
 
@@ -77,7 +83,13 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
                   ? "bg-blue-500/5 border-blue-500"
                   : "border"
               )}
-              onClick={() => setGoal(option.value)}
+              onClick={() => {
+                setGoal(option.value);
+                // Auto-populate goal weight with current weight for maintain weight goal
+                if (option.value === "maintain_weight" && data.weight) {
+                  setGoalWeight(data.weight.toString());
+                }
+              }}
             >
               <div className="flex items-center gap-4">
                 <Icon className="w-5 h-5 text-muted-foreground" />
@@ -107,17 +119,17 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
               htmlFor="goalWeight"
               className="text-sm font-medium flex items-center gap-2"
             >
-              Target Weight (kg)
+              Target Weight ({weightUnit})
             </Label>
             <Input
               id="goalWeight"
               type="number"
-              placeholder="65"
+              placeholder={weightUnit === "kg" ? "65" : "143"}
               value={goalWeight}
               onChange={(e) => setGoalWeight(e.target.value)}
               className="text-center"
-              min="30"
-              max="300"
+              min={weightUnit === "kg" ? "30" : "66"}
+              max={weightUnit === "kg" ? "300" : "661"}
               step="0.1"
             />
           </div>

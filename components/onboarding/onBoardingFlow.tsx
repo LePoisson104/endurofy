@@ -60,6 +60,7 @@ export default function OnboardingFlow() {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      console.log(userData);
       setIsCompleted(true);
     }
   };
