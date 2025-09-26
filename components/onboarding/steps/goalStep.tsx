@@ -21,16 +21,28 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
     | undefined
   >(data.goal);
   const [goalWeight, setGoalWeight] = useState<string>(
-    data.goalWeight?.toString() || ""
+    data.weight_goal?.toString() || ""
   );
 
   // Get the weight unit from the physical info step
-  const weightUnit = data.weight_unit || "kg";
+  const weightUnit = data.current_weight_unit || data.weight_unit || "kg";
 
   const handleNext = () => {
     if (goal) {
-      const goalWeightNum = goalWeight ? parseFloat(goalWeight) : undefined;
-      onNext({ goal, goalWeight: goalWeightNum });
+      let goalWeightNum: number | undefined;
+
+      if (goal === "maintain_weight") {
+        // Use current weight as goal weight for maintain weight goal
+        goalWeightNum = data.current_weight || data.weight;
+      } else {
+        goalWeightNum = goalWeight ? parseFloat(goalWeight) : undefined;
+      }
+
+      onNext({
+        goal,
+        weight_goal: goalWeightNum,
+        weight_goal_unit: weightUnit,
+      });
     }
   };
 
@@ -55,12 +67,13 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
     },
   ];
 
-  const needsGoalWeight =
-    goal === "lose_weight" ||
-    goal === "gain_weight" ||
-    goal === "maintain_weight";
+  const needsGoalWeightInput = goal === "lose_weight" || goal === "gain_weight";
   const isValid =
-    goal && (!needsGoalWeight || (goalWeight && parseFloat(goalWeight) > 0));
+    goal &&
+    (goal === "maintain_weight" ||
+      goal === "build_muscle" ||
+      !needsGoalWeightInput ||
+      (goalWeight && parseFloat(goalWeight) > 0));
 
   return (
     <div className="space-y-6">
@@ -86,8 +99,13 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
               onClick={() => {
                 setGoal(option.value);
                 // Auto-populate goal weight with current weight for maintain weight goal
-                if (option.value === "maintain_weight" && data.weight) {
-                  setGoalWeight(data.weight.toString());
+                if (
+                  option.value === "maintain_weight" &&
+                  (data.current_weight || data.weight)
+                ) {
+                  setGoalWeight(
+                    (data.current_weight || data.weight)!.toString()
+                  );
                 }
               }}
             >
@@ -112,7 +130,7 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
         })}
       </div>
 
-      {needsGoalWeight && (
+      {needsGoalWeightInput && (
         <div className="p-4 hover:shadow-soft transition-shadow">
           <div className="space-y-2">
             <Label

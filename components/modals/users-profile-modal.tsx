@@ -113,6 +113,9 @@ export default function UsersProfileModal({
         birth_date: convertDateForSubmission(formData.birth_date),
       };
 
+      console.log(submissionPayload);
+      return;
+
       await updateUserProfile({
         userId: user?.user_id || "",
         payload: submissionPayload,

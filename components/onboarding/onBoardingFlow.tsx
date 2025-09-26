@@ -14,18 +14,24 @@ import ActivityStep from "./steps/activityStep";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 export type UserData = {
-  birthdate?: Date;
   gender?: "male" | "female";
+  birth_date?: string;
   height?: number;
-  weight?: number;
-  goal?: "lose_weight" | "gain_weight" | "maintain_weight" | "build_muscle";
-  goalWeight?: number;
-  activityLevel?:
+  height_unit?: "ft" | "cm";
+  current_weight?: number;
+  current_weight_unit?: "lb" | "kg";
+  starting_weight?: number;
+  starting_weight_unit?: "lb" | "kg";
+  weight_goal?: number;
+  weight_goal_unit?: "lb" | "kg";
+  activity_level?:
     | "sedentary"
     | "lightly_active"
     | "moderately_active"
     | "very_active"
     | "extremely_active";
+  goal?: "lose_weight" | "gain_weight" | "maintain_weight" | "build_muscle";
+  profile_status?: string;
 };
 
 export default function OnboardingFlow() {
@@ -54,13 +60,74 @@ export default function OnboardingFlow() {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   const handleNext = (data: Partial<UserData>) => {
-    const newUserData = { ...userData, ...data };
+    let processedData = { ...data };
+
+    // Handle data transformation based on the step
+    if (data.height !== undefined && data.height_unit) {
+      // Height is already in the correct format from physicalInfoStep
+      processedData.height = data.height;
+    }
+
+    // Handle weight data mapping from legacy fields
+    if ((data as any).weight !== undefined && (data as any).weight_unit) {
+      processedData.current_weight = (data as any).weight;
+      processedData.current_weight_unit = (data as any).weight_unit;
+      processedData.starting_weight = (data as any).weight;
+      processedData.starting_weight_unit = (data as any).weight_unit;
+
+      // Remove the old weight fields
+      delete (processedData as any).weight;
+      delete (processedData as any).weight_unit;
+    }
+
+    // Handle goal weight mapping from both legacy and new fields
+    if ((data as any).goalWeight !== undefined) {
+      processedData.weight_goal = (data as any).goalWeight;
+      processedData.weight_goal_unit =
+        processedData.current_weight_unit ||
+        userData.current_weight_unit ||
+        "lb";
+
+      // Remove the old goalWeight field
+      delete (processedData as any).goalWeight;
+    } else if (data.weight_goal !== undefined) {
+      // Handle new field names directly
+      processedData.weight_goal = data.weight_goal;
+      if (data.weight_goal_unit) {
+        processedData.weight_goal_unit = data.weight_goal_unit;
+      }
+    }
+
+    // Handle activity level mapping from legacy fields
+    if ((data as any).activityLevel !== undefined) {
+      processedData.activity_level = (data as any).activityLevel;
+
+      // Remove the old activityLevel field
+      delete (processedData as any).activityLevel;
+    }
+
+    // Handle birthdate mapping (convert Date to string) from legacy fields
+    if ((data as any).birthdate !== undefined) {
+      processedData.birth_date = (data as any).birthdate
+        .toISOString()
+        .split("T")[0];
+
+      // Remove the old birthdate field
+      delete (processedData as any).birthdate;
+    }
+
+    const newUserData = { ...userData, ...processedData };
     setUserData(newUserData);
 
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      console.log(userData);
+      // Final data processing before completion
+      const finalData = {
+        ...newUserData,
+        profile_status: "completed",
+      };
+      console.log("Final onboarding data:", finalData);
       setIsCompleted(true);
     }
   };
@@ -149,7 +216,7 @@ export default function OnboardingFlow() {
         </div>
 
         {/* Step Content */}
-        <Card className="border-0">
+        <div className="border-0">
           <div className="p-6">
             <AnimatePresence mode="wait" custom={1}>
               <motion.div
@@ -168,7 +235,7 @@ export default function OnboardingFlow() {
               </motion.div>
             </AnimatePresence>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
