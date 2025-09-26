@@ -35,6 +35,7 @@ export default function VerifyOTP() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(900);
+  const [resendTimeLeft, setResendTimeLeft] = useState(0);
   const [email, setEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation();
@@ -43,6 +44,8 @@ export default function VerifyOTP() {
     if (typeof window !== "undefined") {
       setEmail(sessionStorage.getItem("email"));
       setUserId(sessionStorage.getItem("user_id"));
+      // Start with 1-minute resend cooldown when page loads
+      setResendTimeLeft(60);
     }
   }, []);
   // Handle timer countdown
@@ -56,6 +59,17 @@ export default function VerifyOTP() {
 
     return () => clearTimeout(timer);
   }, [timeLeft, email, userId]);
+
+  // Handle resend timer countdown
+  useEffect(() => {
+    if (resendTimeLeft <= 0) return;
+
+    const resendTimer = setTimeout(() => {
+      setResendTimeLeft(resendTimeLeft - 1);
+    }, 1000);
+
+    return () => clearTimeout(resendTimer);
+  }, [resendTimeLeft]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -119,6 +133,8 @@ export default function VerifyOTP() {
       setOtp("");
       // Reset timer
       setTimeLeft(900);
+      // Start 1-minute resend cooldown
+      setResendTimeLeft(60);
     } catch (err: any) {
       if (!err.status) {
         toast.error("No Server Response");
@@ -202,12 +218,16 @@ export default function VerifyOTP() {
                 variant="link"
                 className="p-0 h-auto font-semibold"
                 onClick={handleResend}
-                disabled={isResending || (!email && !userId)}
+                disabled={
+                  isResending || (!email && !userId) || resendTimeLeft > 0
+                }
               >
                 {isResending ? (
                   <>
                     <Loader2 className="h-3 w-3 animate-spin" />
                   </>
+                ) : resendTimeLeft > 0 ? (
+                  `Resend (${resendTimeLeft}s)`
                 ) : (
                   "Resend"
                 )}

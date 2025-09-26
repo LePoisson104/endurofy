@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Armchair, FootprintsIcon, Bike, Zap, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserData } from "@/interfaces/userOnboardData";
@@ -8,9 +7,14 @@ import ContinueBtn from "./continnueBtn";
 interface ActivityStepProps {
   data: UserData;
   onNext: (data: Partial<UserData>) => void;
+  isLoading: boolean;
 }
 
-export default function ActivityStep({ data, onNext }: ActivityStepProps) {
+export default function ActivityStep({
+  data,
+  onNext,
+  isLoading,
+}: ActivityStepProps) {
   const [activityLevel, setActivityLevel] = useState<
     | "sedentary"
     | "lightly_active"
@@ -133,6 +137,7 @@ export default function ActivityStep({ data, onNext }: ActivityStepProps) {
         onClick={handleNext}
         disabled={!activityLevel}
         label="Complete setup"
+        isLoading={isLoading}
       />
     </div>
   );

@@ -2,15 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { Loader2 } from "lucide-react";
 
 export default function ContinueBtn({
   onClick,
   disabled,
   label = "Continue",
+  isLoading = false,
 }: {
   onClick: () => void;
   disabled: boolean;
   label?: string;
+  isLoading?: boolean;
 }) {
   const isDark = useGetCurrentTheme();
 
@@ -25,7 +28,7 @@ export default function ContinueBtn({
       }`}
       size="lg"
     >
-      {label}
+      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : label}
     </Button>
   );
 }

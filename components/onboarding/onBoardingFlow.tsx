@@ -226,7 +226,11 @@ export default function OnboardingFlow({
                   opacity: { duration: 0.2 },
                 }}
               >
-                <CurrentStepComponent data={userData} onNext={handleNext} />
+                <CurrentStepComponent
+                  data={userData}
+                  onNext={handleNext}
+                  isLoading={isUpdatingProfile}
+                />
               </motion.div>
             </AnimatePresence>
           </div>
