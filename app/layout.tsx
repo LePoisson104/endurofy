@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ReduxProvider } from "@/components/providers/redux-provider";
 import { LoginPersistProvider } from "@/components/providers/login-persist";
 import { Toaster } from "@/components/ui/sonner";
+import { RefreshPageProvider } from "@/components/providers/refresh-page-provider";
 
 import type { Metadata, Viewport } from "next";
 
@@ -118,7 +119,7 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
+              <RefreshPageProvider>{children}</RefreshPageProvider>
               <Toaster richColors position="top-center" />
             </ThemeProvider>
           </LoginPersistProvider>
