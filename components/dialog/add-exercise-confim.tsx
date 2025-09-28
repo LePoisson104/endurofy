@@ -10,17 +10,20 @@ import {
 import { Button } from "../ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { Loader2 } from "lucide-react";
 
 export default function AddExerciseConfirmDialog({
   showDeleteDialog,
   setShowDeleteDialog,
   exerciseName,
   setIsAddingExercise,
+  isAddingExercise,
 }: {
   showDeleteDialog: boolean;
   setShowDeleteDialog: (show: boolean) => void;
   exerciseName: string;
   setIsAddingExercise: () => void;
+  isAddingExercise: boolean;
 }) {
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
@@ -53,8 +56,13 @@ export default function AddExerciseConfirmDialog({
           <Button
             className={`${isMobile ? "w-full" : "w-[100px]"} w-1/2`}
             onClick={setIsAddingExercise}
+            disabled={isAddingExercise}
           >
-            Add Exercise
+            {isAddingExercise ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              "Add Exercise"
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

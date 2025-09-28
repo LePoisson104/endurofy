@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -49,6 +49,11 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "../ui/drawer";
+import {
+  ResponsiveMenu,
+  createMenuSection,
+  createMenuItem,
+} from "../ui/responsive-menu";
 
 interface ExerciseWithProgram extends Exercise {
   programName: string;
@@ -61,7 +66,7 @@ interface ExerciseSelectionModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onSelectExercise: (exercise: Exercise) => void;
-  isAddingExercise?: boolean;
+  isAddingExercise: boolean;
   dayId: string;
 }
 
@@ -69,7 +74,7 @@ export default function ExerciseSelectionModal({
   isOpen,
   setIsOpen,
   onSelectExercise,
-  isAddingExercise = false,
+  isAddingExercise,
   dayId,
 }: ExerciseSelectionModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,6 +83,7 @@ export default function ExerciseSelectionModal({
   const [showAddExerciseConfirmDialog, setShowAddExerciseConfirmDialog] =
     useState(false);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [exerciseName, setExerciseName] = useState("");
   const [selectedExercise, setSelectedExercise] =
     useState<ExerciseWithProgram | null>(null);
@@ -85,7 +91,7 @@ export default function ExerciseSelectionModal({
     useState<ExerciseWithProgram | null>(null);
   const [exerciseToDelete, setExerciseToDelete] =
     useState<ExerciseWithProgram | null>(null);
-
+  const isClosingRef = useRef(false);
   const isMobile = useIsMobile();
   const workoutPrograms = useSelector(selectWorkoutProgram);
   const isDark = useGetCurrentTheme();
@@ -174,6 +180,10 @@ export default function ExerciseSelectionModal({
   };
 
   const handleSelectExercise = (exercise: Exercise) => {
+    // Prevent exercise selection if drawer is open or currently closing
+    if (isDrawerOpen || isClosingRef.current) {
+      return;
+    }
     setExerciseName(exercise.exerciseName);
     setSelectedExercise(exercise as ExerciseWithProgram);
     setShowAddExerciseConfirmDialog(true);
@@ -253,6 +263,23 @@ export default function ExerciseSelectionModal({
     setIsOpen(false);
   };
 
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (!open && isDrawerOpen) {
+      // Drawer is closing
+      isClosingRef.current = true;
+      setIsDrawerOpen(false);
+
+      // Clear the closing flag after a short delay to prevent accidental exercise selection
+      setTimeout(() => {
+        isClosingRef.current = false;
+      }, 150);
+    } else if (open) {
+      // Drawer is opening
+      isClosingRef.current = false;
+      setIsDrawerOpen(true);
+    }
+  };
+
   const scrollArea = (
     <ScrollArea
       className={`w-full ${
@@ -277,82 +304,106 @@ export default function ExerciseSelectionModal({
         </div>
       ) : (
         <div className="space-y-2">
-          {filteredExercises.map((exercise) => (
-            <div
-              key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
-              className="cursor-pointer hover:bg-muted/50 transition-colors border rounded-md"
-              onClick={() => handleSelectExercise(exercise)}
-            >
-              <div className="px-4 py-3 flex justify-between items-center">
-                <div className="flex justify-between items-start flex-1">
-                  <div className="space-y-2">
-                    <div
-                      className={`flex ${
-                        isMobile ? "flex-col" : "flex-row items-center gap-2"
-                      }`}
-                    >
-                      <h3 className="font-medium text-sm">
-                        {exercise.exerciseName}
-                      </h3>
-                      <h3
+          {filteredExercises.map((exercise) => {
+            const menuSections = [
+              createMenuSection([
+                createMenuItem("edit", "Edit", Pencil, () =>
+                  handleEditExercise(exercise)
+                ),
+              ]),
+              createMenuSection([
+                createMenuItem(
+                  "delete",
+                  "Delete",
+                  Trash2,
+                  () => handleDeleteExercise(exercise),
+                  { variant: "destructive" }
+                ),
+              ]),
+            ];
+            return (
+              <div
+                key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
+                className="cursor-pointer hover:bg-muted/50 transition-colors border rounded-md"
+                onClick={() => handleSelectExercise(exercise)}
+              >
+                <div className="px-4 py-3 flex justify-between items-center">
+                  <div className="flex justify-between items-start flex-1">
+                    <div className="space-y-2">
+                      <div
+                        className={`flex ${
+                          isMobile ? "flex-col" : "flex-row items-center gap-2"
+                        }`}
+                      >
+                        <h3 className="font-medium text-sm">
+                          {exercise.exerciseName}
+                        </h3>
+                        <h3
+                          className={`text-sm ${
+                            isDark ? "text-slate-400" : "text-slate-500"
+                          }`}
+                        >
+                          {exercise.programName}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CustomBadge title={exercise.laterality} />
+                        <BodyPartBadge bodyPart={exercise.bodyPart} />
+                      </div>
+                      <div
                         className={`text-sm ${
                           isDark ? "text-slate-400" : "text-slate-500"
                         }`}
                       >
-                        {exercise.programName}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CustomBadge title={exercise.laterality} />
-                      <BodyPartBadge bodyPart={exercise.bodyPart} />
-                    </div>
-                    <div
-                      className={`text-sm ${
-                        isDark ? "text-slate-400" : "text-slate-500"
-                      }`}
-                    >
-                      {exercise.sets} sets • {exercise.minReps}-
-                      {exercise.maxReps} reps
+                        {exercise.sets} sets • {exercise.minReps}-
+                        {exercise.maxReps} reps
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Show ellipsis menu only for manual exercises */}
-                {isManualExercise(exercise) && (
-                  <div className="ml-2" onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                  {/* Show ellipsis menu only for manual exercises */}
+                  {isManualExercise(exercise) && (
+                    <div className="ml-2" onClick={(e) => e.stopPropagation()}>
+                      {isMobile ? (
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDrawerOpenChange(true);
+                          }}
                         >
                           <EllipsisVertical className="h-4 w-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditExercise(exercise)}
-                          className="flex items-center gap-2"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteExercise(exercise)}
-                          variant="destructive"
-                          className="flex items-center gap-2"
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                )}
+                      ) : (
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <ResponsiveMenu
+                            sections={menuSections}
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
+                                <EllipsisVertical className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <ResponsiveMenu
+                  sections={menuSections}
+                  isOpen={isDrawerOpen}
+                  setIsOpen={handleDrawerOpenChange}
+                  dropdownAlign="end"
+                  dropdownWidth="w-56"
+                />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </ScrollArea>
@@ -456,6 +507,7 @@ export default function ExerciseSelectionModal({
         setShowDeleteDialog={setShowAddExerciseConfirmDialog}
         exerciseName={exerciseName}
         setIsAddingExercise={handleConfirmAddExercise}
+        isAddingExercise={isAddingExercise}
       />
 
       <DeleteDialog
