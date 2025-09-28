@@ -113,7 +113,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch(setIsLoading(true));
   }, [dispatch]);
 
-  // Handle weekly weight difference
   useEffect(() => {
     if (weeklyWeightDifference && !isWeeklyWeightLoading) {
       dispatch(setWeeklyRate(weeklyWeightDifference.data.weeklyDifference));
