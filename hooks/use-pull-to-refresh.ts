@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-export default function usePullToRefresh(threshold: number = 100) {
+export default function usePullToRefresh(
+  threshold: number = 200,
+  disabled: boolean = false
+) {
   const [isPulledDown, setIsPulledDown] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
@@ -12,6 +15,9 @@ export default function usePullToRefresh(threshold: number = 100) {
     let isPulling = false;
 
     const handleTouchStart = (e: TouchEvent) => {
+      // Don't track if disabled
+      if (disabled) return;
+
       // Only start tracking if we're at the top of the page
       if (window.scrollY === 0) {
         isAtTop = true;
@@ -24,7 +30,7 @@ export default function usePullToRefresh(threshold: number = 100) {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!isAtTop) return;
+      if (!isAtTop || disabled) return;
 
       const currentY = e.touches[0].clientY;
       const pullDistance = currentY - startY;
@@ -52,7 +58,7 @@ export default function usePullToRefresh(threshold: number = 100) {
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      if (isPulling && isAtTop) {
+      if (isPulling && isAtTop && !disabled) {
         const currentY = e.changedTouches[0].clientY;
         const pullDistance = currentY - startY;
 
@@ -82,7 +88,7 @@ export default function usePullToRefresh(threshold: number = 100) {
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [threshold]);
+  }, [threshold, disabled]);
 
   return [isPulledDown, refresh];
 }

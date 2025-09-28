@@ -65,7 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (settings) {
-      setTheme(settings.data.settings?.[0].theme);
+      setTheme(settings?.data?.settings?.[0]?.theme);
+    } else {
+      setTheme("system");
     }
   }, [settings, dispatch]);
 
