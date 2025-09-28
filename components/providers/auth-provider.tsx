@@ -41,34 +41,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [trueSuccess, setTrueSuccess] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+
   const { data: settings, isLoading: isSettingsLoading } = useGetSettingsQuery({
     userId: user?.user_id,
   });
 
-  const [refresh, { isLoading, isSuccess, isError }] = useRefreshMutation();
+  const [refresh, { isLoading: isAuthLoading, isSuccess, isError }] =
+    useRefreshMutation();
 
-  const { data: userInfo } = useGetAllUsersInfoQuery({
-    userId: user?.user_id || "",
-  });
+  const { data: userInfo, isLoading: isUserInfoLoading } =
+    useGetAllUsersInfoQuery({
+      userId: user?.user_id || "",
+    });
 
-  const { data: usersMacrosGoals } = useGetUsersMacrosGoalsQuery({
-    userId: user?.user_id || "",
-  });
+  const { data: usersMacrosGoals, isLoading: isMacrosLoading } =
+    useGetUsersMacrosGoalsQuery({
+      userId: user?.user_id || "",
+    });
 
   const { data: workoutProgram, isLoading: isWorkoutProgramLoading } =
     useGetWorkoutProgramQuery({
       userId: user?.user_id,
     });
 
-  const { data: weeklyWeightDifference } = useGetWeeklyWeightDifferenceQuery({
-    userId: user?.user_id,
-  });
+  const { data: weeklyWeightDifference, isLoading: isWeeklyWeightLoading } =
+    useGetWeeklyWeightDifferenceQuery({
+      userId: user?.user_id,
+    });
+
+  // Check if all critical data has been loaded
+  const isCriticalDataLoading =
+    isAuthLoading ||
+    isSettingsLoading ||
+    isUserInfoLoading ||
+    isMacrosLoading ||
+    isWorkoutProgramLoading ||
+    isWeeklyWeightLoading;
+
+  const hasCriticalData =
+    isSuccess &&
+    trueSuccess &&
+    settings !== undefined &&
+    userInfo !== undefined &&
+    usersMacrosGoals !== undefined &&
+    workoutProgram !== undefined &&
+    weeklyWeightDifference !== undefined;
 
   useEffect(() => {
-    if (settings) {
-      setTheme(settings?.data?.settings?.[0]?.theme);
+    if (settings && !isSettingsLoading) {
+      setTheme(settings?.data?.settings?.[0]?.theme || "system");
     }
-  }, [settings, dispatch]);
+  }, [settings, isSettingsLoading, setTheme]);
 
   const verifyRefreshToken = async () => {
     try {
@@ -86,42 +110,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Set isLoading to true on initial mount to ensure skeleton shows first
   useEffect(() => {
-    // Set loading to true by default on component mount
     dispatch(setIsLoading(true));
   }, [dispatch]);
 
+  // Handle weekly weight difference
   useEffect(() => {
-    if (weeklyWeightDifference) {
+    if (weeklyWeightDifference && !isWeeklyWeightLoading) {
       dispatch(setWeeklyRate(weeklyWeightDifference.data.weeklyDifference));
     }
-  }, [weeklyWeightDifference, dispatch]);
+  }, [weeklyWeightDifference, isWeeklyWeightLoading, dispatch]);
 
+  // Handle workout program loading
   useEffect(() => {
     if (isWorkoutProgramLoading) {
       dispatch(setIsLoading(true));
-    } else if (workoutProgram) {
-      // Only set loading to false when we have data
-      dispatch(setIsLoading(false));
+    } else if (workoutProgram && !isWorkoutProgramLoading) {
       dispatch(setWorkoutProgram(workoutProgram.data.programs));
     }
   }, [isWorkoutProgramLoading, workoutProgram, dispatch]);
 
+  // Handle profile status
   useEffect(() => {
-    if (userInfo?.data?.profile_status === "incomplete") {
-      setIsOpen(true);
-    } else if (userInfo?.data?.profile_status === "complete") {
-      setIsOpen(false);
+    if (userInfo && !isUserInfoLoading) {
+      if (userInfo?.data?.profile_status === "incomplete") {
+        setIsOpen(true);
+      } else if (userInfo?.data?.profile_status === "complete") {
+        setIsOpen(false);
+      }
     }
-  }, [userInfo]);
+  }, [userInfo, isUserInfoLoading]);
 
+  // Handle user info and macros goals
   useEffect(() => {
-    if (userInfo?.data && usersMacrosGoals?.data) {
+    if (
+      userInfo?.data &&
+      usersMacrosGoals?.data &&
+      !isUserInfoLoading &&
+      !isMacrosLoading
+    ) {
       const bmiResults = calculateBMI(userInfo);
       dispatch(setUserInfo({ ...userInfo.data, ...bmiResults }));
       dispatch(calculateAndSetBMR());
       dispatch(setUserMacrosGoals(usersMacrosGoals.data));
     }
-  }, [userInfo, usersMacrosGoals, dispatch]);
+  }, [
+    userInfo,
+    usersMacrosGoals,
+    isUserInfoLoading,
+    isMacrosLoading,
+    dispatch,
+  ]);
+
+  // Set initial data loaded flag and workout loading to false when all data is ready
+  useEffect(() => {
+    if (hasCriticalData && !isCriticalDataLoading && !isInitialDataLoaded) {
+      setIsInitialDataLoaded(true);
+      dispatch(setIsLoading(false));
+    }
+  }, [hasCriticalData, isCriticalDataLoading, isInitialDataLoaded, dispatch]);
 
   useEffect(() => {
     if (isError) {
@@ -129,9 +175,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isError, router]);
 
-  let content;
-  if (isLoading || isSettingsLoading) {
-    content = (
+  // Show loading screen until all critical data is loaded
+  if (isCriticalDataLoading || !hasCriticalData || !isInitialDataLoaded) {
+    return (
       <div className="w-full h-screen flex justify-center items-center bg-black flex flex-col gap-4">
         <Image
           src={"/images/endurofy_logo.png"}
@@ -142,26 +188,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         <DotPulse />
       </div>
     );
-  } else if (isSuccess && trueSuccess) {
-    if (isOpen) {
-      content = (
-        <OnboardingFlow
-          setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
-          profileStatus={userInfo?.data?.profile_status}
-        />
-      );
-    } else {
-      content = (
-        <>
-          <ProfileSuccessNotice
-            open={isProfileSuccessNoticeOpen}
-            setOpen={setIsProfileSuccessNoticeOpen}
-          />
-          {children}
-        </>
-      );
-    }
   }
 
-  return content;
+  // Handle authentication errors
+  if (isError) {
+    return null; // Let the useEffect handle the redirect
+  }
+
+  // Show onboarding if profile is incomplete
+  if (isOpen) {
+    return (
+      <OnboardingFlow
+        setIsProfileSuccessNoticeOpen={setIsProfileSuccessNoticeOpen}
+        profileStatus={userInfo?.data?.profile_status}
+      />
+    );
+  }
+
+  // Show main app content
+  return (
+    <>
+      <ProfileSuccessNotice
+        open={isProfileSuccessNoticeOpen}
+        setOpen={setIsProfileSuccessNoticeOpen}
+      />
+      {children}
+    </>
+  );
 }

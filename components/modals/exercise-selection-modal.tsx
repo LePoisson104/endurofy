@@ -255,7 +255,9 @@ export default function ExerciseSelectionModal({
 
   const scrollArea = (
     <ScrollArea
-      className={`w-full ${isMobile ? "h-full overflow-y-auto" : "h-120"}`}
+      className={`w-full ${
+        isMobile ? "h-full overflow-y-auto" : "h-120"
+      } standalone:pb-6`}
     >
       {filteredExercises.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-32 space-y-2">
