@@ -13,8 +13,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Plus, Search, EllipsisVertical, Trash2, Pencil } from "lucide-react";
+import {
+  Plus,
+  Search,
+  EllipsisVertical,
+  Trash2,
+  Pencil,
+  X,
+} from "lucide-react";
 import AddExerciseModal from "./add-exercise-modal";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -36,6 +42,13 @@ import {
 import DeleteDialog from "../dialog/delete-dialog";
 import CustomBadge from "../badges/custom-badge";
 import BodyPartBadge from "../badges/bodypart-badge";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "../ui/drawer";
 
 interface ExerciseWithProgram extends Exercise {
   programName: string;
@@ -235,153 +248,172 @@ export default function ExerciseSelectionModal({
     }
   };
 
+  const handleClose = () => {
+    setSearchTerm("");
+    setIsOpen(false);
+  };
+
+  const scrollArea = (
+    <ScrollArea
+      className={`w-full ${isMobile ? "h-full overflow-y-auto" : "h-120"}`}
+    >
+      {filteredExercises.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-32 space-y-2">
+          <div className="text-muted-foreground">
+            {searchTerm ? "No exercises found" : "No exercises available"}
+          </div>
+          {!searchTerm && (
+            <Button
+              onClick={() => setIsAddExerciseModalOpen(true)}
+              variant="outline"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Your First Exercise
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredExercises.map((exercise) => (
+            <div
+              key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
+              className="cursor-pointer hover:bg-muted/50 transition-colors border rounded-md"
+              onClick={() => handleSelectExercise(exercise)}
+            >
+              <div className="px-4 py-3 flex justify-between items-center">
+                <div className="flex justify-between items-start flex-1">
+                  <div className="space-y-2">
+                    <div
+                      className={`flex ${
+                        isMobile ? "flex-col" : "flex-row items-center gap-2"
+                      }`}
+                    >
+                      <h3 className="font-medium text-sm">
+                        {exercise.exerciseName}
+                      </h3>
+                      <h3
+                        className={`text-sm ${
+                          isDark ? "text-slate-400" : "text-slate-500"
+                        }`}
+                      >
+                        {exercise.programName}
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CustomBadge title={exercise.laterality} />
+                      <BodyPartBadge bodyPart={exercise.bodyPart} />
+                    </div>
+                    <div
+                      className={`text-sm ${
+                        isDark ? "text-slate-400" : "text-slate-500"
+                      }`}
+                    >
+                      {exercise.sets} sets • {exercise.minReps}-
+                      {exercise.maxReps} reps
+                    </div>
+                  </div>
+                </div>
+
+                {/* Show ellipsis menu only for manual exercises */}
+                {isManualExercise(exercise) && (
+                  <div className="ml-2" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleEditExercise(exercise)}
+                          className="flex items-center gap-2"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteExercise(exercise)}
+                          variant="destructive"
+                          className="flex items-center gap-2"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </ScrollArea>
+  );
+
+  const topBar = (
+    <div className="flex items-center gap-2 w-full">
+      <Button variant="ghost" size="sm" onClick={handleClose}>
+        <X className="h-4 w-4" />
+      </Button>
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search exercises..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+      <Button
+        onClick={() => setIsAddExerciseModalOpen(true)}
+        className="flex items-center gap-2"
+        variant="outline"
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent
-          className={`bg-card max-h-[80vh] ${
-            isMobile ? "max-w-[95vw] w-[95vw] p-4" : "max-w-2xl"
-          }`}
-        >
-          <DialogHeader className="mb-4">
-            <DialogTitle>Select Exercise</DialogTitle>
-            <DialogDescription>
-              Select an exercise to add to your workout.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-2">
-            {/* Search and Create Button */}
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search exercises..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Button
-                onClick={() => setIsAddExerciseModalOpen(true)}
-                className="flex items-center gap-2"
-                variant="outline"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <Separator />
-
-            {/* Exercise List */}
-            <ScrollArea className="h-100 w-full">
-              {filteredExercises.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 space-y-2">
-                  <div className="text-muted-foreground">
-                    {searchTerm
-                      ? "No exercises found"
-                      : "No exercises available"}
-                  </div>
-                  {!searchTerm && (
-                    <Button
-                      onClick={() => setIsAddExerciseModalOpen(true)}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Your First Exercise
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredExercises.map((exercise) => (
-                    <div
-                      key={`${exercise.exerciseName}-${exercise.bodyPart}-${exercise.exerciseId}`}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors border rounded-md"
-                      onClick={() => handleSelectExercise(exercise)}
-                    >
-                      <div className="px-4 py-3 flex justify-between items-center">
-                        <div className="flex justify-between items-start flex-1">
-                          <div className="space-y-2">
-                            <div
-                              className={`flex ${
-                                isMobile
-                                  ? "flex-col"
-                                  : "flex-row items-center gap-2"
-                              }`}
-                            >
-                              <h3 className="font-medium text-sm">
-                                {exercise.exerciseName}
-                              </h3>
-                              <h3
-                                className={`text-sm ${
-                                  isDark ? "text-slate-400" : "text-slate-500"
-                                }`}
-                              >
-                                {exercise.programName}
-                              </h3>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CustomBadge title={exercise.laterality} />
-                              <BodyPartBadge bodyPart={exercise.bodyPart} />
-                            </div>
-                            <div
-                              className={`text-sm ${
-                                isDark ? "text-slate-400" : "text-slate-500"
-                              }`}
-                            >
-                              {exercise.sets} sets • {exercise.minReps}-
-                              {exercise.maxReps} reps
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Show ellipsis menu only for manual exercises */}
-                        {isManualExercise(exercise) && (
-                          <div
-                            className="ml-2"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <EllipsisVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => handleEditExercise(exercise)}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteExercise(exercise)}
-                                  variant="destructive"
-                                  className="flex items-center gap-2"
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {!isMobile ? (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent
+            className={`bg-card max-h-[80vh] ${
+              isMobile ? "max-w-[95vw] w-[95vw] p-4" : "max-w-2xl"
+            }`}
+            closeXButton={true}
+          >
+            <DialogHeader>
+              {topBar}
+              <DialogTitle />
+              <DialogDescription />
+            </DialogHeader>
+            {scrollArea}
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <DrawerContent
+            height="100vh"
+            hideBar={true}
+            className="overflow-hidden h-full p-2 standalone:pt-14"
+          >
+            <DrawerHeader>
+              {topBar}
+              <DrawerTitle />
+              <DrawerDescription />
+            </DrawerHeader>
+            {scrollArea}
+          </DrawerContent>
+        </Drawer>
+      )}
 
       {/* Create Exercise Modal */}
       <AddExerciseModal

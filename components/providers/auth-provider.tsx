@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRefreshMutation } from "@/api/auth/auth-api-slice";
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [trueSuccess, setTrueSuccess] = useState(false);
   const [isProfileSuccessNoticeOpen, setIsProfileSuccessNoticeOpen] =
     useState(false);
-  const { data: settings } = useGetSettingsQuery({
+  const { data: settings, isLoading: isSettingsLoading } = useGetSettingsQuery({
     userId: user?.user_id,
   });
 
@@ -66,8 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (settings) {
       setTheme(settings?.data?.settings?.[0]?.theme);
-    } else {
-      setTheme("system");
     }
   }, [settings, dispatch]);
 
@@ -131,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isError, router]);
 
   let content;
-  if (isLoading) {
+  if (isLoading || isSettingsLoading) {
     content = (
       <div className="w-full h-screen flex justify-center items-center bg-black flex flex-col gap-4">
         <Image
