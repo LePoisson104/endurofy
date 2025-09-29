@@ -233,6 +233,8 @@ export function ProgramWorkoutLog({
       return;
     }
 
+    console.log(workoutLogPayload);
+
     try {
       await createWorkoutLog({
         userId: user?.user_id || "",

@@ -102,6 +102,7 @@ export default function WorkoutLogManager() {
         programId: programId,
         userId: user?.user_id,
       }).unwrap();
+      setSelectedDate(new Date());
     } catch (error: any) {
       if (error.data.message) {
         toast.error(error.data.message);

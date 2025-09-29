@@ -176,7 +176,7 @@ export default function WithoutProgramLog({
       exercises.length === 0 ||
       exercises.every(
         (exercise: any) =>
-          exerciseSets[exercise.programExerciseId] !== undefined
+          exerciseSets[exercise.workoutExerciseId] !== undefined
       );
 
     if (!isExerciseSetsSynced) {
@@ -353,9 +353,9 @@ export default function WithoutProgramLog({
 
     try {
       await addWorkoutSet({
-        workoutExerciseId: getManualWorkoutExerciseId(
-          exercisePayload.programExerciseId
-        ),
+        workoutExerciseId:
+          exercisePayload.workoutExerciseId ||
+          getManualWorkoutExerciseId(exercisePayload.programExerciseId || ""),
         payload: exercisePayload,
       }).unwrap();
     } catch (err: any) {

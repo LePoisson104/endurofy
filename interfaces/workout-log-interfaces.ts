@@ -31,7 +31,8 @@ export interface ExercisePayload {
   repsRight: number;
   weight: number;
   weightUnit: "kg" | "lb";
-  programExerciseId: string;
+  programExerciseId?: string;
+  workoutExerciseId?: string;
   exerciseOrder: number;
 }
 

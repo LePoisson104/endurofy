@@ -205,9 +205,14 @@ export default function ExerciseTable({
       repsRight: setData.rightReps,
       weight: setData.weight,
       weightUnit: setData.weightUnit as "kg" | "lb",
-      programExerciseId: exercise.exerciseId,
+      workoutExerciseId: exercise.exerciseId,
       exerciseOrder: exercise.exerciseOrder,
     };
+    if (logType === "program") {
+      exercisePayload.programExerciseId = exercise.exerciseId;
+    } else {
+      exercisePayload.workoutExerciseId = exercise.exerciseId;
+    }
     onSaveExerciseSets(exercisePayload);
   };
 

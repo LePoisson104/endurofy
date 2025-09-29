@@ -27,7 +27,8 @@ export const useExerciseSets = (
 
     if (workoutLogData && Array.isArray(workoutLogData)) {
       workoutLogData.forEach((entry) => {
-        const exerciseId = entry.programExerciseId;
+        // Use workoutExerciseId as the unique key instead of programExerciseId
+        const exerciseId = entry.workoutExerciseId;
         if (!grouped[exerciseId]) {
           grouped[exerciseId] = [];
         }
@@ -104,9 +105,20 @@ export const useExerciseSets = (
         : {};
 
       selectedDay.exercises.forEach((exercise) => {
-        const loggedExercise = loggedExercises[exercise.exerciseId] || [];
-        const previousLoggedExercise =
-          previousLoggedExercises[exercise.exerciseId] || [];
+        // For program workouts, we need to find the corresponding workoutExercise by programExerciseId
+        const correspondingWorkoutExercise =
+          workoutLog?.data[0]?.workoutExercises?.find(
+            (we: any) => we.programExerciseId === exercise.exerciseId
+          );
+
+        const workoutExerciseId =
+          correspondingWorkoutExercise?.workoutExerciseId;
+        const loggedExercise = workoutExerciseId
+          ? loggedExercises[workoutExerciseId] || []
+          : [];
+        const previousLoggedExercise = workoutExerciseId
+          ? previousLoggedExercises[workoutExerciseId] || []
+          : [];
 
         initialSets[exercise.exerciseId] = Array.from(
           { length: exercise.sets },
@@ -138,12 +150,13 @@ export const useExerciseSets = (
             if (setData) {
               // Use data from workout log
               return {
-                workoutLogId: loggedExercise[0]?.workoutLogId,
+                workoutLogId:
+                  correspondingWorkoutExercise?.workoutLogId || null,
                 setNumber: setData.setNumber,
                 workoutSetId: setData.workoutSetId,
                 workoutExerciseId: setData.workoutExerciseId,
                 weight: setData.weight || 0,
-                weightUnit: loggedSet.weightUnit || "lb",
+                weightUnit: correspondingWorkoutExercise?.weightUnit || "lb",
                 reps:
                   setData.repsLeft && setData.repsRight
                     ? (setData.repsLeft + setData.repsRight) / 2
@@ -158,7 +171,8 @@ export const useExerciseSets = (
             } else {
               // Empty set for unlogged exercises
               return {
-                workoutLogId: null,
+                workoutLogId:
+                  correspondingWorkoutExercise?.workoutLogId || null,
                 setNumber: index + 1,
                 weight: 0,
                 weightUnit: "lb",
@@ -170,7 +184,8 @@ export const useExerciseSets = (
                 previousWeight: previousSetData?.weight || null,
                 isLogged: false,
                 workoutSetId: null,
-                workoutExerciseId: null,
+                workoutExerciseId:
+                  correspondingWorkoutExercise?.workoutExerciseId || null,
               };
             }
           }
@@ -207,11 +222,13 @@ export const useExerciseSets = (
 
       workoutLog?.data?.[0]?.workoutExercises.forEach(
         (workoutExercise: any) => {
-          const exerciseId = workoutExercise.programExerciseId;
+          const exerciseId = workoutExercise.workoutExerciseId;
           const loggedExercise = loggedExercises[exerciseId] || [];
 
           // Determine sets count - use original exercise sets count, fallback to logged sets or default
-          const originalExercise = findOriginalExercise(exerciseId);
+          const originalExercise = findOriginalExercise(
+            workoutExercise.programExerciseId
+          );
           const originalSets =
             originalExercise?.sets || workoutExercise.workoutSets?.length;
           const existingSetsCount = workoutExercise.workoutSets?.length || 0;
@@ -408,23 +425,28 @@ export const useExerciseSets = (
 
   const getWorkoutExerciseId = useCallback(
     (exerciseId: string): string => {
-      return (
-        exerciseSets[exerciseId]?.find((set) => set.isLogged)
-          ?.workoutExerciseId || ""
-      );
+      // For program workouts, exerciseId is the programExerciseId from the template
+      // We need to find the corresponding workoutExerciseId from the actual workout log
+      if (selectedDay) {
+        const correspondingWorkoutExercise =
+          workoutLog?.data[0]?.workoutExercises?.find(
+            (we: any) => we.programExerciseId === exerciseId
+          );
+        return correspondingWorkoutExercise?.workoutExerciseId || "";
+      }
+
+      // For manual workouts, exerciseId is already the workoutExerciseId
+      return exerciseId;
     },
-    [exerciseSets]
+    [selectedDay, workoutLog]
   );
 
   const getManualWorkoutExerciseId = useCallback(
     (exerciseId: string): string => {
-      return (
-        workoutLog?.data?.[0]?.workoutExercises.find(
-          (exercise: any) => exercise.programExerciseId === exerciseId
-        )?.workoutExerciseId || ""
-      );
+      // Since exerciseId is now workoutExerciseId, we can return it directly
+      return exerciseId;
     },
-    [workoutLog]
+    []
   );
 
   const getExerciseNotes = (workoutExerciseId: string): string => {
@@ -465,7 +487,7 @@ export const useExerciseSets = (
       );
 
       return {
-        exerciseId: workoutExercise.programExerciseId,
+        exerciseId: workoutExercise.workoutExerciseId,
         exerciseName: workoutExercise.exerciseName,
         bodyPart: workoutExercise.bodyPart,
         laterality: workoutExercise.laterality,
