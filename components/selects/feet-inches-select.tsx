@@ -77,14 +77,14 @@ export default function FeetInchesSelect({
           <SelectValue placeholder="Feet" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="0">0'</SelectItem>
-          <SelectItem value="1">1'</SelectItem>
-          <SelectItem value="2">2'</SelectItem>
-          <SelectItem value="3">3'</SelectItem>
-          <SelectItem value="4">4'</SelectItem>
-          <SelectItem value="5">5'</SelectItem>
-          <SelectItem value="6">6'</SelectItem>
-          <SelectItem value="7">7'</SelectItem>
+          <SelectItem value="0">0&apos;</SelectItem>
+          <SelectItem value="1">1&apos;</SelectItem>
+          <SelectItem value="2">2&apos;</SelectItem>
+          <SelectItem value="3">3&apos;</SelectItem>
+          <SelectItem value="4">4&apos;</SelectItem>
+          <SelectItem value="5">5&apos;</SelectItem>
+          <SelectItem value="6">6&apos;</SelectItem>
+          <SelectItem value="7">7&apos;</SelectItem>
         </SelectContent>
       </Select>
       <Select value={inches.toString()} onValueChange={handleInchesChange}>
@@ -92,18 +92,18 @@ export default function FeetInchesSelect({
           <SelectValue placeholder="Inches" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="0">0''</SelectItem>
-          <SelectItem value="1">1''</SelectItem>
-          <SelectItem value="2">2''</SelectItem>
-          <SelectItem value="3">3''</SelectItem>
-          <SelectItem value="4">4''</SelectItem>
-          <SelectItem value="5">5''</SelectItem>
-          <SelectItem value="6">6''</SelectItem>
-          <SelectItem value="7">7''</SelectItem>
-          <SelectItem value="8">8''</SelectItem>
-          <SelectItem value="9">9''</SelectItem>
-          <SelectItem value="10">10''</SelectItem>
-          <SelectItem value="11">11''</SelectItem>
+          <SelectItem value="0">0&quot; </SelectItem>
+          <SelectItem value="1">1&quot;</SelectItem>
+          <SelectItem value="2">2&quot;</SelectItem>
+          <SelectItem value="3">3&quot;</SelectItem>
+          <SelectItem value="4">4&quot;</SelectItem>
+          <SelectItem value="5">5&quot;</SelectItem>
+          <SelectItem value="6">6&quot;</SelectItem>
+          <SelectItem value="7">7&quot;</SelectItem>
+          <SelectItem value="8">8&quot;</SelectItem>
+          <SelectItem value="9">9&quot;</SelectItem>
+          <SelectItem value="10">10&quot;</SelectItem>
+          <SelectItem value="11">11&quot;</SelectItem>
         </SelectContent>
       </Select>
     </div>

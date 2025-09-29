@@ -272,8 +272,9 @@ export function WorkoutProgramCreator({
         if (dayExercises.length > 0) {
           // Remove exerciseId from each exercise before adding to workoutDays
           const exercisesWithoutIds = dayExercises.map(
-            ({ exerciseId, ...rest }) => rest
+            ({ exerciseId: _, ...rest }) => rest
           );
+
           workoutDays.push({
             dayName: dayNames[day] || formatDayName(day as AllDays),
             dayNumber: index + 1,
@@ -288,8 +289,9 @@ export function WorkoutProgramCreator({
         if (dayExercises.length > 0) {
           // Remove exerciseId from each exercise before adding to workoutDays
           const exercisesWithoutIds = dayExercises.map(
-            ({ exerciseId, ...rest }) => rest
+            ({ exerciseId: _, ...rest }) => rest
           );
+
           workoutDays.push({
             dayName: day.dayName || day.name,
             dayNumber: index + 1,

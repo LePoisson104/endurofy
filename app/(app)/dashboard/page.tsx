@@ -301,8 +301,6 @@ export default function DashboardPage() {
 
   // Set weight log date range based on timeRange selection
   useEffect(() => {
-    const now = new Date();
-
     if (timeRange === "7d") {
       const { startDate, endDate } = getDayRange({ options: "7d" });
       setWeightLogStartDate(startDate);
@@ -480,7 +478,7 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Today's Session
+                    Today&apos;s Session
                   </CardTitle>
                   <CalendarDays className="h-4 w-4 text-orange-400" />
                 </CardHeader>

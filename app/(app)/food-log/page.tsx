@@ -843,7 +843,6 @@ export default function FoodLogPage() {
           isOpen={isAddFoodModalOpen}
           onClose={() => setIsAddFoodModalOpen(false)}
           onFoodAdded={handleFoodAdded}
-          mealType={selectedMeal}
           isAddingFoodLog={isAddingFoodLog}
         />
       )}
@@ -853,8 +852,9 @@ export default function FoodLogPage() {
         handleDelete={handleClearAll}
         isDeleting={isDeletingFoodLog}
         title="Delete Food Log"
-        children="Are you sure you want to clear all entries for today's food log?"
-      />
+      >
+        Are you sure you want to clear all entries for today&apos;s food log?
+      </DeleteDialog>
       <ResponsiveMenu
         sections={menuSections}
         isOpen={isDrawerOpen}

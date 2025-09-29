@@ -116,5 +116,4 @@ export interface FoodSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onFoodAdded: (food: AddFoodLogPayload) => Promise<void>;
-  mealType: string;
 }

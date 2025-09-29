@@ -47,7 +47,6 @@ export default function FoodSearchModal({
   isOpen,
   onClose,
   onFoodAdded,
-  mealType,
   isAddingFoodLog,
 }: FoodSearchModalProps) {
   const isMobile = useIsMobile();
@@ -416,8 +415,8 @@ export default function FoodSearchModal({
         isDeleting={isDeletingFood}
         title="Delete Custom Food"
       >
-        Are you sure you want to delete "{foodToDelete?.foodName}"? This action
-        cannot be undone.
+        Are you sure you want to delete &quot;{foodToDelete?.foodName}&quot;?
+        This action cannot be undone.
       </DeleteDialog>
     </>
   );

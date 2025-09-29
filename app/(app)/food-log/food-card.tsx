@@ -42,8 +42,7 @@ export default function FoodCard({
     ]),
   ];
 
-  const handleFoodCardClick = (e: React.MouseEvent) => {
-    // Prevent food selection if drawer is open or currently closing
+  const handleFoodCardClick = () => {
     if (isDrawerOpen || isClosingRef.current) {
       return;
     }
