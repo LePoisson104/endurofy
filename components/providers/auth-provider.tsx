@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await refresh().unwrap(); // Get the new token
       setTrueSuccess(true); // Mark successful refresh
     } catch (err) {
-      console.log("Error refreshing token");
+      console.log("Error refreshing token", err);
     }
   };
 

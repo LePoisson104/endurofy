@@ -99,7 +99,7 @@ export default function PhysicalInfoStep({
     <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-2">
-          What's your height and weight?
+          What&apos;s your height and weight?
         </h1>
         <p className="text-muted-foreground text-sm mb-6">
           Help us calculate your BMI and daily calorie needs

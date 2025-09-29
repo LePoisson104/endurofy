@@ -33,12 +33,6 @@ import {
 
 import type { Exercise } from "@/interfaces/workout-program-interfaces";
 import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import DeleteDialog from "../dialog/delete-dialog";
 import CustomBadge from "../badges/custom-badge";
 import BodyPartBadge from "../badges/bodypart-badge";
@@ -516,20 +510,19 @@ export default function ExerciseSelectionModal({
         handleDelete={handleConfirmDeleteExercise}
         isDeleting={isDeletingExercise}
         title="Delete Exercise"
-        children={
-          <>
-            Are you sure you want to delete this{" "}
-            <span
-              className={`${
-                isDark ? "text-blue-400" : "text-blue-500"
-              } font-bold`}
-            >
-              {exerciseToDelete?.exerciseName}?
-            </span>
-            This action cannot be undone.
-          </>
-        }
-      />
+      >
+        <>
+          Are you sure you want to delete this{" "}
+          <span
+            className={`${
+              isDark ? "text-blue-400" : "text-blue-500"
+            } font-bold`}
+          >
+            {exerciseToDelete?.exerciseName}?
+          </span>
+          This action cannot be undone.
+        </>
+      </DeleteDialog>
     </>
   );
 }

@@ -50,13 +50,9 @@ const buttonVariants = {
 
 interface LegalPageLayoutProps {
   children: React.ReactNode;
-  title?: string;
 }
 
-export default function LegalPageLayout({
-  children,
-  title,
-}: LegalPageLayoutProps) {
+export default function LegalPageLayout({ children }: LegalPageLayoutProps) {
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

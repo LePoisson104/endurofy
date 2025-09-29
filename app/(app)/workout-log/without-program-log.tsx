@@ -561,8 +561,9 @@ export default function WithoutProgramLog({
         handleDelete={handleDelete}
         isDeleting={isDeletingWorkoutLog}
         title={`Delete Workout ${context}`}
-        children={`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
-      />
+      >
+        {`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
+      </DeleteDialog>
       <ResponsiveMenu
         sections={editMenuSections}
         isOpen={isDrawerOpen}

@@ -72,7 +72,7 @@ export default function OnboardingFlow({
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   const handleNext = async (data: Partial<UserData>) => {
-    let processedData = { ...data };
+    const processedData = { ...data };
 
     // Handle data transformation based on the step
     if (data.height !== undefined && data.height_unit) {

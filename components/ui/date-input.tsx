@@ -56,6 +56,7 @@ export function DateInput({
       }
       return undefined;
     } catch (error) {
+      console.log("Error parsing date", error);
       return undefined;
     }
   };

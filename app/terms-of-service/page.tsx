@@ -2,7 +2,7 @@ import LegalPageLayout from "@/components/layouts/legal-page-layout";
 
 export default function TermsOfService() {
   return (
-    <LegalPageLayout title="Terms of Service">
+    <LegalPageLayout>
       <section className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight">Terms of Service</h1>
         <p className="text-muted-foreground mt-2 mb-10">

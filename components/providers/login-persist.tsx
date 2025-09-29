@@ -39,7 +39,7 @@ export function LoginPersistProvider({
     try {
       await refresh().unwrap();
     } catch (err) {
-      console.log("Error refreshing token globally");
+      console.log("Error refreshing token globally", err);
     } finally {
       setIsInitializing(false);
     }

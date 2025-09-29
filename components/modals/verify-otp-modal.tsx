@@ -147,7 +147,7 @@ export default function VerifyOTPModal({
               Verify your email
             </DialogTitle>
             <div className="text-center text-muted-foreground text-sm">
-              We've sent a verification code to your email
+              We&apos;ve sent a verification code to your email
               <div className="font-medium text-primary mt-1">
                 {maskEmail(pendingEmail)}
               </div>
@@ -200,7 +200,7 @@ export default function VerifyOTPModal({
           </div>
 
           <div className="text-center text-sm flex items-center justify-center gap-1 text-muted-foreground">
-            Didn't receive a code?{" "}
+            Didn&apos;t receive a code?{" "}
             <Button
               variant="link"
               className="p-0 h-auto font-semibold"

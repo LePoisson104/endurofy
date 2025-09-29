@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Share, Plus, MoreVertical } from "lucide-react";
-import Image from "next/image";
 
 interface MobileInstallInstructionsModalProps {
   isOpen: boolean;
@@ -59,7 +58,9 @@ export function MobileInstallInstructionsModal({
           2
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium">Find "Add to Home Screen"</p>
+          <p className="text-sm font-medium">
+            Find &quot;Add to Home Screen&quot;
+          </p>
           <p className="text-xs text-muted-foreground">
             Scroll down in the share menu and tap this option
           </p>
@@ -72,7 +73,7 @@ export function MobileInstallInstructionsModal({
           3
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium">Tap "Add"</p>
+          <p className="text-sm font-medium">Tap &quot;Add&quot;</p>
           <p className="text-xs text-muted-foreground">
             Confirm by tapping "Add" in the top right corner
           </p>
@@ -110,7 +111,9 @@ export function MobileInstallInstructionsModal({
           2
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium">Select "Add to Home screen"</p>
+          <p className="text-sm font-medium">
+            Select &quot;Add to Home screen&quot;
+          </p>
           <p className="text-xs text-muted-foreground">
             Look for this option in the dropdown menu
           </p>
@@ -123,7 +126,7 @@ export function MobileInstallInstructionsModal({
           3
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium">Tap "Add"</p>
+          <p className="text-sm font-medium">Tap &quot;Add&quot;</p>
           <p className="text-xs text-muted-foreground">
             Confirm the installation to add Endurofy to your home screen
           </p>
@@ -157,14 +160,14 @@ export function MobileInstallInstructionsModal({
         <div className="p-3 bg-muted/50 rounded-lg">
           <p className="font-medium text-sm mb-1">iOS (Safari)</p>
           <p className="text-xs text-muted-foreground">
-            Tap Share → "Add to Home Screen" → Add
+            Tap Share → &quot;Add to Home Screen&quot; → Add
           </p>
         </div>
 
         <div className="p-3 bg-muted/50 rounded-lg">
           <p className="font-medium text-sm mb-1">Android (Chrome/Firefox)</p>
           <p className="text-xs text-muted-foreground">
-            Tap Menu (⋮) → "Add to Home screen" → Add
+            Tap Menu (⋮) → &quot;Add to Home screen&quot; → Add
           </p>
         </div>
       </div>

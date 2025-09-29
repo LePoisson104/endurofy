@@ -92,7 +92,7 @@ export default function VerifyOTP() {
     }
 
     try {
-      const response = await verifyOTP({
+      await verifyOTP({
         user_id: userId,
         email: email,
         otp: otp,
@@ -163,7 +163,7 @@ export default function VerifyOTP() {
               Verify your email
             </CardTitle>
             <CardDescription className="text-center">
-              We've sent a verification code to your email
+              We&apos;ve sent a verification code to your email
               <div className="font-medium text-primary mt-1">
                 {maskEmail(email || "")}
               </div>
@@ -213,7 +213,7 @@ export default function VerifyOTP() {
             </Button>
 
             <div className="text-center text-sm flex items-center justify-center gap-1">
-              Didn't receive a code?{" "}
+              Didn&apos;t receive a code?{" "}
               <Button
                 variant="link"
                 className="p-0 h-auto font-semibold"

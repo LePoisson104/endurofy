@@ -1058,14 +1058,15 @@ export function WorkoutProgramDetail({
         handleDelete={handleDelete}
         isDeleting={isDeleting || isDeletingDay}
         title={`Delete ${context.toLowerCase()}`}
-        children={`Are you sure you want to delete this "${
+      >
+        {`Are you sure you want to delete this "${
           context.toLowerCase() === "program"
             ? program.programName
             : program.workoutDays.find(
                 (d) => d.dayId === getDayId(activeDay as AllDays)
               )?.dayName
         }" ${context.toLowerCase()}? This action cannot be undone.`}
-      />
+      </DeleteDialog>
       <AddExerciseModal
         isOpen={isOpen}
         setIsOpen={setIsOpen}

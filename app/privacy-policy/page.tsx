@@ -2,7 +2,7 @@ import LegalPageLayout from "@/components/layouts/legal-page-layout";
 
 export default function PrivacyPolicy() {
   return (
-    <LegalPageLayout title="Privacy Policy">
+    <LegalPageLayout>
       <section className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight">Privacy Policy</h1>
         <p className="text-muted-foreground mt-2 mb-10">

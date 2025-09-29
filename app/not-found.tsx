@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Home, ArrowLeft, Search } from "lucide-react";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import LegalPageLayout from "@/components/layouts/legal-page-layout";
 
@@ -29,8 +26,9 @@ export default function NotFound() {
 
             {/* Description */}
             <p className="text-muted-foreground max-w-md mx-auto">
-              Oops! The page you're looking for seems to have taken a detour.
-              Let's get you back on track with your fitness journey.
+              Oops! The page you&apos;re looking for seems to have taken a
+              detour. Let&apos;s get you back on track with your fitness
+              journey.
             </p>
 
             {/* Action Buttons */}

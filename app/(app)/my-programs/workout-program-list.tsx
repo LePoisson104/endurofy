@@ -256,11 +256,12 @@ export default function WorkoutProgramList({
         handleDelete={handleDeleteConfirm}
         isDeleting={isDeleting}
         title="Delete Program"
-        children={`Are you sure you want to delete this "${
+      >
+        {`Are you sure you want to delete this "${
           programs.find((program) => program.programId === programToDelete)
             ?.programName
         }" program? This action cannot be undone.`}
-      />
+      </DeleteDialog>
     </div>
   );
 }

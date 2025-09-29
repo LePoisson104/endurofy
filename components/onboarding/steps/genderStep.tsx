@@ -30,7 +30,7 @@ export default function GenderStep({ data, onNext }: GenderStepProps) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold mb-2">What's your gender?</h1>
+        <h1 className="text-2xl font-bold mb-2">What&apos;s your gender?</h1>
         <p className="mb-10 text-sm text-muted-foreground">
           This helps us provide more accurate calorie recommendations
         </p>

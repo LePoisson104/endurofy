@@ -43,7 +43,7 @@ export default function CreateManualWorkoutLogModal({
           <DialogHeader>
             <DialogTitle>Create Workout Log</DialogTitle>
             <DialogDescription>
-              Enter a name for your today's workout log.
+              Enter a name for your today&apos;s workout log.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">

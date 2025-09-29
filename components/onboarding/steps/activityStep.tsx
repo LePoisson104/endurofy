@@ -76,7 +76,9 @@ export default function ActivityStep({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold mb-2">What's your activity level?</h1>
+        <h1 className="text-2xl font-bold mb-2">
+          What&apos;s your activity level?
+        </h1>
         <p className="text-muted-foreground text-sm mb-6">
           This helps us calculate your daily calorie needs accurately
         </p>

@@ -72,7 +72,7 @@ export default function GoalStep({ data, onNext }: GoalStepProps) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold mb-2">What's your goal?</h1>
+        <h1 className="text-2xl font-bold mb-2">What&apos;s your goal?</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Tell us what you want to achieve
         </p>
