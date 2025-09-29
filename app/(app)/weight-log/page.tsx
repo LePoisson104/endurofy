@@ -156,6 +156,9 @@ export default function WeightLogPage() {
   const { data: weightLog, isLoading: isLoadingWeightLog } =
     useGetWeightLogByDateQuery(lineChartQueryParams);
 
+  console.log(weightLogWithRates);
+  console.log(weightLog);
+
   // Memoize the date range effect to prevent unnecessary updates
   useEffect(() => {
     setHistoryDateRange(historyOptions, weightLogWithRates?.data);

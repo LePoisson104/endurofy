@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
 import { useRefreshMutation } from "@/api/auth/auth-api-slice";
 import DotPulse from "@/components/global/dot-pulse";
+import Image from "next/image";
 
 export function LoginPersistProvider({
   children,
@@ -60,7 +61,13 @@ export function LoginPersistProvider({
   // Show loading while initializing, refreshing, or redirecting authenticated users from public routes
   if (isInitializing || isRefreshing || shouldShowLoadingForRedirect) {
     return (
-      <div className="w-full h-screen flex justify-center items-center bg-background">
+      <div className="w-full h-screen flex justify-center items-center bg-black flex flex-col gap-4">
+        <Image
+          src={"/images/endurofy_logo.png"}
+          alt="Endurofy"
+          width={70}
+          height={70}
+        />
         <DotPulse />
       </div>
     );

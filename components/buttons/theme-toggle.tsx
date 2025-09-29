@@ -20,12 +20,17 @@ export function ThemeToggle({
   const user = useSelector(selectCurrentUser);
 
   const handleThemeToggle = async (selectedTheme: string) => {
+    if (!user?.user_id) {
+      toast.error("User not found");
+      return;
+    }
+    setTheme(selectedTheme);
+
     try {
       await toggleTheme({
         userId: user?.user_id,
         theme: selectedTheme,
       }).unwrap();
-      setTheme(selectedTheme);
       onClose();
     } catch (error: any) {
       if (error.message) {
