@@ -75,7 +75,7 @@ export function MobileInstallInstructionsModal({
         <div className="flex-1">
           <p className="text-sm font-medium">Tap &quot;Add&quot;</p>
           <p className="text-xs text-muted-foreground">
-            Confirm by tapping "Add" in the top right corner
+            Confirm by tapping &quot;Add&quot; in the top right corner
           </p>
         </div>
         <Smartphone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -151,8 +151,8 @@ export function MobileInstallInstructionsModal({
           Add Endurofy to Your Home Screen
         </h3>
         <p className="text-muted-foreground text-sm mb-6">
-          For the best experience, add Endurofy as an app to your device's home
-          screen.
+          For the best experience, add Endurofy as an app to your device&apos;s
+          home screen.
         </p>
       </div>
 
