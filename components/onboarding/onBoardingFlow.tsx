@@ -139,7 +139,6 @@ export default function OnboardingFlow({
         ...newUserData,
         profile_status: profileStatus,
       };
-      console.log(finalData);
       try {
         await updateUserProfile({
           userId: user?.user_id || "",

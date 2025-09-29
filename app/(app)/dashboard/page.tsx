@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -22,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PageTitle from "@/components/global/page-title";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton";
@@ -80,7 +79,12 @@ export default function DashboardPage() {
     if (activeProgram.programType === "dayOfWeek") {
       // For dayOfWeek programs, show current week's workouts
       const weekStart = startOfWeek(new Date());
-      const sessions = [];
+      const sessions: Array<{
+        id: string;
+        title: string;
+        date: Date;
+        dayId: string;
+      }> = [];
 
       for (let i = 0; i < 7; i++) {
         const currentDay = addDays(weekStart, i);
@@ -109,7 +113,12 @@ export default function DashboardPage() {
       if (!currentRotationStart || !currentRotationEnd) return [];
 
       const rotationStart = parseISO(currentRotationStart);
-      const sessions = [];
+      const sessions: Array<{
+        id: string;
+        title: string;
+        date: Date;
+        dayId: string;
+      }> = [];
 
       // Calculate cycle length
       const maxDayNumber = Math.max(
