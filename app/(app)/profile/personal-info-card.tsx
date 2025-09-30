@@ -7,6 +7,7 @@ import {
 } from "@/helper/weight-height-converter";
 import { UserInfo } from "@/interfaces/user-interfaces";
 import { calculateAge } from "@/helper/calculate-age";
+import { formatDateSafely } from "@/helper/parse-date-safely";
 
 interface PersonalInfoCardProps {
   userInfo: UserInfo;
@@ -52,7 +53,7 @@ export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
             Birthday
           </h3>
           <p className="text-lg font-medium">
-            {convertDateFormat(userInfo?.birth_date || "")}
+            {formatDateSafely(userInfo?.birth_date || "")}
           </p>
         </div>
 

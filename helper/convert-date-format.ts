@@ -1,5 +1,5 @@
 export const convertDateFormat = (isoString: string, withTime = false) => {
-  const date = new Date(isoString);
+  const date = new Date(isoString + "T00:00:00");
   const formattedDate = date.toLocaleString("en-US", {
     month: "short",
     day: "2-digit",
