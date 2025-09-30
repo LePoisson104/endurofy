@@ -101,6 +101,7 @@ export function ProgramWorkoutLog({
       dayId: selectedDay?.dayId,
       currentWorkoutDate: format(selectedDate, "yyyy-MM-dd"),
     });
+
   const [createWorkoutLog] = useCreateWorkoutLogMutation();
 
   const {

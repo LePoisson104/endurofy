@@ -86,7 +86,7 @@ export const useExerciseSets = (
     return map;
   }, [workoutPrograms]);
 
-  // Initialize sets when selectedDay or workoutLog changes
+  // this useEffect is for program workouts
   useEffect(() => {
     if (workoutPrograms.length === 0) return;
     if (workoutPrograms.length > 1) return;
@@ -98,10 +98,6 @@ export const useExerciseSets = (
       // Group workout log data by exercise
       const loggedExercises = workoutLog?.data[0]?.workoutExercises
         ? groupWorkoutLogByExercise(workoutLog.data[0]?.workoutExercises)
-        : {};
-
-      const previousLoggedExercises = previousLog?.data
-        ? groupWorkoutLogByExercise(previousLog?.data)
         : {};
 
       selectedDay.exercises.forEach((exercise) => {
@@ -116,9 +112,6 @@ export const useExerciseSets = (
         const loggedExercise = workoutExerciseId
           ? loggedExercises[workoutExerciseId] || []
           : [];
-        const previousLoggedExercise = workoutExerciseId
-          ? previousLoggedExercises[workoutExerciseId] || []
-          : [];
 
         initialSets[exercise.exerciseId] = Array.from(
           { length: exercise.sets },
@@ -130,7 +123,7 @@ export const useExerciseSets = (
               )
             );
 
-            const previousLoggedSet = previousLoggedExercise.find(
+            const previousLoggedSet = previousLog?.data.find(
               (previousExerciseData: any) =>
                 previousExerciseData.previousWorkoutSets?.some(
                   (set: any) => set.setNumber === index + 1
@@ -202,7 +195,7 @@ export const useExerciseSets = (
     }
   }, [selectedDay, workoutLog, previousLog]);
 
-  // Remove the functions from the dependency array
+  // this useEffect is for manual workouts
   useEffect(() => {
     if (workoutPrograms.length === 0) return;
     if (
