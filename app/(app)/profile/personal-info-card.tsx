@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { convertDateFormat } from "@/helper/convert-date-format";
 import {
   convertHeight,
   getHeightInFeetAndMeters,
@@ -8,6 +7,7 @@ import {
 import { UserInfo } from "@/interfaces/user-interfaces";
 import { calculateAge } from "@/helper/calculate-age";
 import { formatDateSafely } from "@/helper/parse-date-safely";
+import { parseDateAndTimeSafely } from "@/helper/parse-date-safely";
 
 interface PersonalInfoCardProps {
   userInfo: UserInfo;
@@ -16,10 +16,12 @@ interface PersonalInfoCardProps {
 export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
   const age = calculateAge(userInfo?.birth_date || "");
 
-  const lastUpdated = convertDateFormat(
-    userInfo?.user_profile_updated_at || "",
-    true
+  const lastUpdated = parseDateAndTimeSafely(
+    userInfo?.user_profile_updated_at || ""
   );
+
+  // console.log("lastUpdated", lastUpdated);
+
   const userHeight = getHeightInFeetAndMeters(
     userInfo?.height || 0,
     userInfo?.height_unit || ""
