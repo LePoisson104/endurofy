@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { convertDateFormat } from "@/helper/convert-date-format";
@@ -53,7 +52,11 @@ export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
           </h3>
           <p className="text-lg font-medium">
             {userInfo?.birth_date
-              ? format(new Date(userInfo?.birth_date), "PPP")
+              ? new Date(userInfo?.birth_date).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
               : ""}
           </p>
         </div>

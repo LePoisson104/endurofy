@@ -77,7 +77,6 @@ export function WorkoutCalendar({
       startDate: startDateOfPreviousMonth,
       endDate: endDateOfPreviousMonth,
     });
-  console.log("workoutLogs", workoutLogs);
 
   // Get days in current month
   const monthStart = startOfMonth(currentMonth);
