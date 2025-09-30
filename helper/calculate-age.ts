@@ -1,6 +1,10 @@
+import { parseDateSafely } from "./parse-date-safely";
+
 export function calculateAge(birthDateString: string) {
+  const birthDate = parseDateSafely(birthDateString);
+  if (!birthDate) return 0;
+
   const today = new Date();
-  const birthDate = new Date(birthDateString);
 
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
