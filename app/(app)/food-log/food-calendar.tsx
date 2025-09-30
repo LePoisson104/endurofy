@@ -12,6 +12,7 @@ import {
   endOfWeek,
   addMonths,
   subMonths,
+  parseISO,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -73,14 +74,15 @@ export default function FoodCalendar({
 
   const hasFoodLog = (date: Date): DayData | undefined => {
     return foodLogs?.data?.logs.find((day: any) =>
-      isSameDay(day.log_date, date)
+      isSameDay(parseISO(day.log_date.split("T")[0] + "T05:00:00.000Z"), date)
     );
   };
 
   const hasCompletedFoodLog = (date: Date): boolean => {
     return (
-      foodLogs?.data?.logs.find((day: any) => isSameDay(day.log_date, date))
-        ?.status === "completed"
+      foodLogs?.data?.logs.find((day: any) =>
+        isSameDay(parseISO(day.log_date.split("T")[0] + "T05:00:00.000Z"), date)
+      )?.status === "completed"
     );
   };
 

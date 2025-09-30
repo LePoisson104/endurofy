@@ -146,7 +146,7 @@ export function WorkoutFiltersModal({
                       {startDate ? format(startDate, "PPP") : "Start Date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 z-9999" align="start">
                     <Calendar
                       mode="single"
                       selected={startDate}
@@ -173,7 +173,7 @@ export function WorkoutFiltersModal({
                       {endDate ? format(endDate, "PPP") : "End Date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 z-9999" align="start">
                     <Calendar
                       mode="single"
                       selected={endDate}

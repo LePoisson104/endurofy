@@ -71,7 +71,10 @@ export default function WorkoutProgramList({
 
   // Format created date
   const formatCreatedDate = (dateString: string) => {
-    return format(parseISO(dateString), "MMM d, yyyy");
+    return format(
+      parseISO(dateString.split("T")[0] + "T05:00:00.000Z"),
+      "MMM d, yyyy"
+    );
   };
 
   // Handle delete confirmation

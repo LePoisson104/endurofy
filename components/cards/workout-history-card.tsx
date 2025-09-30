@@ -83,7 +83,12 @@ function WorkoutHistoryCard({
             >
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                {format(parseISO(workout.workoutDate), "MMM d, yyyy")}
+                {format(
+                  parseISO(
+                    workout.workoutDate.split("T")[0] + "T05:00:00.000Z"
+                  ),
+                  "MMM d, yyyy"
+                )}
               </div>
 
               <div className="flex items-center gap-1">

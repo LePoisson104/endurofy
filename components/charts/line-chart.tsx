@@ -81,7 +81,10 @@ export default function Component({
     const formatted = weightLogData.map((item: any) => ({
       ...item,
       date: item.log_date
-        ? format(parseISO(item.log_date), "yyyy-MM-dd")
+        ? format(
+            parseISO(item.log_date.split("T")[0] + "T05:00:00.000Z"),
+            "yyyy-MM-dd"
+          )
         : item.date,
       weight: Number(item.weight) || 0,
       calories_intake: Number(item.calories_intake) || 0,

@@ -77,5 +77,5 @@ export function parseDateAndTimeSafely(dateString: string): string | null {
   const date = formatDateSafely(datePart);
   const time = `${hour12}:${minute} ${ampm}`;
 
-  return `${date} ${time}`;
+  return `${date} at ${time}`;
 }

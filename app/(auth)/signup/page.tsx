@@ -174,144 +174,148 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-10 bg-background flex-col">
-      <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
-        <div className="flex flex-col items-center gap-1 mb-2">
-          {!isStandalone ? (
-            <Link href="/">
+    <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex flex-col flex-grow justify-center items-center p-10">
+        <div className="flex flex-col gap-4 justify-center items-center w-full max-w-sm mx-auto">
+          <div className="flex flex-col items-center gap-1 mb-2">
+            {!isStandalone ? (
+              <Link href="/">
+                <AppLogo />
+              </Link>
+            ) : (
               <AppLogo />
-            </Link>
-          ) : (
-            <AppLogo />
-          )}
-          <h1 className="text-2xl tracking-tight mb-4">
-            Get started with Endurofy
-          </h1>
-        </div>
+            )}
+            <h1 className="text-2xl tracking-tight mb-4">
+              Get started with Endurofy
+            </h1>
+          </div>
 
-        <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
-          <div className="flex gap-2">
-            <div className="space-y-2 w-full">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                name="firstName"
-                type="text"
-                placeholder="John"
-                value={firstName}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`${
-                  touched.firstName && formErrors.firstName
-                    ? "border-red-500"
-                    : ""
-                } `}
-              />
-              {touched.firstName && formErrors.firstName && (
-                <p className="text-sm text-red-500">{formErrors.firstName}</p>
-              )}
+          <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
+            <div className="flex gap-2">
+              <div className="space-y-2 w-full">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="John"
+                  value={firstName}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`${
+                    touched.firstName && formErrors.firstName
+                      ? "border-red-500"
+                      : ""
+                  } `}
+                />
+                {touched.firstName && formErrors.firstName && (
+                  <p className="text-sm text-red-500">{formErrors.firstName}</p>
+                )}
+              </div>
+              <div className="space-y-2 w-full">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`${
+                    touched.lastName && formErrors.lastName
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                />
+                {touched.lastName && formErrors.lastName && (
+                  <p className="text-sm text-red-500">{formErrors.lastName}</p>
+                )}
+              </div>
             </div>
-            <div className="space-y-2 w-full">
-              <Label htmlFor="lastName">Last Name</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="lastName"
-                name="lastName"
-                type="text"
-                placeholder="Doe"
-                value={lastName}
+                id="email"
+                name="email"
+                type="email"
+                placeholder="john@example.com"
+                value={email}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={`${
-                  touched.lastName && formErrors.lastName
-                    ? "border-red-500"
-                    : ""
+                  touched.email && formErrors.email ? "border-red-500" : ""
                 }`}
               />
-              {touched.lastName && formErrors.lastName && (
-                <p className="text-sm text-red-500">{formErrors.lastName}</p>
+              {touched.email && formErrors.email && (
+                <p className="text-sm text-red-500">{formErrors.email}</p>
               )}
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="john@example.com"
-              value={email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`${
-                touched.email && formErrors.email ? "border-red-500" : ""
-              }`}
-            />
-            {touched.email && formErrors.email && (
-              <p className="text-sm text-red-500">{formErrors.email}</p>
-            )}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <PasswordInput
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={
+                  touched.password && formErrors.password
+                    ? "border-red-500"
+                    : ""
+                }
+                autoComplete="off"
+              />
+              {touched.password && formErrors.password && (
+                <p className="text-sm text-red-500">{formErrors.password}</p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput
-              id="password"
-              name="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={
-                touched.password && formErrors.password ? "border-red-500" : ""
-              }
-              autoComplete="off"
-            />
-            {touched.password && formErrors.password && (
-              <p className="text-sm text-red-500">{formErrors.password}</p>
-            )}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <PasswordInput
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={
+                  touched.confirmPassword && formErrors.confirmPassword
+                    ? "border-red-500"
+                    : ""
+                }
+                autoComplete="off"
+              />
+              {touched.confirmPassword && formErrors.confirmPassword && (
+                <p className="text-sm text-red-500">
+                  {formErrors.confirmPassword}
+                </p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <PasswordInput
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={
-                touched.confirmPassword && formErrors.confirmPassword
-                  ? "border-red-500"
-                  : ""
-              }
-              autoComplete="off"
-            />
-            {touched.confirmPassword && formErrors.confirmPassword && (
-              <p className="text-sm text-red-500">
-                {formErrors.confirmPassword}
-              </p>
-            )}
-          </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                </>
+              ) : (
+                "Sign up"
+              )}
+            </Button>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              </>
-            ) : (
-              "Sign up"
-            )}
-          </Button>
-
-          <Button variant="ghost" className="w-full" asChild>
-            <Link href="/login">Back to login</Link>
-          </Button>
-        </form>
+            <Button variant="ghost" className="w-full" asChild>
+              <Link href="/login">Back to login</Link>
+            </Button>
+          </form>
+        </div>
       </div>
 
       {!isStandalone && (
-        <p className="fixed bottom-0 left-0 right-0 text-xs text-muted-foreground text-center max-w-sm mx-auto mb-4 standalone:mb-10">
+        <footer className="text-xs text-muted-foreground text-center max-w-sm mx-auto mb-4 standalone:mb-10">
           By proceeding you acknowledge that you have read, understood and agree
           to our{" "}
           <Link
@@ -327,7 +331,7 @@ export default function Signup() {
           >
             Privacy Policy
           </Link>
-        </p>
+        </footer>
       )}
     </div>
   );

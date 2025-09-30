@@ -124,7 +124,9 @@ export default function WeightLogHistory({
         accessorKey: "log_date",
         header: "Date",
         cell: ({ row }) => {
-          const date = new Date(row.original.log_date);
+          const date = new Date(
+            row.original.log_date.split("T")[0] + "T05:00:00.000Z"
+          );
           const dateFormat =
             isMobile && date.getFullYear() === new Date().getFullYear()
               ? format(date, "MMM d")

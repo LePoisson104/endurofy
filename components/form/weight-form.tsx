@@ -65,7 +65,7 @@ export default function WeightForm({
   });
 
   const highlightedDays = getWeightLogDates?.data?.data?.map(
-    (date: any) => new Date(date.log_date)
+    (date: any) => new Date(date.log_date.split("T")[0] + "T05:00:00.000Z")
   );
 
   const [notes, setNotes] = useState<string>("");

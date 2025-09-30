@@ -100,7 +100,10 @@ export function WorkoutCalendar({
   // Check if a day has a workout log
   const hasLoggedWorkout = (day: Date) => {
     return workoutLogs?.data.some((log: any) =>
-      isSameDay(parseISO(log.workout_date), day)
+      isSameDay(
+        parseISO(log.workout_date.split("T")[0] + "T05:00:00.000Z"),
+        day
+      )
     );
   };
 

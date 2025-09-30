@@ -62,6 +62,7 @@ import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import DeleteDialog from "@/components/dialog/delete-dialog";
+import { parseDateAndTimeSafely } from "@/helper/parse-date-safely";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -113,13 +114,6 @@ export function WorkoutProgramDetail({
     useAddExerciseMutation();
   const [reorderWorkoutProgramExercise] =
     useReorderWorkoutProgramExerciseMutation();
-
-  // Format created date
-  const formatDate = (dateString: string) => {
-    const dateFormat = format(parseISO(dateString), "MMMM d, yyyy");
-    const timeFormat = format(parseISO(dateString), "h:mm a");
-    return `${dateFormat} at ${timeFormat}`;
-  };
 
   // Format day name
   const formatDayName = (day: AllDays) => {
@@ -737,7 +731,8 @@ export function WorkoutProgramDetail({
                   isDarkMode ? "text-blue-300" : "text-blue-500"
                 }`}
               >
-                Starting date: {formatDate(program.startingDate).split("at")[0]}
+                Starting date:{" "}
+                {parseDateAndTimeSafely(program.startingDate)?.split("at")[0]}
               </div>
             )}
             <div
@@ -745,16 +740,16 @@ export function WorkoutProgramDetail({
                 isDarkMode ? "text-slate-400" : "text-slate-500"
               }`}
             >
-              Created on {formatDate(program.createdAt)}
+              Created on {parseDateAndTimeSafely(program.createdAt)}
             </div>
-            {new Date(program.createdAt).toISOString().split("T")[0] !==
-              new Date(program.updatedAt).toISOString().split("T")[0] && (
+            {new Date(program.createdAt).getTime() !==
+              new Date(program.updatedAt).getTime() && (
               <div
                 className={`text-xs ${
                   isDarkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
-                Updated on {formatDate(program.updatedAt)}
+                Updated on {parseDateAndTimeSafely(program.updatedAt)}
               </div>
             )}
           </CardContent>

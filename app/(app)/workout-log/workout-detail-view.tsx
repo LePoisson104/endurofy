@@ -529,7 +529,12 @@ export function WorkoutDetailView({
                 {workout.status === "completed"
                   ? "Completed on "
                   : "Started on "}
-                {format(parseISO(workout.workoutDate), "EEEE, MMMM d, yyyy")}
+                {format(
+                  parseISO(
+                    workout.workoutDate.split("T")[0] + "T05:00:00.000Z"
+                  ),
+                  "EEEE, MMMM d, yyyy"
+                )}
               </div>
             </div>
 
