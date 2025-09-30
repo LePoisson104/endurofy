@@ -15,6 +15,7 @@ interface PersonalInfoCardProps {
 
 export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
   const age = calculateAge(userInfo?.birth_date || "");
+
   const lastUpdated = convertDateFormat(
     userInfo?.user_profile_updated_at || "",
     true

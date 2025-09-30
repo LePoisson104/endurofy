@@ -29,6 +29,7 @@ import { selectUserInfo } from "@/api/user/user-slice";
 import { useSelector } from "react-redux";
 import { convertDateForSubmission } from "@/lib/date-utils";
 import { toast } from "sonner";
+import { getMySQLDateTimeUTC } from "@/helper/convert-date-format";
 
 interface ProfileEditFormProps {
   editedProfile: UpdateUserInfo | null;
@@ -83,11 +84,13 @@ export default function ProfileEditForm({
 
     try {
       if (!editedProfile) return;
+      const { date, time } = getMySQLDateTimeUTC();
 
       // Convert birth_date from MM/DD/YYYY to YYYY-MM-DD for backend
       const submissionPayload = {
         ...editedProfile,
         birth_date: convertDateForSubmission(editedProfile.birth_date || ""),
+        updated_at: date + " " + time,
       };
 
       await updateUserProfile({
