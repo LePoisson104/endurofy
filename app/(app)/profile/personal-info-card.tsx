@@ -7,7 +7,6 @@ import {
 } from "@/helper/weight-height-converter";
 import { UserInfo } from "@/interfaces/user-interfaces";
 import { calculateAge } from "@/helper/calculate-age";
-import { formatDateSafely } from "@/helper/parse-date-safely";
 
 interface PersonalInfoCardProps {
   userInfo: UserInfo;
@@ -16,7 +15,8 @@ interface PersonalInfoCardProps {
 export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
   const age = calculateAge(userInfo?.birth_date || "");
   const lastUpdated = convertDateFormat(
-    userInfo?.user_profile_updated_at || ""
+    userInfo?.user_profile_updated_at || "",
+    true
   );
   const userHeight = getHeightInFeetAndMeters(
     userInfo?.height || 0,
@@ -52,7 +52,7 @@ export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
             Birthday
           </h3>
           <p className="text-lg font-medium">
-            {formatDateSafely(userInfo?.birth_date || "")}
+            {convertDateFormat(userInfo?.birth_date || "")}
           </p>
         </div>
 

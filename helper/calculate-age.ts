@@ -2,6 +2,7 @@ import { parseDateSafely } from "./parse-date-safely";
 
 export function calculateAge(birthDateString: string) {
   const birthDate = parseDateSafely(birthDateString);
+
   if (!birthDate) return 0;
 
   const today = new Date();
