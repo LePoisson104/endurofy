@@ -54,11 +54,11 @@ export function LoginPersistProvider({
   }, []);
 
   // Redirect logic for authenticated users on public routes
-  useEffect(() => {
-    if (shouldShowLoadingForRedirect) {
-      router.push("/dashboard");
-    }
-  }, [shouldShowLoadingForRedirect, router]);
+  // useEffect(() => {
+  //   if (shouldShowLoadingForRedirect) {
+  //     router.push("/dashboard");
+  //   }
+  // }, [shouldShowLoadingForRedirect, router]);
 
   // Show loading while initializing, refreshing, or redirecting authenticated users from public routes
   if (isInitializing || isRefreshing || shouldShowLoadingForRedirect) {
