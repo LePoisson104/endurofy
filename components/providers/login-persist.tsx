@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentUser } from "@/api/auth/auth-slice";
@@ -13,7 +13,7 @@ export function LoginPersistProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
+  // const router = useRouter();
   const pathname = usePathname();
   const token = useSelector(selectCurrentToken);
   const user = useSelector(selectCurrentUser);
@@ -28,6 +28,8 @@ export function LoginPersistProvider({
     "/forgot-password",
     "/reset-password",
     "/verify-otp",
+    "/terms-of-service",
+    "/privacy-policy",
     "/",
   ];
   const isPublicRoute = publicRoutes.includes(pathname);
@@ -52,11 +54,11 @@ export function LoginPersistProvider({
   }, []);
 
   // Redirect logic for authenticated users on public routes
-  useEffect(() => {
-    if (shouldShowLoadingForRedirect) {
-      router.push("/dashboard");
-    }
-  }, [shouldShowLoadingForRedirect, router]);
+  // useEffect(() => {
+  //   if (shouldShowLoadingForRedirect) {
+  //     router.push("/dashboard");
+  //   }
+  // }, [shouldShowLoadingForRedirect, router]);
 
   // Show loading while initializing, refreshing, or redirecting authenticated users from public routes
   if (isInitializing || isRefreshing || shouldShowLoadingForRedirect) {
