@@ -95,10 +95,19 @@ export default function Home() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [showMobileInstructions, setShowMobileInstructions] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+
+  const background = isHovering
+    ? isDark
+      ? "linear-gradient(to bottom left, oklch(80% 0.004 286.32), oklch(45% 0.016 285.938))"
+      : "linear-gradient(to bottom left, oklch(75% 0.006 286.286), oklch(40% 0.017 285.786))"
+    : isDark
+    ? "linear-gradient(to bottom left, oklch(92% 0.004 286.32), oklch(55.2% 0.016 285.938))"
+    : "linear-gradient(to bottom left, oklch(87.1% 0.006 286.286), oklch(44.2% 0.017 285.786))";
 
   useEffect(() => {
     // Set loading to false after a small delay to ensure isMobile is set
@@ -490,9 +499,19 @@ export default function Home() {
                         ? handleInstallPWA
                         : handleOpenApp
                     }
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                    style={{
+                      background,
+                      padding: "1.5rem 2rem",
+                      borderRadius: "0.375rem",
+                      transition: "all 0.3s ease",
+                      cursor: "pointer",
+                      boxShadow:
+                        "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.25)",
+                    }}
                     // className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
                     //  hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
-                    className="bg-primary px-8 py-6 rounded-md"
                   >
                     <Image
                       src={
