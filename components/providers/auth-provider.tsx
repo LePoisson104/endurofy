@@ -174,22 +174,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isError, router]);
 
-  const loadingScreen = (
-    <div className="w-full h-screen flex justify-center items-center bg-black flex flex-col gap-4">
-      <Image
-        src={"/images/endurofy_logo.png"}
-        alt="Endurofy"
-        width={70}
-        height={70}
-      />
-      <DotPulse />
-    </div>
-  );
-
   // Show loading screen until all critical data is loaded
-  if (isCriticalDataLoading || !hasCriticalData || !isInitialDataLoaded) {
-    return loadingScreen;
-  }
+  // if (isCriticalDataLoading || !hasCriticalData || !isInitialDataLoaded) {
+  //   return (
+  //     <div className="w-full h-screen flex justify-center items-center bg-black flex flex-col gap-4">
+  //       <Image
+  //         src={"/images/endurofy_logo.png"}
+  //         alt="Endurofy"
+  //         width={70}
+  //         height={70}
+  //       />
+  //       <DotPulse />
+  //     </div>
+  //   );
+  // }
 
   // Handle authentication errors
   if (isError) {
