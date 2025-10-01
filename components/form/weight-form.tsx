@@ -192,7 +192,7 @@ export default function WeightForm({
           id="weight"
           type="number"
           placeholder="Enter weight"
-          inputMode="numeric"
+          inputMode="decimal"
           value={formData.weight || ""}
           onChange={(e) => {
             let value = Number.parseFloat(e.target.value);
@@ -240,7 +240,7 @@ export default function WeightForm({
                 <CalendarIcon />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 z-9999" align="start">
               <Calendar
                 mode="single"
                 selected={calendarDate || undefined}
