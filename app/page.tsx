@@ -490,8 +490,9 @@ export default function Home() {
                         ? handleInstallPWA
                         : handleOpenApp
                     }
-                    className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
-                     hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
+                    // className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
+                    //  hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
+                    className="bg-primary px-8 py-6 rounded-md"
                   >
                     <Image
                       src={

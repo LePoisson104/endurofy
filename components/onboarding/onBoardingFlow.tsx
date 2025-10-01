@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { UpdateUserInfo } from "@/interfaces/user-interfaces";
 import { toast } from "sonner";
+import { getMySQLDateTimeUTC } from "@/helper/convert-date-format";
 
 export type UserData = {
   gender?: "male" | "female";
@@ -134,10 +135,12 @@ export default function OnboardingFlow({
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      const { date, time } = getMySQLDateTimeUTC();
       // Final data processing before completion
       const finalData = {
         ...newUserData,
         profile_status: profileStatus,
+        updated_at: date + " " + time,
       };
       try {
         await updateUserProfile({
