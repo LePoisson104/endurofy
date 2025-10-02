@@ -45,14 +45,15 @@ export default function WeekSelector({
 
   const hasLogDay = (date: Date): boolean => {
     return foodLogs?.data?.logs.find((day: any) =>
-      isSameDay(day.log_date, date)
+      isSameDay(day.log_date.split("T")[0] + "T05:00:00.000Z", date)
     );
   };
 
   const hasCompletedLogDay = (date: Date): boolean => {
     return (
-      foodLogs?.data?.logs.find((day: any) => isSameDay(day.log_date, date))
-        ?.status === "completed"
+      foodLogs?.data?.logs.find((day: any) =>
+        isSameDay(day.log_date.split("T")[0] + "T05:00:00.000Z", date)
+      )?.status === "completed"
     );
   };
 
