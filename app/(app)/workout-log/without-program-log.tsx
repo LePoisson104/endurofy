@@ -27,7 +27,6 @@ import DeleteDialog from "@/components/dialog/delete-dialog";
 import ExerciseTable from "./exercise-table";
 import ExerciseNotes from "./exercise-notes";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
-import { CompletedBadge } from "@/components/badges/status-badges";
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
 
@@ -479,7 +478,9 @@ export default function WithoutProgramLog({
                             {exercise.exerciseName}
                           </h4>
                           {isExerciseFullyLogged(exercise.exerciseId) && (
-                            <CompletedBadge />
+                            <div>
+                              <Check className="h-5 w-5 text-green-500" />
+                            </div>
                           )}
                         </div>
                         <div className="flex items-center gap-2 my-1">
