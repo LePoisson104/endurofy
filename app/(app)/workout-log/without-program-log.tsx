@@ -29,7 +29,7 @@ import ExerciseNotes from "./exercise-notes";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
-
+import { CompletedBadge } from "@/components/badges/status-badges";
 import type {
   WorkoutProgram,
   Exercise,
@@ -401,9 +401,14 @@ export default function WithoutProgramLog({
                   </Button>
                 </div>
               ) : (
-                <h2 className="text-xl font-bold">
-                  {workoutLog.data[0].title}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-bold">
+                    {workoutLog.data[0].title}
+                  </h2>
+                  {workoutLog.data[0].status === "completed" && (
+                    <CompletedBadge />
+                  )}
+                </div>
               ))}
             <span
               className={`text-sm ${
