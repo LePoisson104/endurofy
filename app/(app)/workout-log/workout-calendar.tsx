@@ -110,7 +110,10 @@ export function WorkoutCalendar({
   const hasCompletedWorkout = (day: Date) => {
     return workoutLogs?.data.some(
       (log: any) =>
-        isSameDay(parseISO(log.workout_date), day) && log.status === "completed"
+        isSameDay(
+          parseISO(log.workout_date.split("T")[0] + "T05:00:00.000Z"),
+          day
+        ) && log.status === "completed"
     );
   };
 

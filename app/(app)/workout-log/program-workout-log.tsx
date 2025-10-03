@@ -45,7 +45,7 @@ import { Input } from "@/components/ui/input";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import ExerciseNotes from "./exercise-notes";
 import DeleteDialog from "@/components/dialog/delete-dialog";
-import CompletedBadge from "@/components/badges/status-badges";
+import { CompletedBadge } from "@/components/badges/status-badges";
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
 import {
@@ -319,7 +319,7 @@ export function ProgramWorkoutLog({
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
         <div className="space-y-2 flex w-full justify-between items-center">
-          <div className="flex">
+          <div className="flex flex-col gap-1">
             <div>
               {workoutLog?.data?.length > 0 ? (
                 isEditing ? (
@@ -346,16 +346,21 @@ export function ProgramWorkoutLog({
                     </Button>
                   </div>
                 ) : (
-                  <h2 className="text-xl font-bold">
-                    {workoutLog.data[0].title}
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold">
+                      {workoutLog.data[0].title}
+                    </h2>
+                    {workoutLog.data[0].status === "completed" && (
+                      <CompletedBadge />
+                    )}
+                  </div>
                 )
               ) : (
                 <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
               )}
-              <div className="text-sm text-slate-500">
-                {format(selectedDate, "MMMM d, yyyy")}
-              </div>
+            </div>
+            <div className="text-sm text-slate-500">
+              {format(selectedDate, "MMMM d, yyyy")}
             </div>
           </div>
 
@@ -420,8 +425,8 @@ export function ProgramWorkoutLog({
                       >
                         <h4 className="font-medium">{exercise.exerciseName}</h4>
                         {isFullyLogged && (
-                          <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <CompletedBadge />
+                          <div>
+                            <Check className="h-5 w-5 text-green-500" />
                           </div>
                         )}
                       </div>

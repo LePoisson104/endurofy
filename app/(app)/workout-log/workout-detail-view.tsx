@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import {
   TrendingUp,
-  Target,
+  ChartNoAxesColumnDecreasing,
   Dumbbell,
   Check,
   Edit,
@@ -38,13 +38,17 @@ import { toast } from "sonner";
 import { WorkoutDetailSkeleton } from "@/components/skeletons/workout-detail-skeleton";
 import { useUpdateWorkoutLogNameMutation } from "@/api/workout-log/workout-log-api-slice";
 import DeleteDialog from "@/components/dialog/delete-dialog";
-import CompletedBadge from "@/components/badges/status-badges";
+import {
+  CompletedBadge,
+  ProgressBadge,
+} from "@/components/badges/status-badges";
 import ExerciseNotes from "./exercise-notes";
 import {
   ResponsiveMenu,
   createMenuItem,
   createMenuSection,
 } from "@/components/ui/responsive-menu";
+import { useUpdateWorkoutLogStatusMutation } from "@/api/workout-log/workout-log-api-slice";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -96,6 +100,7 @@ export function WorkoutDetailView({
   const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
     useDeleteWorkoutLogMutation();
   const [deleteWorkoutExercise] = useDeleteWorkoutExerciseMutation();
+  const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
 
   // Menu configuration for responsive menu
   const editMenuSections = [
@@ -215,7 +220,14 @@ export function WorkoutDetailView({
             const leftReps = set.repsLeft || 0;
             const rightReps = set.repsRight || 0;
             const weight = set.weight || 0;
-            return setSum + weight * leftReps + weight * rightReps;
+
+            // For unilateral exercises, count both sides
+            // For bilateral exercises, only count left reps (both sides work together)
+            if (exercise.laterality === "unilateral") {
+              return setSum + weight * (leftReps + rightReps);
+            } else {
+              return setSum + weight * leftReps;
+            }
           }, 0),
         0
       );
@@ -352,12 +364,23 @@ export function WorkoutDetailView({
     workoutLogId: string
   ) => {
     setDeletingSetId(workoutSetId);
+    const totalSets = workout.workoutExercises.reduce(
+      (sum, exercise) => sum + exercise.workoutSets.length,
+      0
+    );
+
     try {
       await deleteWorkoutSetWithCascade({
         workoutSetId,
         workoutExerciseId,
         workoutLogId,
       }).unwrap();
+      if (totalSets > 1 && workout.status === "completed") {
+        await updateWorkoutLogStatus({
+          workoutLogId,
+          status: "incomplete",
+        }).unwrap();
+      }
     } catch (error: any) {
       if (!error.status) {
         toast.error("No Server Response");
@@ -519,7 +542,11 @@ export function WorkoutDetailView({
                   <CardTitle>{workout.title}</CardTitle>
                 )}
 
-                {workout.status === "completed" && <CompletedBadge />}
+                {workout.status === "completed" ? (
+                  <CompletedBadge />
+                ) : (
+                  <ProgressBadge />
+                )}
               </div>
               <div
                 className={`text-xs ${
@@ -574,7 +601,7 @@ export function WorkoutDetailView({
           <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-cyan-500" />
+                <Dumbbell className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                 <div className="text-sm font-medium">Total Exercises</div>
                 <div className="text-sm font-bold">
                   {workout.workoutExercises.length}
@@ -583,14 +610,14 @@ export function WorkoutDetailView({
             </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <Target className="h-6 w-6 mx-auto mb-2 text-sky-500" />
+                <ChartNoAxesColumnDecreasing className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                 <div className="text-sm font-medium">Total Sets</div>
                 <div className="text-sm font-bold">{calculateTotalSets}</div>
               </div>
             </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
-                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                 <div className="text-sm font-medium">Volume</div>
                 <div className="text-sm font-bold">
                   {(calculateTotalVolume / 1000).toFixed(1)}K lbs
@@ -644,15 +671,21 @@ export function WorkoutDetailView({
                     } ${isDark ? "text-slate-400" : "text-slate-500"}`}
                   >
                     <div>
-                      Volume:{" "}
+                      Volume:
                       {(
-                        exercise.workoutSets.reduce(
-                          (sum, set) =>
-                            sum +
-                            (set.weight || 0) * (set.repsLeft || 0) +
-                            (set.weight || 0) * (set.repsRight || 0),
-                          0
-                        ) / 1000
+                        exercise.workoutSets.reduce((sum, set) => {
+                          const weight = set.weight || 0;
+                          const leftReps = set.repsLeft || 0;
+                          const rightReps = set.repsRight || 0;
+
+                          // For unilateral exercises, count both sides
+                          // For bilateral exercises, only count left reps (both sides work together)
+                          if (exercise.laterality === "unilateral") {
+                            return sum + weight * (leftReps + rightReps);
+                          } else {
+                            return sum + weight * leftReps;
+                          }
+                        }, 0) / 1000
                       ).toFixed(1)}
                       K lbs
                     </div>
@@ -802,7 +835,7 @@ export function WorkoutDetailView({
                             )}
 
                             <TableCell className="font-medium text-center px-2">
-                              {setIndex + 1}
+                              {set.setNumber}
                             </TableCell>
                             <TableCell
                               className={`text-center ${

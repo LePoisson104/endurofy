@@ -27,7 +27,7 @@ import DeleteDialog from "@/components/dialog/delete-dialog";
 import ExerciseTable from "./exercise-table";
 import ExerciseNotes from "./exercise-notes";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
-import CompletedBadge from "@/components/badges/status-badges";
+import { CompletedBadge } from "@/components/badges/status-badges";
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
 

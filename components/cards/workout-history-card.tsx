@@ -9,6 +9,10 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
 import { useRef, useCallback, useMemo } from "react";
 import CustomBadge from "@/components/badges/custom-badge";
+import {
+  CompletedBadge,
+  ProgressBadge,
+} from "@/components/badges/status-badges";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -43,7 +47,11 @@ function WorkoutHistoryCard({
           const leftReps = set.repsLeft || 0;
           const rightReps = set.repsRight || 0;
           const weight = set.weight || 0;
-          return setSum + weight * leftReps + weight * rightReps;
+          if (exercise.laterality === "unilateral") {
+            return setSum + weight * (leftReps + rightReps);
+          } else {
+            return setSum + weight * leftReps;
+          }
         }, 0),
       0
     );
@@ -59,10 +67,13 @@ function WorkoutHistoryCard({
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             {/* Header */}
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <h3 className="text-lg font-semibold truncate">
-                {workout.title}
-              </h3>
+
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <h3 className="text-lg font-semibold truncate min-w-0 flex-1">
+                  {workout.title}
+                </h3>
+              </div>
               {/* Action Button */}
               <Button
                 variant="outline"
@@ -74,10 +85,15 @@ function WorkoutHistoryCard({
                 View
               </Button>
             </div>
+            {workout.status === "completed" ? (
+              <CompletedBadge />
+            ) : (
+              <ProgressBadge />
+            )}
 
             {/* Date and Duration */}
             <div
-              className={`flex items-center gap-4 text-sm ${
+              className={`flex items-center gap-4 mt-2 text-sm ${
                 isDark ? "text-slate-400" : "text-slate-500"
               } mb-3`}
             >
