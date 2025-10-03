@@ -43,7 +43,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLogoutMutation } from "@/api/auth/auth-api-slice";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { isInCurrentRotation } from "@/helper/get-current-rotation";
@@ -53,6 +52,7 @@ import { useGetCompletedWorkoutLogsQuery } from "@/api/workout-log/workout-log-a
 import { selectCurrentUser } from "@/api/auth/auth-slice";
 import CustomBadge from "../badges/custom-badge";
 import { ThemeToggle } from "../buttons/theme-toggle";
+import LogoutBtn from "../buttons/logout-btn";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -373,8 +373,6 @@ function UserProfileMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [logout, { isSuccess }] = useLogoutMutation();
-  const router = useRouter();
 
   const { openMobile, setOpenMobile } = useSidebar();
 
@@ -405,12 +403,6 @@ function UserProfileMenu() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      router.push("/login");
-    }
-  }, [isSuccess, router]);
 
   const userTrigger = (
     <div className={`relative ${isMobile && "mb-5"}`}>
@@ -485,17 +477,11 @@ function UserProfileMenu() {
       <div className="border-t"></div>
       <ThemeToggle onClose={() => setIsOpen(false)} className="p-1" />
       <div className="border-t"></div>
-      <div className="p-1 ">
-        <button
-          className="flex items-center w-full text-left h-9 px-2 rounded-sm hover:bg-accent text-destructive"
-          onClick={() => {
-            setIsOpen(false);
-            logout();
-          }}
-        >
-          <LogOut className="mr-2 h-4 w-4 text-destructive" />
-          <span>Log out</span>
-        </button>
+      <div className="p-1">
+        <LogoutBtn
+          className="w-full text-destructive flex justify-start bg-card hover:bg-accent h-9 rounded-sm px-2 items-center"
+          icon={<LogOut className="h-4 w-4 text-destructive mr-2" />}
+        />
       </div>
     </>
   );

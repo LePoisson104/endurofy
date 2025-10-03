@@ -1,14 +1,15 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { User } from "lucide-react";
+import { Edit, LogOut, User } from "lucide-react";
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
 import {
   convertHeight,
   getHeightInFeetAndMeters,
 } from "@/helper/weight-height-converter";
-import EditProfileBtn from "./edit-profile-btn";
 import { calculateAge } from "@/helper/calculate-age";
+import { Button } from "@/components/ui/button";
+import LogoutBtn from "@/components/buttons/logout-btn";
 
 interface ProfileHeaderProps {
   onEdit: () => void;
@@ -20,8 +21,9 @@ export default function ProfileHeader({
   isEditing,
 }: ProfileHeaderProps) {
   const userInfo = useSelector(selectUserInfo);
-
   const age = calculateAge(userInfo?.birth_date || "");
+  const destructive =
+    "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60";
 
   const userHeight = getHeightInFeetAndMeters(
     userInfo?.height || 0,
@@ -72,7 +74,22 @@ export default function ProfileHeader({
             </div>
           </div>
 
-          {!isEditing && <EditProfileBtn onEdit={onEdit} />}
+          {!isEditing && (
+            <div className="flex items-center flex-col gap-4">
+              <LogoutBtn
+                className={`w-[120px] flex justify-center items-center py-[7px] font-medium gap-1 rounded-sm text-sm ${destructive}`}
+                icon={<LogOut className="h-4 w-4" />}
+              />
+              <Button
+                variant="secondary"
+                className="gap-1.5 w-[120px]"
+                onClick={onEdit}
+              >
+                <Edit className="h-4 w-4" />
+                Edit Profile
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
