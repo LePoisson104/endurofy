@@ -6,9 +6,7 @@ export default function BodyPartBadge({ bodyPart }: { bodyPart: string }) {
   return (
     <Badge
       className={`${
-        isDark
-          ? "bg-blue-900 text-blue-200 border-blue-600"
-          : "bg-blue-100 text-blue-800 border-blue-500"
+        isDark ? "bg-blue-900 text-blue-200" : "bg-blue-200 text-blue-900"
       }`}
     >
       {bodyPart}

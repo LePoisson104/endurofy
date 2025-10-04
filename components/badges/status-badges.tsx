@@ -7,9 +7,7 @@ export function CompletedBadge(): React.ReactNode {
   return (
     <Badge
       className={`${
-        isDark
-          ? "bg-green-900 text-green-200 border-green-700"
-          : "bg-green-100 text-green-900 border-green-500"
+        isDark ? "bg-green-900 text-green-200" : "bg-green-200 text-green-900"
       }`}
     >
       <Check className="h-2 w-2" />
@@ -24,8 +22,8 @@ export function ProgressBadge(): React.ReactNode {
     <Badge
       className={`${
         isDark
-          ? "bg-yellow-900 text-yellow-200 border-yellow-700"
-          : "bg-yellow-100 text-yellow-900 border-yellow-500"
+          ? "bg-yellow-900 text-yellow-200"
+          : "bg-orange-200 text-orange-900"
       }`}
     >
       <Loader className="h-2 w-2" />

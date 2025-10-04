@@ -118,16 +118,16 @@ function SortableTableRow({
     >
       {editingExerciseId === exercise.exerciseId ? (
         <>
-          <TableCell className="w-8">
+          <TableCell>
             <button
               {...listeners}
-              className="touch-none cursor-grab active:cursor-grabbing flex items-center"
+              className="touch-none cursor-grab active:cursor-grabbing flex items-center justify-center w-full h-full"
               aria-label="Drag handle"
             >
               <GripVertical className="h-4 w-4 text-slate-400" />
             </button>
           </TableCell>
-          <TableCell>
+          <TableCell className="px-2">
             <Label htmlFor="exercise-name" className="sr-only">
               Exercise Name
             </Label>
@@ -144,7 +144,7 @@ function SortableTableRow({
               className="w-full text-sm"
             />
           </TableCell>
-          <TableCell className="flex justify-center items-center mx-3">
+          <TableCell className="flex items-center justify-center px-2">
             <Label htmlFor="exercise-sets" className="sr-only">
               Sets
             </Label>
@@ -164,7 +164,7 @@ function SortableTableRow({
               className="w-16 text-center flex-1 placeholder:text-sm text-sm"
             />
           </TableCell>
-          <TableCell>
+          <TableCell className="px-2">
             <div className="flex items-center justify-center gap-2">
               <Label htmlFor="exercise-min-reps" className="sr-only">
                 Min Reps
@@ -209,30 +209,62 @@ function SortableTableRow({
               />
             </div>
           </TableCell>
-          <TableCell className="flex justify-center items-center ml-3">
-            <Label htmlFor="exercise-sets" className="sr-only">
-              Laterality
+          <TableCell className="flex items-center justify-center px-2">
+            <Label htmlFor="exercise-bodypart" className="sr-only">
+              Body Part
             </Label>
             <Select
-              value={editedExercise?.laterality}
+              value={editedExercise?.bodyPart}
               onValueChange={(value) =>
-                setEditedExercise({
-                  ...editedExercise!,
-                  laterality: value as "bilateral" | "unilateral",
-                })
+                setEditedExercise({ ...editedExercise!, bodyPart: value })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bilateral">Bilateral</SelectItem>
-                <SelectItem value="unilateral">Unilateral</SelectItem>
+                <SelectItem value="chest">Chest</SelectItem>
+                <SelectItem value="shoulders">Shoulders</SelectItem>
+                <SelectItem value="triceps">Triceps</SelectItem>
+                <SelectItem value="back">Back</SelectItem>
+                <SelectItem value="biceps">Biceps</SelectItem>
+                <SelectItem value="forearms">Forearms</SelectItem>
+                <SelectItem value="quadriceps">Quadriceps</SelectItem>
+                <SelectItem value="hamstrings">Hamstrings</SelectItem>
+                <SelectItem value="glutes">Glutes</SelectItem>
+                <SelectItem value="abs">Abs</SelectItem>
+                <SelectItem value="adductors">Adductors</SelectItem>
+                <SelectItem value="abductors">Abductors</SelectItem>
+                <SelectItem value="calves">Calves</SelectItem>
               </SelectContent>
             </Select>
           </TableCell>
-          <TableCell className="text-right">
-            <div className="flex justify-end gap-1">
+          <TableCell>
+            <div className="flex items-center justify-center px-2">
+              <Label htmlFor="exercise-sets" className="sr-only">
+                Laterality
+              </Label>
+              <Select
+                value={editedExercise?.laterality}
+                onValueChange={(value) =>
+                  setEditedExercise({
+                    ...editedExercise!,
+                    laterality: value as "bilateral" | "unilateral",
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bilateral">Bilateral</SelectItem>
+                  <SelectItem value="unilateral">Unilateral</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </TableCell>
+          <TableCell>
+            <div className="flex justify-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -250,6 +282,7 @@ function SortableTableRow({
                   editedExercise?.exerciseName === exercise.exerciseName &&
                   editedExercise?.sets === exercise.sets &&
                   editedExercise?.minReps === exercise.minReps &&
+                  editedExercise?.bodyPart === exercise.bodyPart &&
                   editedExercise?.maxReps === exercise.maxReps &&
                   editedExercise?.laterality === exercise.laterality
                 }
@@ -266,7 +299,7 @@ function SortableTableRow({
             <TableCell className="w-8">
               <button
                 {...listeners}
-                className="touch-none cursor-grab active:cursor-grabbing flex items-center"
+                className="touch-none cursor-grab active:cursor-grabbing flex items-center justify-center h-full w-full"
                 aria-label="Drag handle"
               >
                 <GripVertical className="h-4 w-4 text-slate-400" />
@@ -274,7 +307,7 @@ function SortableTableRow({
             </TableCell>
           )}
           <TableCell>
-            <div className="font-medium">{exercise.exerciseName}</div>
+            <div className="font-medium pl-2">{exercise.exerciseName}</div>
           </TableCell>
           <TableCell className="text-center">{exercise.sets}</TableCell>
           <TableCell className="text-center">
@@ -282,6 +315,7 @@ function SortableTableRow({
               ? exercise.minReps
               : `${exercise.minReps} - ${exercise.maxReps}`}
           </TableCell>
+          <TableCell className="text-center">{exercise.bodyPart}</TableCell>
           <TableCell className="text-center">{exercise.laterality}</TableCell>
           {isEditing && (
             <TableCell className="text-right">
@@ -413,6 +447,9 @@ export function DaySchedule({
                   Rep Range
                 </TableHead>
                 <TableHead className="w-[120px] text-center">
+                  Body Part
+                </TableHead>
+                <TableHead className="w-[120px] text-center">
                   Laterality
                 </TableHead>
               </TableRow>
@@ -426,6 +463,9 @@ export function DaySchedule({
                   <TableCell className="text-center">{exercise.sets}</TableCell>
                   <TableCell className="text-center">
                     {exercise.minReps} - {exercise.maxReps}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {exercise.bodyPart}
                   </TableCell>
                   <TableCell className="text-center">
                     {exercise.laterality}
@@ -453,16 +493,17 @@ export function DaySchedule({
               <TableRow>
                 <TableHead className="w-8"></TableHead>
                 <TableHead>Exercise</TableHead>
-                <TableHead className="w-[120px] text-center">Sets</TableHead>
-                <TableHead className="w-[120px] text-center">
+                <TableHead className="w-[130px] text-center">Sets</TableHead>
+                <TableHead className="w-[150px] text-center">
                   Rep Range
                 </TableHead>
-                <TableHead className="w-[120px] text-center">
+                <TableHead className="w-[130px] text-center">
+                  Body Part
+                </TableHead>
+                <TableHead className="w-[130px] text-center">
                   Laterality
                 </TableHead>
-                <TableHead className="w-[120px] text-right pr-4.5">
-                  Actions
-                </TableHead>
+                <TableHead className="w-[100px] text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
