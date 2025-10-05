@@ -100,16 +100,14 @@ export function ExerciseForm({
     // Call the onAddExercise callback
     onAddExercise(finalExercise);
 
-    // Reset form only if not editing (editing will close the modal)
-    if (!isEditing) {
-      setExerciseName("");
-      setBodyPart("");
-      setLaterality("bilateral");
-      setSets(null);
-      setMinReps(null);
-      setMaxReps(null);
-      setExerciseOrder(1);
-    }
+    // Reset form after successful submission
+    setExerciseName("");
+    setBodyPart("");
+    setLaterality("bilateral");
+    setSets(null);
+    setMinReps(null);
+    setMaxReps(null);
+    setExerciseOrder(1);
   };
 
   return (
@@ -127,7 +125,7 @@ export function ExerciseForm({
         <div className="w-full flex flex-col space-y-2">
           <Label htmlFor="exercise-type">Body Part</Label>
           <Select
-            value={bodyPart || initialExercise?.bodyPart}
+            value={bodyPart || (isEditing ? initialExercise?.bodyPart : "")}
             onValueChange={(value) => setBodyPart(value)}
           >
             <SelectTrigger className="w-full">
