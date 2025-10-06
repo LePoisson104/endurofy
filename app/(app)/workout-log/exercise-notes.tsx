@@ -74,7 +74,7 @@ export default function ExerciseNotes({
     <div className="space-y-2">
       <Label htmlFor="workout-notes">
         Exercise Notes
-        <span className="text-sm text-slate-500">
+        <span className="text-xs text-slate-500">
           {isUpdatingExerciseNotes
             ? "(Saving...)"
             : getExerciseNotes(getWorkoutExerciseId(exercise.exerciseId)) !== ""

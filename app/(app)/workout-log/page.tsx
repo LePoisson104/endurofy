@@ -62,9 +62,9 @@ export default function WorkoutLogManager() {
     { skip: !user?.user_id }
   );
 
-  // Load selectedDate from localStorage on component mount
+  // Load selectedDate from sessionStorage on component mount
   useEffect(() => {
-    const savedDate = localStorage.getItem("selectedDate");
+    const savedDate = sessionStorage.getItem("selectedDate");
 
     if (savedDate && new Date(savedDate + "T00:00:00") < new Date()) {
       setSelectedDate(new Date());
@@ -72,7 +72,7 @@ export default function WorkoutLogManager() {
       setSelectedDate(new Date(savedDate || new Date()));
     }
 
-    const savedTab = localStorage.getItem("selectedTab");
+    const savedTab = sessionStorage.getItem("selectedTab");
     if (savedTab) {
       setSelectedTab(savedTab);
     }
@@ -85,6 +85,8 @@ export default function WorkoutLogManager() {
     if (date && tab) {
       setSelectedDate(new Date(date + "T00:00:00"));
       setSelectedTab(tab);
+      sessionStorage.setItem("selectedDate", date + "T00:00:00");
+      sessionStorage.setItem("selectedTab", tab);
     }
   }, [searchParams]);
 
@@ -114,12 +116,12 @@ export default function WorkoutLogManager() {
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-    localStorage.setItem("selectedDate", date.toISOString());
+    sessionStorage.setItem("selectedDate", date.toISOString());
   };
 
   const handleCalendarDateSelect = (date: Date) => {
     setSelectedDate(date);
-    localStorage.setItem("selectedDate", date.toISOString());
+    sessionStorage.setItem("selectedDate", date.toISOString());
     if (isMobile) {
       setIsCalendarModalOpen(false);
     }
@@ -127,7 +129,7 @@ export default function WorkoutLogManager() {
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
-    localStorage.setItem("selectedTab", value);
+    sessionStorage.setItem("selectedTab", value);
   };
 
   return (

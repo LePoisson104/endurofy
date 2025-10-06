@@ -258,8 +258,8 @@ export function WorkoutDetailView({
     const workoutDate = new Date(workout.workoutDate);
     const formattedDate = workoutDate.toISOString().split("T")[0]; // YYYY-MM-DD format
 
-    localStorage.setItem("selectedDate", formattedDate);
-    localStorage.setItem("selectedTab", "log");
+    sessionStorage.setItem("selectedDate", formattedDate);
+    sessionStorage.setItem("selectedTab", "log");
     router.push(`/workout-log?date=${formattedDate}&tab=log`);
   };
 

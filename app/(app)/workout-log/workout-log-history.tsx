@@ -48,7 +48,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   const [fetchFromBackend, setFetchFromBackend] = useState(false);
   const [fetchFromBackendPagination, setFetchFromBackendPagination] =
     useState(true);
-  const [limit, setLimit] = useState(localStorage.getItem("limit") || "10");
+  const [limit, setLimit] = useState(sessionStorage.getItem("limit") || "10");
   const [isClearingFilters, setIsClearingFilters] = useState(false);
 
   const { data: workoutLogsData, isLoading: isLoadingWorkoutLogs } =
@@ -150,7 +150,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
   useEffect(() => {
     const date = searchParams.get("date");
     const tab = searchParams.get("tab");
-    const currentTab = localStorage.getItem("selectedTab");
+    const currentTab = sessionStorage.getItem("selectedTab");
 
     if (date && tab && currentTab === "history") {
       // You need to use router to modify URL params, not searchParams directly
@@ -170,7 +170,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     setIsLoadingMore(false);
     setIsInitialLoad(true);
     setOffset(0);
-    localStorage.removeItem("limit");
+    sessionStorage.removeItem("limit");
   }, [selectedProgram]); // Only reset on program change
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
           return bDate.getTime() - aDate.getTime();
         })
       );
-      localStorage.setItem(
+      sessionStorage.setItem(
         "limit",
         workoutLogsData?.data.length > 0
           ? workoutLogsData?.data.length.toString()
@@ -229,7 +229,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
         return updatedLogs;
       });
 
-      localStorage.setItem(
+      sessionStorage.setItem(
         "limit",
         allWorkoutLogs.length + newData.length > 0
           ? (allWorkoutLogs.length + newData.length).toString()
@@ -327,7 +327,7 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
     setIsLoadingMore(false);
     setIsInitialLoad(true);
     setLimit("10"); // Reset to default limit
-    localStorage.setItem("limit", "10"); // Reset localStorage limit
+    sessionStorage.setItem("limit", "10"); // Reset sessionStorage limit
 
     // Don't clear allWorkoutLogs immediately - keep existing data until new data arrives
   };

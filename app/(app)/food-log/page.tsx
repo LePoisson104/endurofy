@@ -102,9 +102,9 @@ export default function FoodLogPage() {
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    // Initialize with saved date from localStorage or current date
+    // Initialize with saved date from sessionStorage or current date
     if (typeof window !== "undefined") {
-      const savedDate = localStorage.getItem("foodLogSelectedDate");
+      const savedDate = sessionStorage.getItem("foodLogSelectedDate");
       if (savedDate) {
         return new Date(savedDate);
       }
@@ -123,7 +123,7 @@ export default function FoodLogPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentEditFood, setCurrentEditFood] = useState<Foods | null>(null);
   const [view, setView] = useState<"consumed" | "remaining">(
-    (localStorage.getItem("foodLogView") as "consumed" | "remaining") ||
+    (sessionStorage.getItem("foodLogView") as "consumed" | "remaining") ||
       "consumed"
   );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -306,7 +306,7 @@ export default function FoodLogPage() {
 
   const handleCalendarDateSelect = (date: Date) => {
     setSelectedDate(date);
-    localStorage.setItem("foodLogSelectedDate", date.toISOString());
+    sessionStorage.setItem("foodLogSelectedDate", date.toISOString());
     if (isMobile) {
       setIsCalendarModalOpen(false);
     }
@@ -314,7 +314,7 @@ export default function FoodLogPage() {
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-    localStorage.setItem("foodLogSelectedDate", date.toISOString());
+    sessionStorage.setItem("foodLogSelectedDate", date.toISOString());
   };
 
   const handleEditFood = (foodId: string) => {
@@ -664,7 +664,7 @@ export default function FoodLogPage() {
                       className="w-[130px]"
                       onClick={() => {
                         setView(view === "consumed" ? "remaining" : "consumed");
-                        localStorage.setItem(
+                        sessionStorage.setItem(
                           "foodLogView",
                           view === "consumed" ? "remaining" : "consumed"
                         );

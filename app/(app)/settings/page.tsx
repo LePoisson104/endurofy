@@ -10,12 +10,12 @@ export default function SettingsPage() {
   // const router = useRouter();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState(
-    localStorage.getItem("activeTab") || "account"
+    sessionStorage.getItem("activeTab") || "account"
   );
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    localStorage.setItem("activeTab", value);
+    sessionStorage.setItem("activeTab", value);
   };
 
   return (
