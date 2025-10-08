@@ -66,17 +66,18 @@ export default function FoodSearchModal({
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Only make API call when debounced query has content and modal is open
-  const { data: searchResults, isFetching } = useSearchFoodQuery(
-    {
-      userId: user?.user_id,
-      searchItem: encodeURIComponent(debouncedSearchQuery),
-    },
-    {
-      skip: !debouncedSearchQuery.trim() || !isOpen,
-    }
-  );
+  const { data: searchResults, isLoading: isLoadingSearch } =
+    useSearchFoodQuery(
+      {
+        userId: user?.user_id,
+        searchItem: encodeURIComponent(debouncedSearchQuery),
+      },
+      {
+        skip: !debouncedSearchQuery.trim() || !isOpen,
+      }
+    );
 
-  const { data: recentFoods, isFetching: isFetchingRecentFoods } =
+  const { data: recentFoods, isLoading: isLoadingRecentFoods } =
     useGetRecentFoodsQuery(
       { userId: user?.user_id },
       {
@@ -84,7 +85,7 @@ export default function FoodSearchModal({
       }
     );
 
-  const { data: customFoods, isFetching: isFetchingCustomFoods } =
+  const { data: customFoods, isLoading: isLoadingCustomFoods } =
     useGetCustomFoodsQuery(
       { userId: user?.user_id },
       {
@@ -92,7 +93,7 @@ export default function FoodSearchModal({
       }
     );
 
-  const { data: favoriteFoods, isFetching: isFetchingFavoriteFoods } =
+  const { data: favoriteFoods, isLoading: isLoadingFavoriteFoods } =
     useGetFavoriteFoodsQuery(
       { userId: user?.user_id },
       {
@@ -227,7 +228,7 @@ export default function FoodSearchModal({
 
         <TabsContent value="all" className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto thin-scrollbar standalone:pb-10">
-            {isFetching || isFetchingRecentFoods ? (
+            {isLoadingSearch || isLoadingRecentFoods ? (
               <FoodCardSkeleton />
             ) : !searchQuery.trim() ? (
               // Show recent foods when no search query
@@ -264,7 +265,7 @@ export default function FoodSearchModal({
 
         <TabsContent value="favorites" className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-            {isFetchingFavoriteFoods ? (
+            {isLoadingFavoriteFoods ? (
               <FoodCardSkeleton />
             ) : filteredFavoriteFoods?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -289,7 +290,7 @@ export default function FoodSearchModal({
 
         <TabsContent value="custom" className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
-            {isFetchingCustomFoods ? (
+            {isLoadingCustomFoods ? (
               <FoodCardSkeleton />
             ) : filteredCustomFoods?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">

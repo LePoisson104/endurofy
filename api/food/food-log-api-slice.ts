@@ -28,7 +28,10 @@ export const foodLogApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
+      invalidatesTags: [
+        { type: "FoodLog", id: "LIST" },
+        { type: "Food", id: "LIST" },
+      ],
     }),
     updateFoodLog: builder.mutation({
       query: ({ foodId, payload }) => ({
@@ -61,7 +64,10 @@ export const foodLogApiSlice = apiSlice.injectEndpoints({
         url: `/api/v1/food-logs/food/${foodId}/${foodLogId}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
+      invalidatesTags: [
+        { type: "FoodLog", id: "LIST" },
+        { type: "Food", id: "LIST" },
+      ],
     }),
     deleteFoodLog: builder.mutation({
       query: ({ foodLogId }) => ({

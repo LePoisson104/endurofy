@@ -68,7 +68,7 @@ export default function MealAccordion({
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const totalNutrients = getTotalNutrients(foods);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [openMenuFoodId, setOpenMenuFoodId] = useState<string | null>(null);
 
   return (
     <div className="border-b border-border">
@@ -193,13 +193,17 @@ export default function MealAccordion({
                       key={food.foodId}
                       className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
                     >
-                      <ResponsiveMenu
-                        sections={menuSections}
-                        isOpen={isDrawerOpen}
-                        setIsOpen={setIsDrawerOpen}
-                        dropdownAlign="end"
-                        dropdownWidth="w-56"
-                      />
+                      {isMobile && (
+                        <ResponsiveMenu
+                          sections={menuSections}
+                          isOpen={openMenuFoodId === food.foodId}
+                          setIsOpen={(isOpen) =>
+                            setOpenMenuFoodId(isOpen ? food.foodId : null)
+                          }
+                          dropdownAlign="end"
+                          dropdownWidth="w-56"
+                        />
+                      )}
                       <div>
                         <div className="flex items-center gap-2">
                           <Apple className="text-destructive w-[13px] h-[13px]" />
@@ -232,7 +236,7 @@ export default function MealAccordion({
                             size="sm"
                             className="h-8 w-8 p-0"
                             disabled={disableAddFood}
-                            onClick={() => setIsDrawerOpen(true)}
+                            onClick={() => setOpenMenuFoodId(food.foodId)}
                           >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
@@ -249,6 +253,8 @@ export default function MealAccordion({
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             }
+                            dropdownAlign="end"
+                            dropdownWidth="w-56"
                           />
                         )}
                       </div>
