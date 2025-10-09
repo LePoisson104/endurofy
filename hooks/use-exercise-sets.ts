@@ -123,11 +123,11 @@ export const useExerciseSets = (
               )
             );
 
+            // Match by programExerciseId instead of workoutExerciseId
+            // because workoutExerciseId changes between workout sessions
             const previousLoggedSet = previousLog?.data.find(
               (previousExerciseData: any) =>
-                previousExerciseData.previousWorkoutSets?.some(
-                  (set: any) => set.setNumber === index + 1
-                )
+                previousExerciseData.programExerciseId === exercise.exerciseId
             );
 
             // If we found a matching exercise, get the specific set data
@@ -135,6 +135,7 @@ export const useExerciseSets = (
               (set: any) => set.setNumber === index + 1
             );
 
+            // Find the specific previous set that matches this set number
             const previousSetData =
               previousLoggedSet?.previousWorkoutSets?.find(
                 (set: any) => set.setNumber === index + 1

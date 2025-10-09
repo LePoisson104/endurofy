@@ -121,24 +121,25 @@ export function ProgramWorkoutLog({
 
     const currentWorkout = workoutLog.data[0];
 
-    const total = selectedDay.exercises.reduce(
-      (acc, exercise) => acc + exercise.sets,
-      0
-    );
     const logged = currentWorkout.workoutExercises.reduce(
       (acc: number, exercise: any) => acc + exercise.workoutSets.length,
       0
     );
 
-    if (total === 0) return;
+    const totalSets = selectedDay.exercises.reduce(
+      (acc: number, exercise: any) => acc + exercise.sets,
+      0
+    );
+
+    if (totalSets === 0) return;
 
     // Use local variables for comparison to avoid double request
-    if (logged === total && currentWorkout.status === "incomplete") {
+    if (logged === totalSets && currentWorkout.status === "incomplete") {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "completed",
       }).unwrap();
-    } else if (logged !== total && currentWorkout.status === "completed") {
+    } else if (logged !== totalSets && currentWorkout.status === "completed") {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "incomplete",
