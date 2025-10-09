@@ -209,7 +209,7 @@ export default function MealAccordion({
                           <Apple className="text-destructive w-[13px] h-[13px]" />
                           <p
                             className={`font-medium text-sm truncate ${
-                              isMobile ? "w-[200px]" : "w-full"
+                              isMobile ? "w-[200px]" : "w-[500px]"
                             }`}
                           >
                             {food.foodName
