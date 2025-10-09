@@ -556,7 +556,11 @@ export default function DashboardPage() {
                                   : "bg-teal-400"
                               }`}
                             />
-                            <p className="text-sm truncate">
+                            <p
+                              className={`text-sm truncate ${
+                                isMobile ? "w-[140px]" : "w-full"
+                              }`}
+                            >
                               {exercise.exerciseName}
                             </p>
                           </div>

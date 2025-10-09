@@ -175,7 +175,7 @@ export function ExerciseForm({
               id="sets"
               type="number"
               inputMode="numeric"
-              placeholder="Enter number of sets"
+              placeholder="Enter # of sets"
               value={sets || ""}
               onChange={(e) => setSets(Number.parseInt(e.target.value))}
             />
