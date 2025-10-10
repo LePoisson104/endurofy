@@ -81,6 +81,66 @@ export function WorkoutProgramCreator({
     "sunday",
   ];
 
+  const STORAGE_KEY = "workout-program-creator-data";
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  // Load persisted data from session storage on mount
+  useEffect(() => {
+    const savedData = sessionStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setProgramName(parsed.programName || "");
+        setDescription(parsed.description || "");
+        setExercises(parsed.exercises || {});
+        setProgramType(parsed.programType || "dayOfWeek");
+        setDayNames(parsed.dayNames || {});
+        setCustomDays(
+          parsed.customDays || [{ id: "d1", name: "D1", dayName: "" }]
+        );
+        setActiveDay(parsed.activeDay || "monday");
+        setActiveCustomDay(parsed.activeCustomDay || "d1");
+        if (parsed.calendarDate) {
+          setCalendarDate(new Date(parsed.calendarDate));
+        }
+      } catch (error) {
+        console.error("Failed to load saved program data:", error);
+      }
+    }
+    // Mark data as loaded (whether we found saved data or not)
+    setIsDataLoaded(true);
+  }, []);
+
+  // Save data to session storage whenever relevant state changes
+  // Only start saving after initial data has been loaded
+  useEffect(() => {
+    if (!isDataLoaded) return; // Don't save until data is loaded
+
+    const dataToSave = {
+      programName,
+      description,
+      exercises,
+      programType,
+      dayNames,
+      customDays,
+      activeDay,
+      activeCustomDay,
+      calendarDate: calendarDate?.toISOString() || null,
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  }, [
+    isDataLoaded,
+    programName,
+    description,
+    exercises,
+    programType,
+    dayNames,
+    customDays,
+    activeDay,
+    activeCustomDay,
+    calendarDate,
+  ]);
+
   // Format day name
   const formatDayName = (day: AllDays) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
@@ -254,6 +314,10 @@ export function WorkoutProgramCreator({
     setDayNames({});
     setCustomDays([{ id: "d1", name: "D1", dayName: "" }]);
     setActiveCustomDay("d1");
+    setCalendarDate(null);
+    setCalendarInput("");
+    // Clear session storage
+    sessionStorage.removeItem(STORAGE_KEY);
   };
 
   // Handle program submission
