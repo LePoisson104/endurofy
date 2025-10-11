@@ -41,6 +41,7 @@ import {
   createMenuItem,
   createMenuSection,
 } from "@/components/ui/responsive-menu";
+import { WorkoutTimers } from "@/components/workout/workout-timers";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -371,7 +372,11 @@ export default function WithoutProgramLog({
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className={`space-y-6 ${
+        workoutLog?.data[0]?.status !== "completed" && !isEditing ? "pb-15" : ""
+      }`}
+    >
       <div className="flex flex-col space-y-4">
         <header className="flex flex-row justify-between items-align">
           <div>
@@ -577,6 +582,16 @@ export default function WithoutProgramLog({
         dropdownAlign="end"
         dropdownWidth="w-40"
       />
+
+      {/* Workout Timers */}
+      {manualProgram && (
+        <WorkoutTimers
+          selectedDate={selectedDate}
+          programId={manualProgram.programId}
+          isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
+          isEditing={isEditing}
+        />
+      )}
     </div>
   );
 }

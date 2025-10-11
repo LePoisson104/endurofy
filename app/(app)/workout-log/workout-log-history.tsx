@@ -7,7 +7,7 @@ import { WorkoutHistoryList } from "@/components/cards/workout-history-card";
 import { WorkoutDetailView } from "./workout-detail-view";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ListFilterPlus, Search } from "lucide-react";
+import { ListFilterPlus, Search, RotateCcw } from "lucide-react";
 import { WorkoutFiltersModal } from "@/components/modals/filters-modal";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
@@ -346,14 +346,14 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
           // Workout List View
           <div className="space-y-6">
             {/* Search and Filters */}
-            <div className={`flex gap-2 ${isMobile ? "flex-col" : "flex-row"}`}>
+            <div className={`flex gap-2 ${isMobile ? "flex-row" : "flex-row"}`}>
               <div className="flex gap-2 items-center">
                 <Button
                   variant="outline"
                   onClick={() => setIsFiltersModalOpen(true)}
                 >
                   <ListFilterPlus className="w-4 h-4" />
-                  Filters
+                  {!isMobile && "Filters"}
                 </Button>
 
                 {/* Clear filters button */}
@@ -364,7 +364,11 @@ export function WorkoutLogHistory({ selectedProgram }: WorkoutLogHistoryProps) {
                     onClick={clearDateFilters}
                     className="text-xs"
                   >
-                    Clear Filters
+                    {isMobile ? (
+                      <RotateCcw className="w-4 h-4" />
+                    ) : (
+                      "Clear Filters"
+                    )}
                   </Button>
                 )}
               </div>

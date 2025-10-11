@@ -808,13 +808,10 @@ export default function FoodLogPage() {
           className={`bg-card max-h-[80vh] ${
             isMobile ? "max-w-[95vw] w-[95vw] px-4 py-6" : "max-w-2xl"
           }`}
+          closeXButton={true}
         >
-          <DialogHeader className="mb-2">
-            <DialogTitle>Select Date</DialogTitle>
-            <DialogDescription>
-              Choose a date to view your food log
-            </DialogDescription>
-          </DialogHeader>
+          <DialogTitle className="sr-only">Food Log Calendar</DialogTitle>
+
           <FoodCalendar
             selectedDate={selectedDate}
             onSelectDate={handleCalendarDateSelect}

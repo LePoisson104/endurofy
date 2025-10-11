@@ -84,7 +84,10 @@ export default function WeightForm({
         weight: weightLogData.weight,
         weightUnit: weightLogData.weight_unit,
         caloriesIntake: weightLogData.calories_intake,
-        logDate: format(new Date(weightLogData.log_date), "MM/dd/yyyy"),
+        logDate: format(
+          new Date(weightLogData.log_date.split("T")[0] + "T05:00:00.000Z"),
+          "MM/dd/yyyy"
+        ),
         notes: weightLogData.notes || "",
       });
       setNotes(weightLogData.notes || "");

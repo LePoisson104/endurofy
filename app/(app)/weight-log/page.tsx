@@ -394,9 +394,13 @@ export default function WeightLogPage() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px] bg-card">
           <DialogHeader>
-            <DialogTitle>Add Weight Entry</DialogTitle>
+            <DialogTitle>
+              {weightLogData ? "Update Weight Entry" : "Add Weight Entry"}
+            </DialogTitle>
             <DialogDescription>
-              Add a new weight entry to your weight log.
+              {weightLogData
+                ? "Update your weight entry"
+                : "Add a new weight entry to your weight log."}
             </DialogDescription>
           </DialogHeader>
           <WeightForm

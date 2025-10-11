@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 const featureCardVariants = {
   hidden: { opacity: 0 },
@@ -25,6 +26,7 @@ export function FeatureCard({
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const isDark = useGetCurrentTheme();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -130,12 +132,12 @@ export function FeatureCard({
     <motion.div
       ref={cardRef}
       variants={featureCardVariants}
-      className={`flex flex-col p-6 rounded-xl border ${
+      className={`flex flex-col p-6 rounded-xl ${
         isMobile
           ? `${getMobileBackground(bgColor)} dark:${getMobileBackground(
               bgColor
-            )}`
-          : "bg-card dark:bg-background"
+            )} border-none`
+          : `bg-card dark:bg-background ${isDark ? "border" : "border-none"}`
       } ${getCardShadow(
         bgColor
       )} transition-all cursor-pointer h-[200px] w-full group relative overflow-hidden`}
