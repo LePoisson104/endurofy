@@ -367,7 +367,7 @@ export function WorkoutTimers({
   return (
     <>
       {/* Fixed Bottom Timer Bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 mb-4">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 mb-4">
         <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border border-muted rounded-xl shadow-lg p-3">
           <div className="flex items-center justify-between gap-4">
             {/* Session Timer */}
