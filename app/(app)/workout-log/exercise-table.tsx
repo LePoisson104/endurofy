@@ -48,6 +48,7 @@ interface ExerciseTableProps {
   hasLoggedSets: boolean;
   isMobile: boolean;
   showPrevious: boolean;
+  isStartingWorkout: boolean;
   logType?: "program" | "manual";
 }
 
@@ -62,6 +63,7 @@ export default function ExerciseTable({
   hasLoggedSets,
   isMobile,
   showPrevious,
+  isStartingWorkout,
   logType = "program",
 }: ExerciseTableProps) {
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
@@ -489,7 +491,7 @@ export default function ExerciseTable({
                           setData
                         );
                       }}
-                      disabled={setData.isLogged}
+                      disabled={setData.isLogged || isStartingWorkout}
                       className="h-4 w-4"
                     />
                   </TableCell>
@@ -522,7 +524,9 @@ export default function ExerciseTable({
                         e.target.value
                       )
                     }
-                    disabled={setData.isLogged && !isEditing}
+                    disabled={
+                      (setData.isLogged && !isEditing) || isStartingWorkout
+                    }
                     className={`${
                       exercise.laterality === "unilateral"
                         ? isMobile
@@ -567,7 +571,9 @@ export default function ExerciseTable({
                             e.target.value
                           )
                         }
-                        disabled={setData.isLogged && !isEditing}
+                        disabled={
+                          (setData.isLogged && !isEditing) || isStartingWorkout
+                        }
                         className={`${
                           isMobile ? "w-16" : "w-20"
                         } mx-auto text-center ${
@@ -606,7 +612,9 @@ export default function ExerciseTable({
                             e.target.value
                           )
                         }
-                        disabled={setData.isLogged && !isEditing}
+                        disabled={
+                          (setData.isLogged && !isEditing) || isStartingWorkout
+                        }
                         className={`${
                           isMobile ? "w-16" : "w-20"
                         } mx-auto text-center ${
@@ -647,7 +655,9 @@ export default function ExerciseTable({
                           e.target.value
                         )
                       }
-                      disabled={setData.isLogged && !isEditing}
+                      disabled={
+                        (setData.isLogged && !isEditing) || isStartingWorkout
+                      }
                       className={`w-20 mx-auto text-center ${
                         setData.isLogged
                           ? "bg-muted/50"

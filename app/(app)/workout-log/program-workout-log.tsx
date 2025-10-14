@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -82,30 +82,7 @@ export function ProgramWorkoutLog({
     null
   );
 
-  // Timer persistence key based on workout log date and program
-  const timerStorageKey = `workout-timer-${format(
-    selectedDate,
-    "yyyy-MM-dd"
-  )}-${program.programId}`;
-
-  // Track if this is the initial mount
-  const isInitialMount = useRef(true);
-  const prevDateRef = useRef(format(selectedDate, "yyyy-MM-dd"));
-  const prevProgramRef = useRef(program.programId);
-
-  // Workout Session Timer State
-  const [sessionTimerRunning, setSessionTimerRunning] = useState(false);
-  const [sessionElapsedTime, setSessionElapsedTime] = useState(0);
-  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
-
-  // Rest Timer State
-  const [restTimerRunning, setRestTimerRunning] = useState(false);
-  const [restTimeRemaining, setRestTimeRemaining] = useState(60);
-  const [restDuration, setRestDuration] = useState(60);
-  const [showRestTimerModal, setShowRestTimerModal] = useState(false);
-  const [isEditingRestTime, setIsEditingRestTime] = useState(false);
-  const [restTimeInput, setRestTimeInput] = useState("");
-  const restTimeInputRef = useRef<HTMLInputElement>(null);
+  const [isStartingWorkout, setIsStartingWorkout] = useState(true);
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
@@ -120,6 +97,7 @@ export function ProgramWorkoutLog({
       startDate: format(selectedDate, "yyyy-MM-dd"),
       endDate: format(selectedDate, "yyyy-MM-dd"),
     });
+
   const { data: previousWorkoutLog, isLoading: isLoadingPreviousWorkoutLog } =
     useGetPreviousWorkoutLogQuery({
       userId: user?.user_id,
@@ -140,81 +118,6 @@ export function ProgramWorkoutLog({
     getWorkoutExerciseId,
     getExerciseNotes,
   } = useExerciseSets(workoutLog, [program], selectedDay, previousWorkoutLog);
-
-  // Load timer state from localStorage on mount
-  useEffect(() => {
-    const savedTimerState = localStorage.getItem(timerStorageKey);
-    if (savedTimerState) {
-      try {
-        const parsedState = JSON.parse(savedTimerState);
-
-        // Restore session timer
-        if (parsedState.sessionStartTime && parsedState.sessionTimerRunning) {
-          const now = Date.now();
-          const elapsed = Math.floor(
-            (now - parsedState.sessionStartTime) / 1000
-          );
-          setSessionElapsedTime(elapsed);
-          setSessionStartTime(parsedState.sessionStartTime);
-          setSessionTimerRunning(true);
-        } else if (parsedState.sessionElapsedTime) {
-          setSessionElapsedTime(parsedState.sessionElapsedTime);
-          setSessionStartTime(parsedState.sessionStartTime);
-          setSessionTimerRunning(false);
-        }
-
-        // Restore rest timer
-        if (parsedState.restTimerRunning && parsedState.restTimerEndTime) {
-          const now = Date.now();
-          const remaining = Math.max(
-            0,
-            Math.floor((parsedState.restTimerEndTime - now) / 1000)
-          );
-
-          if (remaining > 0) {
-            setRestTimeRemaining(remaining);
-            setRestTimerRunning(true);
-            setRestDuration(parsedState.restDuration || 60);
-          } else {
-            // Timer has expired while away
-            setRestTimeRemaining(parsedState.restDuration || 60);
-            setRestTimerRunning(false);
-            setRestDuration(parsedState.restDuration || 60);
-          }
-        } else {
-          setRestDuration(parsedState.restDuration || 60);
-          setRestTimeRemaining(parsedState.restDuration || 60);
-        }
-      } catch (error) {
-        console.error("Failed to parse saved timer state:", error);
-      }
-    }
-  }, [timerStorageKey]);
-
-  // Save timer state to localStorage whenever it changes
-  useEffect(() => {
-    const timerState = {
-      sessionTimerRunning,
-      sessionElapsedTime,
-      sessionStartTime,
-      restTimerRunning,
-      restTimeRemaining,
-      restDuration,
-      restTimerEndTime: restTimerRunning
-        ? Date.now() + restTimeRemaining * 1000
-        : null,
-    };
-
-    localStorage.setItem(timerStorageKey, JSON.stringify(timerState));
-  }, [
-    sessionTimerRunning,
-    sessionElapsedTime,
-    sessionStartTime,
-    restTimerRunning,
-    restTimeRemaining,
-    restDuration,
-    timerStorageKey,
-  ]);
 
   useEffect(() => {
     if (!selectedDay || !workoutLog?.data[0]) return;
@@ -240,106 +143,13 @@ export function ProgramWorkoutLog({
         workoutLogId: currentWorkout.workoutLogId,
         status: "completed",
       }).unwrap();
-      // Stop session timer when all sets are logged
-      if (sessionTimerRunning) {
-        setSessionTimerRunning(false);
-        toast.success(
-          `Workout completed! Duration: ${formatTime(sessionElapsedTime)}`
-        );
-        // Clear timer from localStorage when workout is completed
-        localStorage.removeItem(timerStorageKey);
-      }
     } else if (logged !== totalSets && currentWorkout.status === "completed") {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "incomplete",
       }).unwrap();
     }
-  }, [
-    selectedDay,
-    workoutLog,
-    selectedDate,
-    sessionTimerRunning,
-    sessionElapsedTime,
-    timerStorageKey,
-    updateWorkoutLogStatus,
-  ]);
-
-  // Session Timer Effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (sessionTimerRunning) {
-      interval = setInterval(() => {
-        setSessionElapsedTime((prev) => prev + 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [sessionTimerRunning]);
-
-  // Rest Timer Effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (restTimerRunning && restTimeRemaining > 0) {
-      interval = setInterval(() => {
-        setRestTimeRemaining((prev) => {
-          if (prev <= 1) {
-            setRestTimerRunning(false);
-            // Play a notification sound or show toast
-            toast.success("Rest time is up! Ready for next set?");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [restTimerRunning, restTimeRemaining]);
-
-  // Reset timers when date or workout changes (but not on initial mount)
-  useEffect(() => {
-    const currentDate = format(selectedDate, "yyyy-MM-dd");
-    const currentProgram = program.programId;
-
-    // Skip on initial mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      prevDateRef.current = currentDate;
-      prevProgramRef.current = currentProgram;
-      return;
-    }
-
-    // Only reset if date or program actually changed
-    if (
-      prevDateRef.current !== currentDate ||
-      prevProgramRef.current !== currentProgram
-    ) {
-      // Clear localStorage for old timer data
-      const oldKey = `workout-timer-${prevDateRef.current}-${prevProgramRef.current}`;
-      localStorage.removeItem(oldKey);
-
-      // Reset session timer when switching to a different date/program
-      setSessionTimerRunning(false);
-      setSessionElapsedTime(0);
-      setSessionStartTime(null);
-
-      // Reset rest timer
-      setRestTimerRunning(false);
-      setRestTimeRemaining(restDuration);
-      setShowRestTimerModal(false);
-
-      // Update refs
-      prevDateRef.current = currentDate;
-      prevProgramRef.current = currentProgram;
-    }
-  }, [selectedDate, program.programId, restDuration]);
+  }, [selectedDay, workoutLog, selectedDate, updateWorkoutLogStatus]);
 
   // Load existing notes when workout log data is available
   useEffect(() => {
@@ -365,140 +175,6 @@ export function ProgramWorkoutLog({
       setWorkoutLogName(workoutLog.data[0]?.title || "");
     }
   }, [selectedDay, workoutLog]); // Remove function dependencies
-
-  // Timer Helper Functions
-  const formatTime = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hrs > 0) {
-      return `${hrs.toString().padStart(2, "0")}:${mins
-        .toString()
-        .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    }
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const handleStartSessionTimer = () => {
-    setSessionTimerRunning(true);
-    setSessionStartTime(Date.now());
-  };
-
-  const handlePauseSessionTimer = () => {
-    setSessionTimerRunning(false);
-  };
-
-  const handleResumeSessionTimer = () => {
-    setSessionTimerRunning(true);
-  };
-
-  const handleStopSessionTimer = () => {
-    setSessionTimerRunning(false);
-    setSessionElapsedTime(0);
-    setSessionStartTime(null);
-    // Clear timer from localStorage when manually stopped
-    localStorage.removeItem(timerStorageKey);
-  };
-
-  const handleStartRestTimer = () => {
-    setRestTimeRemaining(restDuration);
-    setRestTimerRunning(true);
-  };
-
-  const handlePauseRestTimer = () => {
-    setRestTimerRunning(false);
-  };
-
-  const handleResumeRestTimer = () => {
-    setRestTimerRunning(true);
-  };
-
-  const handleResetRestTimer = () => {
-    setRestTimerRunning(false);
-    setRestTimeRemaining(restDuration);
-  };
-
-  const handleEditRestTime = () => {
-    if (!restTimerRunning) {
-      setIsEditingRestTime(true);
-      // Start with empty input for calculator-style entry
-      setRestTimeInput("00:00");
-    }
-  };
-
-  const handleRestTimeInputChange = (value: string) => {
-    // Extract only numbers from the input
-    const numbers = value.replace(/\D/g, "");
-
-    // Get current numbers (without formatting)
-    const currentNumbers = restTimeInput.replace(/\D/g, "");
-
-    // Determine if user is adding or removing digits
-    if (numbers.length > currentNumbers.length) {
-      // User is adding a digit - shift left and add new digit at the end
-      const newNumbers = (currentNumbers + numbers.slice(-1)).slice(-4);
-      setRestTimeInput(formatTimeInput(newNumbers));
-    } else if (numbers.length < currentNumbers.length) {
-      // User is removing a digit (backspace) - shift right
-      const newNumbers = currentNumbers.slice(0, -1).padStart(1, "0");
-      setRestTimeInput(formatTimeInput(newNumbers));
-    }
-  };
-
-  const formatTimeInput = (numbers: string): string => {
-    // Pad with leading zeros to always have at least 4 digits for display
-    const padded = numbers.padStart(4, "0");
-    // Format as MM:SS
-    return `${padded.slice(0, 2)}:${padded.slice(2, 4)}`;
-  };
-
-  const handleRestTimeInputBlur = () => {
-    if (restTimeInput) {
-      // Parse MM:SS format
-      const parts = restTimeInput.split(":");
-      const mins = parseInt(parts[0] || "0", 10);
-      const secs = parseInt(parts[1] || "0", 10);
-
-      // Calculate total seconds
-      let totalSeconds = mins * 60 + secs;
-
-      // Validate: between 1 second and 99 minutes (5940 seconds)
-      totalSeconds = Math.max(1, Math.min(totalSeconds, 5940));
-
-      setRestDuration(totalSeconds);
-      setRestTimeRemaining(totalSeconds);
-    }
-    setIsEditingRestTime(false);
-  };
-
-  const handleRestTimeInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Position cursor at the end for calculator-style entry
-    const input = e.target;
-    setTimeout(() => {
-      input.setSelectionRange(input.value.length, input.value.length);
-    }, 0);
-  };
-
-  const handleRestTimeInputKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (e.key === "Enter") {
-      handleRestTimeInputBlur();
-    } else if (e.key === "Escape") {
-      setIsEditingRestTime(false);
-    }
-  };
-
-  // Keep cursor at the end of input
-  useEffect(() => {
-    if (isEditingRestTime && restTimeInputRef.current) {
-      const input = restTimeInputRef.current;
-      input.setSelectionRange(input.value.length, input.value.length);
-    }
-  }, [restTimeInput, isEditingRestTime]);
 
   const handleUpdateWorkoutLogName = async () => {
     if (workoutLogName.trim() === "") {
@@ -562,8 +238,6 @@ export function ProgramWorkoutLog({
     ) {
       return;
     }
-
-    console.log(workoutLogPayload);
 
     try {
       await createWorkoutLog({
@@ -805,6 +479,7 @@ export function ProgramWorkoutLog({
                     hasLoggedSets={hasAnyLoggedSets}
                     isMobile={isMobile}
                     showPrevious={showPrevious}
+                    isStartingWorkout={isStartingWorkout}
                   />
                   <ExerciseNotes
                     exerciseNotes={exerciseNotes}
@@ -844,6 +519,11 @@ export function ProgramWorkoutLog({
         programId={program.programId}
         isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
         isEditing={isEditing}
+        setIsStartingWorkout={setIsStartingWorkout}
+        programType={program.programType}
+        title={selectedDay?.dayName || ""}
+        dayId={selectedDay?.dayId || ""}
+        workoutLog={workoutLog?.data[0]}
       />
     </div>
   );

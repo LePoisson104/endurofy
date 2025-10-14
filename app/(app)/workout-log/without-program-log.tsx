@@ -30,11 +30,6 @@ import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workou
 import BodyPartBadge from "@/components/badges/bodypart-badge";
 import CustomBadge from "@/components/badges/custom-badge";
 import { CompletedBadge } from "@/components/badges/status-badges";
-import type {
-  WorkoutProgram,
-  Exercise,
-} from "@/interfaces/workout-program-interfaces";
-import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
 import { useExerciseSets } from "@/hooks/use-exercise-sets";
 import {
   ResponsiveMenu,
@@ -42,6 +37,11 @@ import {
   createMenuSection,
 } from "@/components/ui/responsive-menu";
 import { WorkoutTimers } from "@/components/workout/workout-timers";
+import type {
+  WorkoutProgram,
+  Exercise,
+} from "@/interfaces/workout-program-interfaces";
+import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -69,6 +69,7 @@ export default function WithoutProgramLog({
   const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
     null
   );
+  const [isStartingWorkout, setIsStartingWorkout] = useState(true);
 
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
@@ -249,8 +250,8 @@ export default function WithoutProgramLog({
       }).unwrap();
 
       toast.success("Workout log created successfully!");
-      setWorkoutLogName(""); // Clear the form
-      setIsModalOpen(false); // Close the modal only on success
+      setWorkoutLogName("");
+      setIsModalOpen(false);
     } catch (error: any) {
       if (error?.data?.message) {
         toast.error(error.data.message);
@@ -537,6 +538,7 @@ export default function WithoutProgramLog({
                       hasLoggedSets={hasLoggedSets(exercise.exerciseId)}
                       isMobile={isMobile}
                       showPrevious={false}
+                      isStartingWorkout={isStartingWorkout}
                       logType="manual"
                     />
                     <ExerciseNotes
@@ -584,12 +586,17 @@ export default function WithoutProgramLog({
       />
 
       {/* Workout Timers */}
-      {manualProgram && (
+      {workoutLog?.data.length > 0 && (
         <WorkoutTimers
           selectedDate={selectedDate}
           programId={manualProgram.programId}
           isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
           isEditing={isEditing}
+          setIsStartingWorkout={setIsStartingWorkout}
+          programType="manual"
+          title={workoutLog?.data[0]?.title || ""}
+          dayId={manualProgram?.workoutDays?.[0]?.dayId || ""}
+          workoutLog={workoutLog?.data[0]}
         />
       )}
     </div>

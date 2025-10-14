@@ -22,6 +22,7 @@ import {
   Loader2,
   MoreVertical,
   History,
+  Clock,
 } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -49,7 +50,7 @@ import {
   createMenuSection,
 } from "@/components/ui/responsive-menu";
 import { useUpdateWorkoutLogStatusMutation } from "@/api/workout-log/workout-log-api-slice";
-
+import { secondsToTimer } from "@/helper/time-converter";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
@@ -598,7 +599,16 @@ export function WorkoutDetailView({
             </Button>
           </div>
 
-          <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="shadow-none">
+              <div className="p-4 text-center">
+                <Clock className="h-6 w-6 mx-auto mb-2 text-blue-400" />
+                <div className="text-sm font-medium">Time</div>
+                <div className="text-sm font-bold">
+                  {secondsToTimer(workout.timer)}
+                </div>
+              </div>
+            </div>
             <div className="shadow-none">
               <div className="p-4 text-center">
                 <Dumbbell className="h-6 w-6 mx-auto mb-2 text-blue-400" />

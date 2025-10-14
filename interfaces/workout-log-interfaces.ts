@@ -44,6 +44,7 @@ export interface WorkoutLog {
   workoutDate: string;
   title: string;
   status: string;
+  timer: number;
   workoutExercises: WorkoutExercise[];
 }
 

@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dumbbell, Calendar, Eye, Loader2 } from "lucide-react";
+import { Dumbbell, Calendar, Eye, Loader2, Clock } from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
 import { useRef, useCallback, useMemo } from "react";
@@ -13,6 +13,7 @@ import {
   CompletedBadge,
   ProgressBadge,
 } from "@/components/badges/status-badges";
+import { secondsToTimer } from "@/helper/time-converter";
 
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
@@ -57,6 +58,8 @@ function WorkoutHistoryCard({
     );
   }, [workout.workoutExercises]);
 
+  console.log(workout);
+
   return (
     <Card
       key={workout.workoutLogId}
@@ -93,11 +96,11 @@ function WorkoutHistoryCard({
 
             {/* Date and Duration */}
             <div
-              className={`flex items-center gap-4 mt-2 text-sm ${
+              className={`flex flex-col items-start gap-2 mt-2 text-sm ${
                 isDark ? "text-slate-400" : "text-slate-500"
               } mb-3`}
             >
-              <div className="flex items-center gap-1">
+              <div className="flex  items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 {format(
                   parseISO(
@@ -106,10 +109,18 @@ function WorkoutHistoryCard({
                   "MMM d, yyyy"
                 )}
               </div>
+              <div className="flex items-center gap-4">
+                {workout.timer > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {secondsToTimer(workout.timer)}
+                  </div>
+                )}
 
-              <div className="flex items-center gap-1">
-                <Dumbbell className="h-4 w-4" />
-                {workout.workoutExercises.length} exercises
+                <div className="flex items-center gap-1">
+                  <Dumbbell className="h-4 w-4" />
+                  {workout.workoutExercises.length} exercises
+                </div>
               </div>
             </div>
 

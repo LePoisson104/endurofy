@@ -144,6 +144,14 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
+    pauseTimer: builder.mutation({
+      query: ({ workoutLogId, time }) => ({
+        url: `/api/v1/workout-logs/pause-timer/${workoutLogId}`,
+        method: "PATCH",
+        body: { time },
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
     updateWorkoutLogName: builder.mutation({
       query: ({ workoutLogId, title }) => ({
         url: `/api/v1/workout-logs/update-workout-log-name/${workoutLogId}`,
@@ -219,4 +227,5 @@ export const {
   useDeleteWorkoutSetWithCascadeMutation,
   useGetManualWorkoutLogWithPreviousQuery,
   useGetWeeklySetsQuery,
+  usePauseTimerMutation,
 } = workoutLogApiSlice;
