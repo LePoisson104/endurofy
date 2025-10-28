@@ -58,8 +58,6 @@ function WorkoutHistoryCard({
     );
   }, [workout.workoutExercises]);
 
-  console.log(workout);
-
   return (
     <Card
       key={workout.workoutLogId}

@@ -150,7 +150,6 @@ export default function Home() {
     const handleAppInstalled = () => {
       setDeferredPrompt(null);
       setIsInstallable(false);
-      console.log("PWA was installed");
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
