@@ -23,6 +23,7 @@ import {
 } from "@/api/workout-log/workout-log-api-slice";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { getProgressionColor } from "@/helper/get-progression-color";
 
 interface ExerciseTableProps {
   onSaveExerciseSets: (exercisePayload: ExercisePayload) => void;
@@ -543,7 +544,7 @@ export default function ExerciseTable({
                           )
                         ? "border-red-500"
                         : ""
-                    }`}
+                    } ${getProgressionColor(setData)}`}
                   />
                 </TableCell>
                 {exercise.laterality === "unilateral" ? (
@@ -586,7 +587,7 @@ export default function ExerciseTable({
                               )
                             ? "border-red-500"
                             : ""
-                        }`}
+                        } ${getProgressionColor(setData)}`}
                       />
                     </TableCell>
                     <TableCell
@@ -627,7 +628,7 @@ export default function ExerciseTable({
                               )
                             ? "border-red-500"
                             : ""
-                        }`}
+                        } ${getProgressionColor(setData)}`}
                       />
                     </TableCell>
                   </>
@@ -668,7 +669,7 @@ export default function ExerciseTable({
                             )
                           ? "border-red-500"
                           : ""
-                      }`}
+                      } ${getProgressionColor(setData)}`}
                     />
                   </TableCell>
                 )}

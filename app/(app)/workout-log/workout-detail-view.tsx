@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/responsive-menu";
 import { useUpdateWorkoutLogStatusMutation } from "@/api/workout-log/workout-log-api-slice";
 import { secondsToTimer } from "@/helper/time-converter";
+import { getProgressionColor } from "@/helper/get-progression-color";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
