@@ -24,6 +24,7 @@ import {
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getProgressionColor } from "@/helper/get-progression-color";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface ExerciseTableProps {
   onSaveExerciseSets: (exercisePayload: ExercisePayload) => void;
@@ -67,6 +68,7 @@ export default function ExerciseTable({
   isStartingWorkout,
   logType = "program",
 }: ExerciseTableProps) {
+  const isDark = useGetCurrentTheme();
   const [updatingSetId, setUpdatingSetId] = useState<string | null>(null);
   const [deletingSetId, setDeletingSetId] = useState<string | null>(null);
   const [successSetId, setSuccessSetId] = useState<string | null>(null);
@@ -544,7 +546,7 @@ export default function ExerciseTable({
                           )
                         ? "border-red-500"
                         : ""
-                    } ${getProgressionColor(setData)}`}
+                    } ${getProgressionColor(setData, isDark)}`}
                   />
                 </TableCell>
                 {exercise.laterality === "unilateral" ? (
@@ -587,7 +589,7 @@ export default function ExerciseTable({
                               )
                             ? "border-red-500"
                             : ""
-                        } ${getProgressionColor(setData)}`}
+                        } ${getProgressionColor(setData, isDark)}`}
                       />
                     </TableCell>
                     <TableCell
@@ -628,7 +630,7 @@ export default function ExerciseTable({
                               )
                             ? "border-red-500"
                             : ""
-                        } ${getProgressionColor(setData)}`}
+                        } ${getProgressionColor(setData, isDark)}`}
                       />
                     </TableCell>
                   </>
@@ -669,7 +671,7 @@ export default function ExerciseTable({
                             )
                           ? "border-red-500"
                           : ""
-                      } ${getProgressionColor(setData)}`}
+                      } ${getProgressionColor(setData, isDark)}`}
                     />
                   </TableCell>
                 )}

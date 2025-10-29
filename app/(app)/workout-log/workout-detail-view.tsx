@@ -51,7 +51,10 @@ import {
 } from "@/components/ui/responsive-menu";
 import { useUpdateWorkoutLogStatusMutation } from "@/api/workout-log/workout-log-api-slice";
 import { secondsToTimer } from "@/helper/time-converter";
-import { getProgressionColor } from "@/helper/get-progression-color";
+import {
+  getProgressionColor,
+  getProgressionTextColor,
+} from "@/helper/get-progression-color";
 import type { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 
 interface WorkoutDetailModalProps {
@@ -782,6 +785,18 @@ export function WorkoutDetailView({
                         const isModified = setId
                           ? modifiedSets.has(setId) && hasActualChanges(setId)
                           : false;
+                        const setData = {
+                          isLogged: true,
+                          weight: currentSet.weight || 0,
+                          leftReps: currentSet.repsLeft || 0,
+                          rightReps: currentSet.repsRight || 0,
+                          reps:
+                            (currentSet.repsLeft + currentSet.repsRight) / 2 ||
+                            0,
+                          previousWeight: set.previousWeight || 0,
+                          previousLeftReps: set.previousLeftReps || 0,
+                          previousRightReps: set.previousRightReps || 0,
+                        };
 
                         const volume =
                           exercise.laterality === "unilateral"
@@ -877,10 +892,20 @@ export function WorkoutDetailView({
                                         ? "w-16"
                                         : "w-18"
                                       : "w-22"
-                                  } mx-auto text-center`}
+                                  } mx-auto text-center ${getProgressionColor(
+                                    setData,
+                                    isDark
+                                  )}`}
                                 />
                               ) : (
-                                <div className={`${isMobile ? "text-sm" : ""}`}>
+                                <div
+                                  className={`${
+                                    isMobile ? "text-sm" : ""
+                                  } ${getProgressionTextColor(
+                                    setData,
+                                    isDark
+                                  )}`}
+                                >
                                   {currentSet.weight || 0}
                                 </div>
                               )}
@@ -911,11 +936,19 @@ export function WorkoutDetailView({
                                       }
                                       className={`${
                                         isMobile ? "w-16" : "w-22"
-                                      } mx-auto text-center`}
+                                      } mx-auto text-center ${getProgressionColor(
+                                        setData,
+                                        isDark
+                                      )}`}
                                     />
                                   ) : (
                                     <div
-                                      className={`${isMobile ? "text-sm" : ""}`}
+                                      className={`${
+                                        isMobile ? "text-sm" : ""
+                                      } ${getProgressionTextColor(
+                                        setData,
+                                        isDark
+                                      )}`}
                                     >
                                       {currentSet.repsLeft || 0}
                                     </div>
@@ -945,11 +978,19 @@ export function WorkoutDetailView({
                                       }
                                       className={`${
                                         isMobile ? "w-16" : "w-22"
-                                      } mx-auto text-center`}
+                                      } mx-auto text-center ${getProgressionColor(
+                                        setData,
+                                        isDark
+                                      )}`}
                                     />
                                   ) : (
                                     <div
-                                      className={`${isMobile ? "text-sm" : ""}`}
+                                      className={`${
+                                        isMobile ? "text-sm" : ""
+                                      } ${getProgressionTextColor(
+                                        setData,
+                                        isDark
+                                      )}`}
                                     >
                                       {currentSet.repsRight || 0}
                                     </div>
@@ -981,11 +1022,19 @@ export function WorkoutDetailView({
                                     }
                                     className={`${
                                       isMobile ? "w-18" : "w-22"
-                                    } mx-auto text-center`}
+                                    } mx-auto text-center ${getProgressionColor(
+                                      setData,
+                                      isDark
+                                    )}`}
                                   />
                                 ) : (
                                   <div
-                                    className={`${isMobile ? "text-sm" : ""}`}
+                                    className={`${
+                                      isMobile ? "text-sm" : ""
+                                    } ${getProgressionTextColor(
+                                      setData,
+                                      isDark
+                                    )}`}
                                   >
                                     {currentSet.repsLeft || 0}
                                   </div>
