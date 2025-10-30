@@ -44,6 +44,7 @@ export function WorkoutTimers({
   const [createManualWorkoutLog, { isLoading: isCreatingWorkoutLog }] =
     useCreateManualWorkoutLogMutation();
   const [pauseTimer, { isLoading: isPausingTimer }] = usePauseTimerMutation();
+  console.log("workoutLog", workoutLog);
 
   // Timer persistence key based on workout log date and program
   const TIMER_STORAGE_KEY = `workout-timer-${format(
@@ -55,11 +56,18 @@ export function WorkoutTimers({
   const isInitialMount = useRef(true);
   const prevDateRef = useRef(format(selectedDate, "yyyy-MM-dd"));
   const prevProgramRef = useRef(programId);
-  const prevWorkoutLogIdRef = useRef<string | null>(null);
+  // CRITICAL: This stores the workout ID that is CURRENTLY RUNNING
+  // It's set when timer starts and cleared when timer stops
+  // This prevents it from being overwritten when date changes
+  const runningWorkoutLogIdRef = useRef<string | null>(null);
   // Force stop timer synchronously when switching dates
   const forceStopTimerRef = useRef(false);
   // Track which date the timer is currently on (source of truth)
   const currentDateRef = useRef(format(selectedDate, "yyyy-MM-dd"));
+  // Track if we've loaded from localStorage yet to prevent premature workoutLog loading
+  const hasLoadedFromStorage = useRef(false);
+  // Track which date we've loaded workout data for to prevent double loading
+  const loadedWorkoutDateRef = useRef<string | null>(null);
 
   // Workout Session Timer State
   const [sessionTimerRunning, setSessionTimerRunning] = useState(false);
@@ -85,27 +93,28 @@ export function WorkoutTimers({
     setIsStartingWorkout(true); // Disable inputs by default
   }, [setIsStartingWorkout]);
 
-  // Track current workoutLogId for saving timer when date changes
+  // Track the running workout's ID - set when timer starts, cleared when it stops
   useEffect(() => {
-    if (workoutLog?.workoutLogId) {
-      prevWorkoutLogIdRef.current = workoutLog.workoutLogId;
+    if (sessionTimerRunning && workoutLog?.workoutLogId) {
+      // Lock in the workout ID when timer is running
+      // This won't change even if workoutLog prop changes
+      if (!runningWorkoutLogIdRef.current) {
+        runningWorkoutLogIdRef.current = workoutLog.workoutLogId;
+      }
+    } else if (!sessionTimerRunning) {
+      // Clear it when timer stops
+      runningWorkoutLogIdRef.current = null;
     }
-  }, [workoutLog?.workoutLogId]);
+  }, [sessionTimerRunning, workoutLog?.workoutLogId]);
 
-  // Load timer state from localStorage on mount or from workoutLog
+  // Load timer from localStorage on mount (for page refresh with running timer)
   useEffect(() => {
-    // Don't reload timer if it's currently running (prevents stopping timer when logging sets)
-    if (sessionTimerRunning || hasWorkoutStarted) {
-      return;
-    }
-
-    // FIRST: Check localStorage for running timer (takes priority on page refresh)
     const savedTimerState = localStorage.getItem(TIMER_STORAGE_KEY);
     if (savedTimerState) {
       try {
         const parsedState = JSON.parse(savedTimerState);
 
-        // If timer was running, restore it and return early
+        // If timer was running, restore it
         if (parsedState.sessionStartTime && parsedState.sessionTimerRunning) {
           const now = Date.now();
           const elapsed = Math.floor(
@@ -119,7 +128,6 @@ export function WorkoutTimers({
 
           // Restore rest timer
           if (parsedState.restTimerRunning && parsedState.restTimerEndTime) {
-            const now = Date.now();
             const remaining = Math.max(
               0,
               Math.floor((parsedState.restTimerEndTime - now) / 1000)
@@ -129,7 +137,6 @@ export function WorkoutTimers({
               setRestTimeRemaining(remaining);
               setRestTimerRunning(true);
               setRestDuration(parsedState.restDuration || 60);
-              // Restore the end time reference for visibility change handler
               restTimerEndTimeRef.current = parsedState.restTimerEndTime;
               prevRestTimerRunning.current = true;
             } else {
@@ -145,38 +152,66 @@ export function WorkoutTimers({
             restTimerEndTimeRef.current = null;
             prevRestTimerRunning.current = false;
           }
-
-          return; // Don't check workoutLog if timer was running
         }
       } catch (error) {
         console.error("Failed to parse saved timer state:", error);
       }
     }
 
-    // SECOND: If no running timer in localStorage, check workoutLog
-    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
-    let isWorkoutLogForSelectedDate = false;
+    // Mark that we've checked localStorage
+    hasLoadedFromStorage.current = true;
+  }, [TIMER_STORAGE_KEY, setIsStartingWorkout]);
 
-    if (workoutLog?.workoutDate) {
-      // Extract just the date part from workoutLog.workoutDate (in case it has time)
-      const workoutLogDateStr = workoutLog.workoutDate.split("T")[0];
-      isWorkoutLogForSelectedDate = workoutLogDateStr === selectedDateStr;
+  // Load timer from workoutLog when it changes OR reset to 0 if no workout log
+  useEffect(() => {
+    // CRITICAL: Wait for localStorage to load first to avoid overwriting running timer
+    if (!hasLoadedFromStorage.current) {
+      return;
     }
 
-    // If workoutLog exists for selected date and has a timer value, use that
+    // Don't override running timer (use synchronous ref to avoid race condition)
     if (
-      workoutLog &&
-      isWorkoutLogForSelectedDate &&
-      workoutLog.timer !== undefined &&
-      workoutLog.timer > 0
+      (sessionTimerRunning || hasWorkoutStarted) &&
+      !forceStopTimerRef.current
     ) {
-      setSessionElapsedTime(workoutLog.timer);
-      setSessionStartTime(Date.now() - workoutLog.timer * 1000);
-      setSessionTimerRunning(false);
-      setHasWorkoutStarted(false);
-      setIsStartingWorkout(true);
+      return;
     }
-  }, [TIMER_STORAGE_KEY, setIsStartingWorkout, workoutLog, selectedDate]);
+
+    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+
+    // If no workoutLog, don't do anything yet - wait for API to return data
+    if (!workoutLog?.workoutDate) {
+      return;
+    }
+
+    const workoutLogDateStr = workoutLog.workoutDate.split("T")[0];
+
+    // CRITICAL: Only load if workoutLog date matches selected date
+    if (workoutLogDateStr === selectedDateStr) {
+      // Check if we've already loaded this exact workout log to prevent double loading
+      if (loadedWorkoutDateRef.current === workoutLog.workoutLogId) {
+        return; // Already loaded this specific workout log
+      }
+
+      if (workoutLog.timer !== undefined && workoutLog.timer > 0) {
+        setSessionElapsedTime(workoutLog.timer);
+        setSessionStartTime(Date.now() - workoutLog.timer * 1000);
+      } else {
+        setSessionElapsedTime(0);
+        setSessionStartTime(null);
+      }
+      setIsStartingWorkout(true);
+      // Mark this specific workoutLogId as loaded
+      loadedWorkoutDateRef.current = workoutLog.workoutLogId;
+    }
+    // If dates don't match, don't do anything - wait for correct data
+  }, [
+    workoutLog,
+    selectedDate,
+    sessionTimerRunning,
+    hasWorkoutStarted,
+    setIsStartingWorkout,
+  ]);
 
   // Save timer state to localStorage only when session timer is running
   useEffect(() => {
@@ -218,6 +253,7 @@ export function WorkoutTimers({
           setSessionTimerRunning(false);
           setHasWorkoutStarted(false);
           setIsStartingWorkout(true);
+          runningWorkoutLogIdRef.current = null; // Clear running workout ID
           toast.success(
             `Workout completed! Duration: ${formatTime(sessionElapsedTime)}`
           );
@@ -230,6 +266,7 @@ export function WorkoutTimers({
           setSessionTimerRunning(false);
           setHasWorkoutStarted(false);
           setIsStartingWorkout(true);
+          runningWorkoutLogIdRef.current = null; // Clear running workout ID
           toast.success(
             `Workout completed! Duration: ${formatTime(sessionElapsedTime)}`
           );
@@ -245,24 +282,32 @@ export function WorkoutTimers({
     pauseTimer,
   ]);
 
-  // Session Timer Effect
+  // Session Timer Effect - Calculate from start time for accuracy across navigation
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
-    if (sessionTimerRunning && !forceStopTimerRef.current) {
+    if (
+      sessionTimerRunning &&
+      !forceStopTimerRef.current &&
+      sessionStartTime !== null
+    ) {
       interval = setInterval(() => {
         // Check force stop flag on every tick - prevents incrementing during date switch
         if (forceStopTimerRef.current) {
           return;
         }
-        setSessionElapsedTime((prev) => prev + 1);
+        // CRITICAL: Calculate from start timestamp instead of incrementing
+        // This ensures timer stays accurate even when component unmounts/remounts
+        const now = Date.now();
+        const elapsed = Math.floor((now - sessionStartTime) / 1000);
+        setSessionElapsedTime(elapsed);
       }, 1000);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [sessionTimerRunning]);
+  }, [sessionTimerRunning, sessionStartTime]);
 
   // Handle visibility change - recalculate elapsed time when user returns to app
   // This ensures timer stays accurate even when phone screen is off
@@ -403,7 +448,8 @@ export function WorkoutTimers({
       // STEP 2: Capture current timer state BEFORE any state changes
       const wasTimerRunning = sessionTimerRunning;
       const currentElapsedTime = sessionElapsedTime;
-      const currentWorkoutLogId = prevWorkoutLogIdRef.current;
+      // CRITICAL: Use the locked running workout ID, not the current workoutLog prop
+      const currentWorkoutLogId = runningWorkoutLogIdRef.current;
 
       // STEP 3: IMMEDIATELY stop the timer (synchronous state updates)
       setSessionTimerRunning(false);
@@ -415,31 +461,43 @@ export function WorkoutTimers({
       setRestTimeRemaining(restDuration);
       setShowRestTimerModal(false);
 
-      // STEP 5: Reset timer display to zero immediately
+      // STEP 5: Reset timer display, clear running workout ID and loaded date ref
       setSessionElapsedTime(0);
       setSessionStartTime(null);
+      runningWorkoutLogIdRef.current = null;
+      loadedWorkoutDateRef.current = null; // Allow new date to load
 
       // STEP 6: Save timer to database in background if it was running AND has workoutLogId
-      if (wasTimerRunning && currentWorkoutLogId && currentElapsedTime > 0) {
-        pauseTimer({
-          workoutLogId: currentWorkoutLogId,
-          time: currentElapsedTime,
-        })
-          .unwrap()
-          .then(() => {
-            toast.info(
-              `Workout paused. Timer saved: ${formatTime(currentElapsedTime)}`
-            );
+      if (wasTimerRunning && currentElapsedTime > 0) {
+        if (currentWorkoutLogId) {
+          pauseTimer({
+            workoutLogId: currentWorkoutLogId,
+            time: currentElapsedTime,
           })
-          .catch((error: any) => {
-            console.error("Failed to save timer when switching dates:", error);
-            toast.error("Failed to save timer when switching dates");
-          });
-      } else if (wasTimerRunning && !currentWorkoutLogId) {
-        // Timer was running but no workout log exists yet
-        console.warn(
-          "Timer was running but no workout log ID available - timer data lost"
-        );
+            .unwrap()
+            .then(() => {
+              toast.info(
+                `Workout paused and saved: ${formatTime(currentElapsedTime)}`
+              );
+            })
+            .catch((error: any) => {
+              console.error(
+                "Failed to save timer when switching dates:",
+                error
+              );
+              toast.error("Failed to save timer");
+            });
+        } else {
+          // Timer was running but no workout log exists yet - just notify user
+          toast.info(
+            `Timer paused: ${formatTime(
+              currentElapsedTime
+            )} (start workout to save)`
+          );
+          console.warn(
+            "Timer was running but no workout log ID available - timer not saved"
+          );
+        }
       }
 
       // STEP 7: Clear localStorage for BOTH old and new dates
@@ -451,42 +509,21 @@ export function WorkoutTimers({
       // STEP 8: Update refs for next date change
       prevDateRef.current = currentDate;
       prevProgramRef.current = currentProgram;
-    }
-  }, [selectedDate, programId, restDuration, setIsStartingWorkout, pauseTimer]);
 
-  // EFFECT 2: Load new date's timer data from database (runs when workoutLog updates)
-  useEffect(() => {
-    // Skip if no workoutLog
-    if (!workoutLog?.workoutDate) {
-      // Reset force stop flag after a brief delay
+      // STEP 9: Reset force stop flag after a brief delay to allow workoutLog effect to load new data
       setTimeout(() => {
         forceStopTimerRef.current = false;
       }, 100);
-      return;
     }
+  }, [selectedDate, programId, restDuration, setIsStartingWorkout, pauseTimer]);
 
-    // Check if workoutLog matches the CURRENT date we're on (source of truth)
-    const workoutLogDateStr = workoutLog.workoutDate.split("T")[0];
-    const isWorkoutLogForCurrentDate =
-      workoutLogDateStr === currentDateRef.current;
-
-    // CRITICAL: Only load if workoutLog matches the current date
-    // This prevents loading stale workoutLog data from previous date
-    if (
-      isWorkoutLogForCurrentDate &&
-      workoutLog.timer !== undefined &&
-      workoutLog.timer > 0
-    ) {
-      // Load the saved timer value (but keep it paused)
-      setSessionElapsedTime(workoutLog.timer);
-      setSessionStartTime(Date.now() - workoutLog.timer * 1000);
-      // Timer remains stopped - user must manually click Resume
+  // Reset force stop flag when workoutLog loads (cleanup only)
+  useEffect(() => {
+    if (workoutLog?.workoutDate) {
+      setTimeout(() => {
+        forceStopTimerRef.current = false;
+      }, 100);
     }
-
-    // Reset force stop flag after loading timer data
-    setTimeout(() => {
-      forceStopTimerRef.current = false;
-    }, 100);
   }, [workoutLog]);
 
   // Keep cursor at the end of input
@@ -532,7 +569,7 @@ export function WorkoutTimers({
         // CRITICAL: Capture the workoutLogId immediately after creation
         // This ensures we can save the timer even before RTK Query refetches
         if (result?.workoutLogId) {
-          prevWorkoutLogIdRef.current = result.workoutLogId;
+          runningWorkoutLogIdRef.current = result.workoutLogId;
         }
       } catch (error: any) {
         if (error?.data?.message) {
@@ -582,6 +619,8 @@ export function WorkoutTimers({
     setSessionTimerRunning(false);
     setHasWorkoutStarted(false); // Reset workout started state
     setIsStartingWorkout(true); // Disable inputs when paused
+    // Clear the running workout ID
+    runningWorkoutLogIdRef.current = null;
   };
 
   const handleStartRestTimer = () => {
@@ -711,6 +750,10 @@ export function WorkoutTimers({
                       ? "bg-blue-500 hover:bg-blue-600"
                       : "bg-blue-400 hover:bg-blue-500"
                   }`}
+                  disabled={
+                    isCreatingWorkoutLog ||
+                    (workoutLog && sessionElapsedTime === 0)
+                  }
                 >
                   {isCreatingWorkoutLog ? (
                     <Loader2 className="h-4 w-4 animate-spin text-white" />
