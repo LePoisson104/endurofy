@@ -179,6 +179,17 @@ export function WorkoutTimers({
 
     const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
 
+    // If loadedWorkoutDateRef is null, we're switching dates - reset timer to 0 immediately
+    // This prevents showing stale timer from previous date while waiting for new data
+    if (
+      loadedWorkoutDateRef.current === null &&
+      !sessionTimerRunning &&
+      !hasWorkoutStarted
+    ) {
+      setSessionElapsedTime(0);
+      setSessionStartTime(null);
+    }
+
     // If no workoutLog, don't do anything yet - wait for API to return data
     if (!workoutLog?.workoutDate) {
       return;
@@ -461,9 +472,9 @@ export function WorkoutTimers({
       setRestTimeRemaining(restDuration);
       setShowRestTimerModal(false);
 
-      // STEP 5: Reset timer display, clear running workout ID and loaded date ref
-      setSessionElapsedTime(0);
-      setSessionStartTime(null);
+      // STEP 5: Clear running workout ID and loaded date ref to allow new date to load
+      // NOTE: We don't reset sessionElapsedTime to 0 here - let the workoutLog effect
+      // set the correct timer value when new data arrives to prevent showing 0 briefly
       runningWorkoutLogIdRef.current = null;
       loadedWorkoutDateRef.current = null; // Allow new date to load
 

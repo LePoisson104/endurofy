@@ -494,7 +494,9 @@ export default function ExerciseTable({
                           setData
                         );
                       }}
-                      disabled={setData.isLogged || isStartingWorkout}
+                      disabled={
+                        setData.isLogged || (isStartingWorkout && !isEditing)
+                      }
                       className="h-4 w-4"
                     />
                   </TableCell>
@@ -528,7 +530,8 @@ export default function ExerciseTable({
                       )
                     }
                     disabled={
-                      (setData.isLogged && !isEditing) || isStartingWorkout
+                      (setData.isLogged && !isEditing) ||
+                      (isStartingWorkout && !isEditing)
                     }
                     className={`${
                       exercise.laterality === "unilateral"
@@ -575,7 +578,8 @@ export default function ExerciseTable({
                           )
                         }
                         disabled={
-                          (setData.isLogged && !isEditing) || isStartingWorkout
+                          (setData.isLogged && !isEditing) ||
+                          (isStartingWorkout && !isEditing)
                         }
                         className={`${
                           isMobile ? "w-16" : "w-20"
@@ -616,7 +620,8 @@ export default function ExerciseTable({
                           )
                         }
                         disabled={
-                          (setData.isLogged && !isEditing) || isStartingWorkout
+                          (setData.isLogged && !isEditing) ||
+                          (isStartingWorkout && !isEditing)
                         }
                         className={`${
                           isMobile ? "w-16" : "w-20"
@@ -659,7 +664,8 @@ export default function ExerciseTable({
                         )
                       }
                       disabled={
-                        (setData.isLogged && !isEditing) || isStartingWorkout
+                        (setData.isLogged && !isEditing) ||
+                        (isStartingWorkout && !isEditing)
                       }
                       className={`w-20 mx-auto text-center ${
                         setData.isLogged
