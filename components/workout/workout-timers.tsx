@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Play, Pause, Timer, RotateCcw, Loader2 } from "lucide-react";
+import { Play, Pause, Timer, Loader2, Clock } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
@@ -14,6 +12,9 @@ import { selectCurrentUser } from "@/api/auth/auth-slice";
 import { useCreateManualWorkoutLogMutation } from "@/api/workout-log/workout-log-api-slice";
 import { usePauseTimerMutation } from "@/api/workout-log/workout-log-api-slice";
 import { WorkoutLog } from "@/interfaces/workout-log-interfaces";
+import { formatTime } from "./timer-helper";
+import { RestTimer } from "./rest-timer";
+import { flattenBy } from "@tanstack/react-table";
 
 interface WorkoutTimersProps {
   selectedDate: Date;
@@ -41,21 +42,20 @@ export function WorkoutTimers({
   const isMobile = useIsMobile();
   const isDark = useGetCurrentTheme();
   const user = useSelector(selectCurrentUser);
+
   const [createManualWorkoutLog, { isLoading: isCreatingWorkoutLog }] =
     useCreateManualWorkoutLogMutation();
   const [pauseTimer, { isLoading: isPausingTimer }] = usePauseTimerMutation();
-  console.log("workoutLog", workoutLog);
 
-  // Timer persistence key based on workout log date and program
   const TIMER_STORAGE_KEY = `workout-timer-${format(
     selectedDate,
     "yyyy-MM-dd"
   )}-${programId}`;
 
-  // Track if this is the initial mount
   const isInitialMount = useRef(true);
   const prevDateRef = useRef(format(selectedDate, "yyyy-MM-dd"));
   const prevProgramRef = useRef(programId);
+
   // CRITICAL: This stores the workout ID that is CURRENTLY RUNNING
   // It's set when timer starts and cleared when timer stops
   // This prevents it from being overwritten when date changes
@@ -75,23 +75,104 @@ export function WorkoutTimers({
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const [hasWorkoutStarted, setHasWorkoutStarted] = useState(false);
 
-  // Rest Timer State
-  const [restTimerRunning, setRestTimerRunning] = useState(false);
-  const [restTimeRemaining, setRestTimeRemaining] = useState(60);
-  const [restDuration, setRestDuration] = useState(60);
-  const [showRestTimerModal, setShowRestTimerModal] = useState(false);
-  const [isEditingRestTime, setIsEditingRestTime] = useState(false);
-  const [restTimeInput, setRestTimeInput] = useState("");
-  const restTimeInputRef = useRef<HTMLInputElement>(null);
-  const hasShownRestCompleteToast = useRef(false);
-  // Rest timer end time for visibility change handler
-  const restTimerEndTimeRef = useRef<number | null>(null);
-  const prevRestTimerRunning = useRef(false);
+  const REST_TIMER_STORAGE_KEY = `rest-timer-${format(
+    selectedDate,
+    "yyyy-MM-dd"
+  )}-${programId}`;
 
-  // Initialize isStartingWorkout on mount
-  useEffect(() => {
-    setIsStartingWorkout(true); // Disable inputs by default
-  }, [setIsStartingWorkout]);
+  // Rest Timer State - Initialize from localStorage to prevent flash
+  const [showRestTimerModal, setShowRestTimerModal] = useState(false);
+  const [restDuration, setRestDuration] = useState(() => {
+    if (typeof window === "undefined") return 60;
+
+    try {
+      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
+      if (savedRestTimerState) {
+        const parsedState = JSON.parse(savedRestTimerState);
+        return parsedState.restDuration || 60;
+      }
+    } catch (error) {
+      console.error("Failed to parse saved rest timer state:", error);
+    }
+    return 60;
+  });
+
+  const [restTimeRemaining, setRestTimeRemaining] = useState(() => {
+    if (typeof window === "undefined") return 60;
+
+    try {
+      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
+      if (savedRestTimerState) {
+        const parsedState = JSON.parse(savedRestTimerState);
+
+        // If rest timer was running, calculate current remaining time
+        if (parsedState.restStartTime && parsedState.restTimerRunning) {
+          const now = Date.now();
+          const elapsed = Math.floor((now - parsedState.restStartTime) / 1000);
+          const remaining = parsedState.restDuration - elapsed;
+
+          if (remaining > 0) {
+            return remaining;
+          } else {
+            return parsedState.restDuration;
+          }
+        }
+        return parsedState.restTimeRemaining || parsedState.restDuration || 60;
+      }
+    } catch (error) {
+      console.error("Failed to parse saved rest timer state:", error);
+    }
+    return 60;
+  });
+
+  const [restTimerRunning, setRestTimerRunning] = useState(() => {
+    if (typeof window === "undefined") return false;
+
+    try {
+      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
+      if (savedRestTimerState) {
+        const parsedState = JSON.parse(savedRestTimerState);
+
+        // If rest timer was running, check if time is still remaining
+        if (parsedState.restStartTime && parsedState.restTimerRunning) {
+          const now = Date.now();
+          const elapsed = Math.floor((now - parsedState.restStartTime) / 1000);
+          const remaining = parsedState.restDuration - elapsed;
+          return remaining > 0;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to parse saved rest timer state:", error);
+    }
+    return false;
+  });
+
+  const [restStartTime, setRestStartTime] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
+      if (savedRestTimerState) {
+        const parsedState = JSON.parse(savedRestTimerState);
+
+        // If rest timer was running and time is still remaining
+        if (parsedState.restStartTime && parsedState.restTimerRunning) {
+          const now = Date.now();
+          const elapsed = Math.floor((now - parsedState.restStartTime) / 1000);
+          const remaining = parsedState.restDuration - elapsed;
+
+          if (remaining > 0) {
+            return parsedState.restStartTime;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to parse saved rest timer state:", error);
+    }
+    return null;
+  });
+
+  const hasShownRestCompletionToast = useRef(false);
 
   // Track the running workout's ID - set when timer starts, cleared when it stops
   useEffect(() => {
@@ -125,33 +206,6 @@ export function WorkoutTimers({
           setSessionTimerRunning(true);
           setHasWorkoutStarted(parsedState.hasWorkoutStarted || true);
           setIsStartingWorkout(false);
-
-          // Restore rest timer
-          if (parsedState.restTimerRunning && parsedState.restTimerEndTime) {
-            const remaining = Math.max(
-              0,
-              Math.floor((parsedState.restTimerEndTime - now) / 1000)
-            );
-
-            if (remaining > 0) {
-              setRestTimeRemaining(remaining);
-              setRestTimerRunning(true);
-              setRestDuration(parsedState.restDuration || 60);
-              restTimerEndTimeRef.current = parsedState.restTimerEndTime;
-              prevRestTimerRunning.current = true;
-            } else {
-              setRestTimeRemaining(parsedState.restDuration || 60);
-              setRestTimerRunning(false);
-              setRestDuration(parsedState.restDuration || 60);
-              restTimerEndTimeRef.current = null;
-              prevRestTimerRunning.current = false;
-            }
-          } else {
-            setRestDuration(parsedState.restDuration || 60);
-            setRestTimeRemaining(parsedState.restDuration || 60);
-            restTimerEndTimeRef.current = null;
-            prevRestTimerRunning.current = false;
-          }
         }
       } catch (error) {
         console.error("Failed to parse saved timer state:", error);
@@ -161,6 +215,38 @@ export function WorkoutTimers({
     // Mark that we've checked localStorage
     hasLoadedFromStorage.current = true;
   }, [TIMER_STORAGE_KEY, setIsStartingWorkout]);
+
+  // Show completion toast if timer completed while away (only once on mount)
+  useEffect(() => {
+    if (!hasShownRestCompletionToast.current) {
+      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
+      if (savedRestTimerState) {
+        try {
+          const parsedState = JSON.parse(savedRestTimerState);
+
+          // Check if timer was running and has now completed
+          if (parsedState.restStartTime && parsedState.restTimerRunning) {
+            const now = Date.now();
+            const elapsed = Math.floor(
+              (now - parsedState.restStartTime) / 1000
+            );
+            const remaining = parsedState.restDuration - elapsed;
+
+            if (remaining <= 0) {
+              // Timer completed while away - show toast
+              toast.success("Rest time is up! Ready for your next set?", {
+                duration: 4000,
+              });
+              hasShownRestCompletionToast.current = true;
+              localStorage.removeItem(REST_TIMER_STORAGE_KEY);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to check rest timer completion:", error);
+        }
+      }
+    }
+  }, [REST_TIMER_STORAGE_KEY]);
 
   // Load timer from workoutLog when it changes OR reset to 0 if no workout log
   useEffect(() => {
@@ -232,10 +318,6 @@ export function WorkoutTimers({
         sessionTimerRunning,
         sessionElapsedTime,
         sessionStartTime,
-        restTimerRunning,
-        restTimeRemaining,
-        restDuration,
-        restTimerEndTime: restTimerEndTimeRef.current,
       };
 
       localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
@@ -245,10 +327,28 @@ export function WorkoutTimers({
     sessionTimerRunning,
     sessionElapsedTime,
     sessionStartTime,
-    restTimerRunning,
-    restTimeRemaining,
-    restDuration,
     TIMER_STORAGE_KEY,
+  ]);
+
+  // Save rest timer state to localStorage
+  useEffect(() => {
+    const restTimerState = {
+      restDuration,
+      restTimeRemaining,
+      restTimerRunning,
+      restStartTime,
+    };
+
+    localStorage.setItem(
+      REST_TIMER_STORAGE_KEY,
+      JSON.stringify(restTimerState)
+    );
+  }, [
+    restDuration,
+    restTimeRemaining,
+    restTimerRunning,
+    restStartTime,
+    REST_TIMER_STORAGE_KEY,
   ]);
 
   // Stop timer and save to database when workout is completed
@@ -344,93 +444,6 @@ export function WorkoutTimers({
     };
   }, [sessionTimerRunning, sessionStartTime]);
 
-  // Rest Timer Effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (restTimerRunning && restTimeRemaining > 0) {
-      // Reset toast flag when timer starts
-      hasShownRestCompleteToast.current = false;
-
-      interval = setInterval(() => {
-        setRestTimeRemaining((prev) => {
-          if (prev <= 1) {
-            setRestTimerRunning(false);
-            // Only show toast if we haven't shown it yet
-            if (!hasShownRestCompleteToast.current) {
-              hasShownRestCompleteToast.current = true;
-              toast.success("Rest time is up! Ready for next set?");
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [restTimerRunning, restTimeRemaining]);
-
-  // Handle visibility change for rest timer - recalculate remaining time
-  // Set rest timer end time when timer starts
-  useEffect(() => {
-    // Only set end time when timer STARTS (transitions from false to true)
-    if (
-      restTimerRunning &&
-      !prevRestTimerRunning.current &&
-      restTimeRemaining > 0
-    ) {
-      // Timer just started - set the end time
-      restTimerEndTimeRef.current = Date.now() + restTimeRemaining * 1000;
-    } else if (!restTimerRunning) {
-      // Timer stopped - clear the end time
-      restTimerEndTimeRef.current = null;
-    }
-
-    // Update the previous state
-    prevRestTimerRunning.current = restTimerRunning;
-  }, [restTimerRunning, restTimeRemaining]);
-
-  useEffect(() => {
-    const handleRestVisibilityChange = () => {
-      if (
-        !document.hidden &&
-        restTimerRunning &&
-        restTimerEndTimeRef.current !== null
-      ) {
-        // Recalculate remaining time based on end timestamp
-        const now = Date.now();
-        const remaining = Math.max(
-          0,
-          Math.floor((restTimerEndTimeRef.current - now) / 1000)
-        );
-
-        if (remaining === 0) {
-          setRestTimerRunning(false);
-          setRestTimeRemaining(0);
-          // Show toast if rest time completed while phone was off
-          if (!hasShownRestCompleteToast.current) {
-            hasShownRestCompleteToast.current = true;
-            toast.success("Rest time is up! Ready for next set?");
-          }
-        } else {
-          setRestTimeRemaining(remaining);
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleRestVisibilityChange);
-
-    return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        handleRestVisibilityChange
-      );
-    };
-  }, [restTimerRunning]);
-
   // EFFECT 1: Stop timer when date changes (runs ONLY on date change)
   useEffect(() => {
     const currentDate = format(selectedDate, "yyyy-MM-dd");
@@ -466,11 +479,6 @@ export function WorkoutTimers({
       setSessionTimerRunning(false);
       setHasWorkoutStarted(false);
       setIsStartingWorkout(true);
-
-      // STEP 4: Reset rest timer immediately
-      setRestTimerRunning(false);
-      setRestTimeRemaining(restDuration);
-      setShowRestTimerModal(false);
 
       // STEP 5: Clear running workout ID and loaded date ref to allow new date to load
       // NOTE: We don't reset sessionElapsedTime to 0 here - let the workoutLog effect
@@ -517,6 +525,18 @@ export function WorkoutTimers({
       localStorage.removeItem(oldKey);
       localStorage.removeItem(newKey); // Prevent loading stale data from previous session
 
+      // STEP 7b: Clear rest timer localStorage for BOTH old and new dates
+      const oldRestKey = `rest-timer-${prevDateRef.current}-${prevProgramRef.current}`;
+      const newRestKey = `rest-timer-${currentDate}-${currentProgram}`;
+      localStorage.removeItem(oldRestKey);
+      localStorage.removeItem(newRestKey);
+
+      // STEP 7c: Reset rest timer state
+      setRestTimerRunning(false);
+      setRestTimeRemaining(restDuration);
+      setRestStartTime(null);
+      hasShownRestCompletionToast.current = false; // Allow toast to show again for new date
+
       // STEP 8: Update refs for next date change
       prevDateRef.current = currentDate;
       prevProgramRef.current = currentProgram;
@@ -526,7 +546,7 @@ export function WorkoutTimers({
         forceStopTimerRef.current = false;
       }, 100);
     }
-  }, [selectedDate, programId, restDuration, setIsStartingWorkout, pauseTimer]);
+  }, [selectedDate, programId, setIsStartingWorkout, pauseTimer]);
 
   // Reset force stop flag when workoutLog loads (cleanup only)
   useEffect(() => {
@@ -536,30 +556,6 @@ export function WorkoutTimers({
       }, 100);
     }
   }, [workoutLog]);
-
-  // Keep cursor at the end of input
-  useEffect(() => {
-    if (isEditingRestTime && restTimeInputRef.current) {
-      const input = restTimeInputRef.current;
-      input.setSelectionRange(input.value.length, input.value.length);
-    }
-  }, [restTimeInput, isEditingRestTime]);
-
-  // Timer Helper Functions
-  const formatTime = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hrs > 0) {
-      return `${hrs.toString().padStart(2, "0")}:${mins
-        .toString()
-        .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    }
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
 
   const handleStartSessionTimer = async () => {
     // Only create workout log if it doesn't exist yet
@@ -634,317 +630,117 @@ export function WorkoutTimers({
     runningWorkoutLogIdRef.current = null;
   };
 
-  const handleStartRestTimer = () => {
-    setRestTimeRemaining(restDuration);
-    setRestTimerRunning(true);
-  };
-
-  const handlePauseRestTimer = () => {
-    setRestTimerRunning(false);
-  };
-
-  const handleResumeRestTimer = () => {
-    setRestTimerRunning(true);
-  };
-
-  const handleResetRestTimer = () => {
-    setRestTimerRunning(false);
-    setRestTimeRemaining(restDuration);
-  };
-
-  const handleEditRestTime = () => {
-    if (!restTimerRunning) {
-      setIsEditingRestTime(true);
-      // Start with empty input for calculator-style entry
-      setRestTimeInput("00:00");
-    }
-  };
-
-  const handleRestTimeInputChange = (value: string) => {
-    // Extract only numbers from the input
-    const numbers = value.replace(/\D/g, "");
-
-    // Get current numbers (without formatting)
-    const currentNumbers = restTimeInput.replace(/\D/g, "");
-
-    // Determine if user is adding or removing digits
-    if (numbers.length > currentNumbers.length) {
-      // User is adding a digit - shift left and add new digit at the end
-      const newNumbers = (currentNumbers + numbers.slice(-1)).slice(-4);
-      setRestTimeInput(formatTimeInput(newNumbers));
-    } else if (numbers.length < currentNumbers.length) {
-      // User is removing a digit (backspace) - shift right
-      const newNumbers = currentNumbers.slice(0, -1).padStart(1, "0");
-      setRestTimeInput(formatTimeInput(newNumbers));
-    }
-  };
-
-  const formatTimeInput = (numbers: string): string => {
-    // Pad with leading zeros to always have at least 4 digits for display
-    const padded = numbers.padStart(4, "0");
-    // Format as MM:SS
-    return `${padded.slice(0, 2)}:${padded.slice(2, 4)}`;
-  };
-
-  const handleRestTimeInputBlur = () => {
-    if (restTimeInput) {
-      // Parse MM:SS format
-      const parts = restTimeInput.split(":");
-      const mins = parseInt(parts[0] || "0", 10);
-      const secs = parseInt(parts[1] || "0", 10);
-
-      // Calculate total seconds
-      let totalSeconds = mins * 60 + secs;
-
-      // Validate: between 1 second and 99 minutes (5940 seconds)
-      totalSeconds = Math.max(1, Math.min(totalSeconds, 5940));
-
-      setRestDuration(totalSeconds);
-      setRestTimeRemaining(totalSeconds);
-    }
-    setIsEditingRestTime(false);
-  };
-
-  const handleRestTimeInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Position cursor at the end for calculator-style entry
-    const input = e.target;
-    setTimeout(() => {
-      input.setSelectionRange(input.value.length, input.value.length);
-    }, 0);
-  };
-
-  const handleRestTimeInputKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (e.key === "Enter") {
-      handleRestTimeInputBlur();
-    } else if (e.key === "Escape") {
-      setIsEditingRestTime(false);
-    }
-  };
-
   // Don't show timers if editing or workout is completed
   if (isEditing || isWorkoutCompleted) {
     return null;
   }
 
   return (
-    <>
-      {/* Fixed Bottom Timer Bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 mb-4">
-        <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border border-muted rounded-xl shadow-lg p-3">
-          <div className="flex items-center justify-between gap-4">
-            {/* Session Timer */}
-            <div className="flex items-center gap-3 flex-1">
-              <Timer className="h-4 w-4 text-muted-foreground" />
-              <div className="flex flex-col">
-                <div className="text-xs text-muted-foreground">Duration</div>
-                <div
-                  className={`text-lg font-bold tabular-nums ${
-                    sessionTimerRunning ? "text-primary" : ""
-                  }`}
-                >
-                  {formatTime(sessionElapsedTime)}
-                </div>
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 mb-4">
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border border-muted rounded-xl shadow-lg p-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Session Timer */}
+          <div className="flex items-center gap-3 flex-1">
+            <Timer className="h-4 w-4 text-muted-foreground" />
+            <div className="flex flex-col">
+              <div className="text-xs text-muted-foreground">Duration</div>
+              <div
+                className={`text-lg font-bold tabular-nums ${
+                  sessionTimerRunning ? "text-primary" : ""
+                }`}
+              >
+                {formatTime(sessionElapsedTime)}
               </div>
             </div>
+          </div>
 
-            {/* Timer Controls */}
-            <div className="flex items-center gap-2">
-              {!sessionTimerRunning ? (
-                <Button
-                  onClick={handleStartSessionTimer}
-                  variant="default"
-                  size="sm"
-                  className={`${
-                    isDark
-                      ? "bg-blue-500 hover:bg-blue-600"
-                      : "bg-blue-400 hover:bg-blue-500"
-                  }`}
-                  disabled={
-                    isCreatingWorkoutLog ||
-                    (workoutLog && sessionElapsedTime === 0)
-                  }
-                >
-                  {isCreatingWorkoutLog ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-white" />
-                  ) : (
-                    <Play className="h-4 w-4 text-white" />
-                  )}
-                  {!isMobile && (
-                    <span className="ml-2 text-white">
-                      {sessionElapsedTime > 0 ? "Resume" : "Start Workout"}
-                    </span>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handlePauseSession}
-                  variant="destructive"
-                  size="sm"
-                >
-                  {isPausingTimer ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-white" />
-                  ) : (
-                    <Pause className="h-4 w-4" />
-                  )}
-                  {!isMobile && <span className="ml-2">Pause</span>}
-                </Button>
-              )}
-
-              {/* Rest Timer Button */}
+          {/* Timer Controls */}
+          <div className="flex items-center gap-2">
+            {!sessionTimerRunning ? (
               <Button
-                onClick={() => setShowRestTimerModal(true)}
-                variant={restTimerRunning ? "default" : "outline"}
+                onClick={handleStartSessionTimer}
+                variant="default"
                 size="sm"
-                className={
-                  restTimerRunning && restTimeRemaining <= 10
-                    ? "bg-destructive hover:bg-destructive/90"
-                    : restTimerRunning
-                    ? "bg-green-500 hover:bg-green-600"
-                    : ""
+                className={`${
+                  isDark
+                    ? "bg-blue-500 hover:bg-blue-600"
+                    : "bg-blue-400 hover:bg-blue-500"
+                }`}
+                disabled={
+                  isCreatingWorkoutLog ||
+                  (workoutLog &&
+                    sessionElapsedTime === 0 &&
+                    programType !== "manual")
                 }
               >
-                <Timer className="h-4 w-4" />
-                {!isMobile && (
-                  <span className="ml-2">
-                    {restTimerRunning
-                      ? formatTime(restTimeRemaining)
-                      : "Rest Timer"}
-                  </span>
+                {isCreatingWorkoutLog ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                ) : (
+                  <Play className="h-4 w-4 text-white" />
                 )}
-                {isMobile && restTimerRunning && (
-                  <span className="ml-1 text-xs">
-                    {formatTime(restTimeRemaining)}
+                {!isMobile && (
+                  <span className="ml-2 text-white">
+                    {sessionElapsedTime > 0 ? "Resume" : "Start Workout"}
                   </span>
                 )}
               </Button>
-            </div>
+            ) : (
+              <Button
+                onClick={handlePauseSession}
+                variant="destructive"
+                size="sm"
+              >
+                {isPausingTimer ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                ) : (
+                  <Pause className="h-4 w-4" />
+                )}
+                {!isMobile && <span className="ml-2">Pause</span>}
+              </Button>
+            )}
           </div>
+          {/* Rest Timer Button */}
+          <Button
+            onClick={() => setShowRestTimerModal(true)}
+            variant={restTimerRunning ? "default" : "outline"}
+            size="sm"
+            className={
+              restTimerRunning
+                ? restTimeRemaining <= 10
+                  ? "bg-destructive hover:bg-destructive/90"
+                  : "bg-green-500 hover:bg-green-600"
+                : "border-muted"
+            }
+          >
+            {restTimerRunning ? (
+              <>
+                <span className="tabular-nums font-semibold">
+                  {formatTime(restTimeRemaining)}
+                </span>
+              </>
+            ) : (
+              <>
+                <Clock className="h-4 w-4" />
+                {!isMobile && <span className="ml-2">Rest Timer</span>}
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
       {/* Rest Timer Modal */}
-      <Dialog
-        open={showRestTimerModal}
-        onOpenChange={(open) => {
-          setShowRestTimerModal(open);
-          if (!open) {
-            setIsEditingRestTime(false);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md" closeXButton={true}>
-          <DialogTitle className="sr-only">Rest Timer</DialogTitle>
-          <div className={`rounded-lg p-4`}>
-            <div className="space-y-4">
-              {/* Timer Display */}
-              <div className="text-center">
-                {isEditingRestTime ? (
-                  <Input
-                    ref={restTimeInputRef}
-                    value={restTimeInput}
-                    onChange={(e) => handleRestTimeInputChange(e.target.value)}
-                    onFocus={handleRestTimeInputFocus}
-                    onBlur={handleRestTimeInputBlur}
-                    onKeyDown={handleRestTimeInputKeyDown}
-                    placeholder="00:00"
-                    className="text-6xl font-bold tabular-nums text-center h-24 border-2"
-                    autoFocus
-                    inputMode="numeric"
-                  />
-                ) : (
-                  <div
-                    onClick={handleEditRestTime}
-                    className={`text-6xl font-bold tabular-nums cursor-pointer hover:opacity-80 transition-opacity ${
-                      restTimerRunning
-                        ? restTimeRemaining <= 10
-                          ? "text-destructive"
-                          : "text-green-500"
-                        : "hover:text-primary"
-                    }`}
-                  >
-                    {formatTime(restTimeRemaining)}
-                  </div>
-                )}
-              </div>
-
-              {/* Duration Presets */}
-              {!restTimerRunning && !isEditingRestTime && (
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {[30, 60, 120, 180].map((duration) => (
-                    <Button
-                      key={duration}
-                      variant={
-                        restDuration === duration ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() => {
-                        setRestDuration(duration);
-                        setRestTimeRemaining(duration);
-                      }}
-                    >
-                      {duration < 60 ? `${duration}s` : `${duration / 60}m`}
-                    </Button>
-                  ))}
-                </div>
-              )}
-
-              {/* Timer Controls */}
-              <div className="flex items-center justify-center gap-2">
-                {!restTimerRunning && restTimeRemaining === restDuration ? (
-                  <Button
-                    onClick={handleStartRestTimer}
-                    variant="default"
-                    className={`w-[230px] text-white ${
-                      isDark
-                        ? "bg-blue-500 hover:bg-blue-600"
-                        : "bg-blue-400 hover:bg-blue-500"
-                    }`}
-                    disabled={isEditingRestTime}
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                  </Button>
-                ) : (
-                  <>
-                    {restTimerRunning ? (
-                      <Button
-                        onClick={handlePauseRestTimer}
-                        variant="destructive"
-                        className="flex-1"
-                      >
-                        <Pause className="h-4 w-4" />
-                        Pause
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={handleResumeRestTimer}
-                        variant="default"
-                        className={`flex-1 text-white ${
-                          isDark
-                            ? "bg-blue-500 hover:bg-blue-600"
-                            : "bg-blue-400 hover:bg-blue-500"
-                        }`}
-                      >
-                        <Play className="h-4 w-4 mr-2" />
-                        Resume
-                      </Button>
-                    )}
-                    <Button
-                      onClick={handleResetRestTimer}
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Reset
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+      <RestTimer
+        showRestTimerModal={showRestTimerModal}
+        setShowRestTimerModal={setShowRestTimerModal}
+        restDuration={restDuration}
+        setRestDuration={setRestDuration}
+        restTimeRemaining={restTimeRemaining}
+        setRestTimeRemaining={setRestTimeRemaining}
+        restTimerRunning={restTimerRunning}
+        setRestTimerRunning={setRestTimerRunning}
+        restStartTime={restStartTime}
+        setRestStartTime={setRestStartTime}
+      />
+    </div>
   );
 }
