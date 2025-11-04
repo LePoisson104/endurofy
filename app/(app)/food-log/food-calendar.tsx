@@ -74,14 +74,14 @@ export default function FoodCalendar({
 
   const hasFoodLog = (date: Date): DayData | undefined => {
     return foodLogs?.data?.logs.find((day: any) =>
-      isSameDay(parseISO(day.log_date.split("T")[0] + "T05:00:00.000Z"), date)
+      isSameDay(parseISO(day.log_date.split("T")[0] + "T06:00:00.000Z"), date)
     );
   };
 
   const hasCompletedFoodLog = (date: Date): boolean => {
     return (
       foodLogs?.data?.logs.find((day: any) =>
-        isSameDay(parseISO(day.log_date.split("T")[0] + "T05:00:00.000Z"), date)
+        isSameDay(parseISO(day.log_date.split("T")[0] + "T06:00:00.000Z"), date)
       )?.status === "completed"
     );
   };

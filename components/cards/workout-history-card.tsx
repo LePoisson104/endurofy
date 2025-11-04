@@ -102,7 +102,7 @@ function WorkoutHistoryCard({
                 <Calendar className="h-4 w-4" />
                 {format(
                   parseISO(
-                    workout.workoutDate.split("T")[0] + "T05:00:00.000Z"
+                    workout.workoutDate.split("T")[0] + "T06:00:00.000Z"
                   ),
                   "MMM d, yyyy"
                 )}

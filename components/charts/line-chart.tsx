@@ -82,7 +82,7 @@ export default function Component({
       ...item,
       date: item.log_date
         ? format(
-            parseISO(item.log_date.split("T")[0] + "T05:00:00.000Z"),
+            parseISO(item.log_date.split("T")[0] + "T06:00:00.000Z"),
             "yyyy-MM-dd"
           )
         : item.date,

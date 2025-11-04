@@ -563,7 +563,7 @@ export function WorkoutDetailView({
                   : "Started on "}
                 {format(
                   parseISO(
-                    workout.workoutDate.split("T")[0] + "T05:00:00.000Z"
+                    workout.workoutDate.split("T")[0] + "T06:00:00.000Z"
                   ),
                   "EEEE, MMMM d, yyyy"
                 )}

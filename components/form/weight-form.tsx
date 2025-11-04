@@ -65,7 +65,7 @@ export default function WeightForm({
   });
 
   const highlightedDays = getWeightLogDates?.data?.data?.map(
-    (date: any) => new Date(date.log_date.split("T")[0] + "T05:00:00.000Z")
+    (date: any) => new Date(date.log_date.split("T")[0] + "T06:00:00.000Z")
   );
 
   const [notes, setNotes] = useState<string>("");
@@ -85,7 +85,7 @@ export default function WeightForm({
         weightUnit: weightLogData.weight_unit,
         caloriesIntake: weightLogData.calories_intake,
         logDate: format(
-          new Date(weightLogData.log_date.split("T")[0] + "T05:00:00.000Z"),
+          new Date(weightLogData.log_date.split("T")[0] + "T06:00:00.000Z"),
           "MM/dd/yyyy"
         ),
         notes: weightLogData.notes || "",
