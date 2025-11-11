@@ -33,7 +33,7 @@ export default function ExerciseNotes({
   hasAnyLoggedSets: boolean;
   exercise: Exercise;
   readOnly: boolean;
-  previousExerciseNotes: string | null;
+  previousExerciseNotes?: string | null;
 }) {
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
     useUpdateExerciseNotesMutation();
