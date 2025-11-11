@@ -542,6 +542,7 @@ export default function WithoutProgramLog({
                       logType="manual"
                     />
                     <ExerciseNotes
+                      previousExerciseNotes={exercise.notes}
                       exerciseNotes={exerciseNotes}
                       setExerciseNotes={setExerciseNotes}
                       getExerciseNotes={getExerciseNotes}
