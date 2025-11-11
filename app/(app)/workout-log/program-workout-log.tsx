@@ -176,6 +176,16 @@ export function ProgramWorkoutLog({
     }
   }, [selectedDay, workoutLog]); // Remove function dependencies
 
+  const getPreviousExerciseNotes = (exerciseId: string) => {
+    if (previousWorkoutLog?.data?.length > 0) {
+      const exercise = previousWorkoutLog?.data?.find(
+        (ex: any) => ex.programExerciseId === exerciseId
+      );
+      return exercise?.notes || null;
+    }
+    return "";
+  };
+
   const handleUpdateWorkoutLogName = async () => {
     if (workoutLogName.trim() === "") {
       setWorkoutLogName(workoutLog?.data[0].title);
@@ -411,6 +421,9 @@ export function ProgramWorkoutLog({
               const sets = exerciseSets[exercise.exerciseId] || [];
               const isFullyLogged = isExerciseFullyLogged(exercise.exerciseId);
               const hasAnyLoggedSets = hasLoggedSets(exercise.exerciseId);
+              const previousExerciseNotes = getPreviousExerciseNotes(
+                exercise.exerciseId
+              );
 
               return (
                 <div
@@ -431,6 +444,7 @@ export function ProgramWorkoutLog({
                         }`}
                       >
                         <h4 className="font-medium">{exercise.exerciseName}</h4>
+
                         {isFullyLogged && (
                           <div>
                             <Check className="h-5 w-5 text-green-500" />
@@ -489,6 +503,7 @@ export function ProgramWorkoutLog({
                     hasAnyLoggedSets={hasAnyLoggedSets}
                     exercise={exercise}
                     readOnly={false}
+                    previousExerciseNotes={previousExerciseNotes}
                   />
                 </div>
               );

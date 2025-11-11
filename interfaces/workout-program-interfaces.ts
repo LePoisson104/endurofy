@@ -20,6 +20,7 @@ export type AllDays =
 export interface Exercise {
   exerciseId: string;
   exerciseName: string;
+  notes?: string;
   bodyPart: string;
   laterality: "bilateral" | "unilateral";
   sets: number;

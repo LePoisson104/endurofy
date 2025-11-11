@@ -3,7 +3,16 @@ import { useDebounceCallback } from "@/hooks/use-debounce";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateExerciseNotesMutation } from "@/api/workout-log/workout-log-api-slice";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import type { Exercise } from "@/interfaces/workout-program-interfaces";
+import { NotebookPen } from "lucide-react";
 
 export default function ExerciseNotes({
   exerciseNotes,
@@ -13,6 +22,7 @@ export default function ExerciseNotes({
   hasAnyLoggedSets,
   exercise,
   readOnly,
+  previousExerciseNotes,
 }: {
   exerciseNotes: { [id: string]: string };
   setExerciseNotes: React.Dispatch<
@@ -23,6 +33,7 @@ export default function ExerciseNotes({
   hasAnyLoggedSets: boolean;
   exercise: Exercise;
   readOnly: boolean;
+  previousExerciseNotes: string | null;
 }) {
   const [updateExerciseNotes, { isLoading: isUpdatingExerciseNotes }] =
     useUpdateExerciseNotesMutation();
@@ -74,6 +85,19 @@ export default function ExerciseNotes({
     <div className="space-y-2">
       <Label htmlFor="workout-notes">
         Exercise Notes
+        {previousExerciseNotes && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <NotebookPen className="h-4 w-4" />
+            </DialogTrigger>
+            <DialogContent closeXButton={true}>
+              <DialogHeader>
+                <DialogTitle>Previous Notes</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>{previousExerciseNotes}</DialogDescription>
+            </DialogContent>
+          </Dialog>
+        )}
         <span className="text-xs text-slate-500">
           {isUpdatingExerciseNotes
             ? "(Saving...)"
