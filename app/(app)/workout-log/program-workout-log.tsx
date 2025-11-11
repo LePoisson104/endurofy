@@ -183,7 +183,7 @@ export function ProgramWorkoutLog({
       );
       return exercise?.notes || null;
     }
-    return "";
+    return null;
   };
 
   const handleUpdateWorkoutLogName = async () => {

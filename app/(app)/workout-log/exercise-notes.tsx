@@ -85,19 +85,21 @@ export default function ExerciseNotes({
     <div className="space-y-2">
       <Label htmlFor="workout-notes">
         Exercise Notes
-        {previousExerciseNotes && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <NotebookPen className="h-4 w-4" />
-            </DialogTrigger>
-            <DialogContent closeXButton={true}>
-              <DialogHeader>
-                <DialogTitle>Previous Notes</DialogTitle>
-              </DialogHeader>
-              <DialogDescription>{previousExerciseNotes}</DialogDescription>
-            </DialogContent>
-          </Dialog>
-        )}
+        {previousExerciseNotes &&
+          previousExerciseNotes !== null &&
+          previousExerciseNotes !== "" && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <NotebookPen className="h-4 w-4" />
+              </DialogTrigger>
+              <DialogContent closeXButton={true}>
+                <DialogHeader>
+                  <DialogTitle>Previous Notes</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>{previousExerciseNotes}</DialogDescription>
+              </DialogContent>
+            </Dialog>
+          )}
         <span className="text-xs text-slate-500">
           {isUpdatingExerciseNotes
             ? "(Saving...)"
