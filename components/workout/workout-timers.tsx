@@ -14,7 +14,6 @@ import { usePauseTimerMutation } from "@/api/workout-log/workout-log-api-slice";
 import { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import { formatTime } from "./timer-helper";
 import { RestTimer } from "./rest-timer";
-import { flattenBy } from "@tanstack/react-table";
 
 interface WorkoutTimersProps {
   selectedDate: Date;

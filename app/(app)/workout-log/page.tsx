@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ProgramWorkoutLog } from "./program-workout-log";
 import { WorkoutLogHistory } from "./workout-log-history";
 import { WorkoutCalendar } from "./workout-calendar";

@@ -54,6 +54,7 @@ import {
   createMenuSection,
 } from "@/components/ui/responsive-menu";
 import { WorkoutTimers } from "@/components/workout/workout-timers";
+import { WorkoutTimer } from "@/components/workout/timer";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -529,7 +530,7 @@ export function ProgramWorkoutLog({
       />
 
       {/* Workout Timers */}
-      <WorkoutTimers
+      {/* <WorkoutTimers
         selectedDate={selectedDate}
         programId={program.programId}
         isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
@@ -539,7 +540,8 @@ export function ProgramWorkoutLog({
         title={selectedDay?.dayName || ""}
         dayId={selectedDay?.dayId || ""}
         workoutLog={workoutLog?.data[0]}
-      />
+      /> */}
+      <WorkoutTimer />
     </div>
   );
 }
