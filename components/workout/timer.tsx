@@ -2,32 +2,79 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Timer, RotateCcw } from "lucide-react";
+import { Play, Pause, Timer } from "lucide-react";
 import { formatTime } from "./timer-helper";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
 interface WorkoutTimerProps {
-  storageKey?: string;
-  onTimeChange?: (elapsedSeconds: number) => void;
+  currentDate: Date;
 }
 
-export function WorkoutTimer({
-  storageKey = "workout-timer",
-  onTimeChange,
-}: WorkoutTimerProps) {
+export function WorkoutTimer({ currentDate }: WorkoutTimerProps) {
   const isDark = useGetCurrentTheme();
 
-  const STORAGE_KEY = `endurofy-${storageKey}`;
+  // Create date-specific storage key
+  const dateStr = format(currentDate, "yyyy-MM-dd");
+  const STORAGE_KEY = `endurofy-workout-timer-${dateStr}`;
 
-  // Timer state
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
 
-  // Ref to track if this is initial mount
   const hasLoadedFromStorage = useRef(false);
+  const currentDateRef = useRef(dateStr);
+  const isInitialMount = useRef(true);
 
-  // Load timer state from localStorage on mount
+  // Handle date changes - pause timer and save state
+  useEffect(() => {
+    const newDateStr = format(currentDate, "yyyy-MM-dd");
+
+    // Skip on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      currentDateRef.current = newDateStr;
+      return;
+    }
+
+    // Only execute if date actually changed
+    if (currentDateRef.current !== newDateStr) {
+      // CRITICAL: Save timer state to OLD date's localStorage key BEFORE switching
+      const oldStorageKey = `endurofy-workout-timer-${currentDateRef.current}`;
+      const timerStateToSave = {
+        isRunning: false, // Always save as paused when switching dates
+        elapsedTime: elapsedTime,
+        startTime: startTime,
+      };
+      localStorage.setItem(oldStorageKey, JSON.stringify(timerStateToSave));
+
+      // Capture current timer state for notification
+      const wasRunning = isRunning;
+      const currentElapsed = elapsedTime;
+
+      // Pause the timer immediately
+      setIsRunning(false);
+
+      // Show notification if timer was running
+      if (wasRunning && currentElapsed > 0) {
+        toast.info(
+          `Timer paused: ${formatTime(currentElapsed)} on ${format(
+            new Date(currentDateRef.current),
+            "MMM d"
+          )}`
+        );
+      }
+
+      // Update the date ref
+      currentDateRef.current = newDateStr;
+
+      // Reset loading flag to load timer for new date
+      hasLoadedFromStorage.current = false;
+    }
+  }, [currentDate, isRunning, elapsedTime, startTime]);
+
+  // Load timer from localStorage when date changes or on mount
   useEffect(() => {
     if (hasLoadedFromStorage.current) return;
 
@@ -36,7 +83,6 @@ export function WorkoutTimer({
       if (savedState) {
         const parsedState = JSON.parse(savedState);
 
-        // If timer was running, restore it and calculate current elapsed time
         if (parsedState.isRunning && parsedState.startTime) {
           const now = Date.now();
           const elapsed = Math.floor((now - parsedState.startTime) / 1000);
@@ -50,6 +96,11 @@ export function WorkoutTimer({
           setStartTime(parsedState.startTime);
           setIsRunning(false);
         }
+      } else {
+        // No saved state for this date, reset timer
+        setElapsedTime(0);
+        setStartTime(null);
+        setIsRunning(false);
       }
     } catch (error) {
       console.error("Failed to load timer state:", error);
@@ -81,18 +132,13 @@ export function WorkoutTimer({
         const now = Date.now();
         const elapsed = Math.floor((now - startTime) / 1000);
         setElapsedTime(elapsed);
-
-        // Call callback if provided
-        if (onTimeChange) {
-          onTimeChange(elapsed);
-        }
       }, 1000);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, startTime, onTimeChange]);
+  }, [isRunning, startTime]);
 
   // Handle visibility change - recalculate elapsed time when user returns to tab
   // This ensures timer stays accurate even when tab is inactive or screen is off
@@ -103,10 +149,6 @@ export function WorkoutTimer({
         const now = Date.now();
         const elapsed = Math.floor((now - startTime) / 1000);
         setElapsedTime(elapsed);
-
-        if (onTimeChange) {
-          onTimeChange(elapsed);
-        }
       }
     };
 
@@ -115,7 +157,7 @@ export function WorkoutTimer({
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isRunning, startTime, onTimeChange]);
+  }, [isRunning, startTime]);
 
   const handleStart = () => {
     // If resuming (has elapsed time), adjust start time to account for elapsed time
@@ -128,17 +170,6 @@ export function WorkoutTimer({
 
   const handlePause = () => {
     setIsRunning(false);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setElapsedTime(0);
-    setStartTime(null);
-    localStorage.removeItem(STORAGE_KEY);
-
-    if (onTimeChange) {
-      onTimeChange(0);
-    }
   };
 
   return (
@@ -182,17 +213,6 @@ export function WorkoutTimer({
               <Button onClick={handlePause} variant="destructive" size="sm">
                 <Pause className="h-4 w-4" />
                 <span className="ml-2">Pause</span>
-              </Button>
-            )}
-
-            {elapsedTime > 0 && (
-              <Button
-                onClick={handleReset}
-                variant="outline"
-                size="sm"
-                disabled={isRunning}
-              >
-                <RotateCcw className="h-4 w-4" />
               </Button>
             )}
           </div>

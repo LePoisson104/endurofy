@@ -541,7 +541,7 @@ export function ProgramWorkoutLog({
         dayId={selectedDay?.dayId || ""}
         workoutLog={workoutLog?.data[0]}
       /> */}
-      <WorkoutTimer />
+      <WorkoutTimer currentDate={selectedDate} />
     </div>
   );
 }
