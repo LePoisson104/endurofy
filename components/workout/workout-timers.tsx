@@ -193,15 +193,12 @@ export function WorkoutTimers({
     if (savedTimerState) {
       try {
         const parsedState = JSON.parse(savedTimerState);
-        console.log("parsedState", parsedState);
         // If timer was running, restore it
         if (parsedState.sessionStartTime && parsedState.sessionTimerRunning) {
           const now = Date.now();
-          console.log("now", now);
           const elapsed = Math.floor(
             (now - parsedState.sessionStartTime) / 1000
           );
-          console.log("time elapse: ", elapsed);
           setSessionElapsedTime(elapsed);
           setSessionStartTime(parsedState.sessionStartTime);
           setSessionTimerRunning(true);
@@ -268,15 +265,15 @@ export function WorkoutTimers({
 
     // If loadedWorkoutDateRef is null, we're switching dates - reset timer to 0 immediately
     // This prevents showing stale timer from previous date while waiting for new data
-    // if (
-    //   loadedWorkoutDateRef.current === null &&
-    //   !sessionTimerRunning &&
-    //   !hasWorkoutStarted
-    // ) {
-    //   console.log("set time elapsed to 0");
-    //   setSessionElapsedTime(0);
-    //   setSessionStartTime(null);
-    // }
+    if (
+      loadedWorkoutDateRef.current === null &&
+      !sessionTimerRunning &&
+      !hasWorkoutStarted
+    ) {
+      console.log("set time elapsed to 0");
+      setSessionElapsedTime(0);
+      setSessionStartTime(null);
+    }
 
     // If no workoutLog, don't do anything yet - wait for API to return data
     if (!workoutLog?.workoutDate) {
@@ -546,7 +543,7 @@ export function WorkoutTimers({
       // STEP 9: Reset force stop flag after a brief delay to allow workoutLog effect to load new data
       setTimeout(() => {
         forceStopTimerRef.current = false;
-      }, 1000);
+      }, 100);
     }
   }, [selectedDate, programId, setIsStartingWorkout, pauseTimer]);
 
@@ -555,7 +552,7 @@ export function WorkoutTimers({
     if (workoutLog?.workoutDate) {
       setTimeout(() => {
         forceStopTimerRef.current = false;
-      }, 1000);
+      }, 100);
     }
   }, [workoutLog]);
 
