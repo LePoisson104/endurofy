@@ -67,7 +67,6 @@ export function WorkoutTimers({
   const hasLoadedFromStorage = useRef(false);
   // Track which date we've loaded workout data for to prevent double loading
   const loadedWorkoutDateRef = useRef<string | null>(null);
-  const isRestoringFromStorage = useRef(false);
 
   // Workout Session Timer State
   const [sessionTimerRunning, setSessionTimerRunning] = useState(false);
@@ -205,11 +204,11 @@ export function WorkoutTimers({
           setSessionTimerRunning(true);
           setHasWorkoutStarted(parsedState.hasWorkoutStarted || true);
           setIsStartingWorkout(false);
-        }
 
-        // Set the running workout ID if available
-        if (parsedState.workoutLogId) {
-          runningWorkoutLogIdRef.current = parsedState.workoutLogId;
+          // CRITICAL FIX: Restore the running workout ID from localStorage
+          if (parsedState.runningWorkoutLogId) {
+            runningWorkoutLogIdRef.current = parsedState.runningWorkoutLogId;
+          }
         }
       } catch (error) {
         console.error("Failed to parse saved timer state:", error);
@@ -259,16 +258,25 @@ export function WorkoutTimers({
       return;
     }
 
-    // ADD THIS CHECK - Don't override if we're restoring from localStorage
-    if (isRestoringFromStorage.current) {
-      isRestoringFromStorage.current = false; // Reset flag after first check
-      return;
+    // CRITICAL FIX: Check localStorage to see if timer should be running
+    // This prevents resetting the timer when navigating back to the page
+    const savedTimerState = localStorage.getItem(TIMER_STORAGE_KEY);
+    let shouldTimerBeRunning = false;
+
+    if (savedTimerState) {
+      try {
+        const parsedState = JSON.parse(savedTimerState);
+        shouldTimerBeRunning = parsedState.sessionTimerRunning === true;
+      } catch (error) {
+        console.error("Failed to check timer state:", error);
+      }
     }
 
-    // Don't override running timer (use synchronous ref to avoid race condition)
+    // Don't override running timer (check both state AND localStorage)
     if (
-      (sessionTimerRunning || hasWorkoutStarted) &&
-      !forceStopTimerRef.current
+      ((sessionTimerRunning || hasWorkoutStarted) &&
+        !forceStopTimerRef.current) ||
+      shouldTimerBeRunning
     ) {
       return;
     }
@@ -280,7 +288,8 @@ export function WorkoutTimers({
     if (
       loadedWorkoutDateRef.current === null &&
       !sessionTimerRunning &&
-      !hasWorkoutStarted
+      !hasWorkoutStarted &&
+      !shouldTimerBeRunning
     ) {
       setSessionElapsedTime(0);
       setSessionStartTime(null);
@@ -318,6 +327,7 @@ export function WorkoutTimers({
     sessionTimerRunning,
     hasWorkoutStarted,
     setIsStartingWorkout,
+    TIMER_STORAGE_KEY,
   ]);
 
   // Save timer state to localStorage only when session timer is running
@@ -328,6 +338,7 @@ export function WorkoutTimers({
         sessionTimerRunning,
         sessionElapsedTime,
         sessionStartTime,
+        runningWorkoutLogId: runningWorkoutLogIdRef.current, // CRITICAL FIX: Save the running workout ID
       };
 
       localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
@@ -401,6 +412,7 @@ export function WorkoutTimers({
     TIMER_STORAGE_KEY,
     workoutLog,
     pauseTimer,
+    setIsStartingWorkout,
   ]);
 
   // Session Timer Effect - Calculate from start time for accuracy across navigation
@@ -556,7 +568,15 @@ export function WorkoutTimers({
         forceStopTimerRef.current = false;
       }, 100);
     }
-  }, [selectedDate, programId, setIsStartingWorkout, pauseTimer]);
+  }, [
+    selectedDate,
+    programId,
+    sessionTimerRunning,
+    sessionElapsedTime,
+    setIsStartingWorkout,
+    pauseTimer,
+    restDuration,
+  ]);
 
   // Reset force stop flag when workoutLog loads (cleanup only)
   useEffect(() => {
