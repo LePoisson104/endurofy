@@ -152,6 +152,7 @@ export default function WorkoutLogManager() {
             <TabsList className="flex gap-4">
               <TabsTrigger value="log">Workout Log</TabsTrigger>
               <TabsTrigger value="history">Workout History</TabsTrigger>
+              <TabsTrigger value="progression">Progression</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

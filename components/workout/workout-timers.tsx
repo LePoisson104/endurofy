@@ -190,17 +190,18 @@ export function WorkoutTimers({
   // Load timer from localStorage on mount (for page refresh with running timer)
   useEffect(() => {
     const savedTimerState = localStorage.getItem(TIMER_STORAGE_KEY);
-    console.log(savedTimerState);
     if (savedTimerState) {
       try {
         const parsedState = JSON.parse(savedTimerState);
-
+        console.log("parsedState", parsedState);
         // If timer was running, restore it
         if (parsedState.sessionStartTime && parsedState.sessionTimerRunning) {
           const now = Date.now();
+          console.log("now", now);
           const elapsed = Math.floor(
             (now - parsedState.sessionStartTime) / 1000
           );
+          console.log("time elapse: ", elapsed);
           setSessionElapsedTime(elapsed);
           setSessionStartTime(parsedState.sessionStartTime);
           setSessionTimerRunning(true);
@@ -267,14 +268,15 @@ export function WorkoutTimers({
 
     // If loadedWorkoutDateRef is null, we're switching dates - reset timer to 0 immediately
     // This prevents showing stale timer from previous date while waiting for new data
-    if (
-      loadedWorkoutDateRef.current === null &&
-      !sessionTimerRunning &&
-      !hasWorkoutStarted
-    ) {
-      setSessionElapsedTime(0);
-      setSessionStartTime(null);
-    }
+    // if (
+    //   loadedWorkoutDateRef.current === null &&
+    //   !sessionTimerRunning &&
+    //   !hasWorkoutStarted
+    // ) {
+    //   console.log("set time elapsed to 0");
+    //   setSessionElapsedTime(0);
+    //   setSessionStartTime(null);
+    // }
 
     // If no workoutLog, don't do anything yet - wait for API to return data
     if (!workoutLog?.workoutDate) {
