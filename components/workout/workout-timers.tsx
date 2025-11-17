@@ -67,6 +67,7 @@ export function WorkoutTimers({
   const hasLoadedFromStorage = useRef(false);
   // Track which date we've loaded workout data for to prevent double loading
   const loadedWorkoutDateRef = useRef<string | null>(null);
+  const isRestoringFromStorage = useRef(false);
 
   // Workout Session Timer State
   const [sessionTimerRunning, setSessionTimerRunning] = useState(false);
@@ -205,6 +206,11 @@ export function WorkoutTimers({
           setHasWorkoutStarted(parsedState.hasWorkoutStarted || true);
           setIsStartingWorkout(false);
         }
+
+        // Set the running workout ID if available
+        if (parsedState.workoutLogId) {
+          runningWorkoutLogIdRef.current = parsedState.workoutLogId;
+        }
       } catch (error) {
         console.error("Failed to parse saved timer state:", error);
       }
@@ -253,6 +259,12 @@ export function WorkoutTimers({
       return;
     }
 
+    // ADD THIS CHECK - Don't override if we're restoring from localStorage
+    if (isRestoringFromStorage.current) {
+      isRestoringFromStorage.current = false; // Reset flag after first check
+      return;
+    }
+
     // Don't override running timer (use synchronous ref to avoid race condition)
     if (
       (sessionTimerRunning || hasWorkoutStarted) &&
@@ -270,7 +282,6 @@ export function WorkoutTimers({
       !sessionTimerRunning &&
       !hasWorkoutStarted
     ) {
-      console.log("set time elapsed to 0");
       setSessionElapsedTime(0);
       setSessionStartTime(null);
     }
