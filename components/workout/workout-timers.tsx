@@ -190,6 +190,7 @@ export function WorkoutTimers({
   // Load timer from localStorage on mount (for page refresh with running timer)
   useEffect(() => {
     const savedTimerState = localStorage.getItem(TIMER_STORAGE_KEY);
+    console.log(savedTimerState);
     if (savedTimerState) {
       try {
         const parsedState = JSON.parse(savedTimerState);
@@ -543,7 +544,7 @@ export function WorkoutTimers({
       // STEP 9: Reset force stop flag after a brief delay to allow workoutLog effect to load new data
       setTimeout(() => {
         forceStopTimerRef.current = false;
-      }, 100);
+      }, 1000);
     }
   }, [selectedDate, programId, setIsStartingWorkout, pauseTimer]);
 
@@ -552,7 +553,7 @@ export function WorkoutTimers({
     if (workoutLog?.workoutDate) {
       setTimeout(() => {
         forceStopTimerRef.current = false;
-      }, 100);
+      }, 1000);
     }
   }, [workoutLog]);
 
