@@ -272,6 +272,30 @@ export function WorkoutTimers({
       }
     }
 
+    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+
+    // CRITICAL: If workoutLog is null/undefined or doesn't exist for this date, reset timer
+    // This handles the case when a workout log is deleted
+    if (!workoutLog?.workoutDate) {
+      // Only reset if we're not in the middle of switching dates and timer isn't running
+      if (
+        !shouldTimerBeRunning &&
+        !sessionTimerRunning &&
+        !forceStopTimerRef.current
+      ) {
+        setSessionElapsedTime(0);
+        setSessionStartTime(null);
+        setSessionTimerRunning(false);
+        setHasWorkoutStarted(false);
+        setIsStartingWorkout(true);
+        runningWorkoutLogIdRef.current = null;
+        loadedWorkoutDateRef.current = null;
+        // Clear localStorage since there's no workout log
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
+      return;
+    }
+
     // Don't override running timer (check both state AND localStorage)
     if (
       ((sessionTimerRunning || hasWorkoutStarted) &&
@@ -280,8 +304,6 @@ export function WorkoutTimers({
     ) {
       return;
     }
-
-    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
 
     // If loadedWorkoutDateRef is null, we're switching dates - reset timer to 0 immediately
     // This prevents showing stale timer from previous date while waiting for new data
@@ -293,11 +315,6 @@ export function WorkoutTimers({
     ) {
       setSessionElapsedTime(0);
       setSessionStartTime(null);
-    }
-
-    // If no workoutLog, don't do anything yet - wait for API to return data
-    if (!workoutLog?.workoutDate) {
-      return;
     }
 
     const workoutLogDateStr = workoutLog.workoutDate.split("T")[0];
@@ -637,6 +654,14 @@ export function WorkoutTimers({
     if (workoutLog.status === "completed") return;
     if (workoutLog.timer === sessionElapsedTime) return;
 
+    // CRITICAL: Stop timer state FIRST to prevent workoutLog effect from overwriting
+    setSessionTimerRunning(false);
+    setHasWorkoutStarted(false); // Reset workout started state
+    setIsStartingWorkout(true); // Disable inputs when paused
+
+    // Mark that we've loaded this workout to prevent the workoutLog effect from resetting timer
+    loadedWorkoutDateRef.current = workoutLog.workoutLogId;
+
     try {
       await pauseTimer({
         workoutLogId: workoutLog.workoutLogId,
@@ -652,10 +677,7 @@ export function WorkoutTimers({
         toast.error("Failed to pause workout log. Please try again.");
       }
     }
-    // Stop button now acts as pause - keeps the elapsed time
-    setSessionTimerRunning(false);
-    setHasWorkoutStarted(false); // Reset workout started state
-    setIsStartingWorkout(true); // Disable inputs when paused
+
     // Clear the running workout ID
     runningWorkoutLogIdRef.current = null;
   };
@@ -696,12 +718,7 @@ export function WorkoutTimers({
                     ? "bg-blue-500 hover:bg-blue-600"
                     : "bg-blue-400 hover:bg-blue-500"
                 }`}
-                disabled={
-                  isCreatingWorkoutLog ||
-                  (workoutLog &&
-                    sessionElapsedTime === 0 &&
-                    programType !== "manual")
-                }
+                disabled={isCreatingWorkoutLog}
               >
                 {isCreatingWorkoutLog ? (
                   <Loader2 className="h-4 w-4 animate-spin text-white" />

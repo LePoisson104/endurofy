@@ -21,6 +21,7 @@ export interface Exercise {
   exerciseId: string;
   exerciseName: string;
   notes?: string;
+  previousNotes?: string;
   bodyPart: string;
   laterality: "bilateral" | "unilateral";
   sets: number;

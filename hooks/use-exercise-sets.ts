@@ -490,6 +490,7 @@ export const useExerciseSets = (
         maxReps: originalExercise?.maxReps || getMaxReps,
         exerciseOrder: workoutExercise.exerciseOrder,
         notes: workoutExercise.notes || null,
+        previousNotes: workoutExercise.previousNotes,
       };
     },
     [findOriginalExercise]

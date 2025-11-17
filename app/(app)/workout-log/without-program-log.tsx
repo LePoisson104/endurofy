@@ -69,7 +69,7 @@ export default function WithoutProgramLog({
   const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
     null
   );
-  const [isStartingWorkout, setIsStartingWorkout] = useState(true);
+  const [isStartingWorkout, setIsStartingWorkout] = useState(false);
 
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
@@ -542,7 +542,7 @@ export default function WithoutProgramLog({
                       logType="manual"
                     />
                     <ExerciseNotes
-                      previousExerciseNotes={exercise.notes}
+                      previousExerciseNotes={exercise.previousNotes}
                       exerciseNotes={exerciseNotes}
                       setExerciseNotes={setExerciseNotes}
                       getExerciseNotes={getExerciseNotes}
