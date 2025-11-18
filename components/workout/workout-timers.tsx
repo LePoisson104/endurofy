@@ -13,7 +13,6 @@ import { useCreateManualWorkoutLogMutation } from "@/api/workout-log/workout-log
 import { usePauseTimerMutation } from "@/api/workout-log/workout-log-api-slice";
 import { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import { formatTime } from "./timer-helper";
-import { RestTimer } from "./rest-timer";
 
 interface WorkoutTimersProps {
   selectedDate: Date;
@@ -74,105 +73,6 @@ export function WorkoutTimers({
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
   const [hasWorkoutStarted, setHasWorkoutStarted] = useState(false);
 
-  const REST_TIMER_STORAGE_KEY = `rest-timer-${format(
-    selectedDate,
-    "yyyy-MM-dd"
-  )}-${programId}`;
-
-  // Rest Timer State - Initialize from localStorage to prevent flash
-  const [showRestTimerModal, setShowRestTimerModal] = useState(false);
-  const [restDuration, setRestDuration] = useState(() => {
-    if (typeof window === "undefined") return 60;
-
-    try {
-      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
-      if (savedRestTimerState) {
-        const parsedState = JSON.parse(savedRestTimerState);
-        return parsedState.restDuration || 60;
-      }
-    } catch (error) {
-      console.error("Failed to parse saved rest timer state:", error);
-    }
-    return 60;
-  });
-
-  const [restTimeRemaining, setRestTimeRemaining] = useState(() => {
-    if (typeof window === "undefined") return 60;
-
-    try {
-      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
-      if (savedRestTimerState) {
-        const parsedState = JSON.parse(savedRestTimerState);
-
-        // If rest timer was running, calculate current remaining time
-        if (parsedState.restStartTime && parsedState.restTimerRunning) {
-          const now = Date.now();
-          const elapsed = Math.floor((now - parsedState.restStartTime) / 1000);
-          const remaining = parsedState.restDuration - elapsed;
-
-          if (remaining > 0) {
-            return remaining;
-          } else {
-            return parsedState.restDuration;
-          }
-        }
-        return parsedState.restTimeRemaining || parsedState.restDuration || 60;
-      }
-    } catch (error) {
-      console.error("Failed to parse saved rest timer state:", error);
-    }
-    return 60;
-  });
-
-  const [restTimerRunning, setRestTimerRunning] = useState(() => {
-    if (typeof window === "undefined") return false;
-
-    try {
-      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
-      if (savedRestTimerState) {
-        const parsedState = JSON.parse(savedRestTimerState);
-
-        // If rest timer was running, check if time is still remaining
-        if (parsedState.restStartTime && parsedState.restTimerRunning) {
-          const now = Date.now();
-          const elapsed = Math.floor((now - parsedState.restStartTime) / 1000);
-          const remaining = parsedState.restDuration - elapsed;
-          return remaining > 0;
-        }
-      }
-    } catch (error) {
-      console.error("Failed to parse saved rest timer state:", error);
-    }
-    return false;
-  });
-
-  const [restStartTime, setRestStartTime] = useState<number | null>(() => {
-    if (typeof window === "undefined") return null;
-
-    try {
-      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
-      if (savedRestTimerState) {
-        const parsedState = JSON.parse(savedRestTimerState);
-
-        // If rest timer was running and time is still remaining
-        if (parsedState.restStartTime && parsedState.restTimerRunning) {
-          const now = Date.now();
-          const elapsed = Math.floor((now - parsedState.restStartTime) / 1000);
-          const remaining = parsedState.restDuration - elapsed;
-
-          if (remaining > 0) {
-            return parsedState.restStartTime;
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Failed to parse saved rest timer state:", error);
-    }
-    return null;
-  });
-
-  const hasShownRestCompletionToast = useRef(false);
-
   // Track the running workout's ID - set when timer starts, cleared when it stops
   useEffect(() => {
     if (sessionTimerRunning && workoutLog?.workoutLogId) {
@@ -218,38 +118,6 @@ export function WorkoutTimers({
     // Mark that we've checked localStorage
     hasLoadedFromStorage.current = true;
   }, [TIMER_STORAGE_KEY, setIsStartingWorkout]);
-
-  // Show completion toast if timer completed while away (only once on mount)
-  useEffect(() => {
-    if (!hasShownRestCompletionToast.current) {
-      const savedRestTimerState = localStorage.getItem(REST_TIMER_STORAGE_KEY);
-      if (savedRestTimerState) {
-        try {
-          const parsedState = JSON.parse(savedRestTimerState);
-
-          // Check if timer was running and has now completed
-          if (parsedState.restStartTime && parsedState.restTimerRunning) {
-            const now = Date.now();
-            const elapsed = Math.floor(
-              (now - parsedState.restStartTime) / 1000
-            );
-            const remaining = parsedState.restDuration - elapsed;
-
-            if (remaining <= 0) {
-              // Timer completed while away - show toast
-              toast.success("Rest time is up! Ready for your next set?", {
-                duration: 4000,
-              });
-              hasShownRestCompletionToast.current = true;
-              localStorage.removeItem(REST_TIMER_STORAGE_KEY);
-            }
-          }
-        } catch (error) {
-          console.error("Failed to check rest timer completion:", error);
-        }
-      }
-    }
-  }, [REST_TIMER_STORAGE_KEY]);
 
   // Load timer from workoutLog when it changes OR reset to 0 if no workout log
   useEffect(() => {
@@ -366,27 +234,6 @@ export function WorkoutTimers({
     sessionElapsedTime,
     sessionStartTime,
     TIMER_STORAGE_KEY,
-  ]);
-
-  // Save rest timer state to localStorage
-  useEffect(() => {
-    const restTimerState = {
-      restDuration,
-      restTimeRemaining,
-      restTimerRunning,
-      restStartTime,
-    };
-
-    localStorage.setItem(
-      REST_TIMER_STORAGE_KEY,
-      JSON.stringify(restTimerState)
-    );
-  }, [
-    restDuration,
-    restTimeRemaining,
-    restTimerRunning,
-    restStartTime,
-    REST_TIMER_STORAGE_KEY,
   ]);
 
   // Stop timer and save to database when workout is completed
@@ -564,18 +411,6 @@ export function WorkoutTimers({
       localStorage.removeItem(oldKey);
       localStorage.removeItem(newKey); // Prevent loading stale data from previous session
 
-      // STEP 7b: Clear rest timer localStorage for BOTH old and new dates
-      const oldRestKey = `rest-timer-${prevDateRef.current}-${prevProgramRef.current}`;
-      const newRestKey = `rest-timer-${currentDate}-${currentProgram}`;
-      localStorage.removeItem(oldRestKey);
-      localStorage.removeItem(newRestKey);
-
-      // STEP 7c: Reset rest timer state
-      setRestTimerRunning(false);
-      setRestTimeRemaining(restDuration);
-      setRestStartTime(null);
-      hasShownRestCompletionToast.current = false; // Allow toast to show again for new date
-
       // STEP 8: Update refs for next date change
       prevDateRef.current = currentDate;
       prevProgramRef.current = currentProgram;
@@ -592,7 +427,6 @@ export function WorkoutTimers({
     sessionElapsedTime,
     setIsStartingWorkout,
     pauseTimer,
-    restDuration,
   ]);
 
   // Reset force stop flag when workoutLog loads (cleanup only)
@@ -746,48 +580,8 @@ export function WorkoutTimers({
               </Button>
             )}
           </div>
-          {/* Rest Timer Button */}
-          <Button
-            onClick={() => setShowRestTimerModal(true)}
-            variant={restTimerRunning ? "default" : "outline"}
-            size="sm"
-            className={
-              restTimerRunning
-                ? restTimeRemaining <= 10
-                  ? "bg-destructive hover:bg-destructive/90"
-                  : "bg-green-500 hover:bg-green-600"
-                : "border-muted"
-            }
-          >
-            {restTimerRunning ? (
-              <>
-                <span className="tabular-nums font-semibold">
-                  {formatTime(restTimeRemaining)}
-                </span>
-              </>
-            ) : (
-              <>
-                <Clock className="h-4 w-4" />
-                {!isMobile && <span className="ml-2">Rest Timer</span>}
-              </>
-            )}
-          </Button>
         </div>
       </div>
-
-      {/* Rest Timer Modal */}
-      <RestTimer
-        showRestTimerModal={showRestTimerModal}
-        setShowRestTimerModal={setShowRestTimerModal}
-        restDuration={restDuration}
-        setRestDuration={setRestDuration}
-        restTimeRemaining={restTimeRemaining}
-        setRestTimeRemaining={setRestTimeRemaining}
-        restTimerRunning={restTimerRunning}
-        setRestTimerRunning={setRestTimerRunning}
-        restStartTime={restStartTime}
-        setRestStartTime={setRestStartTime}
-      />
     </div>
   );
 }
