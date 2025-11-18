@@ -40,7 +40,7 @@ export function TopBar({ className }: TopBarProps) {
       className={cn(
         `sticky top-0 z-50 flex h-[65px] w-full items-center ${
           isMobile ? "standalone:pt-14 standalone:h-[100px]" : ""
-        } bg-background px-4 transition-opacity duration-500 ease-in-out ${
+        } bg-background/30 backdrop-blur-lg px-4 transition-opacity duration-500 ease-in-out ${
           isMobile ? "border-none" : "border-b"
         }`,
         {
