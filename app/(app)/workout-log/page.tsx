@@ -23,6 +23,7 @@ import { useSearchParams } from "next/navigation";
 import WithoutProgramLog from "./without-program-log";
 import { toast } from "sonner";
 import { ProgramWorkoutLogSkeleton } from "@/components/skeletons/program-workout-log-skeleton";
+import Progression from "./progression";
 
 import type { WorkoutProgram } from "../../../interfaces/workout-program-interfaces";
 
@@ -187,10 +188,12 @@ export default function WorkoutLogManager() {
                     )}
                   </CardContent>
                 </Card>
-              ) : (
+              ) : selectedTab === "history" ? (
                 <WorkoutLogHistory
                   selectedProgram={selectedProgram as WorkoutProgram}
                 />
+              ) : (
+                <Progression />
               )}
             </div>
 

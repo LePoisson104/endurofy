@@ -9,7 +9,7 @@ export type UserData = {
     | "lightly_active"
     | "moderately_active"
     | "very_active"
-    | "extremely_active";
+    | "extra_active";
 
   // New fields matching FormData structure
   gender?: "male" | "female";
@@ -27,7 +27,7 @@ export type UserData = {
     | "lightly_active"
     | "moderately_active"
     | "very_active"
-    | "extremely_active";
+    | "extra_active";
   goal?: "lose" | "gain" | "maintain";
   profile_status?: string;
 };

@@ -20,7 +20,7 @@ export default function ActivityStep({
     | "lightly_active"
     | "moderately_active"
     | "very_active"
-    | "extremely_active"
+    | "extra_active"
     | undefined
   >(data.activityLevel);
 
@@ -64,8 +64,8 @@ export default function ActivityStep({
       bgColor: "bg-yellow-100",
     },
     {
-      value: "extremely_active" as const,
-      label: "Extremely Active",
+      value: "extra_active" as const,
+      label: "Extra Active",
       icon: Flame,
       description: "Physical job + exercise, or 2x/day training",
       color: "text-red-500",

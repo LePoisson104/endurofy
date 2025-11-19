@@ -361,7 +361,7 @@ export default function ProfileEditForm({
                 Very Active (hard exercise 6-7 days/week)
               </SelectItem>
               <SelectItem value="extra_active">
-                Extremely Active (very hard exercise, physical job)
+                Extra Active (very hard exercise, physical job)
               </SelectItem>
             </SelectContent>
           </Select>
