@@ -140,7 +140,7 @@ export function FeatureCard({
           : `bg-card dark:bg-background ${isDark ? "border" : "border-none"}`
       } ${getCardShadow(
         bgColor
-      )} transition-all cursor-pointer h-[200px] w-full group relative overflow-hidden`}
+      )} cursor-pointer h-[200px] w-full group relative overflow-hidden`}
       onMouseMove={!isMobile ? handleMouseMove : undefined}
       onMouseEnter={!isMobile ? () => setIsHovered(true) : undefined}
       onMouseLeave={!isMobile ? () => setIsHovered(false) : undefined}
