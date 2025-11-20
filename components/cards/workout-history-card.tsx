@@ -4,7 +4,14 @@ import { format, parseISO } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dumbbell, Calendar, Eye, Loader2, Clock } from "lucide-react";
+import {
+  Dumbbell,
+  Calendar,
+  Eye,
+  Loader2,
+  Clock,
+  ScrollText,
+} from "lucide-react";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { WorkoutHistorySkeleton } from "@/components/skeletons/workout-history-skeleton";
 import { useRef, useCallback, useMemo } from "react";
@@ -198,7 +205,7 @@ export function WorkoutHistoryList({
     return (
       <Card>
         <CardContent className="p-12 text-center">
-          <Dumbbell className="mx-auto h-12 w-12 mb-4" />
+          <ScrollText className="mx-auto h-12 w-12 mb-4" />
           <h3 className="text-lg font-medium mb-2">No workouts found</h3>
           <p className="text-muted-foreground">
             Try adjusting your filters or start logging your workouts.
