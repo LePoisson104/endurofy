@@ -240,6 +240,7 @@ export default function WithoutProgramLog({
       const payload = {
         title: workoutLogName.trim(),
         workoutDate: format(selectedDate, "yyyy-MM-dd"),
+        expectedNumberOfSets: 0,
       };
 
       await createManualWorkoutLog({

@@ -15,6 +15,7 @@ import { WorkoutLog } from "@/interfaces/workout-log-interfaces";
 import { formatTime } from "./timer-helper";
 
 interface WorkoutTimersProps {
+  expectedNumberOfSets?: number;
   selectedDate: Date;
   programId: string;
   isWorkoutCompleted: boolean;
@@ -28,6 +29,7 @@ interface WorkoutTimersProps {
 
 export function WorkoutTimers({
   selectedDate,
+  expectedNumberOfSets = 0,
   programId,
   isWorkoutCompleted,
   isEditing = false,
@@ -445,6 +447,7 @@ export function WorkoutTimers({
         const payload = {
           title: title.trim(),
           workoutDate: format(selectedDate, "yyyy-MM-dd"),
+          expectedNumberOfSets: expectedNumberOfSets,
         };
 
         const result = await createManualWorkoutLog({

@@ -130,20 +130,23 @@ export function ProgramWorkoutLog({
       0
     );
 
-    const totalSets = selectedDay.exercises.reduce(
-      (acc: number, exercise: any) => acc + exercise.sets,
-      0
-    );
+    const expectedNumberOfSets = workoutLog.data[0].expectedNumberOfSets;
 
-    if (totalSets === 0) return;
+    if (expectedNumberOfSets === 0) return;
 
     // Use local variables for comparison to avoid double request
-    if (logged === totalSets && currentWorkout.status === "incomplete") {
+    if (
+      logged === expectedNumberOfSets &&
+      currentWorkout.status === "incomplete"
+    ) {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "completed",
       }).unwrap();
-    } else if (logged !== totalSets && currentWorkout.status === "completed") {
+    } else if (
+      logged !== expectedNumberOfSets &&
+      currentWorkout.status === "completed"
+    ) {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "incomplete",
@@ -530,6 +533,10 @@ export function ProgramWorkoutLog({
 
       {/* Workout Timers */}
       <WorkoutTimers
+        expectedNumberOfSets={selectedDay.exercises.reduce(
+          (acc: number, exercise: any) => acc + exercise.sets,
+          0
+        )}
         selectedDate={selectedDate}
         programId={program.programId}
         isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
