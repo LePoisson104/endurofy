@@ -144,6 +144,14 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
     }),
+    updateExpectedNumberOfSets: builder.mutation({
+      query: ({ workoutLogId, expectedNumberOfSets }) => ({
+        url: `/api/v1/workout-logs/update-expected-number-of-sets/${workoutLogId}`,
+        method: "PATCH",
+        body: { expectedNumberOfSets },
+      }),
+      invalidatesTags: [{ type: "WorkoutLog", id: "LIST" }],
+    }),
     pauseTimer: builder.mutation({
       query: ({ workoutLogId, time }) => ({
         url: `/api/v1/workout-logs/pause-timer/${workoutLogId}`,
@@ -215,6 +223,7 @@ export const {
   useUpdateExerciseNotesMutation,
   useUpdateWorkoutSetMutation,
   useUpdateWorkoutLogStatusMutation,
+  useUpdateExpectedNumberOfSetsMutation,
   useGetCompletedWorkoutLogsQuery,
   useGetPreviousWorkoutLogQuery,
   useGetWokroutLogPaginationQuery,

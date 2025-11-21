@@ -54,6 +54,7 @@ import {
   createMenuSection,
 } from "@/components/ui/responsive-menu";
 import { WorkoutTimers } from "@/components/workout/workout-timers";
+import { useUpdateExpectedNumberOfSetsMutation } from "@/api/workout-log/workout-log-api-slice";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -85,6 +86,7 @@ export function ProgramWorkoutLog({
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
 
   const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
+  const [updateExpectedNumberOfSets] = useUpdateExpectedNumberOfSetsMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
   const [deleteWorkoutLog, { isLoading: isDeletingWorkoutLog }] =
@@ -121,38 +123,56 @@ export function ProgramWorkoutLog({
 
   useEffect(() => {
     if (!selectedDay || !workoutLog?.data[0]) return;
-    if (selectedDay.dayId !== workoutLog.data[0].dayId) return;
 
     const currentWorkout = workoutLog.data[0];
+    if (selectedDay.dayId !== currentWorkout.dayId) return;
 
     const logged = currentWorkout.workoutExercises.reduce(
       (acc: number, exercise: any) => acc + exercise.workoutSets.length,
       0
     );
 
-    const expectedNumberOfSets = workoutLog.data[0].expectedNumberOfSets;
+    const totalSets = selectedDay.exercises.reduce(
+      (acc: number, exercise: any) => acc + exercise.sets,
+      0
+    );
+
+    const expectedNumberOfSets = currentWorkout.expectedNumberOfSets;
 
     if (expectedNumberOfSets === 0) return;
 
-    // Use local variables for comparison to avoid double request
     if (
-      logged === expectedNumberOfSets &&
+      totalSets !== expectedNumberOfSets &&
       currentWorkout.status === "incomplete"
     ) {
+      updateExpectedNumberOfSets({
+        workoutLogId: currentWorkout.workoutLogId,
+        expectedNumberOfSets: totalSets,
+      }).unwrap();
+
+      return;
+    }
+
+    const shouldBeCompleted = logged === expectedNumberOfSets;
+    const isCompleted = currentWorkout.status === "completed";
+
+    if (shouldBeCompleted && !isCompleted) {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "completed",
       }).unwrap();
-    } else if (
-      logged !== expectedNumberOfSets &&
-      currentWorkout.status === "completed"
-    ) {
+    } else if (!shouldBeCompleted && isCompleted) {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
         status: "incomplete",
       }).unwrap();
     }
-  }, [selectedDay, workoutLog, selectedDate, updateWorkoutLogStatus]);
+  }, [
+    selectedDay,
+    workoutLog,
+    updateWorkoutLogStatus,
+    updateExpectedNumberOfSets,
+  ]);
 
   // Load existing notes when workout log data is available
   useEffect(() => {
