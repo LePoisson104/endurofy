@@ -407,7 +407,7 @@ export function ProgramWorkoutLog({
             <p className="text-sm text-slate-500">
               {format(selectedDate, "MMMM d, yyyy")}
             </p>
-            {workoutLog.data[0].status === "completed" && (
+            {workoutLog?.data[0]?.status === "completed" && (
               <p className="text-sm text-slate-500 flex items-center gap-2">
                 <Timer className="h-4 w-4" />{" "}
                 {formatTime(workoutLog?.data[0]?.timer || 0)}
