@@ -9,7 +9,6 @@ interface StatsCardProps {
   change: string;
   trend: "up" | "down";
   icon: LucideIcon;
-  isMobile?: boolean;
 }
 
 export function StatsCard({
@@ -18,11 +17,10 @@ export function StatsCard({
   change,
   trend,
   icon: Icon,
-  isMobile = false,
 }: StatsCardProps) {
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardContent className={`${isMobile ? "p-5" : "p-6"}`}>
+      <CardContent className="px-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-3">
@@ -64,4 +62,3 @@ export function StatsCard({
     </Card>
   );
 }
-

@@ -12,6 +12,7 @@ import {
   Trash2,
   MoreVertical,
   Edit,
+  Timer,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
@@ -55,6 +56,7 @@ import {
 } from "@/components/ui/responsive-menu";
 import { WorkoutTimers } from "@/components/workout/workout-timers";
 import { useUpdateExpectedNumberOfSetsMutation } from "@/api/workout-log/workout-log-api-slice";
+import { formatTime } from "@/components/workout/timer-helper";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -402,9 +404,15 @@ export function ProgramWorkoutLog({
                 <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
               )}
             </div>
-            <div className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500">
               {format(selectedDate, "MMMM d, yyyy")}
-            </div>
+            </p>
+            {workoutLog.data[0].status === "completed" && (
+              <p className="text-sm text-slate-500 flex items-center gap-2">
+                <Timer className="h-4 w-4" />{" "}
+                {formatTime(workoutLog?.data[0]?.timer || 0)}
+              </p>
+            )}
           </div>
 
           {workoutLog?.data?.length > 0 &&
