@@ -23,6 +23,7 @@ import {
 } from "@/api/workout-program/workout-program-slice";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useSetProgramAsActiveMutation } from "@/api/workout-program/workout-program-api-slice";
 
 export default function MyPrograms() {
   const searchParams = useSearchParams();
@@ -41,13 +42,30 @@ export default function MyPrograms() {
     useCreateWorkoutProgramMutation();
   const [deleteWorkoutProgram, { isLoading: isDeleting }] =
     useDeleteWorkoutProgramMutation();
-
+  const [setProgramAsActive] = useSetProgramAsActiveMutation();
   const [workoutPrograms, setWorkoutPrograms] = useState<WorkoutProgram[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
     null
   );
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
+
+  useEffect(() => {
+    const notActivePrograms = programs?.filter(
+      (program) => program.isActive === 0
+    );
+    if (notActivePrograms?.length === programs?.length) {
+      const manualProgramId = programs?.find(
+        (program) => program.programType === "manual"
+      )?.programId;
+      if (manualProgramId) {
+        setProgramAsActive({
+          programId: manualProgramId,
+          userId: user?.user_id,
+        }).unwrap();
+      }
+    }
+  }, [programs]);
 
   // Sync tab state with URL changes
   useEffect(() => {
