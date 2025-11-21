@@ -16,6 +16,7 @@ export const useExerciseSets = (
   const [exerciseSets, setExerciseSets] = useState<Record<string, SetData[]>>(
     {}
   );
+  const [activeExercises, setActiveExercises] = useState<Exercise[]>([]);
 
   const [validationAttempts, setValidationAttempts] = useState<
     Record<string, boolean[]>
@@ -100,12 +101,71 @@ export const useExerciseSets = (
         ? groupWorkoutLogByExercise(workoutLog.data[0]?.workoutExercises)
         : {};
 
-      selectedDay.exercises.forEach((exercise) => {
-        // For program workouts, we need to find the corresponding workoutExercise by programExerciseId
-        const correspondingWorkoutExercise =
-          workoutLog?.data[0]?.workoutExercises?.find(
-            (we: any) => we.programExerciseId === exercise.exerciseId
-          );
+      // 1. Get Program Exercises
+      const programExercises = selectedDay.exercises.map((pe) => {
+        // Check if this program exercise has a corresponding logged entry
+        const loggedMatch = workoutLog?.data[0]?.workoutExercises?.find(
+          (we: any) => we.programExerciseId === pe.exerciseId
+        );
+
+        // If logged match exists, merge logged data (like name) but keep program structure
+        if (loggedMatch) {
+          return {
+            ...pe,
+            exerciseName: loggedMatch.exerciseName || pe.exerciseName,
+            notes: loggedMatch.notes || pe.notes,
+            // We keep other program properties (sets, reps) as targets
+          };
+        }
+        return pe;
+      });
+
+      // 2. Get Extra Exercises (from log but not in program)
+      const workoutExercises = workoutLog?.data[0]?.workoutExercises || [];
+      const extraExercises = workoutExercises
+        .filter(
+          (we: any) =>
+            !selectedDay.exercises.some(
+              (pe) => pe.exerciseId === we.programExerciseId
+            )
+        )
+        .map((we: any) => ({
+          exerciseId: we.workoutExerciseId, // Use workoutExerciseId as ID
+          exerciseName: we.exerciseName,
+          notes: we.notes,
+          previousNotes: we.previousNotes,
+          bodyPart: we.bodyPart,
+          laterality: we.laterality,
+          sets: we.workoutSets.length || 3,
+          minReps: 0, // Defaults
+          maxReps: 0, // Defaults
+          exerciseOrder: (we.exerciseOrder || 999) + 1000, // Ensure they come last
+        }));
+
+      const allExercises = [...programExercises, ...extraExercises];
+      setActiveExercises(allExercises);
+
+      allExercises.forEach((exercise) => {
+        // Check if it's a program exercise to determine matching strategy
+        const isProgramExercise = programExercises.some(
+          (pe) => pe.exerciseId === exercise.exerciseId
+        );
+
+        // For program workouts, we need to find the corresponding workoutExercise
+        let correspondingWorkoutExercise;
+
+        if (isProgramExercise) {
+          correspondingWorkoutExercise =
+            workoutLog?.data[0]?.workoutExercises?.find(
+              (we: any) => we.programExerciseId === exercise.exerciseId
+            );
+        } else {
+          // For extra exercises, ID is the workoutExerciseId
+          correspondingWorkoutExercise =
+            workoutLog?.data[0]?.workoutExercises?.find(
+              (we: any) => we.workoutExerciseId === exercise.exerciseId
+            );
+        }
 
         const workoutExerciseId =
           correspondingWorkoutExercise?.workoutExerciseId;
@@ -125,10 +185,14 @@ export const useExerciseSets = (
 
             // Match by programExerciseId instead of workoutExerciseId
             // because workoutExerciseId changes between workout sessions
-            const previousLoggedSet = previousLog?.data.find(
-              (previousExerciseData: any) =>
-                previousExerciseData.programExerciseId === exercise.exerciseId
-            );
+            // Only for program exercises; extra exercises don't have previous log in this context usually or complex to track
+            let previousLoggedSet;
+            if (isProgramExercise) {
+              previousLoggedSet = previousLog?.data.find(
+                (previousExerciseData: any) =>
+                  previousExerciseData.programExerciseId === exercise.exerciseId
+              );
+            }
 
             // If we found a matching exercise, get the specific set data
             const setData = loggedSet?.workoutSets?.find(
@@ -419,17 +483,23 @@ export const useExerciseSets = (
 
   const getWorkoutExerciseId = useCallback(
     (exerciseId: string): string => {
-      // For program workouts, exerciseId is the programExerciseId from the template
-      // We need to find the corresponding workoutExerciseId from the actual workout log
+      // For program workouts, check if it's a program exercise
       if (selectedDay) {
-        const correspondingWorkoutExercise =
-          workoutLog?.data[0]?.workoutExercises?.find(
-            (we: any) => we.programExerciseId === exerciseId
-          );
-        return correspondingWorkoutExercise?.workoutExerciseId || "";
+        const isProgramExercise = selectedDay.exercises.some(
+          (e) => e.exerciseId === exerciseId
+        );
+
+        if (isProgramExercise) {
+          // Match by programExerciseId
+          const correspondingWorkoutExercise =
+            workoutLog?.data[0]?.workoutExercises?.find(
+              (we: any) => we.programExerciseId === exerciseId
+            );
+          return correspondingWorkoutExercise?.workoutExerciseId || "";
+        }
       }
 
-      // For manual workouts, exerciseId is already the workoutExerciseId
+      // If not in program (or manual mode), the exerciseId IS the workoutExerciseId
       return exerciseId;
     },
     [selectedDay, workoutLog]
@@ -516,5 +586,6 @@ export const useExerciseSets = (
     getExerciseNotes,
     getExercises,
     getManualWorkoutExerciseId,
+    activeExercises,
   };
 };

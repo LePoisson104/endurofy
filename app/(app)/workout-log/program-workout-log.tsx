@@ -119,10 +119,13 @@ export function ProgramWorkoutLog({
     hasLoggedSets,
     getWorkoutExerciseId,
     getExerciseNotes,
+    activeExercises,
   } = useExerciseSets(workoutLog, [program], selectedDay, previousWorkoutLog);
 
   useEffect(() => {
     if (!selectedDay || !workoutLog?.data[0]) return;
+    if (selectedDay.exercises.length > 0 && activeExercises.length === 0)
+      return;
 
     const currentWorkout = workoutLog.data[0];
     if (selectedDay.dayId !== currentWorkout.dayId) return;
@@ -132,7 +135,7 @@ export function ProgramWorkoutLog({
       0
     );
 
-    const totalSets = selectedDay.exercises.reduce(
+    const totalSets = activeExercises.reduce(
       (acc: number, exercise: any) => acc + exercise.sets,
       0
     );
@@ -438,7 +441,7 @@ export function ProgramWorkoutLog({
 
       {selectedDay && (
         <div className="space-y-6">
-          {[...selectedDay.exercises]
+          {[...activeExercises]
             .sort((a, b) => a.exerciseOrder - b.exerciseOrder)
             .map((exercise: Exercise) => {
               const sets = exerciseSets[exercise.exerciseId] || [];
