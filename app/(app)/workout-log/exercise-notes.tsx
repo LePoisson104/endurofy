@@ -57,7 +57,7 @@ export default function ExerciseNotes({
         }
       }
     },
-    2000
+    1000
   );
   // Get the current value for a textarea (local state takes precedence over saved notes)
   const getCurrentNoteValue = (workoutExerciseId: string): string => {
