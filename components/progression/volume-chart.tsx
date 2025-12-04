@@ -58,7 +58,12 @@ export function VolumeChart({ chartData }: { chartData: any }) {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
+                const [year, month, day] = String(value).split("-");
+                const date = new Date(
+                  Number(year),
+                  Number(month) - 1,
+                  Number(day)
+                );
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -72,7 +77,13 @@ export function VolumeChart({ chartData }: { chartData: any }) {
                   className="w-[150px]"
                   nameKey="views"
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    const [year, month, day] = String(value).split("-");
+                    const date = new Date(
+                      Number(year),
+                      Number(month) - 1,
+                      Number(day)
+                    );
+                    return date.toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",

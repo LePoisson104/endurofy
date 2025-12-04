@@ -285,7 +285,7 @@ export default function Progression() {
     const grouped: Record<string, any> = {};
 
     workoutProgression.data.weightProgression.forEach((item: any) => {
-      const dateKey = item.date.split("T")[0]; // "2025-12-01"
+      const dateKey = item.date.split("T")[0];
 
       if (!grouped[dateKey]) {
         grouped[dateKey] = { date: dateKey };
@@ -294,7 +294,9 @@ export default function Progression() {
       grouped[dateKey][`set${item.setNumber}`] = Number(item.weight);
     });
 
-    return Object.values(grouped);
+    return Object.values(grouped).sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
   }, [workoutProgression]);
 
   const handleReset = () => {

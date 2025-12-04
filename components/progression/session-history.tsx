@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import {
   Card,
   CardContent,
@@ -23,6 +25,14 @@ export function SessionHistory({
   endDate: Date;
   sessionsHistory: any;
 }) {
+  const orderedSessions = useMemo(() => {
+    if (!sessionsHistory) return [];
+    return [...sessionsHistory].sort(
+      (a, b) =>
+        new Date(a.workoutDate).getTime() - new Date(b.workoutDate).getTime()
+    );
+  }, [sessionsHistory]);
+
   return (
     <Card>
       <CardHeader>
@@ -45,7 +55,7 @@ export function SessionHistory({
       </CardHeader>
       <CardContent>
         <Accordion type="single" collapsible className="w-full">
-          {sessionsHistory?.map((session: any) => (
+          {orderedSessions.map((session: any) => (
             <AccordionItem
               key={session.workoutLogId}
               value={session.workoutLogId}
