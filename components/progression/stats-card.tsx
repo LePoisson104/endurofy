@@ -7,7 +7,7 @@ interface StatsCardProps {
   title: string;
   value: string;
   change: string;
-  trend: "up" | "down";
+  trend: "up" | "down" | "null";
   icon: LucideIcon;
 }
 
@@ -26,7 +26,9 @@ export function StatsCard({
             <div className="flex items-center gap-3">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                  trend === "up"
+                  trend === "null"
+                    ? "bg-blue-500/10 text-blue-500"
+                    : trend === "up"
                     ? "bg-green-500/10 text-green-500"
                     : "bg-red-500/10 text-red-500"
                 }`}
@@ -48,7 +50,9 @@ export function StatsCard({
                     : "bg-red-500/10 text-red-600 dark:text-red-400"
                 }`}
               >
-                {trend === "up" ? (
+                {trend === "null" ? (
+                  ""
+                ) : trend === "up" ? (
                   <TrendingUp className="h-3 w-3" />
                 ) : (
                   <TrendingDown className="h-3 w-3" />

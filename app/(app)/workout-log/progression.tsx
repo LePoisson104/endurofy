@@ -8,35 +8,253 @@ import { ProgressionStats } from "@/components/progression/progression-stats";
 import { SessionHistory } from "@/components/progression/session-history";
 import { VolumeChart } from "@/components/progression/volume-chart";
 import { WeightChart } from "@/components/progression/weight-chart";
+import {
+  useGetPersonalRecordQuery,
+  useGetWorkoutProgressionQuery,
+} from "@/api/workout-progression/workout-progression-api-slice";
+import { selectCurrentUser } from "@/api/auth/auth-slice";
+import type {
+  Exercise,
+  WorkoutProgram,
+} from "@/interfaces/workout-program-interfaces";
+import { getDayRange } from "@/helper/get-day-range";
+import { StatData } from "@/interfaces/progression-interfaces";
+import {
+  Award,
+  ChartNoAxesColumn,
+  TrendingUp,
+  Target,
+  FileX,
+} from "lucide-react";
+import WorkoutProgressionSkeleton from "@/components/skeletons/workout-progression-skeleton";
 
-import type { Exercise } from "@/interfaces/workout-program-interfaces";
+interface weightChartData {
+  date: string;
+  set1: number;
+  set2: number;
+  [key: string]: any;
+}
+
+const STORAGE_KEYS = {
+  SELECTED_PROGRAM: "progression_selectedProgram",
+  SELECTED_EXERCISE: "progression_selectedExercise",
+  SELECTED_PERIOD: "progression_selectedPeriod",
+};
 
 export default function Progression() {
   const programs = useSelector(selectWorkoutProgram);
-
+  const user = useSelector(selectCurrentUser);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
   );
-  const [selectedPeriod, setSelectedPeriod] = useState("month");
-  const [selectedProgram, setSelectedProgram] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [selectedPeriod, setSelectedPeriod] = useState("7day");
+  const [selectedProgram, setSelectedProgram] = useState<WorkoutProgram | null>(
+    null
+  );
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    getDayRange({ options: "7day" }).startDate || undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    getDayRange({ options: "7day" }).endDate || undefined
+  );
+  const [statsData, setStatsData] = useState<StatData[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  const { data: personalRecord, isLoading: isLoadingPersonalRecord } =
+    useGetPersonalRecordQuery({
+      userId: user?.user_id,
+      programId: selectedProgram?.programId,
+      exerciseId: selectedExercise?.exerciseId,
+    });
+  const { data: workoutProgression, isLoading: isLoadingWorkoutProgression } =
+    useGetWorkoutProgressionQuery({
+      userId: user?.user_id,
+      programId: selectedProgram?.programId,
+      exerciseId: selectedExercise?.exerciseId,
+      startDate: startDate?.toISOString().split("T")[0],
+      endDate: endDate?.toISOString().split("T")[0],
+    });
+
+  // Load persisted values on mount
   useEffect(() => {
-    if (programs) {
-      const activeProgram = programs.find((program) => program.isActive === 1);
-
-      if (activeProgram) {
-        const allExercises = activeProgram.workoutDays.flatMap(
-          (day) => day.exercises
+    if (programs && programs.length > 0 && !isInitialized) {
+      try {
+        const savedProgramId = localStorage.getItem(
+          STORAGE_KEYS.SELECTED_PROGRAM
         );
-        setExercises(allExercises);
-        setSelectedExercise((allExercises[0] as Exercise) || null);
-        setSelectedProgram(activeProgram.programName);
+        const savedExerciseId = localStorage.getItem(
+          STORAGE_KEYS.SELECTED_EXERCISE
+        );
+        const savedPeriod = localStorage.getItem(STORAGE_KEYS.SELECTED_PERIOD);
+
+        let programToUse: WorkoutProgram | null = null;
+
+        // Try to find saved program, fallback to active program
+        if (savedProgramId) {
+          programToUse =
+            programs.find((p) => p.programId === savedProgramId) || null;
+        }
+
+        if (!programToUse) {
+          programToUse =
+            programs.find((program) => program.isActive === 1) || null;
+        }
+
+        if (programToUse) {
+          const allExercises = programToUse.workoutDays.flatMap(
+            (day) => day.exercises
+          );
+          setExercises(allExercises);
+          setSelectedProgram(programToUse);
+
+          // Try to find saved exercise
+          if (savedExerciseId) {
+            const exerciseToUse = allExercises.find(
+              (ex) => ex.exerciseId === savedExerciseId
+            );
+            setSelectedExercise(
+              exerciseToUse || (allExercises[0] as Exercise) || null
+            );
+          } else {
+            setSelectedExercise((allExercises[0] as Exercise) || null);
+          }
+        }
+
+        // Restore period
+        if (savedPeriod) {
+          setSelectedPeriod(savedPeriod);
+        }
+
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error loading persisted values:", error);
+        // Fallback to default behavior
+        const activeProgram = programs.find(
+          (program) => program.isActive === 1
+        );
+        if (activeProgram) {
+          const allExercises = activeProgram.workoutDays.flatMap(
+            (day) => day.exercises
+          );
+          setExercises(allExercises);
+          setSelectedExercise((allExercises[0] as Exercise) || null);
+          setSelectedProgram(activeProgram);
+        }
+        setIsInitialized(true);
       }
     }
-  }, [programs]);
+  }, [programs, isInitialized]);
+
+  // Persist selectedProgram
+  useEffect(() => {
+    if (isInitialized && selectedProgram) {
+      localStorage.setItem(
+        STORAGE_KEYS.SELECTED_PROGRAM,
+        selectedProgram.programId
+      );
+    }
+  }, [selectedProgram, isInitialized]);
+
+  // Persist selectedExercise
+  useEffect(() => {
+    if (isInitialized && selectedExercise) {
+      localStorage.setItem(
+        STORAGE_KEYS.SELECTED_EXERCISE,
+        selectedExercise.exerciseId
+      );
+    }
+  }, [selectedExercise, isInitialized]);
+
+  // Persist selectedPeriod
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem(STORAGE_KEYS.SELECTED_PERIOD, selectedPeriod);
+    }
+  }, [selectedPeriod, isInitialized]);
+
+  useEffect(() => {
+    const newStats: StatData[] = [];
+
+    if (personalRecord) {
+      newStats.push({
+        title: "Personal Record",
+        value: `${personalRecord?.data?.weight} ${
+          personalRecord?.data?.weightUnit === "lb" ? "lbs" : "kg"
+        } x ${personalRecord?.data?.reps} ${
+          personalRecord?.data?.reps === 1 ? "rep" : "reps"
+        }`,
+        change: `${(
+          ((personalRecord?.data?.bestOneRepMax -
+            personalRecord?.data?.initialOneRepMax) /
+            personalRecord?.data?.initialOneRepMax) *
+          100
+        ).toFixed(2)}%`,
+        trend:
+          personalRecord?.data?.bestOneRepMax >=
+          personalRecord?.data?.initialOneRepMax
+            ? "up"
+            : "down",
+        icon: Award,
+      });
+    }
+
+    if (workoutProgression) {
+      newStats.push(
+        {
+          title: "Weight Increase",
+          value: `${workoutProgression?.data?.stats?.weightIncrease} ${
+            workoutProgression?.data?.stats?.weightUnit === "lb" ? "lbs" : "kg"
+          }`,
+          change: `${workoutProgression?.data?.stats?.weightIncrease} ${
+            workoutProgression?.data?.stats?.weightUnit === "lb" ? "lbs" : "kg"
+          }`,
+          trend:
+            workoutProgression?.data?.stats?.weightIncrease >= 0
+              ? "up"
+              : "down",
+          icon: TrendingUp,
+        },
+        {
+          title: "Total Volume",
+          value: `${workoutProgression?.data?.stats?.totalVolume} ${
+            workoutProgression?.data?.stats?.weightUnit === "lb" ? "lbs" : "kg"
+          }`,
+          change: "",
+          trend: "null",
+          icon: ChartNoAxesColumn,
+        },
+        {
+          title: "Total Sets",
+          value: `${workoutProgression?.data?.stats?.totalSets}`,
+          change: "",
+          trend: "null",
+          icon: Target,
+        }
+      );
+    }
+
+    setStatsData(newStats);
+  }, [personalRecord, workoutProgression]);
+
+  useEffect(() => {
+    if (selectedPeriod === "7day") {
+      setStartDate(getDayRange({ options: "7d" }).startDate || undefined);
+      setEndDate(getDayRange({ options: "7d" }).endDate || undefined);
+    } else if (selectedPeriod === "14day") {
+      setStartDate(getDayRange({ options: "14d" }).startDate || undefined);
+      setEndDate(getDayRange({ options: "14d" }).endDate || undefined);
+    } else if (selectedPeriod === "30day") {
+      setStartDate(getDayRange({ options: "30d" }).startDate || undefined);
+      setEndDate(getDayRange({ options: "30d" }).endDate || undefined);
+    } else if (selectedPeriod === "90day") {
+      setStartDate(getDayRange({ options: "90d" }).startDate || undefined);
+      setEndDate(getDayRange({ options: "90d" }).endDate || undefined);
+    } else if (selectedPeriod === "day range") {
+      setStartDate(undefined);
+      setEndDate(undefined);
+    }
+  }, [selectedPeriod]);
 
   // Group exercises by body part
   const exercisesByBodyPart = useMemo(() => {
@@ -61,6 +279,24 @@ export default function Progression() {
       }, {});
   }, [exercises]);
 
+  const chartData: weightChartData[] = useMemo(() => {
+    if (!workoutProgression?.data?.weightProgression) return [];
+
+    const grouped: Record<string, any> = {};
+
+    workoutProgression.data.weightProgression.forEach((item: any) => {
+      const dateKey = item.date.split("T")[0]; // "2025-12-01"
+
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = { date: dateKey };
+      }
+
+      grouped[dateKey][`set${item.setNumber}`] = Number(item.weight);
+    });
+
+    return Object.values(grouped);
+  }, [workoutProgression]);
+
   const handleReset = () => {
     if (programs) {
       const activeProgram = programs.find((program) => program.isActive === 1);
@@ -69,42 +305,75 @@ export default function Progression() {
         const allExercises = activeProgram.workoutDays.flatMap(
           (day) => day.exercises
         );
+        setExercises(allExercises);
         setSelectedExercise((allExercises[0] as Exercise) || null);
-        setSelectedProgram(activeProgram.programName);
+        setSelectedProgram(activeProgram);
       }
     }
-    setSelectedPeriod("month");
-    setStartDate(undefined);
-    setEndDate(undefined);
+    setSelectedPeriod("7day");
+    setStartDate(getDayRange({ options: "7day" }).startDate || undefined);
+    setEndDate(getDayRange({ options: "7day" }).endDate || undefined);
+
+    // Clear localStorage
+    localStorage.removeItem(STORAGE_KEYS.SELECTED_PROGRAM);
+    localStorage.removeItem(STORAGE_KEYS.SELECTED_EXERCISE);
+    localStorage.removeItem(STORAGE_KEYS.SELECTED_PERIOD);
   };
+
+  if (isLoadingPersonalRecord && isLoadingWorkoutProgression) {
+    return <WorkoutProgressionSkeleton />;
+  }
 
   return (
     <div className="space-y-4">
       <ProgressionFiltersWrapper
         programs={programs}
-        selectedProgram={selectedProgram}
+        selectedProgram={selectedProgram || null}
         selectedExercise={selectedExercise}
         selectedPeriod={selectedPeriod}
         startDate={startDate}
         endDate={endDate}
         exercisesByBodyPart={exercisesByBodyPart}
-        onProgramChange={setSelectedProgram}
+        onProgramChange={(value) => {
+          const newProgram =
+            programs?.find((program) => program.programId === value) || null;
+          setSelectedProgram(newProgram);
+
+          if (newProgram) {
+            const allExercises = newProgram.workoutDays.flatMap(
+              (day) => day.exercises
+            );
+            setExercises(allExercises);
+            setSelectedExercise((allExercises[0] as Exercise) || null);
+          } else {
+            setExercises([]);
+            setSelectedExercise(null);
+          }
+        }}
         onExerciseChange={setSelectedExercise}
         onPeriodChange={setSelectedPeriod}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
         onReset={handleReset}
       />
-
-      <ProgressionStats />
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <WeightChart />
-        <VolumeChart />
-      </div>
-
-      <SessionHistory />
+      {personalRecord?.data !== null && workoutProgression?.data !== null ? (
+        <>
+          <ProgressionStats statsData={statsData} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <WeightChart chartData={chartData} />
+            <VolumeChart chartData={chartData} />
+          </div>
+          <SessionHistory
+            startDate={startDate || new Date()}
+            endDate={endDate || new Date()}
+            sessionsHistory={workoutProgression?.data?.sessionHistory}
+          />
+        </>
+      ) : (
+        <div className="flex flex-col gap-2 justify-center items-center w-full mt-4 border rounded-lg h-[400px] border-dashed text-muted-foreground">
+          <FileX /> No Data
+        </div>
+      )}
     </div>
   );
 }

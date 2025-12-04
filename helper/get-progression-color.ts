@@ -10,7 +10,7 @@ interface SetData {
 }
 
 const estimateOneRepMax = (weight: number, reps: number): number => {
-  return Number((weight * (1 + reps / 30)).toFixed(1));
+  return Number((weight * (1 + reps / 30)).toFixed(2));
 };
 
 export const getProgressionColor = (
@@ -25,7 +25,6 @@ export const getProgressionColor = (
     ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
   const prev1RM = estimateOneRepMax(setData.previousWeight || 0, previousReps);
   const current1RM = estimateOneRepMax(setData.weight || 0, setData.reps || 0);
-
   if (current1RM > prev1RM) {
     return isDark
       ? "border-green-400 text-green-400 bg-green-900"

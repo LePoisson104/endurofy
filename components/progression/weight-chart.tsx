@@ -1,13 +1,10 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -20,37 +17,30 @@ import {
 
 export const description = "A simple area chart";
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 900 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
-
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  set1: {
+    label: "Set1",
+    color: "hsl(var(--chart-1))",
+  },
+  set2: {
+    label: "Set2",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export function WeightChart() {
+export function WeightChart({ chartData }: { chartData: any }) {
   return (
     <Card className="py-0">
       <CardHeader className="flex flex-col items-stretch !p-0">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:py-6">
           <CardTitle>Weight Progression</CardTitle>
-          <CardDescription>
-            Showing total weight for the last 3 months
-          </CardDescription>
+          <CardDescription className="border-b mt-1" />
         </div>
       </CardHeader>
       <CardContent className="px-2">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[300px] w-full"
+          className="aspect-auto h-[350px] w-full pb-6"
         >
           <AreaChart
             accessibilityLayer
@@ -60,13 +50,53 @@ export function WeightChart() {
               right: 12,
             }}
           >
+            <defs>
+              <linearGradient id="fillSet1" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-set1)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-set1)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id="fillSet2" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-set2)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-set2)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              minTickGap={32}
+              tickFormatter={(value) => {
+                // Parse the date string directly without timezone issues
+                const [year, month, day] = value.split("-");
+                const date = new Date(
+                  Number(year),
+                  Number(month) - 1,
+                  Number(day)
+                );
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }}
+              interval="preserveStartEnd"
             />
 
             <ChartTooltip
@@ -74,27 +104,24 @@ export function WeightChart() {
               content={<ChartTooltipContent indicator="line" />}
             />
             <Area
-              dataKey="desktop"
-              type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              dataKey="set1"
+              type="monotone"
+              fill="url(#fillSet1)"
+              stroke="var(--color-set1)"
+              strokeWidth={2}
+              fillOpacity={0.8}
+            />
+            <Area
+              dataKey="set2"
+              type="monotone"
+              fill="url(#fillSet2)"
+              stroke="var(--color-set2)"
+              strokeWidth={2}
+              fillOpacity={0.8}
             />
           </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="pb-5">
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 leading-none font-medium">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="text-muted-foreground flex items-center gap-2 leading-none">
-              January - June 2024
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }

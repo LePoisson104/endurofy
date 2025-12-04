@@ -5,7 +5,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -39,7 +38,6 @@ import { Label } from "@/components/ui/label";
 import Badge from "@/components/badges/custom-badge";
 import {
   ListFilterPlus,
-  X,
   Calendar as CalendarIcon,
   RotateCcw,
 } from "lucide-react";
@@ -50,7 +48,7 @@ import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 
 interface ProgressionFiltersWrapperProps {
   programs: WorkoutProgram[] | null;
-  selectedProgram: string;
+  selectedProgram: WorkoutProgram | null;
   selectedExercise: Exercise | null;
   selectedPeriod: string;
   startDate?: Date;
@@ -65,9 +63,10 @@ interface ProgressionFiltersWrapperProps {
 }
 
 const PERIODS = [
-  { value: "week", label: "Last Week" },
-  { value: "month", label: "Last Month" },
-  { value: "3months", label: "Last 3 Months" },
+  { value: "7day", label: "Last 7 Days" },
+  { value: "14day", label: "Last 14 Days" },
+  { value: "30day", label: "Last 30 Days" },
+  { value: "90day", label: "Last 3 months" },
   { value: "day range", label: "Day Range" },
 ];
 
@@ -92,9 +91,17 @@ function FilterContent({
     <div className="space-y-4">
       <div className="flex flex-col gap-2">
         <Label>Program</Label>
-        <Select value={selectedProgram} onValueChange={onProgramChange}>
+        <Select
+          value={selectedProgram?.programName || ""}
+          onValueChange={(value) =>
+            onProgramChange(
+              programs?.find((program) => program.programName === value)
+                ?.programId || ""
+            )
+          }
+        >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder={selectedProgram} />
+            <SelectValue placeholder={selectedProgram?.programName || ""} />
           </SelectTrigger>
           <SelectContent>
             {programs?.map((program) => (
@@ -108,11 +115,11 @@ function FilterContent({
       <div className="flex flex-col gap-2">
         <Label>Exercise</Label>
         <Select
-          value={selectedExercise?.exerciseName || ""}
+          value={selectedExercise?.exerciseId || ""}
           onValueChange={(value) =>
             onExerciseChange(
               exercises.find(
-                (exercise: Exercise) => exercise.exerciseName === value
+                (exercise: Exercise) => exercise.exerciseId === value
               ) || null
             )
           }
@@ -127,7 +134,7 @@ function FilterContent({
                 {exercisesByBodyPart[bodyPart].map((exercise: Exercise) => (
                   <SelectItem
                     key={exercise.exerciseId}
-                    value={exercise.exerciseName}
+                    value={exercise.exerciseId}
                   >
                     {exercise.exerciseName}
                   </SelectItem>
@@ -175,7 +182,7 @@ function FilterContent({
                 <Calendar
                   mode="single"
                   selected={startDate}
-                  onSelect={onStartDateChange}
+                  onSelect={(date) => onStartDateChange?.(date || undefined)}
                   initialFocus
                 />
               </PopoverContent>
@@ -200,7 +207,7 @@ function FilterContent({
                 <Calendar
                   mode="single"
                   selected={endDate}
-                  onSelect={onEndDateChange}
+                  onSelect={(date) => onEndDateChange?.(date || undefined)}
                   disabled={(date) => (startDate ? date < startDate : false)}
                   initialFocus
                 />
@@ -272,11 +279,6 @@ export function ProgressionFiltersWrapper(
                         <RotateCcw className="mr-2 h-4 w-4" />
                         Reset Filters
                       </Button>
-                      <DrawerClose asChild>
-                        <Button variant="default" className="w-full">
-                          Apply Filters
-                        </Button>
-                      </DrawerClose>
                     </DrawerFooter>
                   </DrawerContent>
                 </Drawer>
@@ -284,7 +286,7 @@ export function ProgressionFiltersWrapper(
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm text-muted-foreground truncate">
                       <span className="font-medium text-foreground">
-                        {selectedProgram}
+                        {selectedProgram?.programName || ""}
                       </span>{" "}
                       • {selectedExercise?.exerciseName || ""}
                     </p>
@@ -329,9 +331,17 @@ export function ProgressionFiltersWrapper(
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex flex-col gap-2">
             <Label>Program</Label>
-            <Select value={selectedProgram} onValueChange={onProgramChange}>
+            <Select
+              value={selectedProgram?.programName || ""}
+              onValueChange={(value) =>
+                onProgramChange(
+                  programs?.find((program) => program.programName === value)
+                    ?.programId || ""
+                )
+              }
+            >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={selectedProgram} />
+                <SelectValue placeholder={selectedProgram?.programName || ""} />
               </SelectTrigger>
               <SelectContent>
                 {programs?.map((program) => (
@@ -348,11 +358,11 @@ export function ProgressionFiltersWrapper(
           <div className="flex flex-col gap-2">
             <Label>Exercise</Label>
             <Select
-              value={selectedExercise?.exerciseName || ""}
+              value={selectedExercise?.exerciseId || ""}
               onValueChange={(value) =>
                 onExerciseChange(
                   exercises.find(
-                    (exercise: Exercise) => exercise.exerciseName === value
+                    (exercise: Exercise) => exercise.exerciseId === value
                   ) || null
                 )
               }
@@ -369,7 +379,7 @@ export function ProgressionFiltersWrapper(
                     {exercisesByBodyPart[bodyPart].map((exercise: Exercise) => (
                       <SelectItem
                         key={exercise.exerciseId}
-                        value={exercise.exerciseName}
+                        value={exercise.exerciseId}
                       >
                         {exercise.exerciseName}
                       </SelectItem>
@@ -457,8 +467,10 @@ export function ProgressionFiltersWrapper(
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">{selectedProgram}</span> •{" "}
-              {selectedExercise?.exerciseName || ""}
+              <span className="font-medium">
+                {selectedProgram?.programName || ""}
+              </span>{" "}
+              • {selectedExercise?.exerciseName || ""}
             </p>
             <Badge title={selectedExercise?.laterality || ""} />
           </div>

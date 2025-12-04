@@ -84,11 +84,11 @@ export function ProgressionFilters({
           <div className="flex flex-col gap-2">
             <Label>Exercise</Label>
             <Select
-              value={selectedExercise?.exerciseName || ""}
+              value={selectedExercise?.exerciseId || ""}
               onValueChange={(value) =>
                 onExerciseChange(
                   exercises.find(
-                    (exercise: Exercise) => exercise.exerciseName === value
+                    (exercise: Exercise) => exercise.exerciseId === value
                   ) || null
                 )
               }
@@ -105,7 +105,7 @@ export function ProgressionFilters({
                     {exercisesByBodyPart[bodyPart].map((exercise: Exercise) => (
                       <SelectItem
                         key={exercise.exerciseId}
-                        value={exercise.exerciseName}
+                        value={exercise.exerciseId}
                       >
                         {exercise.exerciseName}
                       </SelectItem>
@@ -143,4 +143,3 @@ export function ProgressionFilters({
     </Card>
   );
 }
-
