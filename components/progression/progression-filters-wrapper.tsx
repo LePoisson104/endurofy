@@ -250,13 +250,11 @@ export function ProgressionFiltersWrapper(
         <Card>
           <CardContent className="px-4">
             <div className="flex items-center justify-between gap-3">
+              <Button variant={"outline"} onClick={() => setOpen(true)}>
+                <ListFilterPlus className="h-4 w-4" />
+              </Button>
               <div className="flex items-center gap-4">
                 <Drawer open={open} onOpenChange={setOpen}>
-                  <DrawerTrigger asChild>
-                    <Button variant="outline" size="sm" className="shrink-0">
-                      <ListFilterPlus className="h-4 w-4" />
-                    </Button>
-                  </DrawerTrigger>
                   <DrawerContent className="standalone:pb-10">
                     <DrawerHeader className="text-left">
                       <DrawerTitle>Filter Settings</DrawerTitle>

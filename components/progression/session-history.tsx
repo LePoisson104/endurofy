@@ -116,20 +116,29 @@ export function SessionHistory({
               </AccordionTrigger>
               <AccordionContent>
                 <div className="pt-4 space-y-2">
-                  <div className="grid grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm font-semibold text-muted-foreground pb-2 border-b">
+                  <div className="grid grid-cols-4 gap-2 md:gap-4 text-xs md:text-sm font-semibold text-muted-foreground pb-2 border-b">
                     <span>Set</span>
                     <span>Reps</span>
                     <span>Weight</span>
+                    <span>Volume</span>
                   </div>
                   {session.sets.map((set) => (
                     <div
                       key={set.setNumber}
-                      className="grid grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm py-2 hover:bg-muted/50 rounded-md px-2 transition-colors"
+                      className="grid grid-cols-4 gap-2 md:gap-4 text-xs md:text-sm py-2 hover:bg-muted/50 rounded-md px-2 transition-colors"
                     >
                       <span className="font-medium">Set {set.setNumber}</span>
                       <span>{set.reps} reps</span>
                       <span className="font-medium">
                         {set.weight}{" "}
+                        {session.weightUnit === "lb"
+                          ? session.weight <= 1
+                            ? "lb"
+                            : "lbs"
+                          : "kg"}
+                      </span>
+                      <span>
+                        {set.reps * set.weight}{" "}
                         {session.weightUnit === "lb"
                           ? session.weight <= 1
                             ? "lb"

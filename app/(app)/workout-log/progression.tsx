@@ -279,7 +279,7 @@ export default function Progression() {
       }, {});
   }, [exercises]);
 
-  const chartData: weightChartData[] = useMemo(() => {
+  const weightChartData: weightChartData[] = useMemo(() => {
     if (!workoutProgression?.data?.weightProgression) return [];
 
     const grouped: Record<string, any> = {};
@@ -292,6 +292,28 @@ export default function Progression() {
       }
 
       grouped[dateKey][`set${item.setNumber}`] = Number(item.weight);
+    });
+
+    return Object.values(grouped).sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  }, [workoutProgression]);
+
+  const volumeChartData: weightChartData[] = useMemo(() => {
+    if (!workoutProgression?.data?.volumeProgression) return [];
+
+    const grouped: Record<string, any> = {};
+
+    workoutProgression.data.volumeProgression.forEach((sessionSets: any[]) => {
+      sessionSets.forEach((set: any) => {
+        const dateKey = set.date.split("T")[0];
+
+        if (!grouped[dateKey]) {
+          grouped[dateKey] = { date: dateKey };
+        }
+
+        grouped[dateKey][`set${set.setNumber}`] = set.volume;
+      });
     });
 
     return Object.values(grouped).sort(
@@ -362,8 +384,8 @@ export default function Progression() {
         <>
           <ProgressionStats statsData={statsData} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <WeightChart chartData={chartData} />
-            <VolumeChart chartData={chartData} />
+            <WeightChart chartData={weightChartData} />
+            <VolumeChart chartData={volumeChartData} />
           </div>
           <SessionHistory
             startDate={startDate || new Date()}
