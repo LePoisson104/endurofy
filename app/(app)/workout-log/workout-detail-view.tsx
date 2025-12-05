@@ -786,13 +786,18 @@ export function WorkoutDetailView({
                           ? modifiedSets.has(setId) && hasActualChanges(setId)
                           : false;
                         const setData = {
-                          isLogged: true,
+                          workoutLogId: workout.workoutLogId,
                           weight: currentSet.weight || 0,
+                          weightUnit: set.weightUnit,
                           leftReps: currentSet.repsLeft || 0,
                           rightReps: currentSet.repsRight || 0,
                           reps:
                             (currentSet.repsLeft + currentSet.repsRight) / 2 ||
                             0,
+                          isLogged: true,
+                          workoutSetId: set.workoutSetId,
+                          workoutExerciseId: exercise.workoutExerciseId,
+                          setNumber: set.setNumber,
                           previousWeight: set.previousWeight || 0,
                           previousLeftReps: set.previousLeftReps || 0,
                           previousRightReps: set.previousRightReps || 0,
