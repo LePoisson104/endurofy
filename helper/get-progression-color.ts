@@ -24,7 +24,7 @@ export const getProgressionColor = (
   const previousReps =
     ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
   const prev1RM = estimateOneRepMax(setData.previousWeight || 0, previousReps);
-  const current1RM = estimateOneRepMax(setData.weight || 0, setData.reps || 0);
+  const current1RM = estimateOneRepMax(setData.weight, setData.reps);
   if (current1RM > prev1RM) {
     return isDark
       ? "border-green-400 text-green-400 bg-green-900"
@@ -48,7 +48,7 @@ export const getProgressionTextColor = (setData: SetData, isDark: boolean) => {
   const previousReps =
     ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
   const prev1RM = estimateOneRepMax(setData.previousWeight || 0, previousReps);
-  const current1RM = estimateOneRepMax(setData.weight || 0, setData.reps || 0);
+  const current1RM = estimateOneRepMax(setData.weight, setData.reps);
 
   if (current1RM > prev1RM) {
     return isDark ? "text-green-400" : "text-green-500";
