@@ -111,6 +111,7 @@ export default function FoodLogPage() {
     }
     return new Date();
   });
+  console.log(selectedDate);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<keyof MealData>("breakfast");
