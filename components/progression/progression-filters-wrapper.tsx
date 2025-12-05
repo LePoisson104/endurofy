@@ -10,7 +10,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
   Card,
@@ -249,7 +248,7 @@ export function ProgressionFiltersWrapper(
         {/* Mobile Summary Card */}
         <Card>
           <CardContent className="px-4">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
               <Button variant={"outline"} onClick={() => setOpen(true)}>
                 <ListFilterPlus className="h-4 w-4" />
               </Button>
