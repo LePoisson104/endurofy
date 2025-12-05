@@ -1,15 +1,6 @@
-interface SetData {
-  isLogged: boolean;
-  weight: number;
-  leftReps: number;
-  rightReps: number;
-  reps: number;
-  previousWeight: number | null;
-  previousLeftReps: number | null;
-  previousRightReps: number | null;
-}
+import type { SetData } from "@/interfaces/workout-log-interfaces";
 
-const estimateOneRepMax = (weight: number, reps: number): number => {
+export const estimateOneRepMax = (weight: number, reps: number): number => {
   return Number((weight * (1 + reps / 30)).toFixed(2));
 };
 

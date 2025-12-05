@@ -25,6 +25,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getProgressionColor } from "@/helper/get-progression-color";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
+import { getRecommendedProgressionValues } from "@/helper/get-recommended-progression-values";
 
 interface ExerciseTableProps {
   onSaveExerciseSets: (exercisePayload: ExercisePayload) => void;
@@ -512,7 +513,9 @@ export default function ExerciseTable({
                 >
                   <Input
                     placeholder={
-                      setData.previousWeight
+                      setData.reps > 0 && setData.weight === 0
+                        ? getRecommendedProgressionValues(setData)
+                        : setData.previousWeight
                         ? String(setData.previousWeight)
                         : "-"
                     }
@@ -647,7 +650,9 @@ export default function ExerciseTable({
                   >
                     <Input
                       placeholder={
-                        setData.previousLeftReps
+                        setData.weight > 0 && setData.reps === 0
+                          ? getRecommendedProgressionValues(setData)
+                          : setData.previousLeftReps
                           ? String(setData.previousLeftReps)
                           : "-"
                       }
