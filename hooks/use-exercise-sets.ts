@@ -373,16 +373,41 @@ export const useExerciseSets = (
         ...prev,
         [exerciseId]: prev[exerciseId].map((set, index) => {
           if (index === setIndex) {
-            const updatedSet = { ...set, [field]: value };
+            const updatedSet = { ...set };
 
-            // If updating reps, always sync leftReps and rightReps for bilateral exercises
-            if (field === "reps" && value && Number(value) > 0) {
-              updatedSet.leftReps = Number(value);
-              updatedSet.rightReps = Number(value);
+            // Handle empty strings for numeric fields - convert to 0
+            if (field === "weight") {
+              const numValue =
+                value === "" || value === null || value === undefined
+                  ? 0
+                  : Number(value);
+              updatedSet.weight = isNaN(numValue) ? 0 : numValue;
+            } else if (field === "reps") {
+              const numValue =
+                value === "" || value === null || value === undefined
+                  ? 0
+                  : Number(value);
+              updatedSet.reps = isNaN(numValue) ? 0 : numValue;
+            } else if (field === "leftReps") {
+              const numValue =
+                value === "" || value === null || value === undefined
+                  ? 0
+                  : Number(value);
+              updatedSet.leftReps = isNaN(numValue) ? 0 : numValue;
+            } else if (field === "rightReps") {
+              const numValue =
+                value === "" || value === null || value === undefined
+                  ? 0
+                  : Number(value);
+              updatedSet.rightReps = isNaN(numValue) ? 0 : numValue;
+            } else if (field === "weightUnit") {
+              updatedSet.weightUnit = value as string;
             }
 
-            if (field === "weight" && value && Number(value) > 0) {
-              updatedSet.weight = Number(value);
+            // If updating reps, always sync leftReps and rightReps for bilateral exercises
+            if (field === "reps" && updatedSet.reps > 0) {
+              updatedSet.leftReps = updatedSet.reps;
+              updatedSet.rightReps = updatedSet.reps;
             }
 
             return updatedSet;

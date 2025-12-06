@@ -1,50 +1,104 @@
 import type { SetData } from "@/interfaces/workout-log-interfaces";
 import { estimateOneRepMax } from "./get-progression-color";
 
-export const getRecommendedProgressionBilateralValues = (
-  setData: SetData
+export const getRecommendedProgressionValues = (
+  setData: SetData,
+  laterality?: "bilateral" | "unilateral"
 ): string => {
+  console.log(setData);
   if (setData.isLogged) return "";
   if (!setData.previousWeight || setData.previousWeight === 0) return "-";
 
-  const previousReps =
-    ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
   const previousWeight = setData.previousWeight || 0;
-  const prev1RM = estimateOneRepMax(previousWeight, previousReps);
+  const progressionFactor = 1.025; // 2.5% progression target
 
-  if (setData.weight > 0 && setData.reps === 0) {
-    const minReps = 30 * (prev1RM / setData.weight - 1);
-    const recommendedReps = Math.ceil(minReps);
+  // Handle bilateral exercises
+  if (!laterality || laterality === "bilateral") {
+    const previousReps =
+      ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
+    const prev1RM = estimateOneRepMax(previousWeight, previousReps);
+    const target1RM = prev1RM * progressionFactor;
 
-    if (recommendedReps > 0 && recommendedReps <= 100) {
-      return String(recommendedReps);
+    // Calculate recommended reps when weight is set
+    if (setData.weight > 0 && setData.reps === 0) {
+      const minReps = 30 * (target1RM / setData.weight - 1);
+      const recommendedReps = Math.ceil(minReps);
+
+      if (recommendedReps > 0 && recommendedReps <= 100) {
+        return String(recommendedReps);
+      }
+
+      if (recommendedReps <= 0) {
+        return String(Math.ceil(previousReps) + 1);
+      }
+      return "-";
     }
 
-    if (recommendedReps <= 0) {
-      return String(Math.ceil(previousReps));
+    // Calculate recommended weight when reps is set
+    if (setData.reps > 0 && setData.weight === 0) {
+      const matchingWeight = target1RM / (1 + setData.reps / 30);
+      // Round to nearest 2.5 increment
+      const roundedWeight = Math.round(matchingWeight / 2.5) * 2.5;
+
+      if (roundedWeight > 0 && roundedWeight <= previousWeight * 3) {
+        return String(roundedWeight);
+      }
+
+      return "-";
     }
-    return "-";
   }
 
-  if (setData.reps > 0 && setData.weight === 0) {
-    const minWeight = prev1RM / (1 + setData.reps / 30);
+  // Handle unilateral exercises
+  if (laterality === "unilateral") {
+    // Use the weaker side (lower reps) as the baseline for progression
+    const previousLeftReps = setData.previousLeftReps || 0;
+    const previousRightReps = setData.previousRightReps || 0;
+    const weakerSideReps = Math.min(previousLeftReps, previousRightReps);
 
-    const roundedMinWeight = Math.ceil(minWeight / 2.5) * 2.5;
+    const prev1RM = estimateOneRepMax(previousWeight, weakerSideReps);
+    const target1RM = prev1RM * progressionFactor;
 
-    let recommendedWeight = Math.max(roundedMinWeight, previousWeight);
+    // Calculate recommended reps when weight is set
+    if (
+      setData.weight > 0 &&
+      (setData.leftReps === 0 || setData.rightReps === 0)
+    ) {
+      const minReps = 30 * (target1RM / setData.weight - 1);
+      const recommendedReps = Math.ceil(minReps);
 
-    let new1RM = estimateOneRepMax(recommendedWeight, setData.reps);
+      if (recommendedReps > 0 && recommendedReps <= 100) {
+        return String(recommendedReps);
+      }
 
-    while (new1RM <= prev1RM && recommendedWeight <= previousWeight * 3) {
-      recommendedWeight += 2.5;
-      new1RM = estimateOneRepMax(recommendedWeight, setData.reps);
+      if (recommendedReps <= 0) {
+        return String(Math.ceil(weakerSideReps) + 1);
+      }
+      return "-";
     }
 
-    if (new1RM > prev1RM && recommendedWeight <= previousWeight * 3) {
-      return String(recommendedWeight);
-    }
+    // Calculate recommended weight when reps are set
+    if (
+      (setData.leftReps > 0 || setData.rightReps > 0) &&
+      setData.weight === 0
+    ) {
+      // Use the reps that were entered
+      const currentReps =
+        setData.leftReps > 0 && setData.rightReps > 0
+          ? Math.min(setData.leftReps, setData.rightReps)
+          : setData.leftReps > 0
+          ? setData.leftReps
+          : setData.rightReps;
 
-    return "-";
+      const matchingWeight = target1RM / (1 + currentReps / 30);
+      // Round to nearest 2.5 increment
+      const roundedWeight = Math.round(matchingWeight / 2.5) * 2.5;
+
+      if (roundedWeight > 0 && roundedWeight <= previousWeight * 3) {
+        return String(roundedWeight);
+      }
+
+      return "-";
+    }
   }
 
   return "-";
