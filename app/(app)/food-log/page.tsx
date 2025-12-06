@@ -110,8 +110,6 @@ export default function FoodLogPage() {
     }
     return new Date();
   });
-  console.log(selectedDate);
-  console.log(sessionStorage.getItem("foodLogSelectedDate"));
 
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
@@ -289,6 +287,7 @@ export default function FoodLogPage() {
   const handleFoodAdded = async (food: AddFoodLogPayload) => {
     food.mealType = selectedMeal;
     food.loggedAt = selectedDate;
+    console.log("loggedAt: ", selectedDate);
 
     try {
       await addFoodLog({
