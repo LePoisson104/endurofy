@@ -288,6 +288,8 @@ export default function FoodLogPage() {
     food.mealType = selectedMeal;
     food.loggedAt = new Date(selectedDate).toISOString().split("T")[0];
 
+    console.log(new Date(selectedDate).toISOString().split("T")[0]);
+
     try {
       await addFoodLog({
         userId: user?.user_id,
