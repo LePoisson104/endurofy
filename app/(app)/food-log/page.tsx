@@ -27,7 +27,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -111,6 +110,8 @@ export default function FoodLogPage() {
     }
     return new Date();
   });
+  console.log(selectedDate);
+  console.log(sessionStorage.getItem("foodLogSelectedDate"));
 
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
