@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Timer, Loader2, Clock } from "lucide-react";
+import { Play, Pause, Timer, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -520,7 +520,7 @@ export function WorkoutTimers({
   };
 
   // Don't show timers if editing or workout is completed
-  if (isEditing || isWorkoutCompleted) {
+  if (isWorkoutCompleted) {
     return null;
   }
 

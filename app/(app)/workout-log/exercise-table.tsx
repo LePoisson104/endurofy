@@ -319,17 +319,9 @@ export default function ExerciseTable({
   ) => {
     setDeletingSetId(workoutSetId);
     try {
-      if (logType === "program") {
-        await deleteWorkoutSetWithCascade({
-          workoutSetId,
-          workoutExerciseId,
-          workoutLogId,
-        }).unwrap();
-      } else if (logType === "manual") {
-        await deleteWorkoutSet({
-          workoutSetId,
-        }).unwrap();
-      }
+      await deleteWorkoutSet({
+        workoutSetId,
+      }).unwrap();
       setDeletingSetId(null);
     } catch (error: any) {
       if (!error.status) {

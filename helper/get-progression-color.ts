@@ -12,10 +12,6 @@ export const getProgressionColor = (
     return "";
   }
 
-  if (setData.previousWeight === null || setData.previousWeight === undefined) {
-    return "";
-  }
-
   const previousReps =
     ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
   const prev1RM = estimateOneRepMax(setData.previousWeight || 0, previousReps);
