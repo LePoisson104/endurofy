@@ -17,7 +17,7 @@ export interface AddFoodLogPayload {
   servingSize: number;
   servingUnit: ServingUnit;
   mealType?: "breakfast" | "lunch" | "dinner" | "snacks" | "uncategorized";
-  loggedAt?: Date;
+  loggedAt?: string;
 }
 export interface FoodLogs {
   food_log_id: string;

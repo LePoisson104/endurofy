@@ -286,8 +286,7 @@ export default function FoodLogPage() {
 
   const handleFoodAdded = async (food: AddFoodLogPayload) => {
     food.mealType = selectedMeal;
-    food.loggedAt = selectedDate;
-    console.log("loggedAt: ", selectedDate);
+    food.loggedAt = new Date(selectedDate).toISOString().split("T")[0];
 
     try {
       await addFoodLog({
