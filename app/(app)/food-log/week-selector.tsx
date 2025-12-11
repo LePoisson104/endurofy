@@ -10,7 +10,7 @@ import {
   isSameDay,
   isSameMonth,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -22,11 +22,13 @@ import { getStartOfPreviousAndEndOfNextMonth } from "@/helper/get-day-range";
 interface WeekSelectorProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
+  setIsCalendarModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function WeekSelector({
   selectedDate,
   onSelectDate,
+  setIsCalendarModalOpen,
 }: WeekSelectorProps) {
   const user = useSelector(selectCurrentUser);
   const [currentDay, setCurrentDay] = useState(new Date());
@@ -71,7 +73,14 @@ export default function WeekSelector({
     <div className="bg-card shadow-sm rounded-lg p-3">
       {/* Header with Month/Year and Navigation */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-foreground">
+        <h3 className="text-base font-semibold text-foreground gap-1 flex items-center">
+          <Button
+            variant="ghost"
+            onClick={() => setIsCalendarModalOpen(true)}
+            className=""
+          >
+            <CalendarIcon className="h-4 w-4" />
+          </Button>
           {format(selectedDate, "MMMM yyyy")}
         </h3>
         <div className="flex items-center gap-2">

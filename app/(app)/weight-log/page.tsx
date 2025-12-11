@@ -169,21 +169,22 @@ export default function WeightLogPage() {
     <div className="flex min-h-screen flex-col p-[1rem]">
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
-          {/* Page Header */}
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col">
-              <PageTitle title="Weight Log" />
+          {isMobile && (
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col">
+                <PageTitle title="Weight Log" />
+              </div>
+
+              <Button
+                variant="outline"
+                className="lg:hidden flex items-center"
+                onClick={() => setIsModalOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Weight
+              </Button>
             </div>
-            {/* Mobile add button - only visible on small screens */}
-            <Button
-              variant="outline"
-              className="lg:hidden flex items-center"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Weight
-            </Button>
-          </div>
+          )}
 
           {/* Main Content */}
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-4">

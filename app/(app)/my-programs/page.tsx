@@ -197,14 +197,6 @@ export default function MyPrograms() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
-      <header className="mb-6">
-        <PageTitle
-          title="Workout Programs"
-          showCurrentDateAndTime={false}
-          subTitle="Create personalize workout plans and progress tracking"
-        />
-      </header>
-
       <main className="flex-1">
         <div className="mx-auto max-w-7xl">
           <Tabs

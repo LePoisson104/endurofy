@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import {
-  CalendarIcon,
   Droplets,
   EllipsisVertical,
   CheckCircle,
@@ -57,7 +55,6 @@ import { Foods } from "@/interfaces/food-log-interfaces";
 import FoodCalendar from "./food-calendar";
 import MealAccordion from "./meal-accordion";
 import MacroProgressBar from "./macro-progress-bar";
-import PageTitle from "@/components/global/page-title";
 import WaterIntake from "./water-intake";
 import {
   useAddFoodLogMutation,
@@ -408,39 +405,18 @@ export default function FoodLogPage() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
-      <header>
-        <div className="flex justify-between items-center">
-          <div>
-            <PageTitle
-              title="Food Log"
-              showCurrentDateAndTime={false}
-              subTitle={`${format(selectedDate, "EEEE, MMMM d, yyyy")}`}
-            />
-          </div>
-          {isMobile && (
-            <Button
-              variant="outline"
-              onClick={() => setIsCalendarModalOpen(true)}
-              className="gap-2"
-            >
-              <CalendarIcon className="h-4 w-4" />
-              Full Calendar
-            </Button>
-          )}
-        </div>
-      </header>
-
       {/* Mobile Week Selector */}
       {isMobile && (
-        <div className="pt-4">
+        <div>
           <WeekSelector
             selectedDate={selectedDate}
             onSelectDate={handleDateChange}
+            setIsCalendarModalOpen={setIsCalendarModalOpen}
           />
         </div>
       )}
 
-      <main className="flex-1 pt-6">
+      <main className="flex-1">
         <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-4">
           {/* Left side - Food Log */}
           <div className="lg:col-span-3 space-y-6">

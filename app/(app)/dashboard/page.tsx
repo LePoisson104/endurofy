@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PageTitle from "@/components/global/page-title";
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton";
@@ -336,8 +335,6 @@ export default function DashboardPage() {
         {/* Main Content */}
         <main className="flex-1">
           <div className="flex flex-col space-y-6">
-            {/* Dashboard Header */}
-            <PageTitle title="Dashboard" />
             {/* Metrics Cards */}
             <DashboardSkeleton />
           </div>
@@ -351,9 +348,6 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="flex-1">
         <div className="flex flex-col space-y-6">
-          {/* Dashboard Header */}
-          <PageTitle title="Dashboard" />
-
           {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xs:grid-cols-4">
             <div className="grid gap-4 md:grid-cols-2 sm:grid-cols-1">

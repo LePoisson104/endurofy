@@ -129,25 +129,7 @@ export default function WorkoutLogManager() {
 
   return (
     <div className="flex min-h-screen flex-col p-[1rem]">
-      <header>
-        <div className="flex justify-between items-center">
-          <div>
-            <PageTitle title="Workout Log" />
-          </div>
-          {isMobile && selectedTab === "log" && (
-            <Button
-              variant="outline"
-              onClick={() => setIsCalendarModalOpen(true)}
-              className="gap-2"
-            >
-              <CalendarIcon className="h-4 w-4" />
-              Show Calendar
-            </Button>
-          )}
-        </div>
-      </header>
-
-      <main className="flex-1 pt-6">
+      <main className="flex-1">
         <div className="w-full border-b mb-4">
           <Tabs value={selectedTab} onValueChange={handleTabChange}>
             <TabsList className="flex gap-4">
@@ -157,13 +139,24 @@ export default function WorkoutLogManager() {
             </TabsList>
           </Tabs>
         </div>
-        {selectedTab === "log" && (
-          <ProgramSelector
-            programs={programs as WorkoutProgram[]}
-            selectedProgramId={selectedProgram?.programId || ""}
-            onSelectProgram={handleSetProgramAsActive}
-          />
-        )}
+        <div className="flex gap-2">
+          {isMobile && selectedTab === "log" && (
+            <Button
+              variant="outline"
+              onClick={() => setIsCalendarModalOpen(true)}
+              className="gap-2"
+            >
+              <CalendarIcon className="h-4 w-4" />
+            </Button>
+          )}
+          {selectedTab === "log" && (
+            <ProgramSelector
+              programs={programs as WorkoutProgram[]}
+              selectedProgramId={selectedProgram?.programId || ""}
+              onSelectProgram={handleSetProgramAsActive}
+            />
+          )}
+        </div>
         <div>
           <div
             className={`grid grid-cols-1 gap-[1rem] ${
