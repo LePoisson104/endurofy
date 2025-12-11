@@ -7,7 +7,6 @@ import { ProgramWorkoutLog } from "./program-workout-log";
 import { WorkoutLogHistory } from "./workout-log-history";
 import { WorkoutCalendar } from "./workout-calendar";
 import { ProgramSelector } from "./program-selector";
-import PageTitle from "@/components/global/page-title";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";

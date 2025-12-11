@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Save, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  useDeleteWorkoutSetWithCascadeMutation,
   useUpdateWorkoutSetMutation,
   useDeleteWorkoutSetMutation,
 } from "@/api/workout-log/workout-log-api-slice";
@@ -78,8 +77,6 @@ export default function ExerciseTable({
     [setId: string]: SetData;
   }>({});
 
-  const [deleteWorkoutSetWithCascade] =
-    useDeleteWorkoutSetWithCascadeMutation();
   const [deleteWorkoutSet] = useDeleteWorkoutSetMutation();
   const [updateWorkoutSet] = useUpdateWorkoutSetMutation();
 
@@ -312,11 +309,7 @@ export default function ExerciseTable({
     }
   };
 
-  const handleDeleteSet = async (
-    workoutSetId: string | null,
-    workoutExerciseId: string | null,
-    workoutLogId: string | null
-  ) => {
+  const handleDeleteSet = async (workoutSetId: string | null) => {
     setDeletingSetId(workoutSetId);
     try {
       await deleteWorkoutSet({
@@ -458,13 +451,7 @@ export default function ExerciseTable({
                         size="icon"
                         className="h-8 w-8 "
                         disabled={deletingSetId === setData.workoutSetId}
-                        onClick={() =>
-                          handleDeleteSet(
-                            setData.workoutSetId,
-                            setData.workoutExerciseId,
-                            setData.workoutLogId
-                          )
-                        }
+                        onClick={() => handleDeleteSet(setData.workoutSetId)}
                       >
                         {deletingSetId === setData.workoutSetId ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

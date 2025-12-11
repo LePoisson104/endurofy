@@ -242,22 +242,21 @@ export function WorkoutTimers({
   useEffect(() => {
     if (isWorkoutCompleted && sessionTimerRunning && workoutLog) {
       // Save timer to database before stopping
+      // optimistic pause and toast
+      setSessionTimerRunning(false);
+      setHasWorkoutStarted(false);
+      setIsStartingWorkout(true);
+      runningWorkoutLogIdRef.current = null; // Clear running workout ID
+      toast.success(
+        `Workout completed! Duration: ${formatTime(sessionElapsedTime)}`
+      );
+      // Clear timer from localStorage when workout is completed
+      localStorage.removeItem(TIMER_STORAGE_KEY);
       pauseTimer({
         workoutLogId: workoutLog.workoutLogId,
         time: sessionElapsedTime,
       })
         .unwrap()
-        .then(() => {
-          setSessionTimerRunning(false);
-          setHasWorkoutStarted(false);
-          setIsStartingWorkout(true);
-          runningWorkoutLogIdRef.current = null; // Clear running workout ID
-          toast.success(
-            `Workout completed! Duration: ${formatTime(sessionElapsedTime)}`
-          );
-          // Clear timer from localStorage when workout is completed
-          localStorage.removeItem(TIMER_STORAGE_KEY);
-        })
         .catch((error: any) => {
           console.error("Failed to save timer on completion:", error);
           // Still stop the timer even if save fails
