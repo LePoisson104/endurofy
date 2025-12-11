@@ -442,7 +442,7 @@ export default function FoodSelectionModal({
       const foodItem: AddFoodLogPayload = {
         foodSourceId: food.foodId,
         foodName: food.foodName,
-        foodBrand: food.foodBrand,
+        foodBrand: food.foodBrand || null,
         foodSource: isCustomFood(food) ? "custom" : food.foodSource,
         ingredients: food.ingredients || "",
         // All nutritional values are normalized to per 100g for backend storage

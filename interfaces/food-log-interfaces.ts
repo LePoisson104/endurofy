@@ -3,7 +3,7 @@ export type ServingUnit = "g" | "oz" | "ml" | "GRM" | "MLT";
 export interface AddFoodLogPayload {
   foodSourceId: string;
   foodName: string;
-  foodBrand?: string;
+  foodBrand?: string | null;
   foodSource?: "usda" | "custom";
   ingredients?: string;
   calories: number;
