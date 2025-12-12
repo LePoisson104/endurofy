@@ -87,7 +87,8 @@ export function ProgramWorkoutLog({
 
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
 
-  const [updateWorkoutLogStatus] = useUpdateWorkoutLogStatusMutation();
+  const [updateWorkoutLogStatus, { isLoading: isUpdatingWorkoutLogStatus }] =
+    useUpdateWorkoutLogStatusMutation();
   const [updateExpectedNumberOfSets] = useUpdateExpectedNumberOfSetsMutation();
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
