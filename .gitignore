@@ -17,6 +17,7 @@
 /.next/
 /out/
 /.cursor/rules
+/CLAUDE.md
 
 # production
 /build

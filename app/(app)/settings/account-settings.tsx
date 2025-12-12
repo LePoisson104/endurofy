@@ -23,7 +23,7 @@ import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { parseDateAndTimeSafely } from "@/helper/parse-date-safely";
+import { enUSDate } from "@/helper/enUSDate";
 import {
   useUpdateUsersNameMutation,
   useUpdateUsersPasswordMutation,
@@ -42,7 +42,7 @@ export function AccountSettings() {
 
   const [updateFirstName, setUpdateFirstName] = useState("");
   const [updateLastName, setUpdateLastName] = useState("");
-  const lastUpdated = parseDateAndTimeSafely(userInfo?.user_updated_at || "");
+  const lastUpdated = enUSDate(userInfo?.user_updated_at || "");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

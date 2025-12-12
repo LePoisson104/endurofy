@@ -56,26 +56,3 @@ export function formatDateSafely(
 
   return date.toLocaleDateString("en-US", options);
 }
-
-export function parseDateAndTimeSafely(dateString: string): string | null {
-  if (dateString.length === 0) return null;
-
-  const [datePart, timePart] = dateString.split("T");
-  if (datePart.length !== 10 || timePart.length !== 13) {
-    return null;
-  }
-
-  const [hour, minute] = timePart.split(":");
-  const hour12 =
-    parseInt(hour) > 12
-      ? parseInt(hour) - 12
-      : parseInt(hour) === 0
-      ? 12
-      : parseInt(hour);
-  const ampm = parseInt(hour) > 12 ? "PM" : "AM";
-
-  const date = formatDateSafely(datePart);
-  const time = `${hour12}:${minute} ${ampm}`;
-
-  return `${date} at ${time}`;
-}

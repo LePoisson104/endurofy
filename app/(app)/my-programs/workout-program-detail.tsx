@@ -62,7 +62,7 @@ import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import DeleteDialog from "@/components/dialog/delete-dialog";
-import { parseDateAndTimeSafely } from "@/helper/parse-date-safely";
+import { enUSDate } from "@/helper/enUSDate";
 
 interface WorkoutProgramDetailProps {
   program: WorkoutProgram;
@@ -731,8 +731,7 @@ export function WorkoutProgramDetail({
                   isDarkMode ? "text-blue-300" : "text-blue-500"
                 }`}
               >
-                Starting date:{" "}
-                {parseDateAndTimeSafely(program.startingDate)?.split("at")[0]}
+                Starting date: {enUSDate(program.startingDate)?.split("at")[0]}
               </div>
             )}
             <div
@@ -740,7 +739,7 @@ export function WorkoutProgramDetail({
                 isDarkMode ? "text-slate-400" : "text-slate-500"
               }`}
             >
-              Created on {parseDateAndTimeSafely(program.createdAt)}
+              Created on {enUSDate(program.createdAt)}
             </div>
             {new Date(program.createdAt).getTime() !==
               new Date(program.updatedAt).getTime() && (
@@ -749,7 +748,7 @@ export function WorkoutProgramDetail({
                   isDarkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
-                Updated on {parseDateAndTimeSafely(program.updatedAt)}
+                Updated on {enUSDate(program.updatedAt)}
               </div>
             )}
           </CardContent>

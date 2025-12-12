@@ -7,7 +7,7 @@ import {
 import { UserInfo } from "@/interfaces/user-interfaces";
 import { calculateAge } from "@/helper/calculate-age";
 import { formatDateSafely } from "@/helper/parse-date-safely";
-import { parseDateAndTimeSafely } from "@/helper/parse-date-safely";
+import { enUSDate } from "@/helper/enUSDate";
 
 interface PersonalInfoCardProps {
   userInfo: UserInfo;
@@ -16,9 +16,7 @@ interface PersonalInfoCardProps {
 export default function PersonalInfoCard({ userInfo }: PersonalInfoCardProps) {
   const age = calculateAge(userInfo?.birth_date || "");
 
-  const lastUpdated = parseDateAndTimeSafely(
-    userInfo?.user_profile_updated_at || ""
-  );
+  const lastUpdated = enUSDate(userInfo?.user_profile_updated_at || "");
 
   // console.log("lastUpdated", lastUpdated);
 
