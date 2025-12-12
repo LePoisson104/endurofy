@@ -740,7 +740,8 @@ export function WorkoutProgramDetail({
                 isDarkMode ? "text-slate-400" : "text-slate-500"
               }`}
             >
-              Created on {parseDateAndTimeSafely(program.createdAt)}
+              Created on{" "}
+              {parseDateAndTimeSafely(program.createdAt + "T06:00:00.000Z")}
             </div>
             {new Date(program.createdAt).getTime() !==
               new Date(program.updatedAt).getTime() && (
@@ -749,7 +750,8 @@ export function WorkoutProgramDetail({
                   isDarkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
-                Updated on {parseDateAndTimeSafely(program.updatedAt)}
+                Updated on{" "}
+                {parseDateAndTimeSafely(program.updatedAt + "T06:00:00.000Z")}
               </div>
             )}
           </CardContent>

@@ -17,7 +17,6 @@ import { ExerciseForm } from "../../../components/form/exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CalendarIcon, Loader2, Plus } from "lucide-react";
-
 import type {
   AllDays,
   Exercise,
@@ -39,6 +38,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
+import { useSelector } from "react-redux";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
@@ -52,6 +53,7 @@ export function WorkoutProgramCreator({
   onSuccess,
 }: WorkoutProgramCreatorProps) {
   const isMobile = useIsMobile();
+  const workoutPrograms = useSelector(selectWorkoutProgram);
   const [programName, setProgramName] = useState("");
   const [description, setDescription] = useState("");
   const [calendarDate, setCalendarDate] = useState<Date | null>(null);
@@ -393,6 +395,14 @@ export function WorkoutProgramCreator({
       setCalendarInput("");
     }
   }, [calendarDate]);
+
+  if (workoutPrograms?.length === 4) {
+    return (
+      <div className="">
+        <p>You have reached the maximum number of workout programs.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
