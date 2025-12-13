@@ -247,9 +247,6 @@ export function WorkoutTimers({
       setHasWorkoutStarted(false);
       setIsStartingWorkout(true);
       runningWorkoutLogIdRef.current = null; // Clear running workout ID
-      toast.success(
-        `Workout completed! Duration: ${formatTime(sessionElapsedTime)}`
-      );
       // Clear timer from localStorage when workout is completed
       localStorage.removeItem(TIMER_STORAGE_KEY);
       pauseTimer({
