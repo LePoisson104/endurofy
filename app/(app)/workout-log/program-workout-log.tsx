@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -57,6 +57,7 @@ import {
 import { WorkoutTimers } from "@/components/workout/workout-timers";
 import { useUpdateExpectedNumberOfSetsMutation } from "@/api/workout-log/workout-log-api-slice";
 import { formatTime } from "@/components/workout/timer-helper";
+import WorkoutSummaryModal from "@/components/modals/workout-summary-modal";
 
 interface ProgramWorkoutLogProps {
   program: WorkoutProgram;
@@ -86,6 +87,8 @@ export function ProgramWorkoutLog({
   );
 
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const previousStatusRef = useRef<string | null>(null);
 
   const [updateWorkoutLogStatus, { isLoading: isUpdatingWorkoutLogStatus }] =
     useUpdateWorkoutLogStatusMutation();
@@ -180,6 +183,33 @@ export function ProgramWorkoutLog({
     updateExpectedNumberOfSets,
   ]);
 
+  // Track status change from incomplete to completed
+  useEffect(() => {
+    const currentStatus = workoutLog?.data[0]?.status;
+    const previousStatus = previousStatusRef.current;
+
+    // Initialize ref on first load if not set
+    if (!previousStatus && currentStatus) {
+      previousStatusRef.current = currentStatus;
+      return;
+    }
+
+    // Check if status changed from incomplete to completed
+    if (
+      previousStatus === "incomplete" &&
+      currentStatus === "completed" &&
+      !isUpdatingWorkoutLogStatus
+    ) {
+      // Show summary modal after successful completion
+      setShowSummaryModal(true);
+    }
+
+    // Update the previous status ref
+    if (currentStatus && currentStatus !== previousStatus) {
+      previousStatusRef.current = currentStatus;
+    }
+  }, [workoutLog?.data[0]?.status, isUpdatingWorkoutLogStatus]);
+
   // Load existing notes when workout log data is available
   useEffect(() => {
     if (selectedDay && workoutLog) {
@@ -202,6 +232,11 @@ export function ProgramWorkoutLog({
         }));
       }
       setWorkoutLogName(workoutLog.data[0]?.title || "");
+
+      // Initialize previous status ref
+      if (workoutLog.data[0]?.status) {
+        previousStatusRef.current = workoutLog.data[0].status;
+      }
     }
   }, [selectedDay, workoutLog]); // Remove function dependencies
 
@@ -358,227 +393,254 @@ export function ProgramWorkoutLog({
   ];
 
   return (
-    <div
-      className={`space-y-6 ${
-        !isEditing && workoutLog?.data[0]?.status !== "completed" ? "pb-15" : ""
-      }`}
-    >
-      <div className="flex flex-col space-y-2">
-        <div className="space-y-2 flex w-full justify-between items-center">
-          <div className="flex flex-col gap-1">
-            <div>
-              {workoutLog?.data?.length > 0 ? (
-                isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={workoutLogName}
-                      onChange={(e) => setWorkoutLogName(e.target.value)}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleUpdateWorkoutLogName}
-                      disabled={
-                        workoutLogName.trim() === "" ||
-                        isUpdatingWorkoutLogName ||
-                        workoutLogName === workoutLog?.data[0].title
-                      }
-                    >
-                      {isUpdatingWorkoutLogName ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold">
-                      {workoutLog.data[0].title}
-                    </h2>
-                    {workoutLog.data[0].status === "completed" && (
-                      <CompletedBadge />
-                    )}
-                  </div>
-                )
-              ) : (
-                <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
-              )}
-            </div>
-            <p className="text-sm text-slate-500">
-              {format(selectedDate, "MMMM d, yyyy")}
+    <>
+      {/* Spinner Overlay */}
+      {isUpdatingWorkoutLogStatus && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-background/80">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">
+              Completing workout...
             </p>
-            {workoutLog?.data[0]?.status === "completed" && (
-              <p className="text-sm text-slate-500 flex items-center gap-2">
-                <Timer className="h-4 w-4" />{" "}
-                {formatTime(workoutLog?.data[0]?.timer || 0)}
-              </p>
-            )}
           </div>
-
-          {workoutLog?.data?.length > 0 &&
-            (isMobile ? (
-              <Button
-                onClick={() => setIsDrawerOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            ) : (
-              <ResponsiveMenu
-                sections={editMenuSections}
-                trigger={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                }
-                dropdownAlign="end"
-                dropdownWidth="w-40"
-                onClose={() => {
-                  // Optional: Add any additional close logic here
-                }}
-              />
-            ))}
-        </div>
-      </div>
-
-      {selectedDay && (
-        <div className="space-y-6">
-          {[...activeExercises]
-            .sort((a, b) => a.exerciseOrder - b.exerciseOrder)
-            .map((exercise: Exercise) => {
-              const sets = exerciseSets[exercise.exerciseId] || [];
-              const isFullyLogged = isExerciseFullyLogged(exercise.exerciseId);
-              const hasAnyLoggedSets = hasLoggedSets(exercise.exerciseId);
-              const previousExerciseNotes = getPreviousExerciseNotes(
-                exercise.exerciseId
-              );
-
-              return (
-                <div
-                  key={exercise.exerciseId}
-                  className={`rounded-lg space-y-4 ${
-                    isMobile ? "p-0 border-none" : "p-4 border"
-                  }`}
-                >
-                  <div
-                    className={`flex justify-between ${
-                      isMobile ? "items-center" : ""
-                    }`}
-                  >
-                    <div className="flex flex-col flex-1 ">
-                      <div
-                        className={`flex items-center gap-3 ${
-                          isMobile ? "justify-between" : ""
-                        }`}
-                      >
-                        <h4 className="font-medium">{exercise.exerciseName}</h4>
-
-                        {isFullyLogged && (
-                          <div>
-                            <Check className="h-5 w-5 text-green-500" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 my-1">
-                        <CustomBadge title={exercise.laterality} />
-                        <BodyPartBadge bodyPart={exercise.bodyPart} />
-                      </div>
-                      <div
-                        className={`text-sm ${
-                          isDark ? "text-slate-400" : "text-slate-500"
-                        }`}
-                      >
-                        Target: {exercise.sets} sets × {exercise.minReps}-
-                        {exercise.maxReps} reps
-                      </div>
-                    </div>
-                    {isEditing && hasLoggedSets(exercise.exerciseId) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-fit text-destructive hover:text-destructive/80"
-                        onClick={() => {
-                          setContext("Exercise");
-                          setShowDeleteDialog(true);
-                          setDeletingExerciseId(
-                            getWorkoutExerciseId(exercise.exerciseId)
-                          );
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <ExerciseTable
-                    onSaveExerciseSets={onSaveExerciseSets}
-                    exercise={exercise}
-                    exerciseSets={sets}
-                    updateSetData={updateSetData}
-                    toggleSetLogged={toggleSetLogged}
-                    isFieldInvalid={isFieldInvalid}
-                    isEditing={isEditing}
-                    hasLoggedSets={hasAnyLoggedSets}
-                    isMobile={isMobile}
-                    showPrevious={showPrevious}
-                    isStartingWorkout={isStartingWorkout}
-                  />
-                  <ExerciseNotes
-                    exerciseNotes={exerciseNotes}
-                    setExerciseNotes={setExerciseNotes}
-                    getExerciseNotes={getExerciseNotes}
-                    getWorkoutExerciseId={getWorkoutExerciseId}
-                    hasAnyLoggedSets={hasAnyLoggedSets}
-                    exercise={exercise}
-                    readOnly={false}
-                    previousExerciseNotes={previousExerciseNotes}
-                  />
-                </div>
-              );
-            })}
         </div>
       )}
 
-      <DeleteDialog
-        showDeleteDialog={showDeleteDialog}
-        setShowDeleteDialog={setShowDeleteDialog}
-        handleDelete={handleDelete}
-        isDeleting={isDeletingWorkoutLog}
-        title={`Delete Workout ${context}`}
+      <div
+        className={`space-y-6 ${
+          !isEditing && workoutLog?.data[0]?.status !== "completed"
+            ? "pb-15"
+            : ""
+        }`}
       >
-        {`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
-      </DeleteDialog>
-      <ResponsiveMenu
-        sections={editMenuSections}
-        isOpen={isDrawerOpen}
-        setIsOpen={setIsDrawerOpen}
-        dropdownAlign="end"
-        dropdownWidth="w-40"
-      />
+        <div className="flex flex-col space-y-2">
+          <div className="space-y-2 flex w-full justify-between items-center">
+            <div className="flex flex-col gap-1">
+              <div>
+                {workoutLog?.data?.length > 0 ? (
+                  isEditing ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={workoutLogName}
+                        onChange={(e) => setWorkoutLogName(e.target.value)}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleUpdateWorkoutLogName}
+                        disabled={
+                          workoutLogName.trim() === "" ||
+                          isUpdatingWorkoutLogName ||
+                          workoutLogName === workoutLog?.data[0].title
+                        }
+                      >
+                        {isUpdatingWorkoutLogName ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-xl font-bold">
+                        {workoutLog.data[0].title}
+                      </h2>
+                      {workoutLog.data[0].status === "completed" && (
+                        <CompletedBadge />
+                      )}
+                    </div>
+                  )
+                ) : (
+                  <h2 className="text-xl font-bold">{selectedDay?.dayName}</h2>
+                )}
+              </div>
+              <p className="text-sm text-slate-500">
+                {format(selectedDate, "MMMM d, yyyy")}
+              </p>
+              {workoutLog?.data[0]?.status === "completed" && (
+                <p className="text-sm text-slate-500 flex items-center gap-2">
+                  <Timer className="h-4 w-4" />{" "}
+                  {formatTime(workoutLog?.data[0]?.timer || 0)}
+                </p>
+              )}
+            </div>
 
-      {/* Workout Timers */}
-      <WorkoutTimers
-        expectedNumberOfSets={selectedDay.exercises.reduce(
-          (acc: number, exercise: any) => acc + exercise.sets,
-          0
+            {workoutLog?.data?.length > 0 &&
+              (isMobile ? (
+                <Button
+                  onClick={() => setIsDrawerOpen(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              ) : (
+                <ResponsiveMenu
+                  sections={editMenuSections}
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-card/50 dark:hover:bg-card/50"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  }
+                  dropdownAlign="end"
+                  dropdownWidth="w-40"
+                  onClose={() => {
+                    // Optional: Add any additional close logic here
+                  }}
+                />
+              ))}
+          </div>
+        </div>
+
+        {selectedDay && (
+          <div className="space-y-6">
+            {[...activeExercises]
+              .sort((a, b) => a.exerciseOrder - b.exerciseOrder)
+              .map((exercise: Exercise) => {
+                const sets = exerciseSets[exercise.exerciseId] || [];
+                const isFullyLogged = isExerciseFullyLogged(
+                  exercise.exerciseId
+                );
+                const hasAnyLoggedSets = hasLoggedSets(exercise.exerciseId);
+                const previousExerciseNotes = getPreviousExerciseNotes(
+                  exercise.exerciseId
+                );
+
+                return (
+                  <div
+                    key={exercise.exerciseId}
+                    className={`rounded-lg space-y-4 ${
+                      isMobile ? "p-0 border-none" : "p-4 border"
+                    }`}
+                  >
+                    <div
+                      className={`flex justify-between ${
+                        isMobile ? "items-center" : ""
+                      }`}
+                    >
+                      <div className="flex flex-col flex-1 ">
+                        <div
+                          className={`flex items-center gap-3 ${
+                            isMobile ? "justify-between" : ""
+                          }`}
+                        >
+                          <h4 className="font-medium">
+                            {exercise.exerciseName}
+                          </h4>
+
+                          {isFullyLogged && (
+                            <div>
+                              <Check className="h-5 w-5 text-green-500" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 my-1">
+                          <CustomBadge title={exercise.laterality} />
+                          <BodyPartBadge bodyPart={exercise.bodyPart} />
+                        </div>
+                        <div
+                          className={`text-sm ${
+                            isDark ? "text-slate-400" : "text-slate-500"
+                          }`}
+                        >
+                          Target: {exercise.sets} sets × {exercise.minReps}-
+                          {exercise.maxReps} reps
+                        </div>
+                      </div>
+                      {isEditing && hasLoggedSets(exercise.exerciseId) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-fit text-destructive hover:text-destructive/80"
+                          onClick={() => {
+                            setContext("Exercise");
+                            setShowDeleteDialog(true);
+                            setDeletingExerciseId(
+                              getWorkoutExerciseId(exercise.exerciseId)
+                            );
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <ExerciseTable
+                      onSaveExerciseSets={onSaveExerciseSets}
+                      exercise={exercise}
+                      exerciseSets={sets}
+                      updateSetData={updateSetData}
+                      toggleSetLogged={toggleSetLogged}
+                      isFieldInvalid={isFieldInvalid}
+                      isEditing={isEditing}
+                      hasLoggedSets={hasAnyLoggedSets}
+                      isMobile={isMobile}
+                      showPrevious={showPrevious}
+                      isStartingWorkout={isStartingWorkout}
+                    />
+                    <ExerciseNotes
+                      exerciseNotes={exerciseNotes}
+                      setExerciseNotes={setExerciseNotes}
+                      getExerciseNotes={getExerciseNotes}
+                      getWorkoutExerciseId={getWorkoutExerciseId}
+                      hasAnyLoggedSets={hasAnyLoggedSets}
+                      exercise={exercise}
+                      readOnly={false}
+                      previousExerciseNotes={previousExerciseNotes}
+                    />
+                  </div>
+                );
+              })}
+          </div>
         )}
-        selectedDate={selectedDate}
-        programId={program.programId}
-        isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
-        isEditing={isEditing}
-        setIsStartingWorkout={setIsStartingWorkout}
-        programType={program.programType}
-        title={selectedDay?.dayName || ""}
-        dayId={selectedDay?.dayId || ""}
-        workoutLog={workoutLog?.data[0]}
-      />
-    </div>
+
+        <DeleteDialog
+          showDeleteDialog={showDeleteDialog}
+          setShowDeleteDialog={setShowDeleteDialog}
+          handleDelete={handleDelete}
+          isDeleting={isDeletingWorkoutLog}
+          title={`Delete Workout ${context}`}
+        >
+          {`Are you sure you want to delete this workout ${context.toLowerCase()}? This action cannot be undone.`}
+        </DeleteDialog>
+        <ResponsiveMenu
+          sections={editMenuSections}
+          isOpen={isDrawerOpen}
+          setIsOpen={setIsDrawerOpen}
+          dropdownAlign="end"
+          dropdownWidth="w-40"
+        />
+
+        {/* Workout Timers */}
+        <WorkoutTimers
+          expectedNumberOfSets={selectedDay.exercises.reduce(
+            (acc: number, exercise: any) => acc + exercise.sets,
+            0
+          )}
+          selectedDate={selectedDate}
+          programId={program.programId}
+          isWorkoutCompleted={workoutLog?.data[0]?.status === "completed"}
+          isEditing={isEditing}
+          setIsStartingWorkout={setIsStartingWorkout}
+          programType={program.programType}
+          title={selectedDay?.dayName || ""}
+          dayId={selectedDay?.dayId || ""}
+          workoutLog={workoutLog?.data[0]}
+        />
+
+        {/* Workout Summary Modal */}
+        <WorkoutSummaryModal
+          isOpen={showSummaryModal}
+          onClose={() => setShowSummaryModal(false)}
+          workoutLog={workoutLog?.data[0] || null}
+        />
+      </div>
+    </>
   );
 }
