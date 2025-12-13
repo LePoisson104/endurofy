@@ -5,7 +5,6 @@ export const getRecommendedProgressionValues = (
   setData: SetData,
   laterality?: "bilateral" | "unilateral"
 ): string => {
-  console.log(setData);
   if (setData.isLogged) return "";
   if (!setData.previousWeight || setData.previousWeight === 0) return "-";
 

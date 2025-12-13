@@ -4,8 +4,16 @@ import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { Button } from "@/components/ui/button";
-import { Check, Plus, Trash2, Loader2, Edit, MoreVertical } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import {
+  Check,
+  Plus,
+  Trash2,
+  Loader2,
+  Edit,
+  MoreVertical,
+  Timer,
+} from "lucide-react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import ExerciseSelectionModal from "@/components/modals/exercise-selection-modal";
 import CreateManualWorkoutLogModal from "@/components/modals/create-manual-workout-log-modal";
@@ -37,11 +45,13 @@ import {
   createMenuSection,
 } from "@/components/ui/responsive-menu";
 import { WorkoutTimers } from "@/components/workout/workout-timers";
+import WorkoutSummaryModal from "@/components/modals/workout-summary-modal";
 import type {
   WorkoutProgram,
   Exercise,
 } from "@/interfaces/workout-program-interfaces";
 import type { ExercisePayload } from "@/interfaces/workout-log-interfaces";
+import { formatTime } from "@/components/workout/timer-helper";
 
 export default function WithoutProgramLog({
   selectedDate,
@@ -70,6 +80,8 @@ export default function WithoutProgramLog({
     null
   );
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const previousStatusRef = useRef<string | null>(null);
 
   const [updateWorkoutLogName, { isLoading: isUpdatingWorkoutLogName }] =
     useUpdateWorkoutLogNameMutation();
@@ -227,8 +239,36 @@ export default function WithoutProgramLog({
   useEffect(() => {
     if (workoutLog?.data.length > 0) {
       setWorkoutLogName(workoutLog?.data[0]?.title || "");
+
+      // Initialize previous status ref on first load
+      if (workoutLog.data[0]?.status && !previousStatusRef.current) {
+        previousStatusRef.current = workoutLog.data[0].status;
+      }
     }
   }, [workoutLog]);
+
+  // Track status change from incomplete to completed
+  useEffect(() => {
+    const currentStatus = workoutLog?.data[0]?.status;
+    const previousStatus = previousStatusRef.current;
+
+    // Initialize ref on first load if not set
+    if (!previousStatus && currentStatus) {
+      previousStatusRef.current = currentStatus;
+      return;
+    }
+
+    // Check if status changed from incomplete to completed
+    if (previousStatus === "incomplete" && currentStatus === "completed") {
+      // Show summary modal after successful completion
+      setShowSummaryModal(true);
+    }
+
+    // Update the previous status ref
+    if (currentStatus && currentStatus !== previousStatus) {
+      previousStatusRef.current = currentStatus;
+    }
+  }, [workoutLog?.data[0]?.status]);
 
   const handleCreateWorkoutLog = async () => {
     if (!workoutLogName.trim()) {
@@ -423,6 +463,12 @@ export default function WithoutProgramLog({
               }`}
             >
               {format(selectedDate, "MMMM d, yyyy")}
+              {workoutLog?.data[0]?.status === "completed" && (
+                <p className="text-sm text-slate-500 flex items-center gap-2">
+                  <Timer className="h-4 w-4" />{" "}
+                  {formatTime(workoutLog?.data[0]?.timer || 0)}
+                </p>
+              )}
             </span>
           </div>
           {workoutLog?.data?.length > 0 &&
@@ -601,6 +647,13 @@ export default function WithoutProgramLog({
           workoutLog={workoutLog?.data[0]}
         />
       )}
+
+      {/* Workout Summary Modal */}
+      <WorkoutSummaryModal
+        isOpen={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+        workoutLog={workoutLog?.data[0] || null}
+      />
     </div>
   );
 }
