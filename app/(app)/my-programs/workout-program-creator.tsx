@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseForm } from "../../../components/form/exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CalendarIcon, Loader2, Plus } from "lucide-react";
+import { CalendarIcon, Loader2, Plus, AlertCircle } from "lucide-react";
 import type {
   AllDays,
   Exercise,
@@ -398,8 +398,15 @@ export function WorkoutProgramCreator({
 
   if (workoutPrograms?.length === 4) {
     return (
-      <div className="">
-        <p>You have reached the maximum number of workout programs.</p>
+      <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+        <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full">
+          <AlertCircle className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <CardTitle className="mb-2 text-xl">Maximum Programs Reached</CardTitle>
+        <CardDescription className="max-w-md text-base">
+          You have reached the maximum limit of 3 workout programs. Please
+          delete an existing program before creating a new one.
+        </CardDescription>
       </div>
     );
   }
