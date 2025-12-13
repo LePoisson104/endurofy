@@ -139,7 +139,7 @@ export default function WorkoutSummaryModal({
               Workout Completed!
             </DialogTitle>
             <DialogDescription className="text-center text-sm sm:text-base mt-1 sm:mt-2">
-              Awesome work! Here's what you accomplished
+              Awesome work! Here&apos;s what you accomplished
             </DialogDescription>
           </DialogHeader>
         </div>
