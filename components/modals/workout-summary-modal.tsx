@@ -190,7 +190,7 @@ export default function WorkoutSummaryModal({
             <div className="flex items-start sm:items-center gap-2">
               <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 flex-shrink-0 mt-0.5 sm:mt-0" />
               <p className="text-xs sm:text-sm font-medium text-amber-600 dark:text-amber-400">
-                You're on fire! Keep pushing towards your goals!
+                You&apos;re on fire! Keep pushing towards your goals!
               </p>
             </div>
           </motion.div>
