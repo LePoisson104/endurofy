@@ -222,6 +222,7 @@ export default function MyPrograms() {
                 <>
                   <Input
                     placeholder="Search programs"
+                    value={searchQuery}
                     onChange={handleSearch}
                   />
                   <WorkoutProgramList

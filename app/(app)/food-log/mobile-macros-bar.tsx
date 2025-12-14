@@ -1,6 +1,11 @@
 "use client";
 
-import { FlameIcon } from "@/components/icons/nutrition-icons";
+import {
+  FlameIcon,
+  ProteinIcon,
+  CarbsIcon,
+  AvocadoIcon,
+} from "@/components/icons/nutrition-icons";
 import { useScrollAtTop } from "@/hooks/use-scroll-at-top";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,14 +34,14 @@ export default function MobileMacorsBar({
           </p>
           <span>•</span>
           <p className="flex items-center gap-1 text-sm font-semibold">
-            <span className="text-red-400 text-sm">P</span>
+            <ProteinIcon className="h-3 w-3" />
             {totalNutrients?.protein === 0
               ? 0
               : totalNutrients?.protein?.toFixed(2) ?? 0}
           </p>
           <span>•</span>
           <p className="flex items-center gap-1 text-sm font-semibold">
-            <span className="text-blue-400 text-sm">C</span>
+            <CarbsIcon className="h-3 w-3" />
             {totalNutrients?.carbs === 0
               ? 0
               : totalNutrients?.carbs?.toFixed(2) ?? 0}
@@ -44,7 +49,7 @@ export default function MobileMacorsBar({
 
           <span>•</span>
           <p className="flex items-center gap-1 text-sm font-semibold">
-            <span className="text-amber-400 text-sm">F</span>
+            <AvocadoIcon className="h-3 w-3" />
             {totalNutrients?.fat === 0
               ? 0
               : totalNutrients?.fat?.toFixed(2) ?? 0}
