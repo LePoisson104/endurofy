@@ -19,7 +19,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Endurofy",
+  title: {
+    template: "%s | Endurofy",
+    default: "Endurofy - Your AI-Powered Fitness Companion",
+  },
   description:
     "Track your endurance activities, stay consistent, and achieve your fitness goals faster",
   manifest: "/manifest.json",

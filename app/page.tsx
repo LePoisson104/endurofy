@@ -15,6 +15,12 @@ import {
   FilePlus,
   ChartColumn,
   CalendarSync,
+  Brain,
+  Zap,
+  Target,
+  MessageSquare,
+  Check,
+  X,
 } from "lucide-react";
 import { MotionAccordion } from "@/components/landing/motion-accordion";
 import { LandingPageThemeToggle } from "@/components/buttons/landing-page-theme-toggle";
@@ -103,11 +109,11 @@ export default function Home() {
 
   const background = isHovering
     ? isDark
-      ? "linear-gradient(to bottom left, oklch(80% 0.004 286.32), oklch(45% 0.016 285.938))"
-      : "linear-gradient(to bottom left, oklch(75% 0.006 286.286), oklch(40% 0.017 285.786))"
+      ? "linear-gradient(135deg, rgb(212, 212, 216), rgb(161, 161, 170))"
+      : "linear-gradient(135deg, rgb(161, 161, 170), rgb(113, 113, 122))"
     : isDark
-    ? "linear-gradient(to bottom left, oklch(92% 0.004 286.32), oklch(55.2% 0.016 285.938))"
-    : "linear-gradient(to bottom left, oklch(87.1% 0.006 286.286), oklch(44.2% 0.017 285.786))";
+    ? "linear-gradient(135deg, rgb(228, 228, 231), rgb(212, 212, 216))"
+    : "linear-gradient(135deg, rgb(212, 212, 216), rgb(161, 161, 170))";
 
   useEffect(() => {
     // Set loading to false after a small delay to ensure isMobile is set
@@ -320,6 +326,20 @@ export default function Home() {
                 </Link>
               </motion.div>
               <motion.div
+                custom={2}
+                variants={navLinkVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Link
+                  href="#pricing"
+                  onClick={(e) => scrollToSection(e, "pricing")}
+                  className="text-sm font-medium hover:text-primary nav-link"
+                >
+                  Pricing
+                </Link>
+              </motion.div>
+              <motion.div
                 custom={3}
                 variants={navLinkVariants}
                 initial="hidden"
@@ -419,55 +439,84 @@ export default function Home() {
       <div className="standalone:h-[70px]" />
       <main className="flex-1">
         {/* Hero Section with Header */}
-        {/* Header inside hero section */}
         <motion.section
           id="hero"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="relative z-0 w-full py-12 md:py-24 lg:py-25 xl:pt-40 px-4 md:px-6"
+          className="relative z-0 w-full py-12 md:py-24 lg:py-32 xl:py-40 px-4 md:px-6 overflow-hidden"
         >
-          <div className="container px-4 md:px-6 mx-auto mt-16">
+          <div className="container px-4 md:px-6 mx-auto mt-16 relative">
             <div className="flex justify-center items-center">
-              <div className="flex flex-col justify-center items-center space-y-4">
-                <div className="space-y-2 text-center">
+              <div className="flex flex-col justify-center items-center space-y-8 max-w-5xl">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/15 via-sky-500/15 to-blue-500/15 dark:from-blue-500/10 dark:via-sky-500/10 dark:to-blue-500/10 border border-blue-500/40 dark:border-blue-500/30 relative overflow-hidden group"
+                >
+                  {/* Animated shimmer effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "200%" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatDelay: 3,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <Sparkle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-sky-600 dark:from-blue-400 dark:to-sky-400 bg-clip-text text-transparent relative z-10">
+                    Your AI-Powered Fitness Companion
+                  </span>
+                </motion.div>
+
+                <div className="space-y-6 text-center">
                   <h1
-                    className={`text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none  ${
-                      isMobile ? "mt-15" : ""
+                    className={`text-4xl font-extrabold tracking-tight sm:text-6xl xl:text-7xl/none bg-clip-text ${
+                      isMobile ? "mt-4" : ""
                     }`}
                   >
                     <GradientText>
-                      Strengthen Your Endurance,
+                      Transform Your Body,
                       <br />
-                      Enhance Your Life
+                      <span className="text-foreground">
+                        Elevate Your Performance
+                      </span>
                     </GradientText>
                   </h1>
-                  <p className="max-w-[600px] text-muted-foreground mx-auto">
-                    Endurofy makes it easy to track your endurance activities,
-                    stay consistent, and achieve your fitness goals faster.
+                  <p className="max-w-[700px] text-lg md:text-xl text-muted-foreground mx-auto leading-relaxed">
+                    The all-in-one fitness platform that combines workout
+                    tracking, nutrition logging, and AI-powered coaching to help
+                    you reach your peak performance.
                   </p>
                 </div>
-                <div className="flex flex-col gap-4 items-center w-full max-w-md mx-auto">
-                  <div className="relative w-full">
+
+                <div className="flex flex-col gap-6 items-center w-full max-w-md mx-auto">
+                  <div className="relative w-full group">
+                    <div className="absolute -inset-1 bg-zinc-500/30 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300" />
                     <Input
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-muted-foreground w-full"
+                      className="relative pr-32 rounded-full py-6 bg-background border-2 border-muted hover:border-primary/50 transition-colors w-full text-base"
                     />
-
                     <Button
                       size="sm"
-                      className="arrow-button rounded-full px-3 py-1 h-7 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
+                      className="arrow-button rounded-full px-4 py-2 h-9 bg-zinc-700 hover:bg-zinc-800 dark:bg-zinc-200 dark:hover:bg-zinc-100 dark:text-zinc-900 text-white absolute right-2 top-1/2 -translate-y-1/2 shadow-lg"
                       onClick={handleStartNow}
                     >
-                      Start now
+                      Start Free
                       <svg
-                        className="arrow-icon"
+                        className="arrow-icon ml-1"
                         viewBox="0 -3.5 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
                       >
                         <path
                           className="arrow-icon__tip"
@@ -487,75 +536,79 @@ export default function Home() {
                     </Button>
                   </div>
 
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Get set up in 5 minutes. No credit card required.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={
-                      isMobile || isInstallable
-                        ? handleInstallPWA
-                        : handleOpenApp
-                    }
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
-                    style={{
-                      background,
-                      padding: "1.5rem 2rem",
-                      borderRadius: "0.375rem",
-                      transition: "all 0.3s ease",
-                      cursor: "pointer",
-                      boxShadow:
-                        "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.25)",
-                    }}
-                    // className="bg-primary px-8 py-6 rounded-md bg-linear-to-bl from-zinc-300 to-zinc-600 dark:from-zinc-200 dark:to-zinc-500
-                    //  hover:from-zinc-400 hover:to-zinc-700 dark:hover:from-zinc-300 dark:hover:to-zinc-600 shadow-neutral-500 shadow-lg dark:shadow-md"
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <Image
-                      src={
-                        isDark
-                          ? "/images/endurofy_logo_dark.png"
-                          : "/images/endurofy_logo.png"
+                    <Button
+                      onClick={
+                        isMobile || isInstallable
+                          ? handleInstallPWA
+                          : handleOpenApp
                       }
-                      alt="Endurofy"
-                      width={30}
-                      height={30}
-                    />
-                    {isMobile || isInstallable ? "Install App" : "Open App"}
-                  </Button>
+                      onMouseEnter={() => setIsHovering(true)}
+                      onMouseLeave={() => setIsHovering(false)}
+                      size="lg"
+                      className="px-8 py-6 rounded-xl text-base font-semibold shadow-2xl hover:shadow-purple-500/25 transition-all duration-300"
+                      style={{
+                        background,
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <Image
+                        src={
+                          isDark
+                            ? "/images/endurofy_logo_dark.png"
+                            : "/images/endurofy_logo.png"
+                        }
+                        alt="Endurofy"
+                        width={24}
+                        height={24}
+                        className="mr-2"
+                      />
+                      {isMobile || isInstallable ? "Install App" : "Open App"}
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
             </div>
           </div>
         </motion.section>
 
+        {/* Desktop Showcase */}
         <motion.section
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full mb-30"
+          className="w-full py-16 md:py-24"
         >
-          <div className="container px-4 md:px-6 mx-auto flex justify-center items-center">
-            <div className="border p-[2px] rounded-lg shadow-xl">
-              <div className="relative overflow-hidden rounded-lg border transition-transform duration-300 max-w-7xl">
-                <Image
-                  src={
-                    isDark
-                      ? "/images/dark/desktop.png"
-                      : "/images/light/desktop-light.png"
-                  }
-                  alt="Endurofy Desktop View"
-                  width={1500}
-                  height={1000}
-                  className="object-contain w-full h-auto"
-                  priority
-                  quality={95}
-                  unoptimized={false}
-                />
+          <div className="container px-4 md:px-6 mx-auto">
+            <motion.div
+              variants={imageVariants}
+              className="relative mx-auto max-w-7xl"
+            >
+              <div className="absolute -inset-4 bg-zinc-500/20 rounded-2xl blur-2xl" />
+              <div className="relative p-2 rounded-2xl bg-zinc-500/10 backdrop-blur-sm">
+                <div className="relative overflow-hidden rounded-xl border-2 border-border/50 shadow-2xl hover:shadow-zinc-500/20 transition-all duration-500 group">
+                  <div className="absolute inset-0 bg-zinc-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <Image
+                    src={
+                      isDark
+                        ? "/images/dark/desktop.png"
+                        : "/images/light/desktop-light.png"
+                    }
+                    alt="Endurofy Desktop View"
+                    width={1500}
+                    height={1000}
+                    className="object-contain w-full h-auto relative z-10"
+                    priority
+                    quality={95}
+                    unoptimized={false}
+                  />
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </motion.section>
 
@@ -568,14 +621,14 @@ export default function Home() {
           variants={staggerContainer}
           className="w-full py-12 md:py-24 lg:py-32 relative"
         >
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:30px_30px]" />
+          <div className="hidden md:block absolute inset-0 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:30px_30px]" />
           <div className="container px-4 md:px-6 mx-auto relative">
             <motion.div
               variants={fadeInUp}
               className="flex flex-col items-center justify-center space-y-4 text-center"
             >
               <div className="space-y-2">
-                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
+                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
                   <Sparkle className="h-3 w-3" />
                   Features
                 </div>
@@ -601,9 +654,9 @@ export default function Home() {
                 description="Follow personalized training programs designed to help you reach your goals."
               />
               <FeatureCard
-                icon={<CalendarSync className="h-6 w-6 text-pink-400" />}
+                icon={<CalendarSync className="h-6 w-6 text-orange-400" />}
                 title="Auto-filled Workouts"
-                bgColor="bg-pink-400"
+                bgColor="bg-orange-400"
                 description="Endurofy pre-fills each day in your workout log with the exercises from your program."
               />
               <FeatureCard
@@ -634,6 +687,334 @@ export default function Home() {
           </div>
         </motion.section>
 
+        {/* AI Features - Coming Soon */}
+        <motion.section
+          id="ai-features"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20"
+        >
+          <div className="container px-4 md:px-6 mx-auto">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col items-center justify-center space-y-4 text-center"
+            >
+              <div className="space-y-2">
+                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-3 py-1 text-sm text-white rounded-full">
+                  <Brain className="h-3 w-3" />
+                  Coming Soon
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                  <GradientText>AI-Powered Training Intelligence</GradientText>
+                </h2>
+                <p className="max-w-[900px] text-muted-foreground">
+                  We&apos;re building the future of personalized fitness with AI
+                  technology that adapts to your unique needs.
+                </p>
+              </div>
+            </motion.div>
+            <motion.div
+              variants={staggerContainer}
+              className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2"
+            >
+              <FeatureCard
+                icon={<Brain className="h-6 w-6 text-violet-400" />}
+                title="AI Personal Trainer"
+                bgColor="bg-violet-400"
+                description="Get personalized workout recommendations based on your progress, goals, and recovery status. Your AI trainer learns and adapts with you."
+                comingSoon={true}
+              />
+              <FeatureCard
+                icon={<Zap className="h-6 w-6 text-amber-400" />}
+                title="Smart Auto-Adjust"
+                bgColor="bg-amber-400"
+                description="AI automatically adjusts your training program based on your performance, ensuring optimal progression without plateaus."
+                comingSoon={true}
+              />
+              <FeatureCard
+                icon={<Target className="h-6 w-6 text-rose-400" />}
+                title="Progress Predictions"
+                bgColor="bg-rose-400"
+                description="AI-powered analytics predict when you'll reach your goals and suggest optimizations to get there faster."
+                comingSoon={true}
+              />
+              <FeatureCard
+                icon={<MessageSquare className="h-6 w-6 text-cyan-400" />}
+                title="AI Nutrition Coach"
+                bgColor="bg-cyan-400"
+                description="Receive intelligent meal suggestions and nutrition guidance tailored to your training intensity and body composition goals."
+                comingSoon={true}
+              />
+            </motion.div>
+          </div>
+        </motion.section>
+
+        {/* Pricing Section */}
+        <motion.section
+          id="pricing"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32 relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/5 via-transparent to-zinc-500/5" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+          <div className="container px-4 md:px-6 mx-auto relative">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
+            >
+              <div className="space-y-4">
+                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
+                  <Sparkle className="h-3 w-3" />
+                  Flexible Pricing
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-5xl">
+                  <GradientText>
+                    Invest in Your
+                    <br />
+                    <span className="text-foreground">Fitness Journey</span>
+                  </GradientText>
+                </h2>
+                <p className="max-w-[700px] text-lg text-muted-foreground mx-auto">
+                  Start free, upgrade when you&apos;re ready. No commitments,
+                  cancel anytime.
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              variants={staggerContainer}
+              className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2"
+            >
+              {/* Free Plan */}
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -8 }}
+                className="relative group"
+              >
+                <div className="absolute -inset-1 bg-gradient-to-r from-gray-500 to-gray-600 rounded-3xl blur opacity-0 group-hover:opacity-25 transition duration-300" />
+                <div className="relative flex flex-col p-8 md:p-10 rounded-3xl border-2 border-border bg-card/50 backdrop-blur-sm hover:border-border transition-all duration-300 hover:shadow-2xl h-full">
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold mb-2">Free</h3>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-5xl font-bold">$0</span>
+                      <span className="text-muted-foreground">/month</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Perfect for getting started with your fitness journey
+                    </p>
+                  </div>
+
+                  <div className="flex-1 space-y-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">Basic workout tracking</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">Up to 2 training programs</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">Weight log tracking</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">Basic food logging</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">
+                        Access to 300,000+ food database
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">
+                        AI personal trainer
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">
+                        Advanced analytics
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">
+                        Unlimited programs
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link href="/signup" className="w-full">
+                    <Button variant="outline" className="w-full" size="lg">
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+
+              {/* Premium Plan */}
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="relative group"
+              >
+                {/* Animated glow effect */}
+                <motion.div
+                  className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 via-sky-500/30 to-blue-500/30 dark:from-blue-500/40 dark:via-sky-500/40 dark:to-blue-500/40 rounded-3xl blur opacity-25 dark:opacity-50 group-hover:opacity-40 dark:group-hover:opacity-75 transition duration-300"
+                  animate={{
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  style={{ backgroundSize: "200% 200%" }}
+                />
+                <div className="relative flex flex-col p-8 md:p-10 rounded-3xl border-2 border-blue-500/25 dark:border-blue-500/40 bg-gradient-to-br from-blue-500/5 via-sky-500/3 to-background dark:from-blue-500/10 dark:via-sky-500/5 dark:to-background backdrop-blur-sm overflow-hidden hover:shadow-2xl hover:shadow-blue-500/15 dark:hover:shadow-blue-500/20 transition-all duration-300 h-full">
+                  <div className="absolute top-6 right-6">
+                    <motion.span
+                      className="text-xs font-bold px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-sky-600 dark:from-blue-500 dark:to-sky-500 text-white shadow-lg"
+                      animate={{
+                        boxShadow: [
+                          "0 0 15px rgba(59, 130, 246, 0.2)",
+                          "0 0 20px rgba(14, 165, 233, 0.3)",
+                          "0 0 15px rgba(59, 130, 246, 0.2)",
+                        ],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      POPULAR
+                    </motion.span>
+                  </div>
+                  {/* Animated gradient orbs */}
+                  <motion.div
+                    className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.15, 0.2, 0.15],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-32 h-32 bg-sky-500/10 dark:bg-sky-500/15 rounded-full blur-3xl"
+                    animate={{
+                      scale: [1, 1.3, 1],
+                      opacity: [0.1, 0.15, 0.1],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: 0.5,
+                    }}
+                  />
+
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold mb-2">Premium</h3>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-5xl font-bold">$20</span>
+                      <span className="text-muted-foreground">/month</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Everything you need to maximize your fitness potential
+                    </p>
+                  </div>
+
+                  <div className="flex-1 space-y-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm font-medium">
+                        Everything in Free
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">
+                        Unlimited training programs
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">
+                        AI-powered personal trainer
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">
+                        Smart auto-adjust workouts
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">
+                        Advanced progress analytics
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">AI nutrition coaching</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">Progress predictions</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                      <span className="text-sm">Priority support</span>
+                    </div>
+                  </div>
+
+                  <Link href="/signup" className="w-full">
+                    <Button className="w-full arrow-button" size="lg" disabled>
+                      Comming soon
+                      <svg
+                        className="arrow-icon"
+                        viewBox="0 -3.5 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          className="arrow-icon__tip"
+                          d="M8 15L14 8.5L8 2"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <line
+                          className="arrow-icon__line"
+                          x1="13"
+                          y1="8.5"
+                          y2="8.5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.section>
+
         {/* How it works */}
         <motion.section
           id="how-it-works"
@@ -646,7 +1027,7 @@ export default function Home() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
+                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
                   <Sparkle className="h-3 w-3" />
                   How it works
                 </div>
@@ -707,101 +1088,136 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* App Screenshots */}
+        {/* App Screenshots - Bento Grid */}
         <motion.section
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32"
+          className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background via-muted/20 to-background"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <motion.div
               variants={fadeInUp}
-              className="flex flex-col items-center justify-center space-y-4 text-center"
+              className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
             >
-              <div className="space-y-2">
-                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
+              <div className="space-y-4">
+                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
                   <Sparkle className="h-3 w-3" />
-                  Intuitive interface
+                  Beautifully Designed
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                <h2 className="text-3xl font-bold tracking-tighter md:text-5xl">
                   <GradientText>
-                    Effortless Interactions, Powerful Experiences
+                    Built for Mobile,
+                    <br />
+                    <span className="text-foreground">Perfected for You</span>
                   </GradientText>
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground">
-                  Beautiful, intuitive interface that works for both desktop and
-                  mobile devices.
+                <p className="max-w-[700px] text-lg text-muted-foreground mx-auto">
+                  Experience a seamless, intuitive interface designed to make
+                  tracking your fitness journey effortless.
                 </p>
               </div>
             </motion.div>
-            <motion.div
-              variants={staggerContainer}
-              className="mx-auto grid max-w-6xl gap-6 py-12 md:grid-cols-4"
-            >
-              <motion.div
-                variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden drop-shadow-xl w-full max-w-[300px] md:max-w-[500px] mx-auto border rounded-xl"
-              >
-                <Image
-                  src={`${
-                    isDark
-                      ? "/images/dark/dashboard.png"
-                      : "/images/light/dashboard-light.png"
-                  }`}
-                  alt="dashboard"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-              <motion.div
-                variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden md:translate-y-10 rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
-              >
-                <Image
-                  src={`${
-                    isDark
-                      ? "/images/dark/foodlog.png"
-                      : "/images/light/foodlog-light.png"
-                  }`}
-                  alt="dashboard"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-              <motion.div
-                variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl md:translate-y-10 bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
-              >
-                <Image
-                  src={
-                    isDark
-                      ? "/images/dark/workoutlog.png"
-                      : "/images/light/workoutlog-light.png"
-                  }
-                  alt="workout-log"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
 
-              <motion.div
-                variants={imageVariants}
-                className="relative aspect-[9/20] overflow-hidden rounded-xl bg-muted drop-shadow-xl border w-full max-w-[300px] md:max-w-[500px] mx-auto"
-              >
-                <Image
-                  src={`${
-                    isDark
-                      ? "/images/dark/weightlog.png"
-                      : "/images/light/weightlog-light.png"
-                  }`}
-                  alt="weightlog"
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-            </motion.div>
+            {/* Equal Grid Layout */}
+            <div className="mx-auto max-w-7xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Dashboard */}
+                <motion.div variants={imageVariants} className="relative group">
+                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                    <Image
+                      src={
+                        isDark
+                          ? "/images/dark/dashboard.png"
+                          : "/images/light/dashboard-light.png"
+                      }
+                      alt="Dashboard"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
+                    <h3 className="font-semibold text-xs mb-0.5">Dashboard</h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      Track your progress at a glance
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Workout Log */}
+                <motion.div variants={imageVariants} className="relative group">
+                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                    <Image
+                      src={
+                        isDark
+                          ? "/images/dark/workoutlog.png"
+                          : "/images/light/workoutlog-light.png"
+                      }
+                      alt="Workout Log"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
+                    <h3 className="font-semibold text-xs mb-0.5">
+                      Workout Log
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      Track every rep & set
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Food Log */}
+                <motion.div variants={imageVariants} className="relative group">
+                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                    <Image
+                      src={
+                        isDark
+                          ? "/images/dark/foodlog.png"
+                          : "/images/light/foodlog-light.png"
+                      }
+                      alt="Food Log"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
+                    <h3 className="font-semibold text-xs mb-0.5">Food Log</h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      300K+ food database
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Weight Log */}
+                <motion.div variants={imageVariants} className="relative group">
+                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                    <Image
+                      src={
+                        isDark
+                          ? "/images/dark/weightlog.png"
+                          : "/images/light/weightlog-light.png"
+                      }
+                      alt="Weight Log"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
+                    <h3 className="font-semibold text-xs mb-0.5">Weight Log</h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      Monitor your body composition
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </motion.section>
 
@@ -817,7 +1233,7 @@ export default function Home() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 px-3 py-1 text-sm text-primary-foreground rounded-full">
+                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
                   <Sparkle className="h-3 w-3" />
                   FAQ
                 </div>
@@ -835,66 +1251,94 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Get Started */}
+        {/* Get Started CTA */}
         <motion.section
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:50.5px_52px]"
+          className="w-full py-16 md:py-32 relative overflow-hidden"
         >
-          <div className="container grid items-center gap-6 px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  <GradientText>Get started with Endurofy</GradientText>
-                </h2>
-                <p className="max-w-[600px] text-muted-foreground text-sm mx-auto">
-                  Built for driven athletes who want to turn consistent training
-                  into real progress.
-                </p>
-              </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/10 via-zinc-500/5 to-zinc-500/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(113,113,122,0.15),transparent_70%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:60px_60px]" />
 
-              <div
-                className={`relative flex-1 ${isMobile ? "w-[90%]" : "w-md"}`}
-              >
-                <Input
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pr-28 rounded-full py-5 bg-muted/50 text-muted-background placeholder:text-muted-foreground"
-                />
-
-                <Button
-                  size="sm"
-                  className="arrow-button rounded-full px-3 py-1 h-7 bg-linear-to-bl from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 text-primary-foreground absolute right-2 top-1/2 -translate-y-1/2"
-                  onClick={handleStartNow}
-                >
-                  Start now
-                  <svg
-                    className="arrow-icon"
-                    viewBox="0 -3.5 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+          <div className="container px-4 md:px-6 mx-auto relative">
+            <motion.div
+              variants={staggerContainer}
+              className="max-w-4xl mx-auto"
+            >
+              <div className="flex flex-col items-center justify-center space-y-8 text-center">
+                <div className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-500/10 border border-zinc-500/20"
                   >
-                    <path
-                      className="arrow-icon__tip"
-                      d="M8 15L14 8.5L8 2"
-                      stroke="currentColor"
-                      strokeWidth="2"
+                    <Zap className="h-4 w-4 text-zinc-400" />
+                    <span className="text-sm font-medium">
+                      Ready to Transform?
+                    </span>
+                  </motion.div>
+
+                  <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+                    <GradientText>
+                      Start Your Journey
+                      <br />
+                      <span className="text-foreground">Today</span>
+                    </GradientText>
+                  </h2>
+                  <p className="max-w-[600px] text-lg md:text-xl text-muted-foreground mx-auto leading-relaxed">
+                    Join thousands of athletes transforming their performance
+                    with Endurofy&apos;s all-in-one platform.
+                  </p>
+                </div>
+
+                <div className="w-full max-w-md">
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-zinc-500/30 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300" />
+                    <Input
+                      placeholder="Enter your email to get started"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="relative pr-32 rounded-full py-6 bg-background border-2 border-muted hover:border-primary/50 transition-colors text-base"
                     />
-                    <line
-                      className="arrow-icon__line"
-                      x1="13"
-                      y1="8.5"
-                      y2="8.5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </Button>
+                    <Button
+                      size="sm"
+                      className="arrow-button rounded-full px-4 py-2 h-9 bg-zinc-700 hover:bg-zinc-800 dark:bg-zinc-200 dark:hover:bg-zinc-100 dark:text-zinc-900 text-white absolute right-2 top-1/2 -translate-y-1/2 shadow-lg"
+                      onClick={handleStartNow}
+                    >
+                      Start Free
+                      <svg
+                        className="arrow-icon ml-1"
+                        viewBox="0 -3.5 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                      >
+                        <path
+                          className="arrow-icon__tip"
+                          d="M8 15L14 8.5L8 2"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <line
+                          className="arrow-icon__line"
+                          x1="13"
+                          y1="8.5"
+                          y2="8.5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </motion.section>
       </main>

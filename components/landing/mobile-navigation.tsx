@@ -70,6 +70,13 @@ export default function MobileNavigation({
             How it works
           </Link>
           <Link
+            href="#pricing"
+            onClick={(e) => scrollToSection(e, "pricing")}
+            className="text-lg font-medium hover:text-primary py-1.5"
+          >
+            Pricing
+          </Link>
+          <Link
             href="#faq"
             onClick={(e) => scrollToSection(e, "faq")}
             className="text-lg font-medium hover:text-primary py-1.5"
