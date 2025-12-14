@@ -74,6 +74,7 @@ import DeleteDialog from "@/components/dialog/delete-dialog";
 import { selectUserInfo } from "@/api/user/user-slice";
 import { getWaterPercentage } from "@/helper/get-water-percentage";
 import FoodLogSkeleton from "@/components/skeletons/food-log-skeleton";
+import MobileMacorsBar from "./mobile-macros-bar";
 
 interface MealData {
   uncategorized: AddFoodLogPayload[];
@@ -836,6 +837,7 @@ export default function FoodLogPage() {
         dropdownAlign="end"
         dropdownWidth="w-56"
       />
+      {isMobile && <MobileMacorsBar totalNutrients={totalNutrients} />}
     </div>
   );
 }
