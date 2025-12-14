@@ -96,8 +96,12 @@ export default function WeightLogPage() {
   // Function to set history date range
   const setHistoryDateRange = useCallback((options: string, data: any[]) => {
     if (options === "all" && data.length > 0) {
-      setStartDate(new Date(data[data.length - 1]?.log_date));
-      setEndDate(new Date(data[0]?.log_date));
+      setStartDate(
+        new Date(
+          data[data.length - 1]?.log_date.split("T")[0] + "T06:00:00.000Z"
+        )
+      );
+      setEndDate(new Date(data[0]?.log_date.split("T")[0] + "T06:00:00.000Z"));
     } else if (options !== "all" && options !== "current-week") {
       const { startDate, endDate } = getDayRange({ options });
       setStartDate(startDate);
