@@ -19,7 +19,7 @@ export default function MobileMacorsBar({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[330px] py-3 mb-4 border rounded-full flex justify-center items-center gap-2 bg-background/10 backdrop-blur-[2px] supports-[backdrop-filter]:bg-card/80"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[350px] py-3 mb-4 border rounded-full flex justify-center items-center gap-2 bg-background/10 backdrop-blur-[2px] supports-[backdrop-filter]:bg-card/80"
         >
           <p className="flex items-center gap-1 text-sm font-semibold">
             <FlameIcon className="h-3 w-3" />
