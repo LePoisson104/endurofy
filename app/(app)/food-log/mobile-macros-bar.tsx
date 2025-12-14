@@ -23,22 +23,31 @@ export default function MobileMacorsBar({
         >
           <p className="flex items-center gap-1 text-sm font-semibold">
             <FlameIcon className="h-3 w-3" />
-            {totalNutrients?.calories || 0}
+            {totalNutrients?.calories === 0
+              ? 0
+              : Math.round(totalNutrients?.calories) ?? 0}
           </p>
           <span>•</span>
           <p className="flex items-center gap-1 text-sm font-semibold">
             <span className="text-red-400 text-sm">P</span>
-            {totalNutrients?.protein || 0}
+            {totalNutrients?.protein === 0
+              ? 0
+              : totalNutrients?.protein?.toFixed(2) ?? 0}
           </p>
           <span>•</span>
           <p className="flex items-center gap-1 text-sm font-semibold">
             <span className="text-blue-400 text-sm">C</span>
-            {totalNutrients?.carbs || 0}
+            {totalNutrients?.carbs === 0
+              ? 0
+              : totalNutrients?.carbs?.toFixed(2) ?? 0}
           </p>
+
           <span>•</span>
           <p className="flex items-center gap-1 text-sm font-semibold">
             <span className="text-amber-400 text-sm">F</span>
-            {totalNutrients?.fat || 0}
+            {totalNutrients?.fat === 0
+              ? 0
+              : totalNutrients?.fat?.toFixed(2) ?? 0}
           </p>
         </motion.div>
       )}
