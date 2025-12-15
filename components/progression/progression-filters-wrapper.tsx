@@ -467,9 +467,14 @@ export function ProgressionFiltersWrapper(
               <span className="font-medium">
                 {selectedProgram?.programName || ""}
               </span>{" "}
-              • {selectedExercise?.exerciseName || ""}
+              {selectedExercise?.exerciseName && (
+                <>
+                  {" "}
+                  • {selectedExercise?.exerciseName || ""}{" "}
+                  <Badge title={selectedExercise?.laterality || ""} />
+                </>
+              )}
             </p>
-            <Badge title={selectedExercise?.laterality || ""} />
           </div>
           <Button
             variant="outline"

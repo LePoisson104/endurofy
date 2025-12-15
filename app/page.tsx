@@ -481,15 +481,15 @@ export default function Home() {
                     }`}
                   >
                     <GradientText>
-                      Transform Your Body,
+                      Evidence-Based Training,
                       <br />
-                      Elevate Your Performance
+                      Enhance By AI
                     </GradientText>
                   </h1>
-                  <p className="max-w-[700px] text-lg md:text-xl text-muted-foreground mx-auto leading-relaxed">
-                    The all-in-one fitness platform that combines workout
-                    tracking, nutrition logging, and AI-powered coaching to help
-                    you reach your peak performance.
+                  <p className="max-w-[700px] text-sm md:text-lg text-muted-foreground mx-auto leading-relaxed">
+                    An all-in-one fitness platform combining workout tracking,
+                    weight and nutrition logging, and AI-powered coaching to
+                    help you perform at your best.
                   </p>
                 </div>
 
@@ -749,6 +749,78 @@ export default function Home() {
           </div>
         </motion.section>
 
+        {/* How it works */}
+        <motion.section
+          id="how-it-works"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="w-full py-12 md:py-24 lg:py-32"
+        >
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
+                  <Sparkle className="h-3 w-3" />
+                  How it works
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                  <GradientText>Simple, intuitive, and effective</GradientText>
+                </h2>
+                <p className="max-w-[900px] text-muted-foreground">
+                  Customize your training plans, track your progress, and reach
+                  your goals.
+                </p>
+              </div>
+            </div>
+            <div className="mx-auto grid max-w-5xl gap-8 py-12 md:grid-cols-3">
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center space-y-4"
+              >
+                <div className="pulse pulse-1 bg-muted">
+                  <FilePlus className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">
+                  Create Your Workout program
+                </h3>
+                <p className="text-muted-foreground text-[15px]">
+                  Design your custom training plan with the flexibility to match
+                  your goals, whether it&apos;s strength, endurance, or overall
+                  fitness.
+                </p>
+              </motion.div>
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center space-y-4"
+              >
+                <div className="pulse pulse-2 bg-muted">
+                  <CalendarSync className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">Auto-filled Workouts</h3>
+                <p className="text-muted-foreground text-[15px]">
+                  Stay focused &amp; Endurofy pre-fills each day in your workout
+                  log with the exercises from your program, so all you need to
+                  do is log your reps and weights.
+                </p>
+              </motion.div>
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-col items-center text-center space-y-4"
+              >
+                <div className="pulse pulse-3 bg-muted">
+                  <ChartColumn className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">Track and Progress</h3>
+                <p className="text-muted-foreground text-[15px]">
+                  Follow your plan, track your progress, and see your growth
+                  over time with powerful insights and analytics.
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </motion.section>
         {/* Pricing Section */}
         <motion.section
           id="pricing"
@@ -775,7 +847,7 @@ export default function Home() {
                   <GradientText>
                     Invest in Your
                     <br />
-                    <span className="text-foreground">Fitness Journey</span>
+                    Fitness Journey
                   </GradientText>
                 </h2>
                 <p className="max-w-[700px] text-lg text-muted-foreground mx-auto">
@@ -1010,79 +1082,6 @@ export default function Home() {
                 </div>
               </motion.div>
             </motion.div>
-          </div>
-        </motion.section>
-
-        {/* How it works */}
-        <motion.section
-          id="how-it-works"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32"
-        >
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
-                  <Sparkle className="h-3 w-3" />
-                  How it works
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  <GradientText>Simple, intuitive, and effective</GradientText>
-                </h2>
-                <p className="max-w-[900px] text-muted-foreground">
-                  Customize your training plans, track your progress, and reach
-                  your goals.
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl gap-8 py-12 md:grid-cols-3">
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center space-y-4"
-              >
-                <div className="pulse pulse-1 bg-muted">
-                  <FilePlus className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold">
-                  Create Your Workout program
-                </h3>
-                <p className="text-muted-foreground text-[15px]">
-                  Design your custom training plan with the flexibility to match
-                  your goals, whether it&apos;s strength, endurance, or overall
-                  fitness.
-                </p>
-              </motion.div>
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center space-y-4"
-              >
-                <div className="pulse pulse-2 bg-muted">
-                  <CalendarSync className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold">Auto-filled Workouts</h3>
-                <p className="text-muted-foreground text-[15px]">
-                  Stay focused &amp; Endurofy pre-fills each day in your workout
-                  log with the exercises from your program, so all you need to
-                  do is log your reps and weights.
-                </p>
-              </motion.div>
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center space-y-4"
-              >
-                <div className="pulse pulse-3 bg-muted">
-                  <ChartColumn className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold">Track and Progress</h3>
-                <p className="text-muted-foreground text-[15px]">
-                  Follow your plan, track your progress, and see your growth
-                  over time with powerful insights and analytics.
-                </p>
-              </motion.div>
-            </div>
           </div>
         </motion.section>
 

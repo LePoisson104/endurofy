@@ -817,7 +817,7 @@ export function WorkoutProgramDetail({
                         {exerciseCount >= 0 &&
                           getDayId(day as AllDays) !== "" &&
                           !getDayId(day as AllDays).includes("temp-") && (
-                            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-400 dark:bg-sky-700 text-[10px] text-white">
                               {exerciseCount}
                             </span>
                           )}

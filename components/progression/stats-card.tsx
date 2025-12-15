@@ -45,7 +45,9 @@ export function StatsCard({
               <p className="text-3xl font-bold tracking-tight">{value}</p>
               <div
                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                  trend === "up"
+                  trend === "null"
+                    ? ""
+                    : trend === "up"
                     ? "bg-green-500/10 text-green-600 dark:text-green-400"
                     : "bg-red-500/10 text-red-600 dark:text-red-400"
                 }`}

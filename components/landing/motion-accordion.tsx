@@ -35,10 +35,10 @@ export function MotionAccordion() {
               What is Endurofy?
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              Endurofy is a fitness tracking app with three core features:
-              Workout Logging, Workout Programs, and Weight Tracking—helping you
-              plan workouts, track progress, and monitor nutrition with simple
-              logs and powerful insights.
+              Endurofy is a fitness tracking app built around three core
+              features—Workout Logging, Workout Programs, and Weight
+              Tracking—enhanced by AI-powered insights to help you plan smarter
+              workouts, track progress, and monitor nutrition with ease.
             </AccordionContent>
           </AccordionItem>
         </motion.div>
@@ -48,10 +48,11 @@ export function MotionAccordion() {
               How will Endurofy help me reach my fitness goals?
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              By consolidate the three core features of fitness tracking into
+              By consolidating the three core features of fitness tracking into
               one app, Endurofy helps you achieve your fitness goals by
-              providing a simple and effective way to track your progress and
-              monitor your nutrition.
+              providing a simple and effective way to track your progress,
+              monitor your nutrition, and plan smarter workouts with AI-powered
+              insights.
             </AccordionContent>
           </AccordionItem>
         </motion.div>
@@ -61,9 +62,10 @@ export function MotionAccordion() {
               Is Endurofy free to use?
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              Yes, Endurofy is free to use and open source. You can create up to
-              3 workout programs and unlimited workout logs, food logs, and
-              weight logs.
+              Yes, Endurofy offer a free plan with limited features. Users can
+              have full access to the three core features of the app, including
+              the ability to create up to 3 workout programs and unlimited
+              workout logs, food logs, and weight logs.
             </AccordionContent>
           </AccordionItem>
         </motion.div>
@@ -86,13 +88,12 @@ export function MotionAccordion() {
               What makes Endurofy different from other fitness apps?
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              Endurofy stands out by combining simplicity with structure—you can
-              build full workout programs that automatically generate exercises
-              and sets for each day, log workouts effortlessly, and track your
-              weight and nutrition with clear insights. Unlike many apps that
-              overwhelm with features or focus on just one area, Endurofy keeps
-              everything streamlined so you can focus on progress, not data
-              entry.
+              Endurofy goes beyond basic tracking by actively adapting to you.
+              Unlike traditional fitness apps that simply log data, Endurofy
+              analyzes your workouts, weight trends, and consistency to deliver
+              AI-powered insights and adaptive training recommendations—helping
+              you train smarter, recover better, and make consistent progress
+              over time.
             </AccordionContent>
           </AccordionItem>
         </motion.div>

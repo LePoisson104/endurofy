@@ -16,20 +16,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseForm } from "../../../components/form/exercise-form";
 import { DaySchedule } from "./day-scheldule";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CalendarIcon, Loader2, Plus, AlertCircle } from "lucide-react";
+import { CalendarIcon, Loader2, Plus, AlertCircle, Check } from "lucide-react";
 import type {
   AllDays,
   Exercise,
   CreateWorkoutProgram,
   CreateWorkoutDay,
 } from "../../../interfaces/workout-program-interfaces";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -40,6 +33,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useSelector } from "react-redux";
+import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 
 interface WorkoutProgramCreatorProps {
   onCreateProgram: (program: CreateWorkoutProgram) => void;
@@ -53,6 +47,7 @@ export function WorkoutProgramCreator({
   onSuccess,
 }: WorkoutProgramCreatorProps) {
   const isMobile = useIsMobile();
+  const isDark = useGetCurrentTheme();
   const workoutPrograms = useSelector(selectWorkoutProgram);
   const [programName, setProgramName] = useState("");
   const [description, setDescription] = useState("");
@@ -398,56 +393,155 @@ export function WorkoutProgramCreator({
 
   if (workoutPrograms?.length === 4) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-        <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full">
-          <AlertCircle className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <CardTitle className="mb-2 text-xl">Maximum Programs Reached</CardTitle>
-        <CardDescription className="max-w-md text-base">
-          You have reached the maximum limit of 3 workout programs. Please
-          delete an existing program before creating a new one.
-        </CardDescription>
-      </div>
+      <Card className="shadow-none bg-background">
+        <CardContent className="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 shadow-lg">
+            <AlertCircle className="h-10 w-10 text-zinc-600 dark:text-zinc-400" />
+          </div>
+          <CardTitle className="mb-3 text-2xl font-bold bg-gradient-to-t from-zinc-400 to-zinc-800 dark:from-zinc-100 dark:to-zinc-500 bg-clip-text text-transparent">
+            Program Limit Reached
+          </CardTitle>
+          <CardDescription className="max-w-md text-base leading-relaxed mb-6">
+            You&apos;ve reached the maximum limit of{" "}
+            <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+              3 active workout programs
+            </span>
+            .
+          </CardDescription>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-slate-100/80 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800">
+            <AlertCircle className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              Please delete an existing program to create a new one
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Step 1: Program Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Create Workout Program</CardTitle>
-          <CardDescription>
-            Customize your program to your needs.
-          </CardDescription>
+          <div className="flex items-center gap-3">
+            {numberLabel(1, programName, isDark)}
+            <div className="flex-1">
+              <CardTitle className="text-base">Program Details</CardTitle>
+              <CardDescription>
+                Give your program a name and description
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="program-name">Program Name</Label>
+            <Label htmlFor="program-name">
+              Program Name <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="program-name"
               placeholder="e.g., Hypertrophy Program"
               value={programName}
               onChange={(e) => setProgramName(e.target.value)}
               maxLength={30}
+              className="bg-background border-none"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="program-description">
               Description{" "}
-              <span className="text-xs text-slate-500">(optional)</span>
+              <span className="text-xs text-muted-foreground">(optional)</span>
             </Label>
             <Textarea
               id="program-description"
               placeholder="Describe your workout program... (100 characters max)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-background"
               maxLength={100}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Step 2: Schedule Type */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            {numberLabel(2, "selected", isDark)}
+            <div className="flex-1">
+              <CardTitle className="text-base">Schedule Type</CardTitle>
+              <CardDescription>
+                Choose how you want to organize your workout days
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3">
+            <div
+              onClick={() => setProgramType("dayOfWeek")}
+              className={cn(
+                "relative flex cursor-pointer items-center gap-3 rounded-lg p-4 transition-all hover:border-primary/50",
+                programType === "dayOfWeek"
+                  ? "border-primary bg-primary/10 shadow-sm"
+                  : "border-border bg-card"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-1 transition-colors",
+                  programType === "dayOfWeek"
+                    ? "border-primary"
+                    : "border-muted-foreground"
+                )}
+              >
+                {programType === "dayOfWeek" && (
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="font-medium">Day of Week</div>
+                <div className="text-sm text-muted-foreground">
+                  Organize by Monday through Sunday (best for weekly routines)
+                </div>
+              </div>
+            </div>
+
+            <div
+              onClick={() => setProgramType("custom")}
+              className={cn(
+                "relative flex cursor-pointer items-center gap-3 rounded-lg p-4 transition-all hover:border-primary/50",
+                programType === "custom"
+                  ? "border-primary bg-primary/10 shadow-sm"
+                  : "border-border bg-card"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-1 transition-colors",
+                  programType === "custom"
+                    ? "border-primary"
+                    : "border-muted-foreground"
+                )}
+              >
+                {programType === "custom" && (
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="font-medium">Custom Schedule</div>
+                <div className="text-sm text-muted-foreground">
+                  Create Day 1, Day 2, etc. (best for rotation-based programs)
+                </div>
+              </div>
+            </div>
+          </div>
+
           {programType === "custom" && (
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-2 pt-2 border-t">
               <Label htmlFor="program-start-date">Program Start Date</Label>
               <div className="flex gap-2">
                 <Popover>
@@ -498,43 +592,46 @@ export function WorkoutProgramCreator({
         </CardContent>
       </Card>
 
+      {/* Step 3: Workout Schedule */}
       <Card className={`${isMobile ? "pb-0" : ""}`}>
         <CardHeader>
-          <CardTitle className="text-base">Workout Schedule</CardTitle>
-          <CardDescription>
-            Add exercises for each day of your workout program.
-          </CardDescription>
+          <div className="flex items-center gap-3">
+            {numberLabel(
+              3,
+              Object.values(exercises).some(
+                (dayExercises) => dayExercises.length > 0
+              )
+                ? "hasExercises"
+                : "",
+              isDark
+            )}
+            <div className="flex-1">
+              <CardTitle className="text-base">Build Your Schedule</CardTitle>
+              <CardDescription>
+                Add exercises for each day of your workout program
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <Select
-              value={programType}
-              onValueChange={(value) =>
-                setProgramType(value as "dayOfWeek" | "custom")
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dayOfWeek">Day of week</SelectItem>
-                <SelectItem value="custom">custom</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {programType === "dayOfWeek" ? (
             <Tabs
               value={activeDay}
               onValueChange={(value) => setActiveDay(value as AllDays)}
             >
-              <div className="border-b mb-4">
-                <TabsList className="grid w-full grid-cols-7">
+              <div className="mb-2">
+                <TabsList className="grid w-full grid-cols-7 h-auto p-1 border-b">
                   {daysOfWeek.map((day) => (
-                    <TabsTrigger key={day} value={day} className="relative">
-                      {formatDayName(day as AllDays).slice(0, 3)}
+                    <TabsTrigger
+                      key={day}
+                      value={day}
+                      className="relative flex flex-col h-auto py-3 border-b"
+                    >
+                      <span className="text-xs font-medium">
+                        {formatDayName(day as AllDays).slice(0, 3)}
+                      </span>
                       {exercises[day] && exercises[day].length > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
+                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-semibold text-white shadow-sm">
                           {exercises[day].length}
                         </span>
                       )}
@@ -544,138 +641,174 @@ export function WorkoutProgramCreator({
               </div>
 
               {daysOfWeek.map((day) => (
-                <TabsContent key={day} value={day} className="space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="day-title">Day Name</Label>
-                    <Input
-                      id="day-title"
-                      type="text"
-                      placeholder="e.g., Push A"
-                      value={dayNames[day] || ""}
-                      onChange={(e) => updateDayName(day, e.target.value)}
-                      className="w-fit"
-                    />
+                <TabsContent key={day} value={day} className="space-y-4 mt-0">
+                  <div className="rounded-lg border bg-muted/50 p-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="day-title"
+                        className="text-sm font-medium"
+                      >
+                        Custom Name for {formatDayName(day as AllDays)}{" "}
+                        <span className="text-xs text-muted-foreground">
+                          (optional)
+                        </span>
+                      </Label>
+                      <Input
+                        id="day-title"
+                        type="text"
+                        placeholder="e.g., Push A, Upper Body, Legs"
+                        value={dayNames[day] || ""}
+                        onChange={(e) => updateDayName(day, e.target.value)}
+                        className="bg-background w-full"
+                      />
+                    </div>
                   </div>
 
-                  <DaySchedule
-                    exercises={exercises[day] || []}
-                    onRemoveExercise={(exerciseId) =>
-                      removeExercise(day, exerciseId)
-                    }
-                    onUpdateExercise={(exercise) =>
-                      updateExercise(day, exercise)
-                    }
-                    onReorderExercises={(newExercises) =>
-                      updateExercises(day, newExercises)
-                    }
-                  />
+                  {exercises[day] && exercises[day].length > 0 && (
+                    <div>
+                      <div className="mb-3 text-sm font-medium">
+                        Exercises ({exercises[day].length}):
+                      </div>
+                      <DaySchedule
+                        exercises={exercises[day] || []}
+                        onRemoveExercise={(exerciseId) =>
+                          removeExercise(day, exerciseId)
+                        }
+                        onUpdateExercise={(exercise) =>
+                          updateExercise(day, exercise)
+                        }
+                        onReorderExercises={(newExercises) =>
+                          updateExercises(day, newExercises)
+                        }
+                      />
+                    </div>
+                  )}
 
-                  <Card>
-                    <CardHeader className={`${isMobile ? "p-0" : ""}`}>
-                      <CardTitle className="text-base">Add Exercise</CardTitle>
-                    </CardHeader>
-                    <CardContent className={`${isMobile ? "p-0" : ""}`}>
-                      <ExerciseForm onAddExercise={addExercise} />
-                    </CardContent>
-                  </Card>
+                  <div className="border-t pt-4">
+                    <div className="mb-4 flex items-center gap-2">
+                      <Plus className="h-5 w-5 text-primary" />
+                      <div className="font-medium">Add Exercise</div>
+                    </div>
+                    <ExerciseForm onAddExercise={addExercise} />
+                  </div>
                 </TabsContent>
               ))}
             </Tabs>
           ) : (
             <div className="space-y-4">
               <Tabs value={activeCustomDay} onValueChange={setActiveCustomDay}>
-                <div className="flex flex-col gap-2 mb-4">
-                  <div className="flex justify-end mb-2 gap-2">
-                    {customDays.length > 1 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeCustomDay(activeCustomDay)}
-                        className="text-destructive"
-                      >
-                        Remove Day
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={addCustomDay}
-                      disabled={customDays.length >= 10}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Day
-                    </Button>
-                  </div>
-                  <div className="border-b">
-                    <TabsList
-                      className={`grid grid-cols-6 gap-1 w-full ${
-                        customDays.length > 6 ? "mb-8" : ""
-                      } p-1 rounded-md`}
-                    >
-                      {customDays.map((day) => (
-                        <TabsTrigger
-                          key={day.id}
-                          value={day.id}
-                          className="relative data-[state=active]:bg-card"
+                <div className="flex flex-col gap-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">
+                      Your training days:
+                    </div>
+                    <div className="flex gap-2">
+                      {customDays.length > 1 && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeCustomDay(activeCustomDay)}
                         >
-                          {day.name}
-                          {exercises[day.id] &&
-                            exercises[day.id].length > 0 && (
-                              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] text-white">
-                                {exercises[day.id].length}
-                              </span>
-                            )}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
+                          Remove{" "}
+                          {
+                            customDays.find((d) => d.id === activeCustomDay)
+                              ?.name
+                          }
+                        </Button>
+                      )}
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={addCustomDay}
+                        disabled={customDays.length >= 10}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Day
+                      </Button>
+                    </div>
                   </div>
+
+                  <TabsList
+                    className={`grid ${
+                      customDays.length <= 5
+                        ? `grid-cols-${customDays.length}`
+                        : "grid-cols-5"
+                    } gap-2 w-full h-auto bg-card p-2 border-b`}
+                  >
+                    {customDays.map((day) => (
+                      <TabsTrigger
+                        key={day.id}
+                        value={day.id}
+                        className="relative h-auto py-3 bg-card border-b"
+                      >
+                        <span className="font-medium">{day.name}</span>
+                        {exercises[day.id] && exercises[day.id].length > 0 && (
+                          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] font-semibold text-white shadow-sm">
+                            {exercises[day.id].length}
+                          </span>
+                        )}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
                 </div>
 
                 {customDays.map((day) => (
                   <TabsContent
                     key={day.id}
                     value={day.id}
-                    className="space-y-4"
+                    className="space-y-4 mt-0"
                   >
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor={`day-title-${day.id}`}>Day Name</Label>
+                    <div className="rounded-lg border bg-muted/50 p-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor={`day-title-${day.id}`}
+                          className="text-sm font-medium"
+                        >
+                          Name for {day.name}{" "}
+                          <span className="text-xs text-muted-foreground">
+                            (optional)
+                          </span>
+                        </Label>
+                        <Input
+                          id={`day-title-${day.id}`}
+                          type="text"
+                          placeholder="e.g., Push A, Upper Body, Legs"
+                          value={day.dayName}
+                          onChange={(e) =>
+                            updateCustomDayName(day.id, e.target.value)
+                          }
+                          className="max-w-md bg-background"
+                        />
                       </div>
-                      <Input
-                        id={`day-title-${day.id}`}
-                        type="text"
-                        placeholder="e.g., Push A"
-                        value={day.dayName}
-                        onChange={(e) =>
-                          updateCustomDayName(day.id, e.target.value)
-                        }
-                        className="w-fit"
-                      />
                     </div>
 
-                    <DaySchedule
-                      exercises={exercises[day.id] || []}
-                      onRemoveExercise={(exerciseId) =>
-                        removeExercise(day.id, exerciseId)
-                      }
-                      onUpdateExercise={(exercise) =>
-                        updateExercise(day.id, exercise)
-                      }
-                      onReorderExercises={(newExercises) =>
-                        updateExercises(day.id, newExercises)
-                      }
-                    />
+                    {exercises[day.id] && exercises[day.id].length > 0 && (
+                      <div>
+                        <div className="mb-3 text-sm font-medium">
+                          Exercises ({exercises[day.id].length}):
+                        </div>
+                        <DaySchedule
+                          exercises={exercises[day.id] || []}
+                          onRemoveExercise={(exerciseId) =>
+                            removeExercise(day.id, exerciseId)
+                          }
+                          onUpdateExercise={(exercise) =>
+                            updateExercise(day.id, exercise)
+                          }
+                          onReorderExercises={(newExercises) =>
+                            updateExercises(day.id, newExercises)
+                          }
+                        />
+                      </div>
+                    )}
 
-                    <Card>
-                      <CardHeader className={`${isMobile ? "p-0" : ""}`}>
-                        <CardTitle className="text-base">
-                          Add Exercise
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className={`${isMobile ? "p-0" : ""}`}>
-                        <ExerciseForm onAddExercise={addExercise} />
-                      </CardContent>
-                    </Card>
+                    <div className="border-t pt-4">
+                      <div className="mb-4 flex items-center gap-2">
+                        <Plus className="h-5 w-5 text-primary" />
+                        <div className="font-medium">Add Exercise</div>
+                      </div>
+                      <ExerciseForm onAddExercise={addExercise} />
+                    </div>
                   </TabsContent>
                 ))}
               </Tabs>
@@ -684,23 +817,52 @@ export function WorkoutProgramCreator({
         </CardContent>
       </Card>
 
-      <div className="flex justify-end mt-6">
+      {/* Submit Section */}
+      <div className="flex justify-end">
         <Button
           onClick={handleSubmitProgram}
           disabled={
             !programName.trim() ||
-            Object.keys(exercises).length === 0 ||
+            !Object.values(exercises).some(
+              (dayExercises) => dayExercises.length > 0
+            ) ||
             isLoading
           }
-          className="w-[200px]"
+          size="lg"
+          className="w-full sm:w-auto min-w-[200px]"
         >
           {isLoading ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Creating...
+            </>
           ) : (
-            "Create Workout Program"
+            "Create Program"
           )}
         </Button>
       </div>
     </div>
   );
 }
+
+const numberLabel = (number: number, context: string, isDark: boolean) => {
+  return (
+    <div
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+        context.length > 0
+          ? isDark
+            ? "bg-green-900"
+            : "bg-green-200"
+          : "bg-muted-foreground"
+      } font-semibold text-sm text-primary-foreground`}
+    >
+      {context.length > 0 ? (
+        <Check
+          className={`h-4 w-4 ${isDark ? "text-green-400" : "text-green-700"}`}
+        />
+      ) : (
+        number
+      )}
+    </div>
+  );
+};
