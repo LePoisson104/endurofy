@@ -18,6 +18,7 @@
 /out/
 /.cursor/rules
 /CLAUDE.md
+/prd.md
 
 # production
 /build

@@ -483,9 +483,7 @@ export default function Home() {
                     <GradientText>
                       Transform Your Body,
                       <br />
-                      <span className="text-foreground">
-                        Elevate Your Performance
-                      </span>
+                      Elevate Your Performance
                     </GradientText>
                   </h1>
                   <p className="max-w-[700px] text-lg md:text-xl text-muted-foreground mx-auto leading-relaxed">
@@ -1110,7 +1108,7 @@ export default function Home() {
                   <GradientText>
                     Built for Mobile,
                     <br />
-                    <span className="text-foreground">Perfected for You</span>
+                    Perfected for You
                   </GradientText>
                 </h2>
                 <p className="max-w-[700px] text-lg text-muted-foreground mx-auto">
@@ -1287,7 +1285,7 @@ export default function Home() {
                     <GradientText>
                       Start Your Journey
                       <br />
-                      <span className="text-foreground">Today</span>
+                      Today
                     </GradientText>
                   </h2>
                   <p className="max-w-[600px] text-lg md:text-xl text-muted-foreground mx-auto leading-relaxed">

@@ -13,6 +13,7 @@ import {
   EllipsisVertical,
   LogOut,
   Apple,
+  ChartColumn,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -205,6 +206,19 @@ export function AppSidebar() {
                     <Link href="/weight-log" className="truncate">
                       <ScrollText />
                       <span className="truncate">Weight Log</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/analytics"}
+                    tooltip="Analytics"
+                    onClick={handleCloseSidebarOnMobile}
+                  >
+                    <Link href="/analytics" className="truncate">
+                      <ChartColumn />
+                      <span className="truncate">Analytics</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
