@@ -170,6 +170,7 @@ export function ProgramWorkoutLog({
         workoutLogId: currentWorkout.workoutLogId,
         status: "completed",
       }).unwrap();
+      setShowSummaryModal(true);
     } else if (!shouldBeCompleted && isCompleted) {
       updateWorkoutLogStatus({
         workoutLogId: currentWorkout.workoutLogId,
@@ -182,33 +183,6 @@ export function ProgramWorkoutLog({
     updateWorkoutLogStatus,
     updateExpectedNumberOfSets,
   ]);
-
-  // Track status change from incomplete to completed
-  useEffect(() => {
-    const currentStatus = workoutLog?.data[0]?.status;
-    const previousStatus = previousStatusRef.current;
-
-    // Initialize ref on first load if not set
-    if (!previousStatus && currentStatus) {
-      previousStatusRef.current = currentStatus;
-      return;
-    }
-
-    // Check if status changed from incomplete to completed
-    if (
-      previousStatus === "incomplete" &&
-      currentStatus === "completed" &&
-      !isUpdatingWorkoutLogStatus
-    ) {
-      // Show summary modal after successful completion
-      setShowSummaryModal(true);
-    }
-
-    // Update the previous status ref
-    if (currentStatus && currentStatus !== previousStatus) {
-      previousStatusRef.current = currentStatus;
-    }
-  }, [workoutLog?.data[0]?.status, isUpdatingWorkoutLogStatus]);
 
   // Load existing notes when workout log data is available
   useEffect(() => {

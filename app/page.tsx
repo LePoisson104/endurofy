@@ -12,8 +12,6 @@ import {
   Component,
   Menu,
   Sparkle,
-  FilePlus,
-  ChartColumn,
   CalendarSync,
   Brain,
   Zap,
@@ -21,6 +19,9 @@ import {
   MessageSquare,
   Check,
   X,
+  Dumbbell,
+  Scale,
+  Utensils,
 } from "lucide-react";
 import { MotionAccordion } from "@/components/landing/motion-accordion";
 import { LandingPageThemeToggle } from "@/components/buttons/landing-page-theme-toggle";
@@ -756,14 +757,14 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32"
+          className="w-full h-150"
         >
-          <div className="container px-4 md:px-6 mx-auto">
+          <div className="container mx-auto h-full">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
                   <Sparkle className="h-3 w-3" />
-                  How it works
+                  Integrations
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   <GradientText>Simple, intuitive, and effective</GradientText>
@@ -773,51 +774,246 @@ export default function Home() {
                   your goals.
                 </p>
               </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl gap-8 py-12 md:grid-cols-3">
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center space-y-4"
-              >
-                <div className="pulse pulse-1 bg-muted">
-                  <FilePlus className="h-6 w-6 text-primary" />
+              <div className="relative w-full max-w-xl mx-auto pb-32 md:pb-40">
+                <div className="relative w-full aspect-square max-h-96">
+                  {/* SVG Dashed Lines and Animated Dots */}
+                  <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    style={{ overflow: "visible" }}
+                  >
+                    {/* Line from Top Left (Workout) to Center */}
+                    <motion.line
+                      x1="15"
+                      y1="10"
+                      x2="50"
+                      y2="50"
+                      stroke="currentColor"
+                      strokeWidth="0.5"
+                      strokeDasharray="2 2"
+                      className="text-primary/30 dark:text-primary/40"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      whileInView={{ pathLength: 1, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                    />
+
+                    {/* Line from Top Right (Food) to Center */}
+                    <motion.line
+                      x1="85"
+                      y1="10"
+                      x2="50"
+                      y2="50"
+                      stroke="currentColor"
+                      strokeWidth="0.5"
+                      strokeDasharray="2 2"
+                      className="text-primary/30 dark:text-primary/40"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      whileInView={{ pathLength: 1, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: 0.6 }}
+                    />
+
+                    {/* Line from Bottom Center (Weight) to Center */}
+                    <motion.line
+                      x1="50"
+                      y1="110"
+                      x2="50"
+                      y2="50"
+                      stroke="currentColor"
+                      strokeWidth="0.5"
+                      strokeDasharray="2 2"
+                      className="text-primary/30 dark:text-primary/40"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      whileInView={{ pathLength: 1, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: 0.7 }}
+                    />
+                  </svg>
+
+                  {/* Animated Dots using divs */}
+                  {/* Top Left Line (Workout) - Dot 1 */}
+                  <motion.div
+                    className="absolute w-2 h-2 rounded-full bg-primary dark:bg-primary/80 -translate-x-1/2 -translate-y-1/2"
+                    initial={{ left: "15%", top: "10%", opacity: 0 }}
+                    animate={{
+                      left: ["15%", "50%"],
+                      top: ["10%", "50%"],
+                      opacity: [1, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 1.8,
+                      times: [0, 0.5, 0.9, 1],
+                    }}
+                  />
+                  {/* Top Left Line (Workout) - Dot 2 */}
+                  <motion.div
+                    className="absolute w-2 h-2 rounded-full bg-primary dark:bg-primary/80 -translate-x-1/2 -translate-y-1/2"
+                    initial={{ left: "15%", top: "10%", opacity: 0 }}
+                    animate={{
+                      left: ["15%", "50%"],
+                      top: ["10%", "50%"],
+                      opacity: [1, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 3.2,
+                      times: [0, 0.5, 0.9, 1],
+                    }}
+                  />
+
+                  {/* Top Right Line (Food) - Dot 1 */}
+                  <motion.div
+                    className="absolute w-2 h-2 rounded-full bg-primary dark:bg-primary/80 -translate-x-1/2 -translate-y-1/2"
+                    initial={{ left: "85%", top: "10%", opacity: 0 }}
+                    animate={{
+                      left: ["85%", "50%"],
+                      top: ["10%", "50%"],
+                      opacity: [1, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 2.3,
+                      times: [0, 0.5, 0.9, 1],
+                    }}
+                  />
+                  {/* Top Right Line (Food) - Dot 2 */}
+                  <motion.div
+                    className="absolute w-2 h-2 rounded-full bg-primary dark:bg-primary/80 -translate-x-1/2 -translate-y-1/2"
+                    initial={{ left: "85%", top: "10%", opacity: 0 }}
+                    animate={{
+                      left: ["85%", "50%"],
+                      top: ["10%", "50%"],
+                      opacity: [1, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 3.7,
+                      times: [0, 0.5, 0.9, 1],
+                    }}
+                  />
+
+                  {/* Bottom Line (Weight) - Dot 1 */}
+                  <motion.div
+                    className="absolute w-2 h-2 rounded-full bg-primary dark:bg-primary/80 -translate-x-1/2 -translate-y-1/2"
+                    initial={{ left: "50%", top: "110%", opacity: 0 }}
+                    animate={{
+                      left: "50%",
+                      top: ["110%", "50%"],
+                      opacity: [1, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 2.8,
+                      times: [0, 0.5, 0.9, 1],
+                    }}
+                  />
+                  {/* Bottom Line (Weight) - Dot 2 */}
+                  <motion.div
+                    className="absolute w-2 h-2 rounded-full bg-primary dark:bg-primary/80 -translate-x-1/2 -translate-y-1/2"
+                    initial={{ left: "50%", top: "110%", opacity: 0 }}
+                    animate={{
+                      left: "50%",
+                      top: ["110%", "50%"],
+                      opacity: [1, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 4.2,
+                      times: [0, 0.5, 0.9, 1],
+                    }}
+                  />
+
+                  {/* Central Logo - Centered at (50, 50) */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+                  >
+                    <div className="relative">
+                      <div className="absolute -inset-4 bg-primary/20 dark:bg-primary/30 rounded-2xl blur-2xl" />
+                      <div className="bg-primary dark:bg-primary/80 rounded-md p-1">
+                        <Image
+                          src={
+                            isDark
+                              ? "/images/endurofy_logo_dark.png"
+                              : "/images/endurofy_logo.png"
+                          }
+                          alt="Endurofy"
+                          width={60}
+                          height={60}
+                          className="relative z-10"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Feature Icons */}
+                  {/* Workout Icon - Top Left - Aligned with line at (15, 10) */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -30, y: -30 }}
+                    whileInView={{ opacity: 1, x: 0, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="absolute top-[10%] left-[15%] -translate-x-1/2 -translate-y-1/2 z-10"
+                  >
+                    <div className="relative group">
+                      <div className="absolute -inset-2 bg-muted rounded-full blur-xl opacity-50 group-hover:opacity-75 transition duration-300" />
+                      <div className="relative rounded-full p-4 shadow-2xl border border-primary/30 bg-background">
+                        <Dumbbell className="h-6 w-6 text-primary dark:text-primary/80" />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Food Icon - Top Right - Aligned with line at (85, 10) */}
+                  <motion.div
+                    initial={{ opacity: 0, x: 30, y: -30 }}
+                    whileInView={{ opacity: 1, x: 0, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="absolute top-[10%] left-[85%] -translate-x-1/2 -translate-y-1/2 z-10"
+                  >
+                    <div className="relative group">
+                      <div className="absolute -inset-2 bg-muted rounded-full blur-xl opacity-50 group-hover:opacity-75 transition duration-300" />
+                      <div className="relative rounded-full p-4 shadow-2xl border border-primary/30 bg-background">
+                        <Utensils className="h-6 w-6 text-primary dark:text-primary/80" />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Weight Icon - Bottom Center - Aligned with line at (50, 100) */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="absolute top-[110%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+                  >
+                    <div className="relative group">
+                      <div className="absolute -inset-2 bg-muted rounded-full blur-xl opacity-50 group-hover:opacity-75 transition duration-300" />
+                      <div className="relative rounded-full p-4 shadow-2xl border border-primary/30 bg-background">
+                        <Scale className="h-6 w-6 text-primary dark:text-primary/80" />
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
-                <h3 className="text-xl font-bold">
-                  Create Your Workout program
-                </h3>
-                <p className="text-muted-foreground text-[15px]">
-                  Design your custom training plan with the flexibility to match
-                  your goals, whether it&apos;s strength, endurance, or overall
-                  fitness.
-                </p>
-              </motion.div>
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center space-y-4"
-              >
-                <div className="pulse pulse-2 bg-muted">
-                  <CalendarSync className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold">Auto-filled Workouts</h3>
-                <p className="text-muted-foreground text-[15px]">
-                  Stay focused &amp; Endurofy pre-fills each day in your workout
-                  log with the exercises from your program, so all you need to
-                  do is log your reps and weights.
-                </p>
-              </motion.div>
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col items-center text-center space-y-4"
-              >
-                <div className="pulse pulse-3 bg-muted">
-                  <ChartColumn className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold">Track and Progress</h3>
-                <p className="text-muted-foreground text-[15px]">
-                  Follow your plan, track your progress, and see your growth
-                  over time with powerful insights and analytics.
-                </p>
-              </motion.div>
+              </div>
             </div>
           </div>
         </motion.section>
