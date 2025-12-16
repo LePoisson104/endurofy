@@ -199,6 +199,18 @@ export default function WeightLogHistory({
         size: 100,
         enableHiding: true,
       },
+      {
+        accessorKey: "weeklyAvgCalories",
+        header: "Avg Calories",
+        cell: ({ row }) => (
+          <div className="text-center">
+            {Math.round(Number(row.original.weeklyAvgCalories))}{" "}
+            <span className="text-xs text-muted-foreground">Kcal</span>
+          </div>
+        ),
+        size: 100,
+        enableHiding: true,
+      },
       ...(showNotes && !isNotesEmpty
         ? [
             {
