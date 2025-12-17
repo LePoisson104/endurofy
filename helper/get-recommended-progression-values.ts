@@ -9,35 +9,56 @@ export const getRecommendedProgressionValues = (
   if (!setData.previousWeight || setData.previousWeight === 0) return "-";
 
   const previousWeight = setData.previousWeight || 0;
-  const progressionFactor = 1.025; // 2.5% progression target
 
   // Handle bilateral exercises
   if (!laterality || laterality === "bilateral") {
     const previousReps =
       ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
     const prev1RM = estimateOneRepMax(previousWeight, previousReps);
-    const target1RM = prev1RM * progressionFactor;
 
     // Calculate recommended reps when weight is set
     if (setData.weight > 0 && setData.reps === 0) {
-      const minReps = 30 * (target1RM / setData.weight - 1);
-      const recommendedReps = Math.ceil(minReps);
+      // If using same weight (within 0.5 lbs tolerance), just add 1 rep
+      if (Math.abs(setData.weight - previousWeight) < 0.5) {
+        return String(Math.ceil(previousReps) + 1);
+      }
+
+      // Calculate reps needed to match previous 1RM
+      const repsToMatch = 30 * (prev1RM / setData.weight - 1);
+
+      // Add 1 rep to beat the previous 1RM
+      const recommendedReps = Math.floor(repsToMatch) + 1;
+
+      // Ensure we always recommend at least 1 more rep than previous if using similar weight
+      const minRecommendedReps = Math.ceil(previousReps) + 1;
 
       if (recommendedReps > 0 && recommendedReps <= 100) {
+        // If weight is very close to previous, ensure we beat previous reps
+        if (
+          setData.weight >= previousWeight * 0.95 &&
+          recommendedReps <= previousReps
+        ) {
+          return String(minRecommendedReps);
+        }
         return String(recommendedReps);
       }
 
+      // If calculation gives invalid result, default to previous reps + 1
       if (recommendedReps <= 0) {
-        return String(Math.ceil(previousReps) + 1);
+        return String(minRecommendedReps);
       }
+
       return "-";
     }
 
     // Calculate recommended weight when reps is set
     if (setData.reps > 0 && setData.weight === 0) {
-      const matchingWeight = target1RM / (1 + setData.reps / 30);
+      // Calculate weight needed to match previous 1RM
+      const weightToMatch = prev1RM / (1 + setData.reps / 30);
+      // Add small increment (2.5 lbs) to beat it
+      const targetWeight = weightToMatch + 2.5;
       // Round to nearest 2.5 increment
-      const roundedWeight = Math.round(matchingWeight / 2.5) * 2.5;
+      const roundedWeight = Math.round(targetWeight / 2.5) * 2.5;
 
       if (roundedWeight > 0 && roundedWeight <= previousWeight * 3) {
         return String(roundedWeight);
@@ -55,23 +76,42 @@ export const getRecommendedProgressionValues = (
     const weakerSideReps = Math.min(previousLeftReps, previousRightReps);
 
     const prev1RM = estimateOneRepMax(previousWeight, weakerSideReps);
-    const target1RM = prev1RM * progressionFactor;
 
     // Calculate recommended reps when weight is set
     if (
       setData.weight > 0 &&
       (setData.leftReps === 0 || setData.rightReps === 0)
     ) {
-      const minReps = 30 * (target1RM / setData.weight - 1);
-      const recommendedReps = Math.ceil(minReps);
+      // If using same weight (within 0.5 lbs tolerance), just add 1 rep
+      if (Math.abs(setData.weight - previousWeight) < 0.5) {
+        return String(Math.ceil(weakerSideReps) + 1);
+      }
+
+      // Calculate reps needed to match previous 1RM
+      const repsToMatch = 30 * (prev1RM / setData.weight - 1);
+
+      // Add 1 rep to beat the previous 1RM
+      const recommendedReps = Math.floor(repsToMatch) + 1;
+
+      // Ensure we always recommend at least 1 more rep than previous if using similar weight
+      const minRecommendedReps = Math.ceil(weakerSideReps) + 1;
 
       if (recommendedReps > 0 && recommendedReps <= 100) {
+        // If weight is very close to previous, ensure we beat previous reps
+        if (
+          setData.weight >= previousWeight * 0.95 &&
+          recommendedReps <= weakerSideReps
+        ) {
+          return String(minRecommendedReps);
+        }
         return String(recommendedReps);
       }
 
+      // If calculation gives invalid result, default to previous reps + 1
       if (recommendedReps <= 0) {
-        return String(Math.ceil(weakerSideReps) + 1);
+        return String(minRecommendedReps);
       }
+
       return "-";
     }
 
@@ -88,9 +128,12 @@ export const getRecommendedProgressionValues = (
           ? setData.leftReps
           : setData.rightReps;
 
-      const matchingWeight = target1RM / (1 + currentReps / 30);
+      // Calculate weight needed to match previous 1RM
+      const weightToMatch = prev1RM / (1 + currentReps / 30);
+      // Add small increment (2.5 lbs) to beat it
+      const targetWeight = weightToMatch + 2.5;
       // Round to nearest 2.5 increment
-      const roundedWeight = Math.round(matchingWeight / 2.5) * 2.5;
+      const roundedWeight = Math.round(targetWeight / 2.5) * 2.5;
 
       if (roundedWeight > 0 && roundedWeight <= previousWeight * 3) {
         return String(roundedWeight);
