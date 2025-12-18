@@ -599,7 +599,7 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
-          className="w-full py-12 md:py-24 lg:py-32 relative"
+          className="w-full pt-20 md:py-24 lg:py-32 relative"
         >
           <div className="hidden md:block absolute inset-0 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] bg-[size:30px_30px]" />
           <div className="container px-4 md:px-6 mx-auto relative">
@@ -945,7 +945,11 @@ export default function Home() {
           variants={fadeInUp}
           className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background via-muted/20 to-background mt-50"
         >
-          <div className="container px-4 md:px-6 mx-auto">
+          <div
+            className={`container px-4 md:px-6 mx-auto ${
+              isMobile ? "mt-30" : ""
+            }`}
+          >
             <motion.div
               variants={fadeInUp}
               className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
