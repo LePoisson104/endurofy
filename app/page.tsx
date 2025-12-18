@@ -13,12 +13,7 @@ import {
   Menu,
   Sparkle,
   CalendarSync,
-  Brain,
   Zap,
-  Target,
-  MessageSquare,
-  Check,
-  X,
   Dumbbell,
   Scale,
   Utensils,
@@ -319,8 +314,8 @@ export default function Home() {
                 animate="visible"
               >
                 <Link
-                  href="#how-it-works"
-                  onClick={(e) => scrollToSection(e, "how-it-works")}
+                  href="#integrations"
+                  onClick={(e) => scrollToSection(e, "integrations")}
                   className="text-sm font-medium hover:text-primary nav-link"
                 >
                   Integrations
@@ -328,20 +323,6 @@ export default function Home() {
               </motion.div>
               <motion.div
                 custom={2}
-                variants={navLinkVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link
-                  href="#pricing"
-                  onClick={(e) => scrollToSection(e, "pricing")}
-                  className="text-sm font-medium hover:text-primary nav-link"
-                >
-                  Pricing
-                </Link>
-              </motion.div>
-              <motion.div
-                custom={3}
                 variants={navLinkVariants}
                 initial="hidden"
                 animate="visible"
@@ -471,7 +452,7 @@ export default function Home() {
                   />
                   <Sparkle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-sky-600 dark:from-blue-400 dark:to-sky-400 bg-clip-text text-transparent relative z-10">
-                    Your AI-Powered Fitness Companion
+                    Your Complete Fitness Companion
                   </span>
                 </motion.div>
 
@@ -482,15 +463,15 @@ export default function Home() {
                     }`}
                   >
                     <GradientText>
-                      Evidence-Based Training,
+                      Strengthen Your Endurance
                       <br />
-                      Enhance By AI
+                      Enhance Your Life
                     </GradientText>
                   </h1>
                   <p className="max-w-[700px] text-sm md:text-lg text-muted-foreground mx-auto leading-relaxed">
                     An all-in-one fitness platform combining workout tracking,
-                    weight and nutrition logging, and AI-powered coaching to
-                    help you perform at your best.
+                    weight and nutrition logging to help you perform at your
+                    best.
                   </p>
                 </div>
 
@@ -686,73 +667,9 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* AI Features - Coming Soon */}
+        {/* Integrations */}
         <motion.section
-          id="ai-features"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={staggerContainer}
-          className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20"
-        >
-          <div className="container px-4 md:px-6 mx-auto">
-            <motion.div
-              variants={fadeInUp}
-              className="flex flex-col items-center justify-center space-y-4 text-center"
-            >
-              <div className="space-y-2">
-                <div className="shadow-lg shadow-muted-foreground inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-3 py-1 text-sm text-white rounded-full">
-                  <Brain className="h-3 w-3" />
-                  Coming Soon
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  <GradientText>AI-Powered Training Intelligence</GradientText>
-                </h2>
-                <p className="max-w-[900px] text-muted-foreground">
-                  We&apos;re building the future of personalized fitness with AI
-                  technology that adapts to your unique needs.
-                </p>
-              </div>
-            </motion.div>
-            <motion.div
-              variants={staggerContainer}
-              className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2"
-            >
-              <FeatureCard
-                icon={<Brain className="h-6 w-6 text-violet-400" />}
-                title="AI Personal Trainer"
-                bgColor="bg-violet-400"
-                description="Get personalized workout recommendations based on your progress, goals, and recovery status. Your AI trainer learns and adapts with you."
-                comingSoon={true}
-              />
-              <FeatureCard
-                icon={<Zap className="h-6 w-6 text-amber-400" />}
-                title="Smart Auto-Adjust"
-                bgColor="bg-amber-400"
-                description="AI automatically adjusts your training program based on your performance, ensuring optimal progression without plateaus."
-                comingSoon={true}
-              />
-              <FeatureCard
-                icon={<Target className="h-6 w-6 text-rose-400" />}
-                title="Progress Predictions"
-                bgColor="bg-rose-400"
-                description="AI-powered analytics predict when you'll reach your goals and suggest optimizations to get there faster."
-                comingSoon={true}
-              />
-              <FeatureCard
-                icon={<MessageSquare className="h-6 w-6 text-cyan-400" />}
-                title="AI Nutrition Coach"
-                bgColor="bg-cyan-400"
-                description="Receive intelligent meal suggestions and nutrition guidance tailored to your training intensity and body composition goals."
-                comingSoon={true}
-              />
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* How it works */}
-        <motion.section
-          id="how-it-works"
+          id="integrations"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -767,11 +684,14 @@ export default function Home() {
                   Integrations
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  <GradientText>Simple, intuitive, and effective</GradientText>
+                  <GradientText>
+                    Three Essential Features, One Unified Platform
+                  </GradientText>
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground">
-                  Customize your training plans, track your progress, and reach
-                  your goals.
+                  Seamlessly integrate your workouts, nutrition, and weight
+                  tracking in one place. All your fitness data flows together to
+                  give you the complete picture of your progress.
                 </p>
               </div>
               <div className="relative w-full max-w-xl mx-auto pb-32 md:pb-40">
@@ -1017,277 +937,13 @@ export default function Home() {
             </div>
           </div>
         </motion.section>
-        {/* Pricing Section */}
-        <motion.section
-          id="pricing"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 relative overflow-hidden mt-60"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/5 via-transparent to-zinc-500/5" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-          <div className="container px-4 md:px-6 mx-auto relative">
-            <motion.div
-              variants={fadeInUp}
-              className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
-            >
-              <div className="space-y-4">
-                <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
-                  <Sparkle className="h-3 w-3" />
-                  Flexible Pricing
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-5xl">
-                  <GradientText>
-                    Invest in Your
-                    <br />
-                    Fitness Journey
-                  </GradientText>
-                </h2>
-                <p className="max-w-[700px] text-lg text-muted-foreground mx-auto">
-                  Start free, upgrade when you&apos;re ready. No commitments,
-                  cancel anytime.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              variants={staggerContainer}
-              className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2"
-            >
-              {/* Free Plan */}
-              <motion.div
-                variants={fadeInUp}
-                whileHover={{ y: -8 }}
-                className="relative group"
-              >
-                <div className="absolute -inset-1 bg-gradient-to-r from-gray-500 to-gray-600 rounded-3xl blur opacity-0 group-hover:opacity-25 transition duration-300" />
-                <div className="relative flex flex-col p-8 md:p-10 rounded-3xl border-2 border-border bg-card/50 backdrop-blur-sm hover:border-border transition-all duration-300 hover:shadow-2xl h-full">
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold mb-2">Free</h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-bold">$0</span>
-                      <span className="text-muted-foreground">/month</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Perfect for getting started with your fitness journey
-                    </p>
-                  </div>
-
-                  <div className="flex-1 space-y-4 mb-6">
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">Basic workout tracking</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">Up to 2 training programs</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">Weight log tracking</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">Basic food logging</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        Access to 300,000+ food database
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">
-                        AI personal trainer
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">
-                        Advanced analytics
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">
-                        Unlimited programs
-                      </span>
-                    </div>
-                  </div>
-
-                  <Link href="/signup" className="w-full">
-                    <Button variant="outline" className="w-full" size="lg">
-                      Get Started
-                    </Button>
-                  </Link>
-                </div>
-              </motion.div>
-
-              {/* Premium Plan */}
-              <motion.div
-                variants={fadeInUp}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="relative group"
-              >
-                {/* Animated glow effect */}
-                <motion.div
-                  className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 via-sky-500/30 to-blue-500/30 dark:from-blue-500/40 dark:via-sky-500/40 dark:to-blue-500/40 rounded-3xl blur opacity-25 dark:opacity-50 group-hover:opacity-40 dark:group-hover:opacity-75 transition duration-300"
-                  animate={{
-                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                  }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  style={{ backgroundSize: "200% 200%" }}
-                />
-                <div className="relative flex flex-col p-8 md:p-10 rounded-3xl border-2 border-blue-500/25 dark:border-blue-500/40 bg-gradient-to-br from-blue-500/5 via-sky-500/3 to-background dark:from-blue-500/10 dark:via-sky-500/5 dark:to-background backdrop-blur-sm overflow-hidden hover:shadow-2xl hover:shadow-blue-500/15 dark:hover:shadow-blue-500/20 transition-all duration-300 h-full">
-                  <div className="absolute top-6 right-6">
-                    <motion.span
-                      className="text-xs font-bold px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-sky-600 dark:from-blue-500 dark:to-sky-500 text-white shadow-lg"
-                      animate={{
-                        boxShadow: [
-                          "0 0 15px rgba(59, 130, 246, 0.2)",
-                          "0 0 20px rgba(14, 165, 233, 0.3)",
-                          "0 0 15px rgba(59, 130, 246, 0.2)",
-                        ],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      POPULAR
-                    </motion.span>
-                  </div>
-                  {/* Animated gradient orbs */}
-                  <motion.div
-                    className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.15, 0.2, 0.15],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                  <motion.div
-                    className="absolute bottom-0 left-0 w-32 h-32 bg-sky-500/10 dark:bg-sky-500/15 rounded-full blur-3xl"
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [0.1, 0.15, 0.1],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.5,
-                    }}
-                  />
-
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold mb-2">Premium</h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-bold">$20</span>
-                      <span className="text-muted-foreground">/month</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Everything you need to maximize your fitness potential
-                    </p>
-                  </div>
-
-                  <div className="flex-1 space-y-4 mb-6">
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm font-medium">
-                        Everything in Free
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        Unlimited training programs
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        AI-powered personal trainer
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        Smart auto-adjust workouts
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        Advanced progress analytics
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">AI nutrition coaching</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">Progress predictions</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">Priority support</span>
-                    </div>
-                  </div>
-
-                  <Link href="/signup" className="w-full">
-                    <Button className="w-full arrow-button" size="lg" disabled>
-                      Comming soon
-                      <svg
-                        className="arrow-icon"
-                        viewBox="0 -3.5 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          className="arrow-icon__tip"
-                          d="M8 15L14 8.5L8 2"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <line
-                          className="arrow-icon__line"
-                          x1="13"
-                          y1="8.5"
-                          y2="8.5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                    </Button>
-                  </Link>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* App Screenshots - Bento Grid */}
         <motion.section
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background via-muted/20 to-background"
+          className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background via-muted/20 to-background mt-50"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <motion.div
@@ -1301,9 +957,9 @@ export default function Home() {
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-5xl">
                   <GradientText>
-                    Built for Mobile,
+                    Designed for You,
                     <br />
-                    Perfected for You
+                    Simple and Effortless to Use
                   </GradientText>
                 </h2>
                 <p className="max-w-[700px] text-lg text-muted-foreground mx-auto">
@@ -1317,9 +973,12 @@ export default function Home() {
             <div className="mx-auto max-w-7xl">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Dashboard */}
-                <motion.div variants={imageVariants} className="relative group">
-                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
-                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                <motion.div
+                  variants={imageVariants}
+                  className="relative group -my-20 md:my-0"
+                >
+                  <div className="absolute -inset-1 bg-zinc-500/30 dark:bg-zinc-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300 scale-75 md:scale-100" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl shadow-2xl bg-background scale-75 md:scale-100 transition-transform">
                     <Image
                       src={
                         isDark
@@ -1331,18 +990,14 @@ export default function Home() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
-                    <h3 className="font-semibold text-xs mb-0.5">Dashboard</h3>
-                    <p className="text-[10px] text-muted-foreground">
-                      Track your progress at a glance
-                    </p>
-                  </div>
                 </motion.div>
-
                 {/* Workout Log */}
-                <motion.div variants={imageVariants} className="relative group">
-                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
-                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                <motion.div
+                  variants={imageVariants}
+                  className="relative group -my-20 md:my-0"
+                >
+                  <div className="absolute -inset-1 bg-zinc-500/30 dark:bg-zinc-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300 md:translate-y-10 scale-75 md:scale-100 transition-transform" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl shadow-2xl bg-background md:translate-y-10 scale-75 md:scale-100 transition-transform">
                     <Image
                       src={
                         isDark
@@ -1354,20 +1009,14 @@ export default function Home() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
-                    <h3 className="font-semibold text-xs mb-0.5">
-                      Workout Log
-                    </h3>
-                    <p className="text-[10px] text-muted-foreground">
-                      Track every rep & set
-                    </p>
-                  </div>
                 </motion.div>
-
                 {/* Food Log */}
-                <motion.div variants={imageVariants} className="relative group">
-                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
-                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                <motion.div
+                  variants={imageVariants}
+                  className="relative group -my-20 md:my-0"
+                >
+                  <div className="absolute -inset-1 bg-zinc-500/30 dark:bg-zinc-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300 md:translate-y-10 scale-75 md:scale-100 transition-transform" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl shadow-2xl bg-background md:translate-y-10 scale-75 md:scale-100 transition-transform">
                     <Image
                       src={
                         isDark
@@ -1379,18 +1028,14 @@ export default function Home() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
-                    <h3 className="font-semibold text-xs mb-0.5">Food Log</h3>
-                    <p className="text-[10px] text-muted-foreground">
-                      300K+ food database
-                    </p>
-                  </div>
                 </motion.div>
-
                 {/* Weight Log */}
-                <motion.div variants={imageVariants} className="relative group">
-                  <div className="absolute -inset-1 bg-zinc-500/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300" />
-                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl border-2 border-border/50 shadow-2xl bg-background">
+                <motion.div
+                  variants={imageVariants}
+                  className="relative group -my-20 md:my-0"
+                >
+                  <div className="absolute -inset-1 bg-zinc-500/30 dark:bg-zinc-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300 scale-75 md:scale-100 transition-transform" />
+                  <div className="relative aspect-[9/19.5] overflow-hidden rounded-2xl shadow-2xl bg-background scale-75 md:scale-100 transition-transform">
                     <Image
                       src={
                         isDark
@@ -1401,12 +1046,6 @@ export default function Home() {
                       fill
                       className="object-cover"
                     />
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-border/50">
-                    <h3 className="font-semibold text-xs mb-0.5">Weight Log</h3>
-                    <p className="text-[10px] text-muted-foreground">
-                      Monitor your body composition
-                    </p>
                   </div>
                 </motion.div>
               </div>
@@ -1464,14 +1103,25 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center space-y-8 text-center">
                 <div className="space-y-6">
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-500/10 border border-zinc-500/20"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/15 via-sky-500/15 to-blue-500/15 dark:from-blue-500/10 dark:via-sky-500/10 dark:to-blue-500/10 border border-blue-500/40 dark:border-blue-500/30 relative overflow-hidden group"
                   >
-                    <Zap className="h-4 w-4 text-zinc-400" />
-                    <span className="text-sm font-medium">
+                    {/* Animated shimmer effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent"
+                      initial={{ x: "-100%" }}
+                      animate={{ x: "200%" }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 3,
+                        ease: "easeInOut",
+                      }}
+                    />
+                    <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-sky-600 dark:from-blue-400 dark:to-sky-400 bg-clip-text text-transparent relative z-10">
                       Ready to Transform?
                     </span>
                   </motion.div>

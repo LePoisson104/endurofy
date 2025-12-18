@@ -48,8 +48,8 @@ export default function Footer({
               Features
             </Link>
             <Link
-              href="#how-it-works"
-              onClick={(e) => scrollToSection(e, "how-it-works")}
+              href="#integrations"
+              onClick={(e) => scrollToSection(e, "integrations")}
               className="text-muted-foreground hover:text-foreground text-sm"
             >
               Integrations

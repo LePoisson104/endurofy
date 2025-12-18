@@ -41,14 +41,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground mt-2">
-          Comprehensive overview of your fitness journey - workouts, weight, and nutrition
-        </p>
-      </div>
-
       {/* Filters */}
       <AnalyticsFilters
         selectedPeriod={selectedPeriod}
