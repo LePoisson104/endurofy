@@ -323,7 +323,7 @@ export default function Home() {
                   onClick={(e) => scrollToSection(e, "how-it-works")}
                   className="text-sm font-medium hover:text-primary nav-link"
                 >
-                  How it works
+                  Integrations
                 </Link>
               </motion.div>
               <motion.div
@@ -760,7 +760,7 @@ export default function Home() {
           className="w-full h-150"
         >
           <div className="container mx-auto h-full">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center pt-35">
               <div className="space-y-2">
                 <div className="shadow-lg shadow-zinc-500/20 inline-flex items-center gap-2 bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm text-white rounded-full font-medium">
                   <Sparkle className="h-3 w-3" />
@@ -948,7 +948,7 @@ export default function Home() {
                   >
                     <div className="relative">
                       <div className="absolute -inset-4 bg-primary/20 dark:bg-primary/30 rounded-2xl blur-2xl" />
-                      <div className="bg-primary dark:bg-primary/80 rounded-md p-1">
+                      <div className="bg-primary dark:bg-primary rounded-md p-1">
                         <Image
                           src={
                             isDark
@@ -1024,7 +1024,7 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="w-full py-12 md:py-24 lg:py-32 relative overflow-hidden"
+          className="w-full py-12 md:py-24 lg:py-32 relative overflow-hidden mt-60"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/5 via-transparent to-zinc-500/5" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />

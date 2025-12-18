@@ -52,7 +52,7 @@ export default function Footer({
               onClick={(e) => scrollToSection(e, "how-it-works")}
               className="text-muted-foreground hover:text-foreground text-sm"
             >
-              How it works
+              Integrations
             </Link>
             <Link
               href="#faq"
