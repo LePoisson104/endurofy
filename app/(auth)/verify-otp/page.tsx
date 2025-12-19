@@ -40,12 +40,42 @@ export default function VerifyOTP() {
   const [userId, setUserId] = useState<string | null>(null);
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation();
   const [resendOTP, { isLoading: isResending }] = useResendOTPMutation();
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setEmail(sessionStorage.getItem("email"));
       setUserId(sessionStorage.getItem("user_id"));
-      // Start with 1-minute resend cooldown when page loads
-      setResendTimeLeft(60);
+
+      // Get stored timestamps
+      const storedOtpTime = sessionStorage.getItem("otp_sent_time");
+      const storedResendTime = sessionStorage.getItem("resend_time");
+      const currentTime = Date.now();
+
+      // Calculate remaining time for OTP expiry (15 minutes = 900 seconds)
+      if (storedOtpTime) {
+        const elapsedSeconds = Math.floor(
+          (currentTime - parseInt(storedOtpTime)) / 1000
+        );
+        const remaining = Math.max(0, 900 - elapsedSeconds);
+        setTimeLeft(remaining);
+      } else {
+        // First time on this page, store the current time
+        sessionStorage.setItem("otp_sent_time", currentTime.toString());
+        setTimeLeft(900);
+      }
+
+      // Calculate remaining time for resend cooldown (60 seconds)
+      if (storedResendTime) {
+        const elapsedSeconds = Math.floor(
+          (currentTime - parseInt(storedResendTime)) / 1000
+        );
+        const remaining = Math.max(0, 60 - elapsedSeconds);
+        setResendTimeLeft(remaining);
+      } else {
+        // First time on this page, start with 1-minute resend cooldown
+        sessionStorage.setItem("resend_time", currentTime.toString());
+        setResendTimeLeft(60);
+      }
     }
   }, []);
   // Handle timer countdown
@@ -131,7 +161,10 @@ export default function VerifyOTP() {
 
       toast.success(response?.message);
       setOtp("");
-      // Reset timer
+      // Reset timer and update stored timestamp
+      const currentTime = Date.now();
+      sessionStorage.setItem("otp_sent_time", currentTime.toString());
+      sessionStorage.setItem("resend_time", currentTime.toString());
       setTimeLeft(900);
       // Start 1-minute resend cooldown
       setResendTimeLeft(60);

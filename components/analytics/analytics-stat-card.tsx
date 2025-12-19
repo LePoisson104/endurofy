@@ -11,6 +11,7 @@ interface AnalyticsStatCardProps {
   trend?: "up" | "down" | "neutral";
   icon: LucideIcon;
   iconColor?: string;
+  iconBackground?: string;
 }
 
 export function AnalyticsStatCard({
@@ -20,6 +21,7 @@ export function AnalyticsStatCard({
   trend = "neutral",
   icon: Icon,
   iconColor,
+  iconBackground,
 }: AnalyticsStatCardProps) {
   return (
     <Card>
@@ -27,12 +29,19 @@ export function AnalyticsStatCard({
         <div className="flex items-center justify-between space-x-4">
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-10 w-10 items-center bg-primary/10 justify-center rounded-lg">
+              <div
+                className={cn(
+                  "flex h-10 w-10 items-center justify-center rounded-lg",
+                  iconBackground || "bg-primary/10"
+                )}
+              >
                 <Icon className={cn("h-5 w-5 text-primary", iconColor)} />
               </div>
-              <p className="text-sm font-medium text-muted-foreground">
-                {title}
-              </p>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {title}
+                </p>
+              </div>
             </div>
             <div className="flex justify-between">
               <p className="text-2xl font-bold">{value}</p>
@@ -40,7 +49,7 @@ export function AnalyticsStatCard({
                 <div
                   className={cn(
                     "flex items-center text-xs font-medium",
-                    trend === "up" && "text-green-600 dark:text-green-500",
+                    trend === "up" && "text-green-500 dark:text-green-400",
                     trend === "down" && "text-red-500 dark:text-red-400"
                   )}
                 >
