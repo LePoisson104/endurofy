@@ -378,7 +378,10 @@ export function UnifiedAnalyticsOverview() {
           <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between">
               <CardTitle className="text-base">
-                Progress Overview by Workout Day
+                Progress Overview{" "}
+                <span className="text-sm text-muted-foreground">
+                  (Workout vs Weight)
+                </span>
               </CardTitle>
             </div>
             <div className="flex items-center gap-2">
