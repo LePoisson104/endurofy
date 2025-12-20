@@ -10,23 +10,17 @@ export const getRecommendedProgressionValues = (
 
   const previousWeight = setData.previousWeight || 0;
 
-  // Handle bilateral exercises
   if (!laterality || laterality === "bilateral") {
     const previousReps =
       ((setData.previousLeftReps || 0) + (setData.previousRightReps || 0)) / 2;
     const prev1RM = estimateOneRepMax(previousWeight, previousReps);
 
-    // Calculate recommended reps when weight is set
     if (setData.weight > 0 && setData.reps === 0) {
-      // If using same weight (within 0.5 lbs tolerance), just add 1 rep
       if (Math.abs(setData.weight - previousWeight) < 0.5) {
         return String(Math.ceil(previousReps) + 1);
       }
 
-      // Calculate reps needed to match previous 1RM
       const repsToMatch = 30 * (prev1RM / setData.weight - 1);
-
-      // Add 1 rep to beat the previous 1RM
       const recommendedReps = Math.floor(repsToMatch) + 1;
 
       // Ensure we always recommend at least 1 more rep than previous if using similar weight
@@ -68,7 +62,6 @@ export const getRecommendedProgressionValues = (
     }
   }
 
-  // Handle unilateral exercises
   if (laterality === "unilateral") {
     // Use the weaker side (lower reps) as the baseline for progression
     const previousLeftReps = setData.previousLeftReps || 0;
