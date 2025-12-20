@@ -22,11 +22,11 @@ interface WeightLogItem {
 const chartConfig = {
   weight: {
     label: "Weight",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(189, 94%, 43%)",
   },
   caloriesIntake: {
     label: "Calories",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(0, 73.80%, 62.50%)",
   },
 } satisfies ChartConfig;
 
@@ -36,14 +36,14 @@ const CustomLegend = () => {
       <div className="flex items-center gap-1.5">
         <div
           className="h-2 w-2 shrink-0 rounded-[2px]"
-          style={{ backgroundColor: "hsl(var(--chart-1))" }}
+          style={{ backgroundColor: "hsl(189, 94%, 43%)" }}
         />
         <span>Weight</span>
       </div>
       <div className="flex items-center gap-1.5">
         <div
           className="h-2 w-2 shrink-0 rounded-[2px]"
-          style={{ backgroundColor: "hsl(var(--chart-2))" }}
+          style={{ backgroundColor: "hsl(0, 73.80%, 62.50%)" }}
         />
         <span>Calories</span>
       </div>

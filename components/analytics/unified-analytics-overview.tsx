@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { AnalyticsStatCard } from "./analytics-stat-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   ChartConfig,
@@ -16,12 +22,12 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-  Area,
   Bar,
   BarChart,
   ComposedChart,
 } from "recharts";
 import { Dumbbell, Scale, Apple, Flame, Target } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Unified data showing correlation between all features by workout day
 const unifiedProgressData = [
@@ -77,24 +83,136 @@ const unifiedProgressData = [
 ];
 
 // Average calories history with macronutrients breakdown
+// Converting macros to calories: Protein = 4 cal/g, Carbs = 4 cal/g, Fat = 9 cal/g
 const macronutrientsData = [
-  { period: "Week 1", protein: 165, carbs: 220, fat: 65 },
-  { period: "Week 2", protein: 170, carbs: 225, fat: 68 },
-  { period: "Week 3", protein: 160, carbs: 215, fat: 63 },
-  { period: "Week 4", protein: 175, carbs: 230, fat: 70 },
-  { period: "Week 5", protein: 168, carbs: 222, fat: 66 },
-  { period: "Week 6", protein: 172, carbs: 228, fat: 69 },
+  {
+    period: "Dec 1",
+    protein: 165,
+    carbs: 220,
+    fat: 65,
+    proteinCal: 660,
+    carbsCal: 880,
+    fatCal: 585,
+  },
+  {
+    period: "Dec 2",
+    protein: 170,
+    carbs: 225,
+    fat: 68,
+    proteinCal: 680,
+    carbsCal: 900,
+    fatCal: 612,
+  },
+  {
+    period: "Dec 3",
+    protein: 160,
+    carbs: 215,
+    fat: 63,
+    proteinCal: 640,
+    carbsCal: 860,
+    fatCal: 567,
+  },
+  {
+    period: "Dec 4",
+    protein: 175,
+    carbs: 230,
+    fat: 70,
+    proteinCal: 700,
+    carbsCal: 920,
+    fatCal: 630,
+  },
+  {
+    period: "Dec 5",
+    protein: 168,
+    carbs: 222,
+    fat: 66,
+    proteinCal: 672,
+    carbsCal: 888,
+    fatCal: 594,
+  },
+  {
+    period: "Dec 6",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 7",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 8",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 9",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 10",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 11",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 12",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+  {
+    period: "Dec 13",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
 ];
 
-// Activity heatmap data
-const activityData = [
-  { day: "Mon", workouts: 4, meals: 12, weight: 6 },
-  { day: "Tue", workouts: 3, meals: 11, weight: 5 },
-  { day: "Wed", workouts: 5, meals: 13, weight: 7 },
-  { day: "Thu", workouts: 4, meals: 12, weight: 6 },
-  { day: "Fri", workouts: 3, meals: 10, weight: 5 },
-  { day: "Sat", workouts: 2, meals: 9, weight: 4 },
-  { day: "Sun", workouts: 3, meals: 11, weight: 5 },
+// Weight vs Calories comparison data
+const weightCaloriesData = [
+  { day: "Mon", weight: 180, calories: 2100 },
+  { day: "Tue", weight: 179.8, calories: 2150 },
+  { day: "Wed", weight: 180.1, calories: 2080 },
+  { day: "Thu", weight: 180.2, calories: 2200 },
+  { day: "Fri", weight: 178.8, calories: 2120 },
+  { day: "Sat", weight: 178.5, calories: 2180 },
+  { day: "Sun", weight: 178.2, calories: 1900 },
 ];
 
 const chartConfig = {
@@ -124,22 +242,90 @@ const chartConfig = {
   },
   protein: {
     label: "Protein (g)",
-    color: "hsl(210, 100%, 65%)",
+    color: "oklch(76.5% 0.177 163.223)",
   },
   carbs: {
     label: "Carbs (g)",
-    color: "hsl(210, 90%, 50%)",
+    color: "oklch(70.7% 0.165 254.624)",
   },
   fat: {
     label: "Fat (g)",
-    color: "hsl(215, 85%, 35%)",
+    color: "oklch(70.4% 0.191 22.216)",
+  },
+  proteinCal: {
+    label: "Protein",
+    color: "oklch(76.5% 0.177 163.223)",
+  },
+  carbsCal: {
+    label: "Carbs",
+    color: "oklch(70.7% 0.165 254.624)",
+  },
+  fatCal: {
+    label: "Fat",
+    color: "oklch(70.4% 0.191 22.216)",
   },
 } satisfies ChartConfig;
 
 export function UnifiedAnalyticsOverview() {
+  const isMobile = useIsMobile();
   const [overviewView, setOverviewView] = useState<"weight" | "calories">(
     "weight"
   );
+
+  // Custom tooltip formatter for macronutrients chart
+  const CustomMacroTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="rounded-lg border bg-background p-3 shadow-sm">
+          <p className="font-semibold text-sm mb-2">{label}</p>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: "oklch(76.5% 0.177 163.223)" }}
+                />
+                <span className="text-xs text-muted-foreground">Protein</span>
+              </div>
+              <span className="text-sm font-semibold">{data.protein}g</span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: "oklch(70.7% 0.165 254.624)" }}
+                />
+                <span className="text-xs text-muted-foreground">Carbs</span>
+              </div>
+              <span className="text-sm font-semibold">{data.carbs}g</span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: "oklch(70.4% 0.191 22.216)" }}
+                />
+                <span className="text-xs text-muted-foreground">Fat</span>
+              </div>
+              <span className="text-sm font-semibold">{data.fat}g</span>
+            </div>
+            <div className="pt-1 mt-1 border-t">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-xs text-muted-foreground">
+                  Total Calories
+                </span>
+                <span className="text-sm font-bold">
+                  {data.proteinCal + data.carbsCal + data.fatCal} kcal
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
@@ -156,23 +342,24 @@ export function UnifiedAnalyticsOverview() {
             iconBackground="bg-blue-500/10 dark:bg-blue-500/20"
           />
           <AnalyticsStatCard
-            title="Total Workouts"
-            value="24"
-            change="+12%"
-            trend="up"
-            icon={Dumbbell}
-            iconColor="text-cyan-500 dark:text-cyan-400"
-            iconBackground="bg-cyan-500/10 dark:bg-cyan-500/20"
-          />
-          <AnalyticsStatCard
             title="Weight Progress"
             value="-4.5 lbs"
             change="-2.5%"
             trend="down"
             icon={Scale}
+            iconColor="text-cyan-500 dark:text-cyan-400"
+            iconBackground="bg-cyan-500/10 dark:bg-cyan-500/20"
+          />
+          <AnalyticsStatCard
+            title="Total Workouts"
+            value="24"
+            change="+12%"
+            trend="up"
+            icon={Dumbbell}
             iconColor="text-emerald-500 dark:text-emerald-400"
             iconBackground="bg-emerald-500/10 dark:bg-emerald-500/20"
           />
+
           <AnalyticsStatCard
             title="Average Weekly Calories"
             value="2,145"
@@ -195,7 +382,6 @@ export function UnifiedAnalyticsOverview() {
               </CardTitle>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Compare:</span>
               <Button
                 variant={overviewView === "weight" ? "default" : "outline"}
                 size="sm"
@@ -203,7 +389,7 @@ export function UnifiedAnalyticsOverview() {
                 className="text-xs h-8"
               >
                 <Scale className="h-3 w-3 mr-1.5" />
-                Weight & Volume
+                Weight
               </Button>
               <Button
                 variant={overviewView === "calories" ? "default" : "outline"}
@@ -212,63 +398,73 @@ export function UnifiedAnalyticsOverview() {
                 className="text-xs h-8"
               >
                 <Flame className="h-3 w-3 mr-1.5" />
-                Calories & Volume
+                Calories
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <ChartContainer config={chartConfig} className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={unifiedProgressData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="workoutDay"
-                  tick={{ fontSize: 12 }}
+                  fontSize={isMobile ? "10px" : "12px"}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   yAxisId="left"
-                  tick={{ fontSize: 12 }}
+                  fontSize={isMobile ? "10px" : "12px"}
                   tickLine={false}
                   axisLine={false}
+                  domain={[
+                    (dataMin: number) => dataMin - 5,
+                    (dataMax: number) => dataMax + 5,
+                  ]}
                 />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  tick={{ fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  fontSize={isMobile ? "10px" : "12px"}
+                  domain={[
+                    (dataMin: number) => dataMin - 1000,
+                    (dataMax: number) => dataMax + 1000,
+                  ]}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Area
+                <Line
                   yAxisId="right"
                   type="monotone"
                   dataKey="workoutVolume"
-                  fill="hsl(210, 100%, 65%)"
-                  fillOpacity={0.3}
-                  stroke="hsl(210, 90%, 50%)"
-                  strokeWidth={2}
+                  stroke="hsl(160, 84%, 39%)"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 4, fill: "hsl(160, 84%, 39%)" }}
                 />
                 {overviewView === "weight" ? (
                   <Line
                     yAxisId="left"
                     type="monotone"
                     dataKey="weight"
-                    stroke="hsl(var(--chart-1))"
+                    stroke="hsl(189, 94%, 43%)"
                     strokeWidth={3}
-                    dot={{ r: 4 }}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
                   />
                 ) : (
                   <Line
                     yAxisId="left"
                     type="monotone"
                     dataKey="calories"
-                    stroke="hsl(var(--chart-2))"
+                    stroke="hsl(0, 73.80%, 62.50%)"
                     strokeWidth={3}
-                    dot={{ r: 4 }}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
                   />
                 )}
               </ComposedChart>
@@ -278,17 +474,17 @@ export function UnifiedAnalyticsOverview() {
       </Card>
 
       {/* Consistency Tracking */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-1 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Avg Calories History - Macronutrients
+              Calories Consumed (Kcal)
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Track your average protein, carbs, and fat intake by week
-            </p>
+            <CardDescription className="text-sm text-muted-foreground">
+              December 1, 2025 - December 31, 2025
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pl-0 pr-4">
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={macronutrientsData}>
@@ -298,34 +494,31 @@ export function UnifiedAnalyticsOverview() {
                   />
                   <XAxis
                     dataKey="period"
-                    tick={{ fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
+                    fontSize={isMobile ? "10px" : "12px"}
                   />
                   <YAxis
-                    tick={{ fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
-                    label={{
-                      value: "Grams",
-                      angle: -90,
-                      position: "insideLeft",
-                      style: { fontSize: 12 },
-                    }}
+                    fontSize={isMobile ? "10px" : "12px"}
                   />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartTooltip content={<CustomMacroTooltip />} />
                   <Bar
-                    dataKey="protein"
+                    dataKey="proteinCal"
+                    stackId="a"
                     fill="var(--color-protein)"
-                    radius={[4, 4, 0, 0]}
+                    radius={[0, 0, 0, 0]}
                   />
                   <Bar
-                    dataKey="carbs"
+                    dataKey="carbsCal"
+                    stackId="a"
                     fill="var(--color-carbs)"
-                    radius={[4, 4, 0, 0]}
+                    radius={[0, 0, 0, 0]}
                   />
                   <Bar
-                    dataKey="fat"
+                    dataKey="fatCal"
+                    stackId="a"
                     fill="var(--color-fat)"
                     radius={[4, 4, 0, 0]}
                   />
@@ -337,43 +530,68 @@ export function UnifiedAnalyticsOverview() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Activity by Day of Week</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Your most active days across all tracking
-            </p>
+            <CardTitle className="text-base">
+              Weight vs Calories Consumed
+            </CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
+              December 1, 2025 - December 31, 2025
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0">
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={activityData}>
+                <ComposedChart data={weightCaloriesData}>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     className="stroke-muted"
                   />
                   <XAxis
                     dataKey="day"
-                    tick={{ fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
+                    fontSize={isMobile ? "10px" : "12px"}
                   />
                   <YAxis
-                    tick={{ fontSize: 12 }}
+                    yAxisId="left"
                     tickLine={false}
                     axisLine={false}
+                    domain={[
+                      (dataMin: number) => dataMin - 5,
+                      (dataMax: number) => dataMax + 5,
+                    ]}
+                    fontSize={isMobile ? "10px" : "12px"}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    tickLine={false}
+                    axisLine={false}
+                    domain={[
+                      (dataMin: number) => dataMin - 100,
+                      (dataMax: number) => dataMax + 100,
+                    ]}
+                    fontSize={isMobile ? "10px" : "12px"}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="workouts"
-                    stackId="a"
-                    fill="hsl(var(--primary))"
-                  />
-                  <Bar dataKey="meals" stackId="a" fill="hsl(var(--chart-2))" />
-                  <Bar
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
                     dataKey="weight"
-                    stackId="a"
-                    fill="hsl(var(--chart-1))"
+                    stroke="hsl(189, 94%, 43%)"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
                   />
-                </BarChart>
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="calories"
+                    stroke="hsl(0, 73.80%, 62.50%)"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
@@ -382,60 +600,13 @@ export function UnifiedAnalyticsOverview() {
 
       {/* Detailed Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Workout Summary */}
-        <Card className="overflow-hidden border-l-4 border-l-primary">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Dumbbell className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-lg">Workout Summary</h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Your training performance
-                </p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="group">
-                <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Total Volume
-                  </span>
-                  <span className="text-2xl font-bold">124.8k</span>
-                </div>
-                <div className="text-xs text-muted-foreground">lbs lifted</div>
-              </div>
-              <div className="h-px bg-border" />
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">Sets</div>
-                  <div className="text-lg font-bold">456</div>
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Avg Time
-                  </div>
-                  <div className="text-lg font-bold">65m</div>
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">PRs</div>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-500">
-                    12
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Weight Summary */}
         <Card className="overflow-hidden border-l-4 border-l-chart-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Scale className="h-5 w-5 text-chart-1" />
+                  <Scale className="h-5 w-5 text-cyan-500 dark:text-cyan-400" />
                   <h3 className="font-semibold text-lg">Weight Summary</h3>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -450,10 +621,10 @@ export function UnifiedAnalyticsOverview() {
                     Weight Change
                   </span>
                   <span className="text-2xl font-bold text-green-600 dark:text-green-500">
-                    -4.5
+                    -4.5{" "}
+                    <span className="text-base text-muted-foreground">lbs</span>
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground">lbs lost</div>
               </div>
               <div className="h-px bg-border" />
               <div className="grid grid-cols-3 gap-4">
@@ -485,6 +656,55 @@ export function UnifiedAnalyticsOverview() {
             </div>
           </CardContent>
         </Card>
+        {/* Workout Summary */}
+        <Card className="overflow-hidden border-l-4 border-l-primary">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Dumbbell className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                  <h3 className="font-semibold text-lg">Workout Summary</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Your training performance
+                </p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="group">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Total Volume
+                  </span>
+                  <span className="text-2xl font-bold">
+                    124.8{" "}
+                    <span className="text-base text-muted-foreground">lbs</span>
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground">lbs lifted</div>
+              </div>
+              <div className="h-px bg-border" />
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">Sets</div>
+                  <div className="text-lg font-bold">456</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Avg Time
+                  </div>
+                  <div className="text-lg font-bold">65m</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">PRs</div>
+                  <div className="text-lg font-bold text-green-600 dark:text-green-500">
+                    12
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Nutrition Summary */}
         <Card className="overflow-hidden border-l-4 border-l-chart-2">
@@ -492,7 +712,7 @@ export function UnifiedAnalyticsOverview() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Apple className="h-5 w-5 text-chart-2" />
+                  <Flame className="h-5 w-5 text-red-500 dark:text-red-400" />
                   <h3 className="font-semibold text-lg">Nutrition Summary</h3>
                 </div>
                 <p className="text-xs text-muted-foreground">Daily averages</p>
@@ -504,7 +724,12 @@ export function UnifiedAnalyticsOverview() {
                   <span className="text-sm font-medium text-muted-foreground">
                     Avg Calories
                   </span>
-                  <span className="text-2xl font-bold">2,145</span>
+                  <span className="text-2xl font-bold">
+                    2,145{" "}
+                    <span className="text-base text-muted-foreground">
+                      kcal
+                    </span>
+                  </span>
                 </div>
                 <div className="text-xs text-muted-foreground">per day</div>
               </div>
@@ -512,26 +737,26 @@ export function UnifiedAnalyticsOverview() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-chart-3" />
+                    <div className="h-2 w-2 rounded-full bg-green-500 dark:bg-green-400" />
                     <span className="text-sm text-muted-foreground">
                       Protein
                     </span>
                   </div>
-                  <span className="text-lg font-bold">165g</span>
+                  <span className="text-base font-semibold">165g</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-chart-4" />
+                    <div className="h-2 w-2 rounded-full bg-blue-500 dark:bg-blue-400" />
                     <span className="text-sm text-muted-foreground">Carbs</span>
                   </div>
-                  <span className="text-lg font-bold">225g</span>
+                  <span className="text-base font-semibold">225g</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-chart-5" />
+                    <div className="h-2 w-2 rounded-full bg-red-500 dark:bg-red-400" />
                     <span className="text-sm text-muted-foreground">Fat</span>
                   </div>
-                  <span className="text-lg font-bold">67g</span>
+                  <span className="text-base font-semibold">67g</span>
                 </div>
               </div>
             </div>
