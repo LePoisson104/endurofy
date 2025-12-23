@@ -26,7 +26,7 @@ import {
   BarChart,
   ComposedChart,
 } from "recharts";
-import { Dumbbell, Scale, Apple, Flame, Target } from "lucide-react";
+import { Dumbbell, Scale, ArrowRightLeft, Flame, Target } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Unified data showing correlation between all features by workout day
@@ -204,6 +204,28 @@ const macronutrientsData = [
   },
 ];
 
+// Weekly aggregated macronutrients data (averages per week)
+const weeklyMacronutrientsData = [
+  {
+    period: "Week 1",
+    protein: 167,
+    carbs: 223,
+    fat: 67,
+    proteinCal: 668,
+    carbsCal: 892,
+    fatCal: 603,
+  },
+  {
+    period: "Week 2",
+    protein: 172,
+    carbs: 228,
+    fat: 69,
+    proteinCal: 688,
+    carbsCal: 912,
+    fatCal: 621,
+  },
+];
+
 // Weight vs Calories comparison data
 const weightCaloriesData = [
   { day: "Mon", weight: 180, calories: 2100 },
@@ -271,6 +293,7 @@ export function UnifiedAnalyticsOverview() {
   const [overviewView, setOverviewView] = useState<"weight" | "calories">(
     "weight"
   );
+  const [caloriesView, setCaloriesView] = useState<"daily" | "weekly">("daily");
 
   // Custom tooltip formatter for macronutrients chart
   const CustomMacroTooltip = ({ active, payload, label }: any) => {
@@ -386,22 +409,17 @@ export function UnifiedAnalyticsOverview() {
             </div>
             <div className="flex items-center gap-2">
               <Button
-                variant={overviewView === "weight" ? "default" : "outline"}
+                variant="outline"
                 size="sm"
-                onClick={() => setOverviewView("weight")}
-                className="text-xs h-8"
+                onClick={() =>
+                  setOverviewView(
+                    overviewView === "weight" ? "calories" : "weight"
+                  )
+                }
+                className="text-xs h-8 w-30"
               >
-                <Scale className="h-3 w-3 mr-1.5" />
-                Weight
-              </Button>
-              <Button
-                variant={overviewView === "calories" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setOverviewView("calories")}
-                className="text-xs h-8"
-              >
-                <Flame className="h-3 w-3 mr-1.5" />
-                Calories
+                <ArrowRightLeft className="h-3 w-3 mr-1.5" />
+                {overviewView === "weight" ? "Weight" : "Calories"}
               </Button>
             </div>
           </div>
@@ -480,17 +498,44 @@ export function UnifiedAnalyticsOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-1 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Calories Consumed (Kcal)
-            </CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
-              December 1, 2025 - December 31, 2025
-            </CardDescription>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-base">
+                    Calories Consumed (Kcal)
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    December 1, 2025 - December 31, 2025
+                  </CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCaloriesView(
+                      caloriesView === "daily" ? "weekly" : "daily"
+                    )
+                  }
+                  className="text-xs h-8 w-30"
+                >
+                  <ArrowRightLeft className="h-3 w-3 mr-1.5" />
+                  {caloriesView === "daily" ? "Daily" : "Weekly"}
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="pl-0 pr-4">
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={macronutrientsData}>
+                <BarChart
+                  data={
+                    caloriesView === "daily"
+                      ? macronutrientsData
+                      : weeklyMacronutrientsData
+                  }
+                >
                   <CartesianGrid
                     strokeDasharray="3 3"
                     className="stroke-muted"
