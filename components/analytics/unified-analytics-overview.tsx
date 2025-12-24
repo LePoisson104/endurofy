@@ -358,8 +358,6 @@ export function UnifiedAnalyticsOverview() {
           <AnalyticsStatCard
             title="Overall Consistency"
             value="87%"
-            change="+5%"
-            trend="up"
             icon={Target}
             iconColor="text-blue-500 dark:text-blue-400"
             iconBackground="bg-blue-500/10 dark:bg-blue-500/20"
@@ -367,8 +365,6 @@ export function UnifiedAnalyticsOverview() {
           <AnalyticsStatCard
             title="Weight Progress"
             value="-4.5 lbs"
-            change="-2.5%"
-            trend="down"
             icon={Scale}
             iconColor="text-cyan-500 dark:text-cyan-400"
             iconBackground="bg-cyan-500/10 dark:bg-cyan-500/20"
@@ -376,8 +372,6 @@ export function UnifiedAnalyticsOverview() {
           <AnalyticsStatCard
             title="Total Workouts"
             value="24"
-            change="+12%"
-            trend="up"
             icon={Dumbbell}
             iconColor="text-emerald-500 dark:text-emerald-400"
             iconBackground="bg-emerald-500/10 dark:bg-emerald-500/20"
@@ -386,8 +380,6 @@ export function UnifiedAnalyticsOverview() {
           <AnalyticsStatCard
             title="Average Weekly Calories"
             value="2,145"
-            change="+5%"
-            trend="up"
             icon={Flame}
             iconColor="text-red-500 dark:text-red-400"
             iconBackground="bg-red-500/10 dark:bg-red-500/20"

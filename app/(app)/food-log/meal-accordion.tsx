@@ -223,7 +223,9 @@ export default function MealAccordion({
                           </p>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {Math.round(parseFloat(food.loggedServingSize))}{" "}
+                          {formatNumberForDisplay(
+                            parseFloat(food.loggedServingSize).toFixed(2)
+                          )}{" "}
                           {food.loggedServingSizeUnit} •{" "}
                           {Math.round(Number(food.calories))}
                           cal

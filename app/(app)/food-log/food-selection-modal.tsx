@@ -187,12 +187,12 @@ export default function FoodSelectionModal({
   useEffect(() => {
     if (mode === "edit" && editFood) {
       // Edit mode: initialize with existing food log data
-      const roundedSize = Math.round(
-        parseFloat(editFood.loggedServingSize)
+      const servingSizeValue = parseFloat(
+        editFood.loggedServingSize
       ).toString();
       const unit = editFood.loggedServingSizeUnit as ServingUnit;
 
-      setServingSize(roundedSize);
+      setServingSize(servingSizeValue);
       setSelectedUnit(unit);
       setAvailableUnits(servingUnits);
       setLocalIsFavorite((editFood as any)?.isFavorite === true);
@@ -202,11 +202,14 @@ export default function FoodSelectionModal({
       const rawUnit = food.servingSizeUnit || "g";
       const baseUnit = convertUnitCode(rawUnit);
 
-      // Round the serving size for cleaner display
-      const roundedServingSize = Math.round(parseFloat(originalServingSize));
+      // Parse serving size and format for display
+      const parsedServingSize = parseFloat(originalServingSize);
+      const formattedServingSize = Number.isInteger(parsedServingSize)
+        ? parsedServingSize.toString()
+        : parsedServingSize.toFixed(2).replace(/\.?0+$/, "");
 
-      // Create combined unit (e.g., "112g")
-      const combinedUnit = `${roundedServingSize}${baseUnit}`;
+      // Create combined unit (e.g., "112g" or "1.5g")
+      const combinedUnit = `${formattedServingSize}${baseUnit}`;
 
       // Set available units to include the combined unit plus standard units
       const unitsWithCombined = [combinedUnit, ...servingUnits];
@@ -222,7 +225,7 @@ export default function FoodSelectionModal({
   if (!food && !editFood) return null;
 
   // Get nutrition data and calculate values based on mode
-  const servingSizeNum = parseInt(servingSize) || 1;
+  const servingSizeNum = parseFloat(servingSize) || 1;
 
   let nutritionData: any;
   let calculatedNutrition: {
@@ -652,14 +655,32 @@ export default function FoodSelectionModal({
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
-                  min="1"
+                  min="0.01"
                   max="10000"
-                  step="1"
-                  inputMode="numeric"
+                  step="0.01"
+                  inputMode="decimal"
                   value={servingSize}
                   onChange={(e) => {
-                    const value = parseInt(e.target.value) || 0;
-                    setServingSize(value > 10000 ? "10000" : e.target.value);
+                    const value = e.target.value;
+                    // Allow empty string for user to clear and retype
+                    if (value === "") {
+                      setServingSize("");
+                      return;
+                    }
+                    const numValue = Number.parseFloat(value);
+                    // Only update if it's a valid number
+                    if (!isNaN(numValue)) {
+                      setServingSize(numValue > 10000 ? "10000" : value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // If empty or invalid on blur, reset to minimum value
+                    if (
+                      e.target.value === "" ||
+                      Number.parseFloat(e.target.value) < 0.01
+                    ) {
+                      setServingSize("0.01");
+                    }
                   }}
                   className="w-20"
                 />

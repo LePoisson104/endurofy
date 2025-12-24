@@ -1,14 +1,12 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AnalyticsStatCardProps {
   title: string;
   value: string | number;
-  change?: string;
-  trend?: "up" | "down" | "neutral";
   icon: LucideIcon;
   iconColor?: string;
   iconBackground?: string;
@@ -17,8 +15,6 @@ interface AnalyticsStatCardProps {
 export function AnalyticsStatCard({
   title,
   value,
-  change,
-  trend = "neutral",
   icon: Icon,
   iconColor,
   iconBackground,
@@ -45,22 +41,6 @@ export function AnalyticsStatCard({
             </div>
             <div className="flex justify-between">
               <p className="text-2xl font-bold">{value}</p>
-              {change && trend !== "neutral" && (
-                <div
-                  className={cn(
-                    "flex items-center text-xs font-medium",
-                    trend === "up" && "text-green-500 dark:text-green-400",
-                    trend === "down" && "text-red-500 dark:text-red-400"
-                  )}
-                >
-                  {trend === "up" ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                  )}
-                  {change}
-                </div>
-              )}
             </div>
           </div>
         </div>
