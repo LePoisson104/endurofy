@@ -74,6 +74,7 @@ export default function DeleteAccountModal() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
 
           <div className="mt-4 flex justify-end">

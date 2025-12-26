@@ -5,7 +5,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWorkoutLog: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-logs/get-workout-log/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-workout-log/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -18,7 +18,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getWeeklySets: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-logs/get-weekly-sets/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-weekly-sets/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -31,7 +31,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getManualWorkoutLogWithPrevious: builder.query({
       query: ({ userId, programId, workoutDate }) => ({
-        url: `/api/v1/workout-logs/get-manual-workout-log-with-previous/${userId}/${programId}/${workoutDate}`,
+        url: `/api/v1/workout-logs/get-manual-workout-log-with-previous/${programId}/${workoutDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -44,7 +44,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getWokroutLogPagination: builder.query({
       query: ({ userId, programId, offset, limit }) => ({
-        url: `/api/v1/workout-logs/get-workout-log-pagination/${userId}/${programId}/${offset}/${limit}`,
+        url: `/api/v1/workout-logs/get-workout-log-pagination/${programId}/${offset}/${limit}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -57,7 +57,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getPreviousWorkoutLog: builder.query({
       query: ({ userId, programId, dayId, currentWorkoutDate }) => ({
-        url: `/api/v1/workout-logs/get-previous-workout-log/${userId}/${programId}/${dayId}/${currentWorkoutDate}`,
+        url: `/api/v1/workout-logs/get-previous-workout-log/${programId}/${dayId}/${currentWorkoutDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -70,7 +70,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getCompletedWorkoutLogs: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-logs/get-completed-workout-logs/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-completed-workout-logs/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -83,7 +83,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     getWorkoutLogDates: builder.query({
       query: ({ userId, programId, startDate, endDate }) => ({
-        url: `/api/v1/workout-logs/get-workout-log-dates/${userId}/${programId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-logs/get-workout-log-dates/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -96,7 +96,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
     }),
     createManualWorkoutLog: builder.mutation({
       query: ({ userId, programId, dayId, payload }) => ({
-        url: `/api/v1/workout-logs/create-manual-workout-log/${userId}/${programId}/${dayId}`,
+        url: `/api/v1/workout-logs/create-manual-workout-log/${programId}/${dayId}`,
         method: "POST",
         body: payload,
       }),
@@ -130,7 +130,7 @@ export const workoutLogApiSlice = apiSlice.injectEndpoints({
         dayId: string;
         workoutLog: WorkoutLogPayload;
       }) => ({
-        url: `/api/v1/workout-logs/create-workout-log/${userId}/${programId}/${dayId}`,
+        url: `/api/v1/workout-logs/create-workout-log/${programId}/${dayId}`,
         method: "POST",
         body: workoutLog,
       }),

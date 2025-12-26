@@ -55,7 +55,7 @@ export default function WeightForm({
     useUpdateWeightLogMutation();
 
   const getWeightLogDates = useGetWeightLogDatesQuery({
-    userId: user?.user_id,
+    userId: user?.user_id || "",
     startDate: getDateRange({
       currentMonth: visibleMonth,
     }).startDateOfPreviousMonth,

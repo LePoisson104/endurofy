@@ -4,7 +4,7 @@ export const workoutProgressionApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getPersonalRecord: builder.query({
       query: ({ userId, programId, exerciseId }) => ({
-        url: `/api/v1/workout-progressions/personal-record/${userId}/${programId}/${exerciseId}`,
+        url: `/api/v1/workout-progressions/personal-record/${programId}/${exerciseId}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -14,7 +14,7 @@ export const workoutProgressionApiSlice = apiSlice.injectEndpoints({
     }),
     getWorkoutProgression: builder.query({
       query: ({ userId, programId, exerciseId, startDate, endDate }) => ({
-        url: `/api/v1/workout-progressions/analytics/${userId}/${programId}/${exerciseId}/${startDate}/${endDate}`,
+        url: `/api/v1/workout-progressions/analytics/${programId}/${exerciseId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [

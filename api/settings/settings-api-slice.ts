@@ -4,7 +4,7 @@ export const settingsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getSettings: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/settings/${userId}`,
+        url: `/api/v1/settings`,
         method: "GET",
       }),
       providesTags: (result, error, arg) =>
@@ -12,7 +12,7 @@ export const settingsApiSlice = apiSlice.injectEndpoints({
     }),
     toggleTheme: builder.mutation({
       query: ({ userId, theme }) => ({
-        url: `/api/v1/settings/toggle-theme/${userId}`,
+        url: `/api/v1/settings/toggle-theme`,
         method: "PATCH",
         body: { theme },
       }),

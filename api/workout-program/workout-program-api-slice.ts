@@ -4,7 +4,7 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWorkoutProgram: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/workout-programs/get-workout-program/${userId}`,
+        url: `/api/v1/workout-programs/get-workout-program`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
@@ -14,7 +14,7 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
     }),
     createWorkoutProgram: builder.mutation({
       query: ({ userId, workoutProgram }) => ({
-        url: `/api/v1/workout-programs/create-workout-program/${userId}`,
+        url: `/api/v1/workout-programs/create-workout-program`,
         method: "POST",
         body: workoutProgram,
       }),
@@ -46,7 +46,7 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
     }),
     updateWorkoutProgramDescription: builder.mutation({
       query: ({ userId, programId, payload }) => ({
-        url: `/api/v1/workout-programs/update-workout-program-description/${userId}/${programId}`,
+        url: `/api/v1/workout-programs/update-workout-program-description/${programId}`,
         method: "PATCH",
         body: payload,
       }),
@@ -78,21 +78,21 @@ export const workoutProgramApiSlice = apiSlice.injectEndpoints({
     }),
     setProgramAsInactive: builder.mutation({
       query: ({ programId, userId }) => ({
-        url: `/api/v1/workout-programs/set-program-as-inactive/${userId}/${programId}`,
+        url: `/api/v1/workout-programs/set-program-as-inactive/${programId}`,
         method: "PATCH",
       }),
       invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
     }),
     setProgramAsActive: builder.mutation({
       query: ({ programId, userId }) => ({
-        url: `/api/v1/workout-programs/set-program-as-active/${userId}/${programId}`,
+        url: `/api/v1/workout-programs/set-program-as-active/${programId}`,
         method: "PATCH",
       }),
       invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],
     }),
     deleteWorkoutProgram: builder.mutation({
       query: ({ userId, programId }) => ({
-        url: `/api/v1/workout-programs/delete-workout-program/${userId}/${programId}`,
+        url: `/api/v1/workout-programs/delete-workout-program/${programId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "WorkoutProgram", id: "LIST" }],

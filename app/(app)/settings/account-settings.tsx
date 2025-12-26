@@ -235,7 +235,7 @@ export function AccountSettings() {
                 <Label>Current Password</Label>
                 <PasswordInput
                   placeholder="********"
-                  type="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -249,7 +249,7 @@ export function AccountSettings() {
                     <Label>New Password</Label>
                     <PasswordInput
                       placeholder="********"
-                      type="password"
+                      autoComplete="new-password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
@@ -259,7 +259,7 @@ export function AccountSettings() {
                     <Label>Confirm Password</Label>
                     <PasswordInput
                       placeholder="********"
-                      type="password"
+                      autoComplete="new-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />

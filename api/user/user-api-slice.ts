@@ -23,7 +23,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllUsersInfo: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/users/${userId}`,
+        url: `/api/v1/users`,
         method: "GET",
       }),
       providesTags: (result, error, arg) =>
@@ -31,14 +31,14 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     getUsersMacrosGoals: builder.query({
       query: ({ userId }) => ({
-        url: `/api/v1/users/macros-goals/${userId}`,
+        url: `/api/v1/users/macros-goals`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [{ type: "User", id: arg.userId }],
     }),
     updateUsersMacrosGoals: builder.mutation({
       query: ({ userId, updateMacrosGoalsPayload }) => ({
-        url: `/api/v1/users/macros-goals/${userId}`,
+        url: `/api/v1/users/macros-goals`,
         method: "PATCH",
         body: updateMacrosGoalsPayload,
       }),
@@ -48,7 +48,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     updateUsersName: builder.mutation({
       query: ({ userId, payload }) => ({
-        url: `/api/v1/users/update-name/${userId}`,
+        url: `/api/v1/users/update-name`,
         method: "PATCH",
         body: payload,
       }),
@@ -61,7 +61,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       { userId: string; payload: UpdateUserInfo }
     >({
       query: ({ userId, payload }) => ({
-        url: `/api/v1/users/update-profile/${userId}`,
+        url: `/api/v1/users/update-profile`,
         method: "PATCH",
         body: payload,
       }),
@@ -71,7 +71,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     updateUsersAndConvertWeightLogs: builder.mutation({
       query: ({ userId, payload }) => ({
-        url: `/api/v1/users/update-profile-and-convert-weight-logs/${userId}`,
+        url: `/api/v1/users/update-profile-and-convert-weight-logs`,
         method: "PATCH",
         body: payload,
       }),
@@ -83,7 +83,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     updateUsersEmail: builder.mutation<void, updateEmailRequest>({
       query: ({ userId, email, newEmail, password }) => ({
-        url: `/api/v1/users/update-email/${userId}`,
+        url: `/api/v1/users/update-email`,
         method: "PATCH",
         body: { email, newEmail, password },
       }),
@@ -93,7 +93,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     verifyUpdateEmail: builder.mutation<void, verifyUpdateEmailRequest>({
       query: ({ userId, otp }) => ({
-        url: `/api/v1/users/verify-update-email/${userId}`,
+        url: `/api/v1/users/verify-update-email`,
         method: "POST",
         body: { otp },
       }),
@@ -103,7 +103,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     updateUsersPassword: builder.mutation({
       query: ({ userId, payload }) => ({
-        url: `/api/v1/users/update-password/${userId}`,
+        url: `/api/v1/users/update-password`,
         method: "PATCH",
         body: payload,
       }),
@@ -113,7 +113,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     deleteUsersAccount: builder.mutation<void, deleteAccountRequest>({
       query: ({ user_id, email, password }) => ({
-        url: `/api/v1/users/delete-account/${user_id}`,
+        url: `/api/v1/users/delete-account`,
         method: "DELETE",
         body: { email, password },
       }),
