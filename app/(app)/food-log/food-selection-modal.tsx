@@ -517,7 +517,7 @@ export default function FoodSelectionModal({
         if (!rawNutrients) return;
 
         await addFavoriteFood({
-          userId: user?.user_id,
+          userId: user?.user_id || "",
           payload: {
             foodId: mode === "add" ? food?.foodId : editFood?.foodItemId,
             foodName: currentFood.foodName,

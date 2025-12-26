@@ -361,7 +361,7 @@ export default function CustomFoodModal({
         if (mode === "edit" && editFood) {
           const changedFields = getChangedFields();
           const response = await updateCustomFood({
-            customFoodId: editFood.foodId,
+            customFoodId: editFood.foodId || "",
             payload: changedFields,
           });
           toast.success(
@@ -370,7 +370,7 @@ export default function CustomFoodModal({
         } else {
           const submissionData = prepareSubmissionData();
           const response = await addCustomFood({
-            userId: user?.user_id,
+            userId: user?.user_id || "",
             payload: submissionData,
           });
           toast.success(response.data.data.message);

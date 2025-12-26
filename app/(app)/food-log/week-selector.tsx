@@ -40,9 +40,9 @@ export default function WeekSelector({
     getStartOfPreviousAndEndOfNextMonth({ currentMonth: currentDay });
 
   const { data: foodLogs } = useGetFoddLogsDateQuery({
-    userId: user?.user_id,
-    startDate: startDateOfPreviousMonth,
-    endDate: endDateOfPreviousMonth,
+    userId: user?.user_id || "",
+    startDate: startDateOfPreviousMonth || "",
+    endDate: endDateOfPreviousMonth || "",
   });
 
   const hasLogDay = (date: Date): boolean => {

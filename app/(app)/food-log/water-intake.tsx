@@ -50,12 +50,13 @@ export default function WaterIntake({
     try {
       if (waterIntake === 0 && waterLog?.data?.waterLog.length === 0) {
         await createWaterLog({
-          userId: user?.user_id,
+          userId: user?.user_id || "",
           date: selectedDate,
           waterPayload: { amount: amount, unit: "ml" },
         }).unwrap();
       } else {
         await updateWaterLog({
+          userId: user?.user_id || "",
           waterLogId: waterLog.data.waterLog[0]?.water_log_id,
           foodLogId: waterLog.data.waterLog[0]?.food_log_id,
           waterPayload: {
@@ -75,6 +76,7 @@ export default function WaterIntake({
   const resetWater = async () => {
     try {
       await deleteWaterLog({
+        userId: user?.user_id || "",
         waterLogId: waterLog.data.waterLog[0]?.water_log_id,
         foodLogId: waterLog.data.waterLog[0]?.food_log_id,
       }).unwrap();

@@ -3,52 +3,72 @@ import { apiSlice } from "../api-slice";
 export const foodApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     searchFood: builder.query({
-      query: ({ userId, searchItem }) => ({
-        url: `/api/v1/foods/${userId}/search/${searchItem}`,
+      query: ({ searchItem }: { searchItem: string }) => ({
+        url: `/api/v1/foods/search/${searchItem}`,
         method: "GET",
       }),
-      providesTags: (result, error, { userId, searchItem }) => [
+      providesTags: (
+        result: any,
+        error: any,
+        { userId, searchItem }: { userId: string; searchItem: string }
+      ) => [
         { type: "Food", id: `search_${userId}_${searchItem}` },
         { type: "Food", id: "LIST" },
       ],
     }),
     getRecentFoods: builder.query({
-      query: ({ userId }) => ({
-        url: `/api/v1/foods/${userId}/recent`,
+      query: () => ({
+        url: `/api/v1/foods/recent`,
         method: "GET",
       }),
-      providesTags: (result, error, { userId }) => [
+      providesTags: (
+        result: any,
+        error: any,
+        { userId }: { userId: string }
+      ) => [
         { type: "Food", id: `recent_${userId}` },
         { type: "Food", id: "LIST" },
       ],
     }),
     getCustomFoods: builder.query({
-      query: ({ userId }) => ({
-        url: `/api/v1/foods/${userId}/custom`,
+      query: () => ({
+        url: `/api/v1/foods/custom`,
         method: "GET",
       }),
-      providesTags: (result, error, { userId }) => [
+      providesTags: (
+        result: any,
+        error: any,
+        { userId }: { userId: string }
+      ) => [
         { type: "Food", id: `custom_${userId}` },
         { type: "Food", id: "LIST" },
       ],
     }),
     getFavoriteFoods: builder.query({
-      query: ({ userId }) => ({
-        url: `/api/v1/foods/${userId}/favorites`,
+      query: () => ({
+        url: `/api/v1/foods/favorites`,
         method: "GET",
       }),
-      providesTags: (result, error, { userId }) => [
+      providesTags: (
+        result: any,
+        error: any,
+        { userId }: { userId: string }
+      ) => [
         { type: "Food", id: `favorites_${userId}` },
         { type: "Food", id: "FAVORITES" },
       ],
     }),
     addCustomFood: builder.mutation({
-      query: ({ userId, payload }) => ({
-        url: `/api/v1/foods/${userId}/custom`,
+      query: ({ userId, payload }: { userId: string; payload: any }) => ({
+        url: `/api/v1/foods/custom`,
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (
+        result: any,
+        error: any,
+        { userId, payload }: { userId: string; payload: any }
+      ) => [
         { type: "Food", id: `custom_${userId}` },
         { type: "Food", id: "LIST" },
       ],
@@ -63,11 +83,15 @@ export const foodApiSlice = apiSlice.injectEndpoints({
     }),
     addFavoriteFood: builder.mutation({
       query: ({ userId, payload }: { userId: string; payload: any }) => ({
-        url: `/api/v1/foods/${userId}/favorites`,
+        url: `/api/v1/foods/favorites`,
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (
+        result: any,
+        error: any,
+        { userId, payload }: { userId: string; payload: any }
+      ) => [
         // Only invalidate favorite-related and search caches
         { type: "Food", id: "FAVORITES" },
         { type: "Food", id: `favorites_${userId}` },
@@ -78,11 +102,21 @@ export const foodApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     removeFavoriteFood: builder.mutation({
-      query: ({ userId, favFoodId }) => ({
+      query: ({
+        userId,
+        favFoodId,
+      }: {
+        userId: string;
+        favFoodId: string;
+      }) => ({
         url: `/api/v1/foods/favorites/${favFoodId}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (
+        result: any,
+        error: any,
+        { userId, favFoodId }: { userId: string; favFoodId: string }
+      ) => [
         // Only invalidate favorite-related and search caches
         { type: "Food", id: "FAVORITES" },
         { type: "Food", id: `favorites_${userId}` },
@@ -93,11 +127,21 @@ export const foodApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     deleteCustomFood: builder.mutation({
-      query: ({ userId, customFoodId }) => ({
-        url: `/api/v1/foods/${userId}/custom/${customFoodId}`,
+      query: ({
+        userId,
+        customFoodId,
+      }: {
+        userId: string;
+        customFoodId: string;
+      }) => ({
+        url: `/api/v1/foods/custom/${customFoodId}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (
+        result: any,
+        error: any,
+        { userId, customFoodId }: { userId: string; customFoodId: string }
+      ) => [
         { type: "Food", id: `custom_${userId}` },
         { type: "Food", id: "LIST" },
         // Invalidate favorites in case the deleted custom food was favorited

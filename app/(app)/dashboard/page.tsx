@@ -174,7 +174,7 @@ export default function DashboardPage() {
 
   // Get today's food log for calorie calculation
   const { data: todaysFoodLog } = useGetFoodLogQuery({
-    userId: currentUser?.user_id,
+    userId: currentUser?.user_id || "",
     date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
   });
 

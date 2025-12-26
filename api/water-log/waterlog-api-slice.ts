@@ -4,7 +4,7 @@ export const waterLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getWaterLog: builder.query({
       query: ({ userId, date }) => ({
-        url: `/api/v1/water-logs/${userId}/date/${date}`,
+        url: `/api/v1/water-logs/${date}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId, date }) => [
@@ -14,7 +14,7 @@ export const waterLogApiSlice = apiSlice.injectEndpoints({
     }),
     createWaterLog: builder.mutation({
       query: ({ userId, date, waterPayload }) => ({
-        url: `/api/v1/water-logs/${userId}/date/${date}`,
+        url: `/api/v1/water-logs/${date}`,
         method: "POST",
         body: waterPayload,
       }),

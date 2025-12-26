@@ -3,28 +3,46 @@ import { apiSlice } from "../api-slice";
 export const foodLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getFoodLog: builder.query({
-      query: ({ userId, date }) => ({
-        url: `/api/v1/food-logs/${userId}/date/${date}`,
+      query: ({ date }: { date: string }) => ({
+        url: `/api/v1/food-logs/${date}`,
         method: "GET",
       }),
-      providesTags: (result, error, { userId, date }) => [
+      providesTags: (
+        result: any,
+        error: any,
+        { userId, date }: { userId: string; date: string }
+      ) => [
         { type: "FoodLog", id: `${userId}/${date}` },
         { type: "FoodLog", id: "LIST" },
       ],
     }),
     getFoddLogsDate: builder.query({
-      query: ({ userId, startDate, endDate }) => ({
-        url: `/api/v1/food-logs/${userId}/dates/${startDate}/${endDate}`,
+      query: ({
+        startDate,
+        endDate,
+      }: {
+        startDate: string;
+        endDate: string;
+      }) => ({
+        url: `/api/v1/food-logs/${startDate}/${endDate}`,
         method: "GET",
       }),
-      providesTags: (result, error, { userId, startDate, endDate }) => [
+      providesTags: (
+        result: any,
+        error: any,
+        {
+          userId,
+          startDate,
+          endDate,
+        }: { userId: string; startDate: string; endDate: string }
+      ) => [
         { type: "FoodLog", id: `${userId}/${startDate}/${endDate}` },
         { type: "FoodLog", id: "LIST" },
       ],
     }),
     addFoodLog: builder.mutation({
-      query: ({ userId, payload }) => ({
-        url: `/api/v1/food-logs/${userId}`,
+      query: ({ payload }) => ({
+        url: `/api/v1/food-logs`,
         method: "POST",
         body: payload,
       }),
@@ -34,16 +52,16 @@ export const foodLogApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     updateFoodLog: builder.mutation({
-      query: ({ foodId, payload }) => ({
-        url: `/api/v1/food-logs/food/${foodId}`,
+      query: ({ foodLogId, foodId, payload }) => ({
+        url: `/api/v1/food-logs/food/${foodLogId}/${foodId}`,
         method: "PATCH",
         body: payload,
       }),
       invalidatesTags: [{ type: "FoodLog", id: "LIST" }],
     }),
     markDayComplete: builder.mutation({
-      query: ({ userId, foodLogId, payload }) => ({
-        url: `/api/v1/food-logs/mark-as-complete/${userId}/${foodLogId}`,
+      query: ({ foodLogId, payload }) => ({
+        url: `/api/v1/food-logs/mark-as-complete/${foodLogId}`,
         method: "PATCH",
         body: payload,
       }),

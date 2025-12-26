@@ -69,8 +69,8 @@ export default function FoodSearchModal({
   const { data: searchResults, isLoading: isLoadingSearch } =
     useSearchFoodQuery(
       {
-        userId: user?.user_id,
-        searchItem: encodeURIComponent(debouncedSearchQuery),
+        searchItem: encodeURIComponent(debouncedSearchQuery || ""),
+        userId: user?.user_id || "",
       },
       {
         skip: !debouncedSearchQuery.trim() || !isOpen,
@@ -79,7 +79,7 @@ export default function FoodSearchModal({
 
   const { data: recentFoods, isLoading: isLoadingRecentFoods } =
     useGetRecentFoodsQuery(
-      { userId: user?.user_id },
+      { userId: user?.user_id || "" },
       {
         skip: activeTab !== "all" || !isOpen || !!debouncedSearchQuery.trim(),
       }
@@ -87,7 +87,7 @@ export default function FoodSearchModal({
 
   const { data: customFoods, isLoading: isLoadingCustomFoods } =
     useGetCustomFoodsQuery(
-      { userId: user?.user_id },
+      { userId: user?.user_id || "" },
       {
         skip: activeTab !== "custom" || !isOpen,
       }
@@ -95,7 +95,7 @@ export default function FoodSearchModal({
 
   const { data: favoriteFoods, isLoading: isLoadingFavoriteFoods } =
     useGetFavoriteFoodsQuery(
-      { userId: user?.user_id },
+      { userId: user?.user_id || "" },
       {
         skip: activeTab !== "favorites" || !isOpen,
       }
@@ -181,8 +181,8 @@ export default function FoodSearchModal({
     if (foodToDelete) {
       try {
         const response = await deleteCustomFood({
-          userId: user?.user_id,
-          customFoodId: foodToDelete.foodId,
+          userId: user?.user_id || "",
+          customFoodId: foodToDelete?.foodId || "",
         });
         toast.success(
           response.data.data.message || "Food deleted successfully"

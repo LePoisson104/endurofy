@@ -128,7 +128,7 @@ export default function FoodLogPage() {
 
   const [addFoodLog, { isLoading: isAddingFoodLog }] = useAddFoodLogMutation();
   const { data: foodLog, isLoading: isLoadingFoodLog } = useGetFoodLogQuery({
-    userId: user?.user_id,
+    userId: user?.user_id || "",
     date: selectedDate.toLocaleDateString("en-CA"), // Convert Date to YYYY-MM-DD string
   });
 
@@ -289,7 +289,6 @@ export default function FoodLogPage() {
 
     try {
       await addFoodLog({
-        userId: user?.user_id,
         payload: food,
       }).unwrap();
     } catch (error: any) {
@@ -371,6 +370,7 @@ export default function FoodLogPage() {
 
     try {
       await updateFoodLog({
+        foodLogId: foodLog?.data?.foodLog.food_log_id,
         foodId: updatedFood.foodId,
         payload,
       }).unwrap();

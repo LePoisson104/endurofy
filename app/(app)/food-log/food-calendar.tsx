@@ -43,9 +43,9 @@ export default function FoodCalendar({
     getStartOfPreviousAndEndOfNextMonth({ currentMonth });
 
   const { data: foodLogs } = useGetFoddLogsDateQuery({
-    userId: user?.user_id,
-    startDate: startDateOfPreviousMonth,
-    endDate: endDateOfPreviousMonth,
+    userId: user?.user_id || "",
+    startDate: startDateOfPreviousMonth || "",
+    endDate: endDateOfPreviousMonth || "",
   });
 
   const monthStart = startOfMonth(currentMonth);
