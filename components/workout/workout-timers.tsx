@@ -147,12 +147,25 @@ export function WorkoutTimers({
     // CRITICAL: If workoutLog is null/undefined or doesn't exist for this date, reset timer
     // This handles the case when a workout log is deleted
     if (!workoutLog?.workoutDate) {
-      // Only reset if we're not in the middle of switching dates and timer isn't running
-      if (
-        !shouldTimerBeRunning &&
-        !sessionTimerRunning &&
-        !forceStopTimerRef.current
-      ) {
+      // FIXED: Only stop the timer if a workout was previously running and got deleted
+      // Don't stop if:
+      // 1. We're just creating a new workout (runningWorkoutLogIdRef would be null)
+      // 2. Timer was just started intentionally (hasWorkoutStarted is true means user clicked start)
+      if (!forceStopTimerRef.current) {
+        const wasWorkoutRunning =
+          sessionTimerRunning && runningWorkoutLogIdRef.current;
+
+        // Don't reset if the user just started the timer intentionally
+        // This allows the workout log to be created and fetched without interruption
+        if (
+          sessionTimerRunning &&
+          hasWorkoutStarted &&
+          !runningWorkoutLogIdRef.current
+        ) {
+          // Timer is running but no workout ID yet - this is normal during workout creation
+          return;
+        }
+
         setSessionElapsedTime(0);
         setSessionStartTime(null);
         setSessionTimerRunning(false);
@@ -160,7 +173,6 @@ export function WorkoutTimers({
         setIsStartingWorkout(true);
         runningWorkoutLogIdRef.current = null;
         loadedWorkoutDateRef.current = null;
-        // Clear localStorage since there's no workout log
         localStorage.removeItem(TIMER_STORAGE_KEY);
       }
       return;
