@@ -408,7 +408,7 @@ export default function FoodLogPage() {
     <div className="flex min-h-screen flex-col p-[1rem]">
       {/* Mobile Week Selector */}
       {isMobile && (
-        <div>
+        <div className="mb-4">
           <WeekSelector
             selectedDate={selectedDate}
             onSelectDate={handleDateChange}
