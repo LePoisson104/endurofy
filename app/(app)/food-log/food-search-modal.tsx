@@ -264,7 +264,7 @@ export default function FoodSearchModal({
         </TabsContent>
 
         <TabsContent value="favorites" className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
+          <div className="h-full overflow-y-auto space-y-2 thin-scrollbar standalone:pb-10">
             {isLoadingFavoriteFoods ? (
               <FoodCardSkeleton />
             ) : filteredFavoriteFoods?.length === 0 ? (
@@ -289,7 +289,7 @@ export default function FoodSearchModal({
         </TabsContent>
 
         <TabsContent value="custom" className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto space-y-2 thin-scrollbar">
+          <div className="h-full overflow-y-auto space-y-2 thin-scrollbar standalone:pb-10">
             {isLoadingCustomFoods ? (
               <FoodCardSkeleton />
             ) : filteredCustomFoods?.length === 0 ? (
