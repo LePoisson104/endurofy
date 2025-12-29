@@ -23,13 +23,10 @@ import {
   setWorkoutProgram,
   setIsLoading,
 } from "@/api/workout-program/workout-program-slice";
-import { useGetWeeklyWeightDifferenceQuery } from "@/api/weight-log/weight-log-api-slice";
-import { setWeeklyRate } from "@/api/weight-log/weight-log-slice";
 import { useGetSettingsQuery } from "@/api/settings/settings-api-slice";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import OnboardingFlow from "../onboarding/onBoardingFlow";
-import { format } from "date-fns";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -66,25 +63,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userId: user?.user_id,
     });
 
-  const { data: weeklyWeightDifference, isLoading: isWeeklyWeightLoading } =
-    useGetWeeklyWeightDifferenceQuery(
-      {
-        userId: user?.user_id,
-        currentDate: format(new Date(), "yyyy-MM-dd"),
-      },
-      {
-        skip: !user?.user_id,
-      }
-    );
-
   // Check if all critical data has been loaded
   const isCriticalDataLoading =
     isAuthLoading ||
     isSettingsLoading ||
     isUserInfoLoading ||
     isMacrosLoading ||
-    isWorkoutProgramLoading ||
-    isWeeklyWeightLoading;
+    isWorkoutProgramLoading;
 
   const hasCriticalData =
     isSuccess &&
@@ -92,9 +77,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     settings !== undefined &&
     userInfo !== undefined &&
     usersMacrosGoals !== undefined &&
-    workoutProgram !== undefined &&
-    weeklyWeightDifference !== undefined;
+    workoutProgram !== undefined;
 
+  // Handle theme settings
   useEffect(() => {
     if (settings && !isSettingsLoading) {
       setTheme(settings?.data?.settings?.[0]?.theme);
@@ -119,12 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     dispatch(setIsLoading(true));
   }, [dispatch]);
-
-  useEffect(() => {
-    if (weeklyWeightDifference && !isWeeklyWeightLoading) {
-      dispatch(setWeeklyRate(weeklyWeightDifference.data.weeklyDifference));
-    }
-  }, [weeklyWeightDifference, isWeeklyWeightLoading, dispatch]);
 
   // Handle workout program loading
   useEffect(() => {

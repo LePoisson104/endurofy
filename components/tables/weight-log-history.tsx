@@ -301,9 +301,6 @@ export default function WeightLogHistory({
                   <SelectItem value="current-week" className="rounded-lg">
                     Current Week
                   </SelectItem>
-                  <SelectItem value="7d" className="rounded-lg">
-                    Last 7 days
-                  </SelectItem>
                   <SelectItem value="14d" className="rounded-lg">
                     Last 14 days
                   </SelectItem>

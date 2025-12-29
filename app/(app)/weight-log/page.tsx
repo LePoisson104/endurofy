@@ -43,7 +43,6 @@ import { WeightForm as WeightFormType } from "@/components/form/weight-form";
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
-import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
 
 export default function WeightLogPage() {
   const isDark = useGetCurrentTheme();
@@ -51,7 +50,6 @@ export default function WeightLogPage() {
 
   const user = useSelector(selectCurrentUser);
   const userInfo = useSelector(selectUserInfo);
-  const weeklyRate = useSelector(selectWeeklyRate);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lineChartOptions, setLineChartOptions] = useState("current-week");
@@ -245,9 +243,6 @@ export default function WeightLogPage() {
                           >
                             Current Week
                           </SelectItem>
-                          <SelectItem value="7d" className="rounded-lg">
-                            Last 7 days
-                          </SelectItem>
                           <SelectItem value="14d" className="rounded-lg">
                             Last 14 days
                           </SelectItem>
@@ -293,10 +288,10 @@ export default function WeightLogPage() {
                       </p>
                       <p className="text-xs flex items-center gap-1 mb-2">
                         {handleRateChangeColor(
-                          weeklyRate,
+                          Number((currentWeight - startWeight).toFixed(1)),
                           userInfo?.goal || "",
                           userInfo?.starting_weight_unit || "",
-                          " since last week",
+                          " as of today",
                           isDark
                         )}
                       </p>

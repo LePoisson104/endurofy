@@ -24,7 +24,6 @@ import {
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
 import DashboardSkeleton from "@/components/skeletons/dashboard-skeleton";
-import { selectWeeklyRate } from "@/api/weight-log/weight-log-slice";
 import handleRateChangeColor from "@/helper/handle-rate-change";
 import { useGetCurrentTheme } from "@/hooks/use-get-current-theme";
 import { useDispatch } from "react-redux";
@@ -51,7 +50,6 @@ export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("90d");
   const [weightLogView, setWeightLogView] = useState("both");
   const userInfo = useSelector(selectUserInfo);
-  const weeklyRate = useSelector(selectWeeklyRate);
   const workoutPrograms = useSelector(selectWorkoutProgram);
   const currentUser = useSelector(selectCurrentUser);
   const [activeProgram, setActiveProgram] = useState<WorkoutProgram | null>(
@@ -453,10 +451,10 @@ export default function DashboardPage() {
                     </p>
                     <p className="text-xs text-green-500 flex mb-2">
                       {handleRateChangeColor(
-                        weeklyRate,
+                        Number((currentWeight - startWeight).toFixed(1)),
                         userInfo?.goal || "",
                         userInfo?.starting_weight_unit || "",
-                        " since last week",
+                        " as of today",
                         isDark
                       )}
                     </p>
