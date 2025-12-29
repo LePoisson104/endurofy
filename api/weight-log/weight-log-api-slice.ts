@@ -13,8 +13,8 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     getWeeklyWeightDifference: builder.query({
-      query: ({ userId }) => ({
-        url: `/api/v1/weight-logs/get-weekly-weight-difference`,
+      query: ({ userId, currentDate }) => ({
+        url: `/api/v1/weight-logs/get-weekly-weight-difference/${currentDate}`,
         method: "GET",
       }),
       providesTags: (result, error, { userId }) => [

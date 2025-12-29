@@ -29,6 +29,7 @@ import { useGetSettingsQuery } from "@/api/settings/settings-api-slice";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import OnboardingFlow from "../onboarding/onBoardingFlow";
+import { format } from "date-fns";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -66,9 +67,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
   const { data: weeklyWeightDifference, isLoading: isWeeklyWeightLoading } =
-    useGetWeeklyWeightDifferenceQuery({
-      userId: user?.user_id,
-    });
+    useGetWeeklyWeightDifferenceQuery(
+      {
+        userId: user?.user_id,
+        currentDate: format(new Date(), "yyyy-MM-dd"),
+      },
+      {
+        skip: !user?.user_id,
+      }
+    );
 
   // Check if all critical data has been loaded
   const isCriticalDataLoading =
