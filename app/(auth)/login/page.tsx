@@ -12,6 +12,7 @@ import { setCredentials } from "@/api/auth/auth-slice";
 import { Loader2 } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { toast } from "sonner";
+import ContinueWithGoogle from "@/components/buttons/continue-with-google";
 
 export default function Login() {
   const router = useRouter();
@@ -60,6 +61,9 @@ export default function Login() {
             )}
             <h1 className="text-2xl tracking-tight">Welcome back</h1>
           </div>
+
+          <ContinueWithGoogle />
+          <div className="w-full border-b mt-4 mb-4" />
 
           <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
             <div className="space-y-2">

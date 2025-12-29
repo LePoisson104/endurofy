@@ -20,11 +20,11 @@ export const description = "A simple area chart";
 const chartConfig = {
   set1: {
     label: "Set1",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(188, 94%, 43%)", // cyan
   },
   set2: {
     label: "Set2",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(0, 84%, 60%)", // red
   },
 } satisfies ChartConfig;
 

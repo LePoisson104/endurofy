@@ -39,6 +39,8 @@ const STORAGE_KEYS = {
   SELECTED_PROGRAM: "progression_selectedProgram",
   SELECTED_EXERCISE: "progression_selectedExercise",
   SELECTED_PERIOD: "progression_selectedPeriod",
+  START_DATE: "progression_startDate",
+  END_DATE: "progression_endDate",
 };
 
 export default function Progression() {
@@ -124,6 +126,21 @@ export default function Progression() {
         // Restore period
         if (savedPeriod) {
           setSelectedPeriod(savedPeriod);
+
+          // Restore dates if period is "day range"
+          if (savedPeriod === "day range") {
+            const savedStartDate = localStorage.getItem(
+              STORAGE_KEYS.START_DATE
+            );
+            const savedEndDate = localStorage.getItem(STORAGE_KEYS.END_DATE);
+
+            if (savedStartDate) {
+              setStartDate(new Date(savedStartDate));
+            }
+            if (savedEndDate) {
+              setEndDate(new Date(savedEndDate));
+            }
+          }
         }
 
         setIsInitialized(true);
@@ -172,6 +189,28 @@ export default function Progression() {
       localStorage.setItem(STORAGE_KEYS.SELECTED_PERIOD, selectedPeriod);
     }
   }, [selectedPeriod, isInitialized]);
+
+  // Persist startDate (only when period is "day range")
+  useEffect(() => {
+    if (isInitialized && selectedPeriod === "day range") {
+      if (startDate) {
+        localStorage.setItem(STORAGE_KEYS.START_DATE, startDate.toISOString());
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.START_DATE);
+      }
+    }
+  }, [startDate, selectedPeriod, isInitialized]);
+
+  // Persist endDate (only when period is "day range")
+  useEffect(() => {
+    if (isInitialized && selectedPeriod === "day range") {
+      if (endDate) {
+        localStorage.setItem(STORAGE_KEYS.END_DATE, endDate.toISOString());
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.END_DATE);
+      }
+    }
+  }, [endDate, selectedPeriod, isInitialized]);
 
   useEffect(() => {
     const newStats: StatData[] = [];
@@ -238,6 +277,9 @@ export default function Progression() {
   }, [personalRecord, workoutProgression]);
 
   useEffect(() => {
+    // Skip updating dates during initialization - let localStorage values take effect
+    if (!isInitialized) return;
+
     if (selectedPeriod === "7day") {
       setStartDate(getDayRange({ options: "7d" }).startDate || undefined);
       setEndDate(getDayRange({ options: "7d" }).endDate || undefined);
@@ -250,11 +292,10 @@ export default function Progression() {
     } else if (selectedPeriod === "90day") {
       setStartDate(getDayRange({ options: "90d" }).startDate || undefined);
       setEndDate(getDayRange({ options: "90d" }).endDate || undefined);
-    } else if (selectedPeriod === "day range") {
-      setStartDate(undefined);
-      setEndDate(undefined);
     }
-  }, [selectedPeriod]);
+    // Note: For "day range", we don't reset dates - user will select them manually
+    // or they are already loaded from localStorage
+  }, [selectedPeriod, isInitialized]);
 
   // Group exercises by body part
   const exercisesByBodyPart = useMemo(() => {
@@ -342,6 +383,8 @@ export default function Progression() {
     localStorage.removeItem(STORAGE_KEYS.SELECTED_PROGRAM);
     localStorage.removeItem(STORAGE_KEYS.SELECTED_EXERCISE);
     localStorage.removeItem(STORAGE_KEYS.SELECTED_PERIOD);
+    localStorage.removeItem(STORAGE_KEYS.START_DATE);
+    localStorage.removeItem(STORAGE_KEYS.END_DATE);
   };
 
   if (isLoadingPersonalRecord && isLoadingWorkoutProgression) {

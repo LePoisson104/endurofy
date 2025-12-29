@@ -19,7 +19,6 @@ import {
 import {
   Line,
   CartesianGrid,
-  ResponsiveContainer,
   XAxis,
   YAxis,
   Bar,
@@ -28,6 +27,11 @@ import {
 } from "recharts";
 import { Dumbbell, Scale, ArrowRightLeft, Flame, Target } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { format } from "date-fns";
+import LineChart from "@/components/charts/line-chart";
+import { useSelector } from "react-redux";
+import { selectUserInfo } from "@/api/user/user-slice";
+import handleRateChangeColor from "@/helper/handle-rate-change";
 
 // Unified data showing correlation between all features by workout day
 const unifiedProgressData = [
@@ -82,8 +86,6 @@ const unifiedProgressData = [
   },
 ];
 
-// Average calories history with macronutrients breakdown
-// Converting macros to calories: Protein = 4 cal/g, Carbs = 4 cal/g, Fat = 9 cal/g
 const macronutrientsData = [
   {
     period: "Dec 1",
@@ -226,17 +228,6 @@ const weeklyMacronutrientsData = [
   },
 ];
 
-// Weight vs Calories comparison data
-const weightCaloriesData = [
-  { day: "Mon", weight: 180, calories: 2100 },
-  { day: "Tue", weight: 179.8, calories: 2150 },
-  { day: "Wed", weight: 180.1, calories: 2080 },
-  { day: "Thu", weight: 180.2, calories: 2200 },
-  { day: "Fri", weight: 178.8, calories: 2120 },
-  { day: "Sat", weight: 178.5, calories: 2180 },
-  { day: "Sun", weight: 178.2, calories: 1900 },
-];
-
 const chartConfig = {
   weight: {
     label: "Weight (lbs)",
@@ -288,12 +279,25 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function UnifiedAnalyticsOverview() {
+export function UnifiedAnalyticsOverview({
+  startDate,
+  endDate,
+  weightAndCaloriesData,
+}: {
+  startDate: Date;
+  endDate: Date;
+  weightAndCaloriesData: any;
+}) {
   const isMobile = useIsMobile();
   const [overviewView, setOverviewView] = useState<"weight" | "calories">(
     "weight"
   );
   const [caloriesView, setCaloriesView] = useState<"daily" | "weekly">("daily");
+  const userInfo = useSelector(selectUserInfo);
+
+  const startWeight = Number(userInfo?.starting_weight || 0);
+  const currentWeight = Number(userInfo?.current_weight || 0);
+  const goalWeight = Number(userInfo?.weight_goal || 0);
 
   // Custom tooltip formatter for macronutrients chart
   const CustomMacroTooltip = ({ active, payload, label }: any) => {
@@ -354,7 +358,7 @@ export function UnifiedAnalyticsOverview() {
     <div className="space-y-6">
       {/* Key Performance Indicators */}
       <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <AnalyticsStatCard
             title="Overall Consistency"
             value="87%"
@@ -364,13 +368,17 @@ export function UnifiedAnalyticsOverview() {
           />
           <AnalyticsStatCard
             title="Weight Progress"
-            value="-4.5 lbs"
+            value={`${(
+              (weightAndCaloriesData?.[0]?.weight || 0) -
+              (weightAndCaloriesData?.[weightAndCaloriesData?.length - 1]
+                ?.weight || 0)
+            ).toFixed(1)} lbs`}
             icon={Scale}
             iconColor="text-cyan-500 dark:text-cyan-400"
             iconBackground="bg-cyan-500/10 dark:bg-cyan-500/20"
           />
           <AnalyticsStatCard
-            title="Total Workouts"
+            title="Total Completed Workouts"
             value="24"
             icon={Dumbbell}
             iconColor="text-emerald-500 dark:text-emerald-400"
@@ -416,78 +424,82 @@ export function UnifiedAnalyticsOverview() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="px-0">
-          <ChartContainer config={chartConfig} className="h-[350px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={unifiedProgressData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="workoutDay"
-                  fontSize={isMobile ? "10px" : "12px"}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  yAxisId="left"
-                  fontSize={isMobile ? "10px" : "12px"}
-                  tickLine={false}
-                  axisLine={false}
-                  domain={[
-                    (dataMin: number) => dataMin - 5,
-                    (dataMax: number) => dataMax + 5,
-                  ]}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                  fontSize={isMobile ? "10px" : "12px"}
-                  domain={[
-                    (dataMin: number) => dataMin - 1000,
-                    (dataMax: number) => dataMax + 1000,
-                  ]}
-                />
-                <ChartTooltip content={<ChartTooltipContent />} />
+        <CardContent className="px-2">
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[350px] w-full"
+          >
+            <ComposedChart
+              data={unifiedProgressData}
+              margin={{ left: 12, right: 12 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis
+                dataKey="workoutDay"
+                fontSize={isMobile ? "10px" : "12px"}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                yAxisId="left"
+                fontSize={isMobile ? "10px" : "12px"}
+                tickLine={false}
+                axisLine={false}
+                domain={[
+                  (dataMin: number) => dataMin - 5,
+                  (dataMax: number) => dataMax + 5,
+                ]}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                fontSize={isMobile ? "10px" : "12px"}
+                domain={[
+                  (dataMin: number) => dataMin - 1000,
+                  (dataMax: number) => dataMax + 1000,
+                ]}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="workoutVolume"
+                stroke="hsl(160, 84%, 39%)"
+                strokeWidth={3}
+                dot={false}
+                activeDot={{ r: 4, fill: "hsl(160, 84%, 39%)" }}
+              />
+              {overviewView === "weight" ? (
                 <Line
-                  yAxisId="right"
+                  yAxisId="left"
                   type="monotone"
-                  dataKey="workoutVolume"
-                  stroke="hsl(160, 84%, 39%)"
+                  dataKey="weight"
+                  stroke="hsl(189, 94%, 43%)"
                   strokeWidth={3}
                   dot={false}
-                  activeDot={{ r: 4, fill: "hsl(160, 84%, 39%)" }}
+                  activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
                 />
-                {overviewView === "weight" ? (
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="weight"
-                    stroke="hsl(189, 94%, 43%)"
-                    strokeWidth={3}
-                    dot={false}
-                    activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
-                  />
-                ) : (
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="calories"
-                    stroke="hsl(0, 73.80%, 62.50%)"
-                    strokeWidth={3}
-                    dot={false}
-                    activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
-                  />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
+              ) : (
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="calories"
+                  stroke="hsl(0, 73.80%, 62.50%)"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
+                />
+              )}
+            </ComposedChart>
           </ChartContainer>
         </CardContent>
       </Card>
 
       {/* Consistency Tracking */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-3">
@@ -518,52 +530,51 @@ export function UnifiedAnalyticsOverview() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pl-0 pr-4">
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={
-                    caloriesView === "daily"
-                      ? macronutrientsData
-                      : weeklyMacronutrientsData
-                  }
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-muted"
-                  />
-                  <XAxis
-                    dataKey="period"
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={isMobile ? "10px" : "12px"}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={isMobile ? "10px" : "12px"}
-                  />
-                  <ChartTooltip content={<CustomMacroTooltip />} />
-                  <Bar
-                    dataKey="proteinCal"
-                    stackId="a"
-                    fill="var(--color-protein)"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="carbsCal"
-                    stackId="a"
-                    fill="var(--color-carbs)"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="fatCal"
-                    stackId="a"
-                    fill="var(--color-fat)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+          <CardContent className="px-2">
+            <ChartContainer
+              config={chartConfig}
+              className="aspect-auto h-[300px] w-full"
+            >
+              <BarChart
+                data={
+                  caloriesView === "daily"
+                    ? macronutrientsData
+                    : weeklyMacronutrientsData
+                }
+                margin={{ left: 12, right: 12 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="period"
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={isMobile ? "10px" : "12px"}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={isMobile ? "10px" : "12px"}
+                />
+                <ChartTooltip content={<CustomMacroTooltip />} />
+                <Bar
+                  dataKey="proteinCal"
+                  stackId="a"
+                  fill="var(--color-protein)"
+                  radius={[0, 0, 0, 0]}
+                />
+                <Bar
+                  dataKey="carbsCal"
+                  stackId="a"
+                  fill="var(--color-carbs)"
+                  radius={[0, 0, 0, 0]}
+                />
+                <Bar
+                  dataKey="fatCal"
+                  stackId="a"
+                  fill="var(--color-fat)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -574,72 +585,20 @@ export function UnifiedAnalyticsOverview() {
               Weight vs Calories Consumed
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
-              December 1, 2025 - December 31, 2025
+              {format(startDate, "MMMM d, yyyy")} -{" "}
+              {format(endDate, "MMMM d, yyyy")}
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-0">
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={weightCaloriesData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-muted"
-                  />
-                  <XAxis
-                    dataKey="day"
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={isMobile ? "10px" : "12px"}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    tickLine={false}
-                    axisLine={false}
-                    domain={[
-                      (dataMin: number) => dataMin - 5,
-                      (dataMax: number) => dataMax + 5,
-                    ]}
-                    fontSize={isMobile ? "10px" : "12px"}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    tickLine={false}
-                    axisLine={false}
-                    domain={[
-                      (dataMin: number) => dataMin - 100,
-                      (dataMax: number) => dataMax + 100,
-                    ]}
-                    fontSize={isMobile ? "10px" : "12px"}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="weight"
-                    stroke="hsl(189, 94%, 43%)"
-                    strokeWidth={3}
-                    dot={false}
-                    activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="calories"
-                    stroke="hsl(0, 73.80%, 62.50%)"
-                    strokeWidth={3}
-                    dot={false}
-                    activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+          <CardContent
+            className={`${isMobile ? "h-[280px]" : "h-[400px]"} px-0 w-full`}
+          >
+            <LineChart weightLogData={weightAndCaloriesData} view="both" />
           </CardContent>
         </Card>
       </div>
 
       {/* Detailed Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {/* Weight Summary */}
         <Card className="overflow-hidden border-l-4 border-l-chart-1">
           <CardContent className="p-6">
@@ -656,12 +615,27 @@ export function UnifiedAnalyticsOverview() {
             </div>
             <div className="space-y-4">
               <div className="group">
-                <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-sm font-medium text-muted-foreground">
+                <div
+                  className={`${
+                    isMobile ? "flex-col" : "flex"
+                  } justify-between items-center mb-1`}
+                >
+                  <span className="text-sm">
                     Weight Change
+                    <span className="text-xs text-muted-foreground block">
+                      {format(startDate, "MMMM d, yyyy")} -{" "}
+                      {format(endDate, "MMMM d, yyyy")}
+                    </span>
                   </span>
                   <span className="text-2xl font-bold text-green-600 dark:text-green-500">
-                    -4.5{" "}
+                    {Number(
+                      (
+                        weightAndCaloriesData?.[0]?.weight -
+                          weightAndCaloriesData?.[
+                            weightAndCaloriesData?.length - 1
+                          ]?.weight || 0
+                      ).toFixed(1)
+                    )}{" "}
                     <span className="text-base text-muted-foreground">lbs</span>
                   </span>
                 </div>
@@ -672,25 +646,39 @@ export function UnifiedAnalyticsOverview() {
                   <div className="text-xs text-muted-foreground mb-1">
                     Starting
                   </div>
-                  <div className="text-lg font-bold">180</div>
+                  <div className="text-lg font-bold">{startWeight}</div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">
                     Current
                   </div>
-                  <div className="text-lg font-bold">175.5</div>
+                  <div className="text-lg font-bold">{currentWeight}</div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">Goal</div>
-                  <div className="text-lg font-bold">175</div>
+                  <div className="text-lg font-bold">{goalWeight}</div>
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-muted-foreground">
-                  Weekly Rate
+              <div
+                className={`${
+                  isMobile
+                    ? "flex flex-col gap-3"
+                    : "flex justify-between items-center"
+                }`}
+              >
+                <span className="text-xs flex flex-col">
+                  Weight Progress
+                  <span className="text-xs text-muted-foreground block">
+                    as of {format(new Date(), "MMMM d, yyyy")}
+                  </span>
                 </span>
-                <span className="text-sm font-semibold text-green-600 dark:text-green-500">
-                  -0.65 lbs/wk
+                <span className="text-sm">
+                  {handleRateChangeColor(
+                    Number((currentWeight - startWeight).toFixed(1)),
+                    userInfo?.goal || "",
+                    userInfo?.starting_weight_unit || "",
+                    " as of today"
+                  )}
                 </span>
               </div>
             </div>

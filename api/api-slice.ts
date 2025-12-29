@@ -71,6 +71,7 @@ export const apiSlice = createApi({
     "Settings",
     "WaterLog",
     "WorkoutProgression",
+    "Analytics",
   ],
   endpoints: (builder) => ({}),
 });
