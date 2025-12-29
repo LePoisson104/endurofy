@@ -70,14 +70,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useGetWeeklyWeightDifferenceQuery(
       {
         userId: user?.user_id,
-        currentDate: format(new Date(), "yyyy-MM-dd") + "T06:00:00.000Z",
+        currentDate: format(new Date(), "yyyy-MM-dd"),
       },
       {
         skip: !user?.user_id,
       }
     );
-
-  console.log(format(new Date(), "yyyy-MM-dd") + "T06:00:00.000Z");
 
   // Check if all critical data has been loaded
   const isCriticalDataLoading =
