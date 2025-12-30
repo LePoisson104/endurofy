@@ -12,7 +12,6 @@ import { useSignupMutation } from "@/api/auth/auth-api-slice";
 import { Loader2 } from "lucide-react";
 import { validatePasswordField } from "@/helper/password-validator";
 import { toast } from "sonner";
-import ContinueWithGoogle from "@/components/buttons/continue-with-google";
 
 interface FormErrors {
   firstName: string;
@@ -190,9 +189,6 @@ export default function Signup() {
               Get started with Endurofy
             </h1>
           </div>
-
-          <ContinueWithGoogle />
-          <div className="w-full border-b mt-4 mb-4" />
 
           <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
             <div className="flex gap-2">
