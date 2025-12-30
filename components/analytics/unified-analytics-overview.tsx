@@ -488,14 +488,17 @@ export function UnifiedAnalyticsOverview({
             </div>
           </div>
         </CardHeader>
-        <CardContent
-          className={`${isMobile ? "h-[280px]" : "h-[400px]"} px-0 w-full`}
-        >
+        <CardContent className={`${isMobile ? "h-[280px]" : "h-[400px]"} px-0`}>
           {progressOverviewData.length > 0 ? (
             <ChartContainer config={chartConfig} className="h-full w-full">
               <ComposedChart
                 data={progressOverviewData}
-                margin={{ left: 12, right: 12 }}
+                margin={{
+                  top: 10,
+                  right: isMobile ? -15 : 10,
+                  left: isMobile ? -15 : 0,
+                  bottom: 0,
+                }}
               >
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
@@ -603,22 +606,21 @@ export function UnifiedAnalyticsOverview({
               </div>
             </div>
           </CardHeader>
-          <CardContent className="px-2">
+          <CardContent
+            className={`${isMobile ? "h-[280px]" : "h-[340px]"} px-0`}
+          >
             {(caloriesView === "daily"
               ? dailyMacronutrientsData
               : weeklyMacronutrientsData
             ).length > 0 ? (
-              <ChartContainer
-                config={chartConfig}
-                className="aspect-auto h-[300px] w-full"
-              >
+              <ChartContainer config={chartConfig} className="h-full w-full">
                 <BarChart
                   data={
                     caloriesView === "daily"
                       ? dailyMacronutrientsData
                       : weeklyMacronutrientsData
                   }
-                  margin={{ left: 12, right: 12 }}
+                  margin={{ top: 10, right: 10, left: -23, bottom: 0 }}
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
