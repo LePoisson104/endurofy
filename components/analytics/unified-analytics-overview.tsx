@@ -204,31 +204,29 @@ export function UnifiedAnalyticsOverview({
       return [];
     }
 
-    // Create a map of weight data by date from weightLog
+    // Create a map of weight data by date from weightLog (dates include timestamp, need to split on T)
     const weightByDate = new Map<string, number>();
     weightAndCaloriesData?.forEach((item: any) => {
-      // Weight log uses log_date field
       const dateValue = item.log_date || item.date;
-      const dateStr = safeFormatDate(dateValue, "yyyy-MM-dd");
-      if (dateStr) {
-        weightByDate.set(dateStr, Number(item.weight) || 0);
+      if (dateValue) {
+        const dateKey = dateValue.split("T")[0];
+        weightByDate.set(dateKey, Number(item.weight) || 0);
       }
     });
 
-    // Create a map of calories by date from nutritionAnalytics
+    // Create a map of calories by date from nutritionAnalytics (dates are already in yyyy-MM-dd format)
     const caloriesByDate = new Map<string, number>();
     nutritionAnalytics?.nutritionHistory?.forEach((item) => {
-      const dateStr = safeFormatDate(item.date, "yyyy-MM-dd");
-      if (dateStr) {
-        caloriesByDate.set(dateStr, item.totalCalories || 0);
+      if (item.date) {
+        caloriesByDate.set(item.date, item.totalCalories || 0);
       }
     });
 
     // Merge workout volume with weight and calories data
     return workoutAnalytics.workoutVolumeHistory
       .map((item) => {
-        const dateKey = safeFormatDate(item.date, "yyyy-MM-dd");
-        const displayDate = safeFormatDate(item.date, "MMM d");
+        const dateKey = item.date; // Already in yyyy-MM-dd format
+        const displayDate = safeFormatDate(item.date, "MMM d"); // Only format for display
         if (!dateKey || !displayDate) return null;
         return {
           workoutDay: displayDate,
@@ -353,8 +351,6 @@ export function UnifiedAnalyticsOverview({
     }
     return `${totalMinutes}m`;
   };
-
-  console.log(nutritionAnalytics);
 
   // Custom tooltip formatter for macronutrients chart
   const CustomMacroTooltip = ({ active, payload, label }: any) => {
@@ -491,12 +487,11 @@ export function UnifiedAnalyticsOverview({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="px-2">
+        <CardContent
+          className={`${isMobile ? "h-[280px]" : "h-[400px]"} px-0 w-full`}
+        >
           {progressOverviewData.length > 0 ? (
-            <ChartContainer
-              config={chartConfig}
-              className="aspect-auto h-[350px] w-full"
-            >
+            <ChartContainer config={chartConfig} className="h-full w-full">
               <ComposedChart
                 data={progressOverviewData}
                 margin={{ left: 12, right: 12 }}

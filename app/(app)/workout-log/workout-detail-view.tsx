@@ -685,7 +685,7 @@ export function WorkoutDetailView({
                     } ${isDark ? "text-slate-400" : "text-slate-500"}`}
                   >
                     <div>
-                      Volume:
+                      Volume:{" "}
                       {(
                         exercise.workoutSets.reduce((sum, set) => {
                           const weight = set.weight || 0;
@@ -700,7 +700,7 @@ export function WorkoutDetailView({
                             return sum + weight * leftReps;
                           }
                         }, 0) / 1000
-                      ).toFixed(1)}
+                      ).toFixed(2)}
                       K lbs
                     </div>
                   </div>
