@@ -10,6 +10,7 @@ interface AnalyticsStatCardProps {
   icon: LucideIcon;
   iconColor?: string;
   iconBackground?: string;
+  description?: string;
 }
 
 export function AnalyticsStatCard({
@@ -18,6 +19,7 @@ export function AnalyticsStatCard({
   icon: Icon,
   iconColor,
   iconBackground,
+  description,
 }: AnalyticsStatCardProps) {
   return (
     <Card>
@@ -41,6 +43,9 @@ export function AnalyticsStatCard({
             </div>
             <div className="flex justify-between">
               <p className="text-2xl font-bold">{value}</p>
+              {description && (
+                <p className="text-sm text-muted-foreground">{description}</p>
+              )}
             </div>
           </div>
         </div>

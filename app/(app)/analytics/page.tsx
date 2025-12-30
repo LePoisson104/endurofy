@@ -5,10 +5,14 @@ import { useSelector } from "react-redux";
 import { getDayRange } from "@/helper/get-day-range";
 import { AnalyticsFilters } from "@/components/analytics/analytics-filters";
 import { UnifiedAnalyticsOverview } from "@/components/analytics/unified-analytics-overview";
+import { AnalyticsSkeleton } from "@/components/skeletons/analytics-skeleton";
 import { selectWorkoutProgram } from "@/api/workout-program/workout-program-slice";
 import { useGetWeightLogByDateQuery } from "@/api/weight-log/weight-log-api-slice";
 import { format } from "date-fns";
 import { selectCurrentUser } from "@/api/auth/auth-slice";
+import { useWorkoutLogsAnalyticsQuery } from "@/api/analytics/analytics-api-slice";
+import { useMacrosNutrientsAnalyticsQuery } from "@/api/analytics/analytics-api-slice";
+import { useGetConsistencyQuery } from "@/api/analytics/analytics-api-slice";
 
 const STORAGE_KEYS = {
   SELECTED_PROGRAM: "analytics_selectedProgram",
@@ -34,13 +38,40 @@ export default function AnalyticsPage() {
   const [selectedDay, setSelectedDay] = useState<string | undefined>(undefined);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const { data: weightLog } = useGetWeightLogByDateQuery({
-    userId: user?.user_id || "",
+  const { data: weightLog, isLoading: isWeightLogLoading } =
+    useGetWeightLogByDateQuery({
+      userId: user?.user_id || "",
+      startDate: format(startDate || "", "yyyy-MM-dd"),
+      endDate: format(endDate || "", "yyyy-MM-dd"),
+      options: "date",
+      withRates: false,
+    });
+  const { data: workoutLogAnalytics, isLoading: isWorkoutAnalyticsLoading } =
+    useWorkoutLogsAnalyticsQuery({
+      userId: user?.user_id || "",
+      programId: selectedProgram || "",
+      programDayId: selectedDay || "",
+      startDate: format(startDate || "", "yyyy-MM-dd"),
+      endDate: format(endDate || "", "yyyy-MM-dd"),
+    });
+  const {
+    data: macrosNutrientsAnalytics,
+    isLoading: isNutritionAnalyticsLoading,
+  } = useMacrosNutrientsAnalyticsQuery({
     startDate: format(startDate || "", "yyyy-MM-dd"),
     endDate: format(endDate || "", "yyyy-MM-dd"),
-    options: "date",
-    withRates: false,
   });
+  const { data: consistencyData, isLoading: isConsistencyLoading } =
+    useGetConsistencyQuery({
+      startDate: format(startDate || "", "yyyy-MM-dd"),
+      endDate: format(endDate || "", "yyyy-MM-dd"),
+    });
+
+  const isLoading =
+    isWeightLogLoading ||
+    isWorkoutAnalyticsLoading ||
+    isNutritionAnalyticsLoading ||
+    isConsistencyLoading;
 
   // Initialize with active program on mount
   useEffect(() => {
@@ -252,11 +283,18 @@ export default function AnalyticsPage() {
       />
 
       {/* Unified Overview */}
-      <UnifiedAnalyticsOverview
-        startDate={startDate || new Date()}
-        endDate={endDate || new Date()}
-        weightAndCaloriesData={weightLog?.data}
-      />
+      {isLoading ? (
+        <AnalyticsSkeleton />
+      ) : (
+        <UnifiedAnalyticsOverview
+          startDate={startDate || new Date()}
+          endDate={endDate || new Date()}
+          weightAndCaloriesData={weightLog?.data}
+          workoutAnalytics={workoutLogAnalytics?.data}
+          nutritionAnalytics={macrosNutrientsAnalytics?.data}
+          consistencyData={consistencyData?.data}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AnalyticsStatCard } from "./analytics-stat-card";
 import {
   Card,
@@ -10,6 +10,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import PersonalRecordsDialog from "@/components/dialog/personal-records-dialog";
 import {
   ChartConfig,
   ChartContainer,
@@ -27,206 +28,65 @@ import {
 } from "recharts";
 import { Dumbbell, Scale, ArrowRightLeft, Flame, Target } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import LineChart from "@/components/charts/line-chart";
 import { useSelector } from "react-redux";
 import { selectUserInfo } from "@/api/user/user-slice";
 import handleRateChangeColor from "@/helper/handle-rate-change";
 
-// Unified data showing correlation between all features by workout day
-const unifiedProgressData = [
-  {
-    workoutDay: "Day 1",
-    weight: 180,
-    calories: 2100,
-    workoutVolume: 12500,
-    workouts: 3,
-  },
-  {
-    workoutDay: "Day 2",
-    weight: 179.5,
-    calories: 2150,
-    workoutVolume: 14200,
-    workouts: 3,
-  },
-  {
-    workoutDay: "Day 3",
-    weight: 179.2,
-    calories: 2080,
-    workoutVolume: 15800,
-    workouts: 3,
-  },
-  {
-    workoutDay: "Day 4",
-    weight: 178.8,
-    calories: 2200,
-    workoutVolume: 16500,
-    workouts: 3,
-  },
-  {
-    workoutDay: "Day 5",
-    weight: 178.2,
-    calories: 2120,
-    workoutVolume: 18200,
-    workouts: 3,
-  },
-  {
-    workoutDay: "Day 6",
-    weight: 177.5,
-    calories: 2180,
-    workoutVolume: 19100,
-    workouts: 3,
-  },
-  {
-    workoutDay: "Rest",
-    weight: 177.2,
-    calories: 1900,
-    workoutVolume: 0,
-    workouts: 0,
-  },
-];
+// Analytics Response Interfaces
+interface WorkoutSummary {
+  totalWorkouts: number;
+  totalVolume: number;
+  totalSets: number;
+  averageTime: number;
+  personalRecords: {
+    improved: number;
+    maintained: number;
+    regressed: number;
+    total: number;
+  };
+}
 
-const macronutrientsData = [
-  {
-    period: "Dec 1",
-    protein: 165,
-    carbs: 220,
-    fat: 65,
-    proteinCal: 660,
-    carbsCal: 880,
-    fatCal: 585,
-  },
-  {
-    period: "Dec 2",
-    protein: 170,
-    carbs: 225,
-    fat: 68,
-    proteinCal: 680,
-    carbsCal: 900,
-    fatCal: 612,
-  },
-  {
-    period: "Dec 3",
-    protein: 160,
-    carbs: 215,
-    fat: 63,
-    proteinCal: 640,
-    carbsCal: 860,
-    fatCal: 567,
-  },
-  {
-    period: "Dec 4",
-    protein: 175,
-    carbs: 230,
-    fat: 70,
-    proteinCal: 700,
-    carbsCal: 920,
-    fatCal: 630,
-  },
-  {
-    period: "Dec 5",
-    protein: 168,
-    carbs: 222,
-    fat: 66,
-    proteinCal: 672,
-    carbsCal: 888,
-    fatCal: 594,
-  },
-  {
-    period: "Dec 6",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 7",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 8",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 9",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 10",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 11",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 12",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-  {
-    period: "Dec 13",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-];
+interface WorkoutVolumeHistory {
+  date: string;
+  volume: number;
+}
 
-// Weekly aggregated macronutrients data (averages per week)
-const weeklyMacronutrientsData = [
-  {
-    period: "Week 1",
-    protein: 167,
-    carbs: 223,
-    fat: 67,
-    proteinCal: 668,
-    carbsCal: 892,
-    fatCal: 603,
-  },
-  {
-    period: "Week 2",
-    protein: 172,
-    carbs: 228,
-    fat: 69,
-    proteinCal: 688,
-    carbsCal: 912,
-    fatCal: 621,
-  },
-];
+export interface WorkoutsAnalyticsData {
+  workoutSummary: WorkoutSummary;
+  workoutVolumeHistory: WorkoutVolumeHistory[];
+}
+
+interface NutritionSummary {
+  averageCalories: number;
+  averageProtein: number;
+  averageCarbs: number;
+  averageFat: number;
+}
+
+interface NutritionHistory {
+  date: string;
+  totalCalories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface MacrosNutrientsAnalyticsData {
+  nutritionSummary: NutritionSummary;
+  nutritionHistory: NutritionHistory[];
+}
+
+interface ConsistencyHistory {
+  completedLogs: number;
+  totalLogs: number;
+  consistencyPercentage: number;
+}
+
+export interface ConsistencyAnalyticsData {
+  consistencyHistory: ConsistencyHistory;
+}
 
 const chartConfig = {
   weight: {
@@ -279,15 +139,23 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+interface UnifiedAnalyticsOverviewProps {
+  startDate: Date;
+  endDate: Date;
+  weightAndCaloriesData: any;
+  workoutAnalytics?: WorkoutsAnalyticsData;
+  nutritionAnalytics?: MacrosNutrientsAnalyticsData;
+  consistencyData?: ConsistencyAnalyticsData;
+}
+
 export function UnifiedAnalyticsOverview({
   startDate,
   endDate,
   weightAndCaloriesData,
-}: {
-  startDate: Date;
-  endDate: Date;
-  weightAndCaloriesData: any;
-}) {
+  workoutAnalytics,
+  nutritionAnalytics,
+  consistencyData,
+}: UnifiedAnalyticsOverviewProps) {
   const isMobile = useIsMobile();
   const [overviewView, setOverviewView] = useState<"weight" | "calories">(
     "weight"
@@ -298,6 +166,193 @@ export function UnifiedAnalyticsOverview({
   const startWeight = Number(userInfo?.starting_weight || 0);
   const currentWeight = Number(userInfo?.current_weight || 0);
   const goalWeight = Number(userInfo?.weight_goal || 0);
+
+  // Helper function to safely parse and format dates
+  const safeFormatDate = (
+    dateValue: string | Date | undefined | null,
+    formatStr: string
+  ): string | null => {
+    if (!dateValue) return null;
+
+    try {
+      // If it's already a Date object
+      if (dateValue instanceof Date) {
+        return isValid(dateValue) ? format(dateValue, formatStr) : null;
+      }
+
+      // Try parsing as ISO string first
+      const parsedDate = parseISO(dateValue);
+      if (isValid(parsedDate)) {
+        return format(parsedDate, formatStr);
+      }
+
+      // Fallback to Date constructor
+      const fallbackDate = new Date(dateValue);
+      if (isValid(fallbackDate)) {
+        return format(fallbackDate, formatStr);
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Transform workout volume history and weight data for Progress Overview chart
+  const progressOverviewData = useMemo(() => {
+    if (!workoutAnalytics?.workoutVolumeHistory) {
+      return [];
+    }
+
+    // Create a map of weight data by date from weightLog
+    const weightByDate = new Map<string, number>();
+    weightAndCaloriesData?.forEach((item: any) => {
+      // Weight log uses log_date field
+      const dateValue = item.log_date || item.date;
+      const dateStr = safeFormatDate(dateValue, "yyyy-MM-dd");
+      if (dateStr) {
+        weightByDate.set(dateStr, Number(item.weight) || 0);
+      }
+    });
+
+    // Create a map of calories by date from nutritionAnalytics
+    const caloriesByDate = new Map<string, number>();
+    nutritionAnalytics?.nutritionHistory?.forEach((item) => {
+      const dateStr = safeFormatDate(item.date, "yyyy-MM-dd");
+      if (dateStr) {
+        caloriesByDate.set(dateStr, item.totalCalories || 0);
+      }
+    });
+
+    // Merge workout volume with weight and calories data
+    return workoutAnalytics.workoutVolumeHistory
+      .map((item) => {
+        const dateKey = safeFormatDate(item.date, "yyyy-MM-dd");
+        const displayDate = safeFormatDate(item.date, "MMM d");
+        if (!dateKey || !displayDate) return null;
+        return {
+          workoutDay: displayDate,
+          volume: item.volume,
+          weight: weightByDate.get(dateKey) || 0,
+          calories: caloriesByDate.get(dateKey) || 0,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+  }, [
+    workoutAnalytics?.workoutVolumeHistory,
+    weightAndCaloriesData,
+    nutritionAnalytics?.nutritionHistory,
+  ]);
+
+  // Transform nutrition history for Calories Consumed chart (daily)
+  const dailyMacronutrientsData = useMemo(() => {
+    if (!nutritionAnalytics?.nutritionHistory) {
+      return [];
+    }
+
+    return nutritionAnalytics.nutritionHistory
+      .map((item) => {
+        const dateStr = safeFormatDate(item.date, "MMM d");
+        if (!dateStr) return null;
+
+        // Calculate macro calories for stacked bar visualization
+        const proteinCal = Math.round(item.protein * 4);
+        const carbsCal = Math.round(item.carbs * 4);
+        const fatCal = Math.round(item.fat * 9);
+
+        return {
+          period: dateStr,
+          protein: item.protein,
+          carbs: item.carbs,
+          fat: item.fat,
+          proteinCal,
+          carbsCal,
+          fatCal,
+          totalCalories: item.totalCalories, // Use totalCalories from backend
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+  }, [nutritionAnalytics?.nutritionHistory]);
+
+  // Calculate weekly aggregated macronutrients data
+  const weeklyMacronutrientsData = useMemo(() => {
+    if (
+      !nutritionAnalytics?.nutritionHistory ||
+      nutritionAnalytics.nutritionHistory.length === 0
+    ) {
+      return [];
+    }
+
+    const weeks: {
+      [key: string]: {
+        protein: number[];
+        carbs: number[];
+        fat: number[];
+        totalCalories: number[];
+      };
+    } = {};
+
+    nutritionAnalytics.nutritionHistory.forEach((item, index) => {
+      const weekNum = Math.floor(index / 7) + 1;
+      const weekKey = `Week ${weekNum}`;
+
+      if (!weeks[weekKey]) {
+        weeks[weekKey] = { protein: [], carbs: [], fat: [], totalCalories: [] };
+      }
+
+      weeks[weekKey].protein.push(item.protein);
+      weeks[weekKey].carbs.push(item.carbs);
+      weeks[weekKey].fat.push(item.fat);
+      weeks[weekKey].totalCalories.push(item.totalCalories);
+    });
+
+    return Object.entries(weeks).map(([weekKey, data]) => {
+      const avgProtein = Math.round(
+        data.protein.reduce((a, b) => a + b, 0) / data.protein.length
+      );
+      const avgCarbs = Math.round(
+        data.carbs.reduce((a, b) => a + b, 0) / data.carbs.length
+      );
+      const avgFat = Math.round(
+        data.fat.reduce((a, b) => a + b, 0) / data.fat.length
+      );
+      const avgTotalCalories = Math.round(
+        data.totalCalories.reduce((a, b) => a + b, 0) /
+          data.totalCalories.length
+      );
+
+      return {
+        period: weekKey,
+        protein: avgProtein,
+        carbs: avgCarbs,
+        fat: avgFat,
+        proteinCal: Math.round(avgProtein * 4),
+        carbsCal: Math.round(avgCarbs * 4),
+        fatCal: Math.round(avgFat * 9),
+        totalCalories: avgTotalCalories,
+      };
+    });
+  }, [nutritionAnalytics?.nutritionHistory]);
+
+  // Format volume for display
+  const formatVolume = (volume: number): string => {
+    if (volume >= 1000) {
+      return `${(volume / 1000).toFixed(1)}k`;
+    }
+    return volume.toString();
+  };
+
+  // Format time from minutes to readable format
+  // Convert seconds to readable time format
+  const formatTime = (seconds: number): string => {
+    const totalMinutes = Math.round(seconds / 60);
+    if (totalMinutes >= 60) {
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+    return `${totalMinutes}m`;
+  };
 
   // Custom tooltip formatter for macronutrients chart
   const CustomMacroTooltip = ({ active, payload, label }: any) => {
@@ -343,7 +398,7 @@ export function UnifiedAnalyticsOverview({
                   Total Calories
                 </span>
                 <span className="text-sm font-bold">
-                  {data.proteinCal + data.carbsCal + data.fatCal} kcal
+                  {data.totalCalories?.toLocaleString() || 0} kcal
                 </span>
               </div>
             </div>
@@ -361,10 +416,13 @@ export function UnifiedAnalyticsOverview({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <AnalyticsStatCard
             title="Overall Consistency"
-            value="87%"
+            value={`${Math.round(
+              consistencyData?.consistencyHistory.consistencyPercentage || 0
+            )}%`}
             icon={Target}
             iconColor="text-blue-500 dark:text-blue-400"
             iconBackground="bg-blue-500/10 dark:bg-blue-500/20"
+            description={`${consistencyData?.consistencyHistory.completedLogs} / ${consistencyData?.consistencyHistory.totalLogs}`}
           />
           <AnalyticsStatCard
             title="Weight Progress"
@@ -378,8 +436,11 @@ export function UnifiedAnalyticsOverview({
             iconBackground="bg-cyan-500/10 dark:bg-cyan-500/20"
           />
           <AnalyticsStatCard
-            title="Total Completed Workouts"
-            value="24"
+            title="Total Workouts"
+            value={
+              workoutAnalytics?.workoutSummary.totalWorkouts?.toLocaleString() ||
+              "0"
+            }
             icon={Dumbbell}
             iconColor="text-emerald-500 dark:text-emerald-400"
             iconBackground="bg-emerald-500/10 dark:bg-emerald-500/20"
@@ -387,7 +448,10 @@ export function UnifiedAnalyticsOverview({
 
           <AnalyticsStatCard
             title="Average Weekly Calories"
-            value="2,145"
+            value={
+              nutritionAnalytics?.nutritionSummary.averageCalories?.toLocaleString() ||
+              "0"
+            }
             icon={Flame}
             iconColor="text-red-500 dark:text-red-400"
             iconBackground="bg-red-500/10 dark:bg-red-500/20"
@@ -403,7 +467,8 @@ export function UnifiedAnalyticsOverview({
               <CardTitle className="text-base">
                 Progress Overview{" "}
                 <span className="text-sm text-muted-foreground">
-                  (Workout vs Weight)
+                  (Volume vs {overviewView === "weight" ? "Weight" : "Calories"}
+                  )
                 </span>
               </CardTitle>
             </div>
@@ -425,76 +490,85 @@ export function UnifiedAnalyticsOverview({
           </div>
         </CardHeader>
         <CardContent className="px-2">
-          <ChartContainer
-            config={chartConfig}
-            className="aspect-auto h-[350px] w-full"
-          >
-            <ComposedChart
-              data={unifiedProgressData}
-              margin={{ left: 12, right: 12 }}
+          {progressOverviewData.length > 0 ? (
+            <ChartContainer
+              config={chartConfig}
+              className="aspect-auto h-[350px] w-full"
             >
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="workoutDay"
-                fontSize={isMobile ? "10px" : "12px"}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                yAxisId="left"
-                fontSize={isMobile ? "10px" : "12px"}
-                tickLine={false}
-                axisLine={false}
-                domain={[
-                  (dataMin: number) => dataMin - 5,
-                  (dataMax: number) => dataMax + 5,
-                ]}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                fontSize={isMobile ? "10px" : "12px"}
-                domain={[
-                  (dataMin: number) => dataMin - 1000,
-                  (dataMax: number) => dataMax + 1000,
-                ]}
-              />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="workoutVolume"
-                stroke="hsl(160, 84%, 39%)"
-                strokeWidth={3}
-                dot={false}
-                activeDot={{ r: 4, fill: "hsl(160, 84%, 39%)" }}
-              />
-              {overviewView === "weight" ? (
-                <Line
+              <ComposedChart
+                data={progressOverviewData}
+                margin={{ left: 12, right: 12 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="workoutDay"
+                  fontSize={isMobile ? "10px" : "12px"}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
                   yAxisId="left"
+                  fontSize={isMobile ? "10px" : "12px"}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={[
+                    (dataMin: number) => Math.max(0, dataMin - 5),
+                    (dataMax: number) => dataMax + 5,
+                  ]}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => formatVolume(value)}
+                  fontSize={isMobile ? "10px" : "12px"}
+                  domain={[
+                    (dataMin: number) => Math.max(0, dataMin - 1000),
+                    (dataMax: number) => dataMax + 1000,
+                  ]}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Line
+                  yAxisId="right"
                   type="monotone"
-                  dataKey="weight"
-                  stroke="hsl(189, 94%, 43%)"
+                  dataKey="volume"
+                  name="Volume (lbs)"
+                  stroke="hsl(160, 84%, 39%)"
                   strokeWidth={3}
                   dot={false}
-                  activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
+                  activeDot={{ r: 4, fill: "hsl(160, 84%, 39%)" }}
                 />
-              ) : (
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="calories"
-                  stroke="hsl(0, 73.80%, 62.50%)"
-                  strokeWidth={3}
-                  dot={false}
-                  activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
-                />
-              )}
-            </ComposedChart>
-          </ChartContainer>
+                {overviewView === "weight" ? (
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="weight"
+                    name="Weight (lbs)"
+                    stroke="hsl(189, 94%, 43%)"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "hsl(189, 94%, 43%)" }}
+                  />
+                ) : (
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="calories"
+                    name="Calories"
+                    stroke="hsl(0, 73.80%, 62.50%)"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "hsl(0, 73.80%, 62.50%)" }}
+                  />
+                )}
+              </ComposedChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[350px] text-muted-foreground">
+              No workout data available for the selected period
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -509,7 +583,8 @@ export function UnifiedAnalyticsOverview({
                     Calories Consumed (Kcal)
                   </CardTitle>
                   <CardDescription className="text-sm text-muted-foreground">
-                    December 1, 2025 - December 31, 2025
+                    {format(startDate, "MMMM d, yyyy")} -{" "}
+                    {format(endDate, "MMMM d, yyyy")}
                   </CardDescription>
                 </div>
               </div>
@@ -531,51 +606,63 @@ export function UnifiedAnalyticsOverview({
             </div>
           </CardHeader>
           <CardContent className="px-2">
-            <ChartContainer
-              config={chartConfig}
-              className="aspect-auto h-[300px] w-full"
-            >
-              <BarChart
-                data={
-                  caloriesView === "daily"
-                    ? macronutrientsData
-                    : weeklyMacronutrientsData
-                }
-                margin={{ left: 12, right: 12 }}
+            {(caloriesView === "daily"
+              ? dailyMacronutrientsData
+              : weeklyMacronutrientsData
+            ).length > 0 ? (
+              <ChartContainer
+                config={chartConfig}
+                className="aspect-auto h-[300px] w-full"
               >
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="period"
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={isMobile ? "10px" : "12px"}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  fontSize={isMobile ? "10px" : "12px"}
-                />
-                <ChartTooltip content={<CustomMacroTooltip />} />
-                <Bar
-                  dataKey="proteinCal"
-                  stackId="a"
-                  fill="var(--color-protein)"
-                  radius={[0, 0, 0, 0]}
-                />
-                <Bar
-                  dataKey="carbsCal"
-                  stackId="a"
-                  fill="var(--color-carbs)"
-                  radius={[0, 0, 0, 0]}
-                />
-                <Bar
-                  dataKey="fatCal"
-                  stackId="a"
-                  fill="var(--color-fat)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ChartContainer>
+                <BarChart
+                  data={
+                    caloriesView === "daily"
+                      ? dailyMacronutrientsData
+                      : weeklyMacronutrientsData
+                  }
+                  margin={{ left: 12, right: 12 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
+                  <XAxis
+                    dataKey="period"
+                    tickLine={false}
+                    axisLine={false}
+                    fontSize={isMobile ? "10px" : "12px"}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    fontSize={isMobile ? "10px" : "12px"}
+                  />
+                  <ChartTooltip content={<CustomMacroTooltip />} />
+                  <Bar
+                    dataKey="proteinCal"
+                    stackId="a"
+                    fill="var(--color-protein)"
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="carbsCal"
+                    stackId="a"
+                    fill="var(--color-carbs)"
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="fatCal"
+                    stackId="a"
+                    fill="var(--color-fat)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                No nutrition data available for the selected period
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -705,28 +792,58 @@ export function UnifiedAnalyticsOverview({
                     Total Volume
                   </span>
                   <span className="text-2xl font-bold">
-                    124.8{" "}
+                    {workoutAnalytics?.workoutSummary.totalVolume
+                      ? formatVolume(
+                          workoutAnalytics.workoutSummary.totalVolume
+                        )
+                      : "0"}{" "}
                     <span className="text-base text-muted-foreground">lbs</span>
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground">lbs lifted</div>
               </div>
               <div className="h-px bg-border" />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="flex justify-between items-center">
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">Sets</div>
-                  <div className="text-lg font-bold">456</div>
+                  <div className="text-lg font-bold">
+                    {workoutAnalytics?.workoutSummary.totalSets?.toLocaleString() ||
+                      "0"}
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">
                     Avg Time
                   </div>
-                  <div className="text-lg font-bold">65m</div>
+                  <div className="text-lg font-bold">
+                    {workoutAnalytics?.workoutSummary.averageTime
+                      ? formatTime(workoutAnalytics.workoutSummary.averageTime)
+                      : "0m"}
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">PRs</div>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-500">
-                    12
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-center gap-1 mb-3">
+                  <span className="text-xs text-muted-foreground font-medium">
+                    Personal Records
+                  </span>
+                  <PersonalRecordsDialog />
+                </div>
+                <div className="flex justify-evenly items-center w-full">
+                  <div className="flex flex-col gap-1 items-center text-lg font-bold text-emerald-600 dark:text-emerald-500">
+                    <p className="text-xs text-muted-foreground">Improved</p>
+                    {workoutAnalytics?.workoutSummary.personalRecords.improved?.toLocaleString() ||
+                      0}
+                  </div>
+                  <div className="flex flex-col gap-1 items-center text-lg font-bold text-cyan-600 dark:text-cyan-500">
+                    <p className="text-xs text-muted-foreground">Maintained</p>
+                    {workoutAnalytics?.workoutSummary.personalRecords.maintained?.toLocaleString() ||
+                      0}
+                  </div>
+                  <div className="flex flex-col gap-1 items-center text-lg font-bold text-red-400">
+                    <p className="text-xs text-muted-foreground">Regressed</p>
+                    {workoutAnalytics?.workoutSummary.personalRecords.regressed?.toLocaleString() ||
+                      0}
                   </div>
                 </div>
               </div>
@@ -753,7 +870,8 @@ export function UnifiedAnalyticsOverview({
                     Avg Calories
                   </span>
                   <span className="text-2xl font-bold">
-                    2,145{" "}
+                    {nutritionAnalytics?.nutritionSummary.averageCalories?.toLocaleString() ||
+                      "0"}{" "}
                     <span className="text-base text-muted-foreground">
                       kcal
                     </span>
@@ -770,21 +888,33 @@ export function UnifiedAnalyticsOverview({
                       Protein
                     </span>
                   </div>
-                  <span className="text-base font-semibold">165g</span>
+                  <span className="text-base font-semibold">
+                    {nutritionAnalytics?.nutritionSummary.averageProtein?.toLocaleString() ||
+                      "0"}
+                    g
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-blue-500 dark:bg-blue-400" />
                     <span className="text-sm text-muted-foreground">Carbs</span>
                   </div>
-                  <span className="text-base font-semibold">225g</span>
+                  <span className="text-base font-semibold">
+                    {nutritionAnalytics?.nutritionSummary.averageCarbs?.toLocaleString() ||
+                      "0"}
+                    g
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-red-500 dark:bg-red-400" />
                     <span className="text-sm text-muted-foreground">Fat</span>
                   </div>
-                  <span className="text-base font-semibold">67g</span>
+                  <span className="text-base font-semibold">
+                    {nutritionAnalytics?.nutritionSummary.averageFat?.toLocaleString() ||
+                      "0"}
+                    g
+                  </span>
                 </div>
               </div>
             </div>
