@@ -354,6 +354,8 @@ export function UnifiedAnalyticsOverview({
     return `${totalMinutes}m`;
   };
 
+  console.log(nutritionAnalytics);
+
   // Custom tooltip formatter for macronutrients chart
   const CustomMacroTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
