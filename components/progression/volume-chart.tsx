@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
@@ -16,19 +16,43 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { SET_COLORS } from "@/helper/constants/set-colors";
 
-const chartConfig = {
-  set1: {
-    label: "Set1",
-    color: "hsl(var(--chart-1))",
-  },
-  set2: {
-    label: "Set2",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig;
+export function VolumeChart({ chartData }: { chartData: any[] }) {
+  // Dynamically detect set keys from data
+  const setKeys = useMemo(() => {
+    if (!chartData || chartData.length === 0) return [];
 
-export function VolumeChart({ chartData }: { chartData: any }) {
+    const allKeys = new Set<string>();
+    chartData.forEach((item) => {
+      Object.keys(item).forEach((key) => {
+        if (key.startsWith("set")) {
+          allKeys.add(key);
+        }
+      });
+    });
+
+    // Sort by set number (set1, set2, set3, etc.)
+    return Array.from(allKeys).sort((a, b) => {
+      const numA = parseInt(a.replace("set", ""), 10);
+      const numB = parseInt(b.replace("set", ""), 10);
+      return numA - numB;
+    });
+  }, [chartData]);
+
+  // Generate dynamic chart config
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {};
+    setKeys.forEach((key, index) => {
+      const setNumber = key.replace("set", "");
+      config[key] = {
+        label: `Set ${setNumber}`,
+        color: SET_COLORS[index % SET_COLORS.length],
+      };
+    });
+    return config;
+  }, [setKeys]);
+
   return (
     <Card className="py-0">
       <CardHeader className="flex flex-col items-stretch !p-0">
@@ -92,8 +116,14 @@ export function VolumeChart({ chartData }: { chartData: any }) {
                 />
               }
             />
-            <Bar dataKey="set1" fill="var(--color-set1)" radius={8} />
-            <Bar dataKey="set2" fill="var(--color-set2)" radius={8} />
+            {setKeys.map((key, index) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                fill={SET_COLORS[index % SET_COLORS.length]}
+                radius={8}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>

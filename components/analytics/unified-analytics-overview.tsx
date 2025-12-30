@@ -447,8 +447,9 @@ export function UnifiedAnalyticsOverview({
           <AnalyticsStatCard
             title="Average Weekly Calories"
             value={
-              nutritionAnalytics?.nutritionSummary.averageCalories?.toLocaleString() ||
-              "0"
+              Math.round(
+                nutritionAnalytics?.nutritionSummary.averageCalories || 0
+              )?.toLocaleString() || "0"
             }
             icon={Flame}
             iconColor="text-red-500 dark:text-red-400"
@@ -867,8 +868,9 @@ export function UnifiedAnalyticsOverview({
                     Avg Calories
                   </span>
                   <span className="text-2xl font-bold">
-                    {nutritionAnalytics?.nutritionSummary.averageCalories?.toLocaleString() ||
-                      "0"}{" "}
+                    {Math.round(
+                      nutritionAnalytics?.nutritionSummary.averageCalories || 0
+                    )?.toLocaleString() || "0"}{" "}
                     <span className="text-base text-muted-foreground">
                       kcal
                     </span>

@@ -1,40 +1,89 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useMemo, useState } from "react";
+import { Line, LineChart, CartesianGrid, XAxis } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SET_COLORS } from "@/helper/constants/set-colors";
 
-export const description = "A simple area chart";
+export const description = "A dynamic line chart";
 
-const chartConfig = {
-  set1: {
-    label: "Set1",
-    color: "hsl(188, 94%, 43%)", // cyan
-  },
-  set2: {
-    label: "Set2",
-    color: "hsl(0, 84%, 60%)", // red
-  },
-} satisfies ChartConfig;
+export function WeightChart({ chartData }: { chartData: any[] }) {
+  const [selectedSet, setSelectedSet] = useState<string>("all");
 
-export function WeightChart({ chartData }: { chartData: any }) {
+  // Dynamically detect set keys from data
+  const setKeys = useMemo(() => {
+    if (!chartData || chartData.length === 0) return [];
+
+    const allKeys = new Set<string>();
+    chartData.forEach((item) => {
+      Object.keys(item).forEach((key) => {
+        if (key.startsWith("set")) {
+          allKeys.add(key);
+        }
+      });
+    });
+
+    // Sort by set number (set1, set2, set3, etc.)
+    return Array.from(allKeys).sort((a, b) => {
+      const numA = parseInt(a.replace("set", ""), 10);
+      const numB = parseInt(b.replace("set", ""), 10);
+      return numA - numB;
+    });
+  }, [chartData]);
+
+  // Filter set keys based on selection
+  const displayedSetKeys = useMemo(() => {
+    if (selectedSet === "all") return setKeys;
+    return setKeys.filter((key) => key === selectedSet);
+  }, [setKeys, selectedSet]);
+
+  // Generate dynamic chart config
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {};
+    setKeys.forEach((key, index) => {
+      const setNumber = key.replace("set", "");
+      config[key] = {
+        label: `Set ${setNumber}`,
+        color: SET_COLORS[index % SET_COLORS.length],
+      };
+    });
+    return config;
+  }, [setKeys]);
+
   return (
     <Card className="py-0">
       <CardHeader className="flex flex-col items-stretch !p-0">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:py-6">
+        <div className="flex flex-1 items-center justify-between gap-2 px-6 pt-4 pb-3 sm:py-6 border-b">
           <CardTitle>Weight Progression</CardTitle>
-          <CardDescription className="border-b mt-1" />
+          <Select value={selectedSet} onValueChange={setSelectedSet}>
+            <SelectTrigger size="sm" className="w-[100px]">
+              <SelectValue placeholder="Select set" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sets</SelectItem>
+              {setKeys.map((key) => {
+                const setNumber = key.replace("set", "");
+                return (
+                  <SelectItem key={key} value={key}>
+                    Set {setNumber}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
         </div>
       </CardHeader>
       <CardContent className="px-2">
@@ -42,7 +91,7 @@ export function WeightChart({ chartData }: { chartData: any }) {
           config={chartConfig}
           className="aspect-auto h-[350px] w-full pb-6"
         >
-          <AreaChart
+          <LineChart
             accessibilityLayer
             data={chartData}
             margin={{
@@ -50,32 +99,6 @@ export function WeightChart({ chartData }: { chartData: any }) {
               right: 12,
             }}
           >
-            <defs>
-              <linearGradient id="fillSet1" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-set1)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-set1)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillSet2" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-set2)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-set2)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
@@ -103,23 +126,20 @@ export function WeightChart({ chartData }: { chartData: any }) {
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
-            <Area
-              dataKey="set1"
-              type="monotone"
-              fill="url(#fillSet1)"
-              stroke="var(--color-set1)"
-              strokeWidth={2}
-              fillOpacity={0.8}
-            />
-            <Area
-              dataKey="set2"
-              type="monotone"
-              fill="url(#fillSet2)"
-              stroke="var(--color-set2)"
-              strokeWidth={2}
-              fillOpacity={0.8}
-            />
-          </AreaChart>
+            {displayedSetKeys.map((key) => {
+              const originalIndex = setKeys.indexOf(key);
+              return (
+                <Line
+                  key={key}
+                  dataKey={key}
+                  type="monotone"
+                  stroke={SET_COLORS[originalIndex % SET_COLORS.length]}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              );
+            })}
+          </LineChart>
         </ChartContainer>
       </CardContent>
     </Card>
