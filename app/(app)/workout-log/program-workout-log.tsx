@@ -608,7 +608,6 @@ export function ProgramWorkoutLog({
           workoutLog={workoutLog?.data[0]}
         />
 
-        {/* Workout Summary Modal */}
         <WorkoutSummaryModal
           isOpen={showSummaryModal}
           onClose={() => setShowSummaryModal(false)}

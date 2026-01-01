@@ -206,6 +206,9 @@ export default function WithoutProgramLog({
         status: "completed",
       })
         .unwrap()
+        .then(() => {
+          setShowSummaryModal(true);
+        })
         .catch((error) => {
           if (error?.data?.message) {
             toast.error(error.data.message);
@@ -256,12 +259,6 @@ export default function WithoutProgramLog({
     if (!previousStatus && currentStatus) {
       previousStatusRef.current = currentStatus;
       return;
-    }
-
-    // Check if status changed from incomplete to completed
-    if (previousStatus === "incomplete" && currentStatus === "completed") {
-      // Show summary modal after successful completion
-      setShowSummaryModal(true);
     }
 
     // Update the previous status ref
