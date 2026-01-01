@@ -3,14 +3,14 @@ import { apiSlice } from "../api-slice";
 export const analyticsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getConsistency: builder.query({
-      query: ({ startDate, endDate }) => ({
-        url: `/api/v1/analytics/consistency/${startDate}/${endDate}`,
+      query: ({ programId, startDate, endDate }) => ({
+        url: `/api/v1/analytics/consistency/${programId}/${startDate}/${endDate}`,
         method: "GET",
       }),
       providesTags: (result, error, arg) => [
         {
           type: "Analytics",
-          id: `consistency-${arg.startDate}-${arg.endDate}`,
+          id: `consistency-${arg.programId}/${arg.programDayId}/${arg.startDate}/${arg.endDate}`,
         },
         { type: "Analytics", id: "LIST" },
         { type: "WeightLog", id: "LIST" },

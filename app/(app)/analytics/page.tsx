@@ -63,6 +63,7 @@ export default function AnalyticsPage() {
   });
   const { data: consistencyData, isLoading: isConsistencyLoading } =
     useGetConsistencyQuery({
+      programId: selectedProgram || "",
       startDate: format(startDate || "", "yyyy-MM-dd"),
       endDate: format(endDate || "", "yyyy-MM-dd"),
     });
