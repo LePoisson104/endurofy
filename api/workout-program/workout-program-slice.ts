@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
+import type { WorkoutProgram } from "@/interfaces/workout-program-interfaces";
 import { RootState } from "@/lib/store";
 
 interface WorkoutProgramState {

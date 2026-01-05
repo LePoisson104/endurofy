@@ -1,23 +1,23 @@
 import { apiSlice } from "../api-slice";
-import { UpdateUserInfo } from "@/interfaces/user-interfaces";
+import type { UpdateUserInfo } from "@/interfaces/user-interfaces";
 
-interface deleteAccountRequest {
+type deleteAccountRequest = {
   user_id: string;
   email: string;
   password: string;
-}
+};
 
-interface updateEmailRequest {
+type updateEmailRequest = {
   userId: string;
   email: string;
   newEmail: string;
   password: string;
-}
+};
 
-interface verifyUpdateEmailRequest {
+type verifyUpdateEmailRequest = {
   userId: string;
   otp: string;
-}
+};
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

@@ -17,7 +17,7 @@ export type AllDays =
   | "D9"
   | "D10";
 
-export interface Exercise {
+export type Exercise = {
   exerciseId: string;
   exerciseName: string;
   notes?: string;
@@ -28,16 +28,16 @@ export interface Exercise {
   minReps: number;
   maxReps: number;
   exerciseOrder: number;
-}
+};
 
-export interface WorkoutDay {
+export type WorkoutDay = {
   dayId: string;
   dayName: string;
   dayNumber: number;
   exercises: Exercise[];
-}
+};
 
-export interface WorkoutProgram {
+export type WorkoutProgram = {
   programId: string;
   programName: string;
   description?: string;
@@ -47,23 +47,23 @@ export interface WorkoutProgram {
   isActive: number;
   startingDate: string; // ISO date string
   workoutDays: WorkoutDay[];
-}
+};
 
-export interface CreateWorkoutProgram {
+export type CreateWorkoutProgram = {
   programName: string;
   description?: string;
   programType: "dayOfWeek" | "custom" | "manual";
   startingDate?: string; // ISO date string
   workoutDays: CreateWorkoutDay[];
-}
+};
 
-export interface CreateWorkoutDay {
+export type CreateWorkoutDay = {
   dayName: string;
   dayNumber: number;
   exercises: CreateExercise[];
-}
+};
 
-export interface CreateExercise {
+export type CreateExercise = {
   exerciseName: string;
   bodyPart: string;
   laterality: "bilateral" | "unilateral";
@@ -71,4 +71,4 @@ export interface CreateExercise {
   minReps: number;
   maxReps: number;
   exerciseOrder: number;
-}
+};

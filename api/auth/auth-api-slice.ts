@@ -1,47 +1,47 @@
 import { apiSlice } from "../api-slice";
-import { User } from "@/interfaces/user-interfaces";
+import type { User } from "@/interfaces/user-interfaces";
 import { setCredentials, logOut } from "@/api/auth/auth-slice";
 import { resetUserInfo } from "@/api/user/user-slice";
 import { resetWorkoutProgram } from "../workout-program/workout-program-slice";
 
-interface AuthResponse {
+type AuthResponse = {
   data: {
     accessToken: string;
     user: User;
   };
-}
+};
 
-interface RegisterResponse {
+type RegisterResponse = {
   data: {
     user: {
       user_id: string;
       email: string;
     };
   };
-}
+};
 
-interface LoginRequest {
+type LoginRequest = {
   email: string;
   password: string;
-}
+};
 
-interface RegisterRequest {
+type RegisterRequest = {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-}
+};
 
-interface VerifyOTPRequest {
+type VerifyOTPRequest = {
   user_id: string;
   email: string;
   otp: string;
-}
+};
 
-interface ResendOTPRequest {
+type ResendOTPRequest = {
   user_id: string;
   email: string;
-}
+};
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

@@ -6,14 +6,14 @@ import {
 
 import { RootState } from "../lib/store";
 import { setCredentials } from "./auth/auth-slice";
-import { User } from "@/interfaces/user-interfaces";
+import type { User } from "@/interfaces/user-interfaces";
 
-interface RefreshResponse {
+type RefreshResponse = {
   data: {
     user: User;
     accessToken: string;
   };
-}
+};
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `${process.env.NEXT_PUBLIC_API_URL}`,

@@ -1,4 +1,4 @@
-export interface SetData {
+export type SetData = {
   workoutLogId: string | null;
   weight: number;
   weightUnit: string;
@@ -12,7 +12,7 @@ export interface SetData {
   previousLeftReps: number | null;
   previousRightReps: number | null;
   previousWeight: number | null;
-}
+};
 
 export interface WorkoutLogPayload extends ExercisePayload {
   workoutName: string;
@@ -23,7 +23,7 @@ export interface ExercisePayload {
   exerciseNotes: string;
   exerciseName: string;
   bodyPart: string;
-  laterality: string;
+  laterality: "bilateral" | "unilateral";
   setNumber: number;
   repsLeft: number;
   repsRight: number;
@@ -34,7 +34,7 @@ export interface ExercisePayload {
   exerciseOrder: number;
 }
 
-export interface WorkoutLog {
+export type WorkoutLog = {
   userId: string;
   workoutLogId: string;
   programId: string;
@@ -44,9 +44,9 @@ export interface WorkoutLog {
   status: string;
   timer: number;
   workoutExercises: WorkoutExercise[];
-}
+};
 
-export interface WorkoutExercise {
+export type WorkoutExercise = {
   workoutExerciseId: string;
   programExerciseId: string;
   workoutLogId: string;
@@ -56,9 +56,9 @@ export interface WorkoutExercise {
   laterality: string;
   notes: string;
   workoutSets: WorkoutSet[];
-}
+};
 
-export interface WorkoutSet {
+export type WorkoutSet = {
   workoutSetId: string;
   workoutExerciseId: string;
   setNumber: number;
@@ -70,16 +70,16 @@ export interface WorkoutSet {
   previousRightReps: number | null;
   previousWeight: number | null;
   previousWeightUnit: string | null;
-}
+};
 
-export interface WorkoutLogPagination {
+export type WorkoutLogPagination = {
   hasMoreData: boolean;
   limit: number;
   offset: number;
   nextOffset: number;
   workoutLogsData: WorkoutLog[];
-}
+};
 
-export interface WorkoutLogResponse {
+export type WorkoutLogResponse = {
   data: WorkoutLog[];
-}
+};

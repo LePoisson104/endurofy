@@ -1,5 +1,5 @@
 import { apiSlice } from "../api-slice";
-import { WorkoutLogPayload } from "@/interfaces/workout-log-interfaces";
+import type { WorkoutLogPayload } from "@/interfaces/workout-log-interfaces";
 
 export const workoutLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

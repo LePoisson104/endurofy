@@ -1,11 +1,11 @@
 // share accross multiple files
-export interface User {
+export type User = {
   user_id: string;
   email: string;
   first_name: string;
   last_name: string;
   profile_status: string;
-}
+};
 
 export interface UserInfo extends UserMacrosGoals {
   email: string;
@@ -33,15 +33,15 @@ export interface UserInfo extends UserMacrosGoals {
   bmr?: number;
 }
 
-export interface UserMacrosGoals {
+export type UserMacrosGoals = {
   calories: number;
   protein: number;
   carbs: number;
   fat: number;
   macros_goals_updated_at: string;
-}
+};
 
-export interface UpdateUserInfo {
+export type UpdateUserInfo = {
   gender: string;
   birth_date: string;
   height: number;
@@ -55,4 +55,4 @@ export interface UpdateUserInfo {
   goal: string;
   activity_level: string;
   profile_status: string;
-}
+};

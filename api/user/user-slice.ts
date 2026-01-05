@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/lib/store";
-import { UserInfo } from "@/interfaces/user-interfaces";
-import { UserMacrosGoals } from "@/interfaces/user-interfaces";
+import type { UserInfo } from "@/interfaces/user-interfaces";
+import type { UserMacrosGoals } from "@/interfaces/user-interfaces";
 
 const initialState: UserInfo = {
   email: "",

@@ -1,14 +1,14 @@
 import { type LucideIcon } from "lucide-react";
 
-export interface StatData {
+export type StatData = {
   title: string;
   value: string;
   change: string;
   trend: "up" | "down" | "null";
   icon: LucideIcon;
-}
+};
 
-export interface SetData {
+export type SetData = {
   isLogged: boolean;
   weight: number;
   leftReps: number;
@@ -17,4 +17,4 @@ export interface SetData {
   previousWeight: number | null;
   previousLeftReps: number | null;
   previousRightReps: number | null;
-}
+};
